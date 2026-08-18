@@ -7,7 +7,7 @@ import { runAction } from './actions.js';
 //   focus НЕ всплывает, поэтому focusin.
 // Разметка перерисовывается сорока генераторами, и делегированию это
 // родная задача: обработчики не приходится возвращать после перерисовки.
-const СОБЫТИЯ = [['click', 'click'], ['change', 'change'],
+const EVENTS = [['click', 'click'], ['change', 'change'],
                  ['input', 'input'], ['focusin', 'focus']];
 
 // mouseenter и mouseleave НЕ ВСПЛЫВАЮТ — делегировать их напрямую нельзя.
@@ -15,7 +15,7 @@ const СОБЫТИЯ = [['click', 'click'], ['change', 'change'],
 // отбросить переходы ВНУТРИ элемента: вход считается, только когда курсор
 // пришёл извне, выход — только когда ушёл наружу. Это стандартная замена,
 // и она снимает последнюю нужду в глобальном имени.
-const ГРАНИЦЫ = [['mouseover', 'enter'], ['mouseout', 'leave']];
+const BOUNDS = [['mouseover', 'enter'], ['mouseout', 'leave']];
 
 // Подмена window.event на время действия.
 //
@@ -24,46 +24,46 @@ const ГРАНИЦЫ = [['mouseover', 'enter'], ['mouseout', 'leave']];
 // встроенном обработчике currentTarget — сам элемент; при делегировании —
 // document, потому что слушатель висит на нём. Поэтому на время вызова
 // window.event подменяется прослойкой, у которой currentTarget — тот
-// элемент, что нёс имя действия. Всё прочее берётся у настоящего события.
-function сПодменойСобытия(ev, el, дело) {
-  const своё = Object.getOwnPropertyDescriptor(window, 'event');
-  const прослойка = new Proxy(ev, {
+// элемент, что нёс name действия. Всё прочее берётся у настоящего события.
+function withEventSwap(ev, el, handler) {
+  const own = Object.getOwnPropertyDescriptor(window, 'event');
+  const layer = new Proxy(ev, {
     get: function (t, p) {
       if (p === 'currentTarget') return el;
       var v = t[p];
       return typeof v === 'function' ? v.bind(t) : v;
     },
   });
-  Object.defineProperty(window, 'event', { configurable: true, value: прослойка });
-  try { return дело(прослойка); }
+  Object.defineProperty(window, 'event', { configurable: true, value: layer });
+  try { return handler(layer); }
   finally {
-    if (своё) Object.defineProperty(window, 'event', своё);
+    if (own) Object.defineProperty(window, 'event', own);
     else delete window.event;      // вернуть встроенный доступ через прототип
   }
 }
 
 export function installDelegation(root = document) {
-  for (const [событие, признак] of ГРАНИЦЫ) {
-    root.addEventListener(событие, ev => {
+  for (const [event, flag] of BOUNDS) {
+    root.addEventListener(event, ev => {
       const t = ev.target;
       if (!t || !t.closest) return;
-      const el = t.closest('[data-act-' + признак + ']');
+      const el = t.closest('[data-act-' + flag + ']');
       if (!el) return;
       // переход внутри самого элемента границей не считается
-      const другой = ev.relatedTarget;
-      if (другой && el.contains(другой)) return;
-      сПодменойСобытия(ev, el, прослойка =>
-        runAction(el.getAttribute('data-act-' + признак), el, прослойка));
+      const other = ev.relatedTarget;
+      if (other && el.contains(other)) return;
+      withEventSwap(ev, el, layer =>
+        runAction(el.getAttribute('data-act-' + flag), el, layer));
     });
   }
-  for (const [событие, признак] of СОБЫТИЯ) {
-    root.addEventListener(событие, ev => {
+  for (const [event, flag] of EVENTS) {
+    root.addEventListener(event, ev => {
       const t = ev.target;
       if (!t || !t.closest) return;
-      const el = t.closest('[data-act-' + признак + ']');
+      const el = t.closest('[data-act-' + flag + ']');
       if (!el) return;
-      сПодменойСобытия(ev, el, прослойка =>
-        runAction(el.getAttribute('data-act-' + признак), el, прослойка));
+      withEventSwap(ev, el, layer =>
+        runAction(el.getAttribute('data-act-' + flag), el, layer));
     });
   }
 }

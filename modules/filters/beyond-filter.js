@@ -3,11 +3,11 @@ import { applyFiltersImmediate } from './filters.js';
 import { pinnedDespiteFilter, pinnedVisibleNodes } from '../state/filters.js';
 
 function updateFilterNote() {
-      const раздел = document.getElementById('beyondFilterSection');
-      const счёт = document.getElementById('beyondFilterCount');
-      if (!раздел) return;
-      if (счёт) счёт.textContent = pinnedDespiteFilter.size;
-      раздел.style.display = pinnedDespiteFilter.size ? 'block' : 'none';
+      const section = document.getElementById('beyondFilterSection');
+      const count = document.getElementById('beyondFilterCount');
+      if (!section) return;
+      if (count) count.textContent = pinnedDespiteFilter.size;
+      section.style.display = pinnedDespiteFilter.size ? 'block' : 'none';
     }
 
 function resetBeyondFilter() {

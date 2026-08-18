@@ -45,25 +45,25 @@ function showPathDescriptionsModal() {
       // Плашка философа — как в окне концепции под её названием: цвет несёт
       // авторство, и строка «Философ: имя» тут лишняя. Заголовок открывает
       // окно концепции: в этом окне она названа, а перейти к ней было нечем.
-      const блокУзла = (узел, i, роль) => {
-        const цвет = DATA.philosopherConcepts[узел.concept]
-          ? DATA.philosopherConcepts[узел.concept].color : '#6c5ce7';
-        const ф = DATA.philosophers.find(x => x.nameRu === узел.concept);
+      const nodeBlock = (node, i, role) => {
+        const color = DATA.philosopherConcepts[node.concept]
+          ? DATA.philosopherConcepts[node.concept].color : '#6c5ce7';
+        const phil = DATA.philosophers.find(x => x.nameRu === node.concept);
         return `
         <div class="path-node-full-description" id="node-desc-${i}">
-          <h4 class="path-open" data-act-click="open-concept-by-id-2" data-a1="${узел.id}"
-              data-tip="Открыть окно концепции">${роль}: ${узел.label}</h4>
-          <div class="philosopher-tag" style="background: ${цвет}; color: ${getContrastColor(цвет)}"
-               data-act-click="open-universal-modal-13" data-a1="${узел.concept}"
+          <h4 class="path-open" data-act-click="open-concept-by-id-2" data-a1="${node.id}"
+              data-tip="Открыть окно концепции">${role}: ${node.label}</h4>
+          <div class="philosopher-tag" style="background: ${color}; color: ${getContrastColor(color)}"
+               data-act-click="open-universal-modal-13" data-a1="${node.concept}"
                data-tip="Открыть окно философа">
-            ${узел.concept}${ф ? ' · ' + ф.years : ''}
+            ${node.concept}${phil ? ' · ' + phil.years : ''}
           </div>
-          <p><strong>Описание:</strong> ${узел.extendedDescription || 'Описание отсутствует'}</p>
+          <p><strong>Описание:</strong> ${node.extendedDescription || 'Описание отсутствует'}</p>
         </div>
       `;
       };
 
-      html += блокУзла(pathNodes[0], 0, 'Исходный узел');
+      html += nodeBlock(pathNodes[0], 0, 'Исходный узел');
 
       // Проходим по всем связям в пути
       for (let i = 0; i < pathNodes.length - 1; i++) {
@@ -124,8 +124,8 @@ function showPathDescriptionsModal() {
         // Узел добавляется НЕЗАВИСИМО от того, нашлась ли связь: прежде он
         // лежал внутри ветки `if (link)`, и одна ненайденная связь уносила
         // с собой весь дальнейший перечень.
-        const последний = i === pathNodes.length - 2;
-        html += блокУзла(nextNode, i + 1, последний ? 'Конечный узел' : 'Узел');
+        const last = i === pathNodes.length - 2;
+        html += nodeBlock(nextNode, i + 1, last ? 'Конечный узел' : 'Узел');
       }
       
       content.innerHTML = html;
@@ -141,8 +141,8 @@ function closePathDescriptionsModal() {
       // ДЕФЕКТ И-2 (вторая половина): подложка общая. Если поверх окна пути
       // открыт просмотр, гасить её нельзя — просмотр остался бы без затемнения
       // и выглядел бы закрытым вместе с путём.
-      const просмотр = document.getElementById('universalModal');
-      if (!просмотр || !просмотр.classList.contains('show')) {
+      const view = document.getElementById('universalModal');
+      if (!view || !view.classList.contains('show')) {
         overlay.classList.remove('show');
       }
 

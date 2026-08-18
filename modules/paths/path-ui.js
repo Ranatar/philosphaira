@@ -126,7 +126,7 @@ function findAndShowPath() {
           <span class="path-node-container">
             <span class="path-philosopher">${node.concept}</span>
             <span class="path-node path-open" style="border-color: ${philosopherColor};"
-                  data-act-click="open-concept-by-id-3" data-a1="${node.id}"
+                  data-act-click="open-concept-by-id-2" data-a1="${node.id}"
                   data-tip="${node.concept}: ${node.description} · щёлкните, чтобы открыть">
               ${node.label}
             </span>
@@ -203,35 +203,35 @@ function findAndShowPath() {
       // прятался между концами. Годы у каждого узла загромоздили бы цепочку,
       // поэтому они собраны в одну строку — подряд идущие повторы (шаги
       // внутри одного философа) сливаются.
-      const ходЛет = [];
+      const yearStep = [];
       pathNodes.forEach(n => {
-        const ф = DATA.philosophers.find(p => p.nameRu === n.concept);
-        if (!ф) return;
-        const год = ф.birth < 0 ? Math.abs(ф.birth) + ' до н.э.' : String(ф.birth);
-        if (ходЛет[ходЛет.length - 1] !== год) ходЛет.push(год);
+        const phil = DATA.philosophers.find(p => p.nameRu === n.concept);
+        if (!phil) return;
+        const year = phil.birth < 0 ? Math.abs(phil.birth) + ' до н.э.' : String(phil.birth);
+        if (yearStep[yearStep.length - 1] !== year) yearStep.push(year);
       });
 
       // Разрыв — это шаг против общего хода времени. Считаем по числам, а не
       // по типам связей: тип говорит, как связь читается, а не куда идёт путь.
-      let разрывов = 0;
+      let gaps = 0;
       {
-        const годы = pathNodes.map(n => {
-          const ф = DATA.philosophers.find(p => p.nameRu === n.concept);
-          return ф ? ф.birth : null;
-        }).filter(г => г !== null);
-        const ход = годы.length > 1 && годы[годы.length - 1] < годы[0] ? -1 : 1;
-        let край = годы[0];
-        for (const г of годы.slice(1)) {
-          if (ход > 0 ? г < край : г > край) разрывов++;
-          край = ход > 0 ? Math.max(край, г) : Math.min(край, г);
+        const years = pathNodes.map(n => {
+          const phil = DATA.philosophers.find(p => p.nameRu === n.concept);
+          return phil ? phil.birth : null;
+        }).filter(year => year !== null);
+        const step = years.length > 1 && years[years.length - 1] < years[0] ? -1 : 1;
+        let edge = years[0];
+        for (const year of years.slice(1)) {
+          if (step > 0 ? year < edge : year > edge) gaps++;
+          edge = step > 0 ? Math.max(edge, year) : Math.min(edge, year);
         }
       }
 
       const chronologyInfo = respectChronology ? 
         `<div style="margin-top: 8px; font-size: 10px; color: var(--fg-muted);">
-          <strong>Ход времени:</strong> ${ходЛет.join(' → ')}<br>
+          <strong>Ход времени:</strong> ${yearStep.join(' → ')}<br>
           <strong>Режим:</strong> ${modeNames[selectedChronologyMode]}${
-            разрывов ? ` · <span style="color:#e0b83a;">разрывов: ${разрывов}</span>` : ''}
+            gaps ? ` · <span style="color:#e0b83a;">разрывов: ${gaps}</span>` : ''}
         </div>` : '';
       
       // Сводка по традициям. Различных традиций и переходов — порознь:
@@ -350,14 +350,14 @@ function resolvePathLinkList(path, respectDirectionFlag = true) {
       // и возвращал null: в панели путь ещё показывался, а в окне описаний
       // оставался один исходный узел — связи не находились, а вместе с ними
       // пропадали и следующие за ними узлы.
-      const безРазрывов = S.currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
+      const noGaps = S.currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
       for (let i = 0; i < path.length - 1; i++) {
         const a = typeof path[i] === 'object' ? path[i].id : path[i];
         const b = typeof path[i + 1] === 'object' ? path[i + 1].id : path[i + 1];
         list.push(DATA.links.find(l => {
           const src = l.source.id || l.source;
           const tgt = l.target.id || l.target;
-          if (respectDirectionFlag && !безРазрывов) {
+          if (respectDirectionFlag && !noGaps) {
             // C1: прежде читался только флаг. После снятия флага
             // у симметричных типов (D8) ребро, пройденное назад,
             // возвращалось бы null и путь рвался.

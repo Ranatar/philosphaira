@@ -10,13 +10,13 @@ import { requestDraw } from './loop.js';
 import { chosenPhilosophers } from '../state/filters.js';
 import { selectedEdges, selectedNodes } from '../state/render.js';
 
-function highlightPhilosopherOnGraph(имя, добавить) {
-      if (добавить) {
-        if (chosenPhilosophers.has(имя)) chosenPhilosophers.delete(имя);
-        else chosenPhilosophers.add(имя);
+function highlightPhilosopherOnGraph(name, add) {
+      if (add) {
+        if (chosenPhilosophers.has(name)) chosenPhilosophers.delete(name);
+        else chosenPhilosophers.add(name);
       } else {
         chosenPhilosophers.clear();
-        chosenPhilosophers.add(имя);
+        chosenPhilosophers.add(name);
       }
       if (!chosenPhilosophers.size) {
         emit('philosophers-chosen');
@@ -25,17 +25,17 @@ function highlightPhilosopherOnGraph(имя, добавить) {
         return;
       }
 
-      const свои = DATA.nodes.filter(n => chosenPhilosophers.has(n.concept));
-      if (!свои.length) return;
+      const own = DATA.nodes.filter(n => chosenPhilosophers.has(n.concept));
+      if (!own.length) return;
 
       selectedNodes.clear();
       selectedEdges.clear();
       resetHighlight();
 
-      const мои = new Set(свои.map(n => n.id));
-      const конец = l => [l.source.id || l.source, l.target.id || l.target];
-      const касается = l => { const [a, b] = конец(l); return мои.has(a) || мои.has(b); };
-      const внутри  = l => { const [a, b] = конец(l); return мои.has(a) && мои.has(b); };
+      const mine = new Set(own.map(n => n.id));
+      const end = l => [l.source.id || l.source, l.target.id || l.target];
+      const touches = l => { const [a, b] = end(l); return mine.has(a) || mine.has(b); };
+      const inner  = l => { const [a, b] = end(l); return mine.has(a) && mine.has(b); };
 
       // СОСЕДИ ПО ВНЕШНИМ СВЯЗЯМ НЕ ГАСЯТСЯ. Прежде они гасли до 0,2, а сами
       // связи оставались обычными — выходили «связи в никуда». У концепций
@@ -44,27 +44,27 @@ function highlightPhilosopherOnGraph(имя, добавить) {
       // (белый 3), приглушённая (0,2). Жёлтый остаётся ТОЛЬКО за явным
       // выбором — концепции философа берут подсвеченное состояние, соседи
       // остаются обычными, и связь к ним ведёт к видимому.
-      const соседи = new Set();
+      const neighbours = new Set();
       DATA.links.forEach(l => {
-        const [a, b] = конец(l);
-        if (мои.has(a) && !мои.has(b)) соседи.add(b);
-        if (мои.has(b) && !мои.has(a)) соседи.add(a);
+        const [a, b] = end(l);
+        if (mine.has(a) && !mine.has(b)) neighbours.add(b);
+        if (mine.has(b) && !mine.has(a)) neighbours.add(a);
       });
 
       emit('philosophers-chosen');
-      gfxNode.classed('highlighted', d => мои.has(d.id));
-      gfxNode.classed('dimmed', d => !мои.has(d.id) && !соседи.has(d.id));
-      gfxLinkAll.classed('highlighted', внутри);
-      gfxLinkAll.classed('dimmed', l => !касается(l));
+      gfxNode.classed('highlighted', d => mine.has(d.id));
+      gfxNode.classed('dimmed', d => !mine.has(d.id) && !neighbours.has(d.id));
+      gfxLinkAll.classed('highlighted', inner);
+      gfxLinkAll.classed('dimmed', l => !touches(l));
 
       requestDraw();
       // Поле поиска чистит ВЫЗЫВАЮЩИЙ: подсветка на графе не должна знать о
       // легенде — иначе она тянет за собой ввоз снизу вверх (замер: одно
       // ребро 5→6 появилось ровно из-за этой строки).
-      const имена = [...chosenPhilosophers];
-      showTemporaryMessage(имена.length === 1
-        ? `${имена[0]}: концепций ${свои.length}, соседей ${соседи.size}`
-        : `Выбрано философов: ${имена.length}, концепций ${свои.length}`);
+      const names = [...chosenPhilosophers];
+      showTemporaryMessage(names.length === 1
+        ? `${names[0]}: концепций ${own.length}, соседей ${neighbours.size}`
+        : `Выбрано философов: ${names.length}, концепций ${own.length}`);
     }
 
 function highlightNodeById(nodeId) {

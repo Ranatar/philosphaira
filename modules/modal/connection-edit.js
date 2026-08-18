@@ -201,13 +201,13 @@ function handleConnectionEditSearch(type, query) {
       const other = ModalContext.editState[
         type === 'source' ? 'selectedTarget' : 'selectedSource'];
       box.innerHTML = results.map(n => {
-        const связей = other ? connectionsBetween(n.id, other).length : 0;
-        const хвост = связей
-          ? `<div class="concept-row-note" data-tip="Связей с уже выбранной концепцией">${связей} св.</div>`
+        const links = other ? connectionsBetween(n.id, other).length : 0;
+        const tail = links
+          ? `<div class="concept-row-note" data-tip="Связей с уже выбранной концепцией">${links} св.</div>`
           : '';
         return `
           <div class="concept-row" data-act-click="select-connection-edit-concept" data-a1="${type}" data-a2="${n.id}">
-            ${rowInner(n, хвост)}
+            ${rowInner(n, tail)}
           </div>`;
       }).join('');
       box.classList.add('show');

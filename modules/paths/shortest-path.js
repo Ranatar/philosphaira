@@ -31,9 +31,9 @@ function findShortestPathWeighted(sourceId, targetId, respectChronology = true, 
 
       // Режим без разрывов: ход выбирается по концам. Цель раньше источника —
       // ищем ход НАЗАД, и путь читается как родословная: «восходит к».
-      const безРазрывов = respectChronology && S.currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
-      const годА = nodeAge(sourceId), годБ = nodeAge(targetId);
-      const ход = (годА !== null && годБ !== null && годБ < годА) ? -1 : +1;
+      const noGaps = respectChronology && S.currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
+      const yearA = nodeAge(sourceId), yearB = nodeAge(targetId);
+      const step = (yearA !== null && yearB !== null && yearB < yearA) ? -1 : +1;
       
       const distances = {};
       const previous = {};
@@ -74,7 +74,7 @@ function findShortestPathWeighted(sourceId, targetId, respectChronology = true, 
           let neighbor = null;
           let canTraverse = false;
           
-          if (безРазрывов) {
+          if (noGaps) {
             // Ход времени задают ГОДЫ, а не стрелка: связь, пройденная
             // против стрелки, читается как «восходит к».
             if (src === current) { neighbor = tgt; canTraverse = true; }
@@ -105,11 +105,11 @@ function findShortestPathWeighted(sourceId, targetId, respectChronology = true, 
             const cost = 4 - weight;
             const alt = distances[current] + cost;
             
-            if (безРазрывов) {
+            if (noGaps) {
               // Проверяется ПУТЬ, а не ребро: при монотонности крайний
               // достигнутый год равен году текущего узла, поэтому условие
               // местное и Дейкстра работает без изменений.
-              if (!stepWithoutGap(current, neighbor, ход, nodeAge(current))) return;
+              if (!stepWithoutGap(current, neighbor, step, nodeAge(current))) return;
             } else if (respectChronology) {
               // B1: тип ребра определяет, в какую сторону оно читается
               if (!isChronologicallyValid(current, neighbor, S.currentChronologyMode, link.type)) {
@@ -143,9 +143,9 @@ function findShortestPathUnweighted(sourceId, targetId, respectChronology = true
 
       // Режим без разрывов: ход выбирается по концам. Цель раньше источника —
       // ищем ход НАЗАД, и путь читается как родословная: «восходит к».
-      const безРазрывов = respectChronology && S.currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
-      const годА = nodeAge(sourceId), годБ = nodeAge(targetId);
-      const ход = (годА !== null && годБ !== null && годБ < годА) ? -1 : +1;
+      const noGaps = respectChronology && S.currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
+      const yearA = nodeAge(sourceId), yearB = nodeAge(targetId);
+      const step = (yearA !== null && yearB !== null && yearB < yearA) ? -1 : +1;
       
       const queue = [[sourceId]];
       const visited = new Set([sourceId]);
@@ -159,7 +159,7 @@ function findShortestPathUnweighted(sourceId, targetId, respectChronology = true
         const src = l.source.id || l.source;
         const tgt = l.target.id || l.target;
         
-        if (безРазрывов || !shouldRespectDirection) {
+        if (noGaps || !shouldRespectDirection) {
           // Без разрывов ход времени задают ГОДЫ, а не стрелка: связь,
           // пройденная против стрелки, читается как «восходит к».
           adjacency[src].push({ id: tgt, type: l.type });
@@ -187,8 +187,8 @@ function findShortestPathUnweighted(sourceId, targetId, respectChronology = true
         for (const edge of neighbors) {
           const neighborId = edge.id;
           if (!visited.has(neighborId)) {
-            if (безРазрывов) {
-              if (!stepWithoutGap(currentNodeId, neighborId, ход, nodeAge(currentNodeId))) continue;
+            if (noGaps) {
+              if (!stepWithoutGap(currentNodeId, neighborId, step, nodeAge(currentNodeId))) continue;
             } else if (respectChronology) {
               // B1: тип ребра определяет, в какую сторону оно читается
               if (!isChronologicallyValid(currentNodeId, neighborId, S.currentChronologyMode, edge.type)) {
