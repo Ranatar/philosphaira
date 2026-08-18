@@ -1,0 +1,13 @@
+{
+  "name": "philosphaira",
+  "private": true,
+  "type": "module",
+  "description": "ΦilosΦaira: сборка приложения из одностраничного исходника и приёмка.",
+  "comment": "Версии закреплены ТОЧНО, без ^. Разные выпуски eslint-scope по-разному разрешают ссылки, и сборка перестаёт воспроизводиться: 9.1.2 против 8.4.0 дали разные деревья при побайтово одинаковых входных данных. Chrome и puppeteer берутся из окружения: переменные CHROME и PUPPETEER. Пути проекта — в tools/paths.mjs и tools/paths.py; решения человека — в decisions/.",
+  "dependencies": {
+    "acorn": "8.18.0",
+    "d3": "7.8.5",
+    "eslint-scope": "9.1.2",
+    "puppeteer-core": "^25.7.0"
+  }
+}
