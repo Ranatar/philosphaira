@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 115 модулей, 17597 строк.
+Составлено из готовой сборки: 115 модулей, 17607 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/gen_spec2.mjs`
 после каждой сборки.
@@ -49,7 +49,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/core/graph-index.js` | 99 | 4 | 1 |
 | `modules/core/link-facts.js` | 42 | 6 | 2 |
 | `modules/core/long-task.js` | 120 | 3 | 0 |
-| `modules/core/ns.js` | 23 | 4 | 0 |
+| `modules/core/ns.js` | 33 | 4 | 0 |
 | `modules/core/ready.js` | 15 | 2 | 0 |
 | `modules/core/relation-types.js` | 59 | 6 | 2 |
 | `modules/core/search.js` | 72 | 5 | 3 |
@@ -426,7 +426,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/core/ns.js`
 
-Строк 23.
+Строк 33.
 
 **Вывозит:** `DATA`, `MET`, `S`, `VIEWS`
 

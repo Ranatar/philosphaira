@@ -348,8 +348,12 @@ fs.mkdirSync(path.join(OUT, 'data'), { recursive: true });
     `module.exports = {${RAW_DATA.join(',')}};`;
   fs.writeFileSync('/tmp/data_extract.cjs', script);
   const data = require('/tmp/data_extract.cjs');
-  for (const n of RAW_DATA)
-    fs.writeFileSync(path.join(OUT, 'data', n + '.json'), JSON.stringify(data[n], null, 1));
+  for (const n of RAW_DATA) {
+    const текст = JSON.stringify(data[n], null, 1);
+    // .json — база в человекочитаемом виде: её же пишет сохранение из
+    // приложения, её же кладут в data/ вручную.
+    fs.writeFileSync(path.join(OUT, 'data', n + '.json'), текст);
+  }
 }
 
 // ── распределение текста по модулям ────────────────────────────────
@@ -619,13 +623,28 @@ fs.writeFileSync(path.join(OUT, modPath('core/ns.js')), HEAD + `
 // MET    — метрики, к которым обращаются по имени
 // VIEWS  — генераторы окон, к которым обращаются по имени
 //
-// БАЗА ПРИХОДИТ ВВОЗОМ, А НЕ ЗАПРОСОМ. Пока она тянулась fetch-ем, она
-// появлялась ПОСЛЕ того как исполнились тела всех модулей, и всё, что от
-// неё считается, приходилось откладывать в boot. Ввоз разрешается до
-// исполнения любого тела, поэтому DATA полон уже здесь.
-${RAW_DATA.map(n => `import ${n} from '../../data/${n}.json' with { type: 'json' };`).join('\n')}
+// БАЗА ЧИТАЕТСЯ ЗДЕСЬ, ДО ИСПОЛНЕНИЯ ЛЮБОГО ДРУГОГО ТЕЛА.
+//
+// Раньше она тянулась fetch-ем из сборки и появлялась ПОСЛЕ того как
+// исполнились тела всех модулей, — оттого всё, что от неё считается,
+// приходилось откладывать. Ожидание на верхнем уровне модуля даёт то же
+// обещание, что и ввоз: всякий, кто ввозит ns.js, ждёт его завершения.
+//
+// Почему не \`import … with { type: 'json' }\`: признак свежий, Firefox до 138
+// падает на нём ПРИ РАЗБОРЕ — не работает вообще ничего. Проверено на
+// опубликованной странице.
+// Почему не отдельные .js-модули с данными: база остаётся шестью .json —
+// их пишет сохранение из приложения, их же кладут в data/ вручную. Заменишь
+// способ чтения на .js — подложенный .json перестанет действовать молча.
+const ФАЙЛЫ = ${JSON.stringify(RAW_DATA)};
+const прочитано = await Promise.all(ФАЙЛЫ.map(n =>
+  fetch(new URL('../../data/' + n + '.json', import.meta.url))
+    .then(r => {
+      if (!r.ok) throw new Error('не читается ' + n + '.json: ' + r.status);
+      return r.json();
+    })));
 
-export const DATA = { ${RAW_DATA.join(', ')} };
+export const DATA = Object.fromEntries(ФАЙЛЫ.map((n, i) => [n, прочитано[i]]));
 export const S = {};
 export const MET = {};
 export const VIEWS = {};

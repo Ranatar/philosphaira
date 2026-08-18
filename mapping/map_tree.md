@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-115 модулей, 17597 строк, 659 объявлений,
-666 вывозов, 698 рёбер ввоза. Составлено 2026-08-18 16:16:27.
+115 модулей, 17607 строк, 661 объявлений,
+666 вывозов, 692 рёбер ввоза. Составлено 2026-08-18 17:40:44.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -92,7 +92,7 @@
 | `modules/core/graph-index.js` | 99 | 3 | 4 | 1 | DATA:15 |
 | `modules/core/link-facts.js` | 42 | 6 | 6 | 2 | DATA:1, S:3 |
 | `modules/core/long-task.js` | 120 | 3 | 3 | 0 | — |
-| `modules/core/ns.js` | 23 | 0 | 4 | 6 | — |
+| `modules/core/ns.js` | 33 | 2 | 4 | 0 | — |
 | `modules/core/ready.js` | 15 | 0 | 2 | 0 | — |
 | `modules/core/relation-types.js` | 59 | 6 | 6 | 2 | DATA:2 |
 | `modules/core/search.js` | 72 | 5 | 5 | 3 | DATA:3 |
@@ -250,6 +250,13 @@
 | `showTemporaryMessage` | function | 29 | да |
 | `LoadingIndicator` | const | 1 | да |
 | `CHAIN_SEARCH` | const | 1 | да |
+
+### `modules/core/ns.js` — 33 строк, объявлений 2
+
+| Имя | Вид | Строк | Вывозится |
+|---|---|---|---|
+| `ФАЙЛЫ` | const | 1 | — |
+| `прочитано` | const | 1 | — |
 
 ### `modules/core/relation-types.js` — 59 строк, объявлений 6
 
@@ -1596,15 +1603,6 @@
 - из `modules/core/graph-index.js`: _ради побочного действия_
 
 Чаще всего поминает: `S`×5, `DATA`×4
-
-### `modules/core/ns.js`
-
-- из `data/traditions.json`: _ради побочного действия_
-- из `data/philosophers.json`: _ради побочного действия_
-- из `data/rubrics.json`: _ради побочного действия_
-- из `data/relationTypes.json`: _ради побочного действия_
-- из `data/concepts.json`: _ради побочного действия_
-- из `data/relations.json`: _ради побочного действия_
 
 ### `modules/core/relation-types.js`
 
