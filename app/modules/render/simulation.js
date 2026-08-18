@@ -58,9 +58,9 @@ function resetSimulation() {
 function toggleSimulationFreeze() {
       if (simLockedByHand) {
         simLockedByHand = false;
-        const улеглась = !S.simulation || S.tickCount >= maxTicks;
+        const settled = !S.simulation || S.tickCount >= maxTicks;
         unfreezeSimulation('рука');
-        if (улеглась) showTemporaryMessage('Раскладка уже улеглась — двигаться нечему', 2000);
+        if (settled) showTemporaryMessage('Раскладка уже улеглась — двигаться нечему', 2000);
       } else {
         freezeSimulation('рука');
       }
@@ -92,14 +92,14 @@ function centerGraph() {
 
 let simLockedByHand = false;
 
-function freezeSimulation(источник) {
-      if (источник === 'рука') simLockedByHand = true;
+function freezeSimulation(source) {
+      if (source === 'рука') simLockedByHand = true;
       if (S.simulation) S.simulation.stop();
     }
 
-function unfreezeSimulation(источник) {
+function unfreezeSimulation(source) {
       // Замок сильнее окон: пока он стоит, закрытие окна раскладку не будит.
-      if (simLockedByHand && источник !== 'рука') return;
+      if (simLockedByHand && source !== 'рука') return;
       // Окно закрылось — граф снова виден, возобновляем непрерывную
       // отрисовку. Сам цикл не проснётся: он завершился, и
       // animLoopRunning уже false.

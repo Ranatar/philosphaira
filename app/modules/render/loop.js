@@ -4,7 +4,7 @@ let drawScheduled = false;
 
 let painter = null;
 
-function setPainter(дело) { painter = дело; }
+function setPainter(handler) { painter = handler; }
 
 function requestDraw() {
       if (drawScheduled) return;

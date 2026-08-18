@@ -74,7 +74,7 @@ for (const m of [...need.keys()].sort())
   out += `import { ${[...need.get(m)].sort().join(', ')} } from './${m.startsWith('modules/') ? m : 'modules/' + m}';\n`;
 out += `
 const A = { DATA, S, MET, VIEWS, ${[...need.values()].flatMap(s => [...s]).sort().join(', ')} };
-const ИЗМОДУЛЕЙ = { get selectedNodes() { return typeof selectedNodes !== 'undefined' ? selectedNodes : undefined; },
+const FROM_MODULES = { get selectedNodes() { return typeof selectedNodes !== 'undefined' ? selectedNodes : undefined; },
                     get selectedEdges() { return typeof selectedEdges !== 'undefined' ? selectedEdges : undefined; } };
 
 // Приборы обращаются к данным и состоянию через свойства, чтобы видеть
@@ -90,8 +90,8 @@ Object.defineProperties(A, {
   concepts: { get: () => DATA.concepts },
   relations: { get: () => DATA.relations },
   philosophers: { get: () => DATA.philosophers },
-  selectedNodes: { get: () => (S.selectedNodes !== undefined ? S.selectedNodes : ИЗМОДУЛЕЙ.selectedNodes) },
-  selectedEdges: { get: () => (S.selectedEdges !== undefined ? S.selectedEdges : ИЗМОДУЛЕЙ.selectedEdges) },
+  selectedNodes: { get: () => (S.selectedNodes !== undefined ? S.selectedNodes : FROM_MODULES.selectedNodes) },
+  selectedEdges: { get: () => (S.selectedEdges !== undefined ? S.selectedEdges : FROM_MODULES.selectedEdges) },
   isStatsModalOpen: { get: () => S.isStatsModalOpen },
   simulation: { get: () => S.simulation },
   renderState: { get: () => S.renderState },

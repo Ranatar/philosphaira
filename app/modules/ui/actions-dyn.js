@@ -101,7 +101,6 @@ registerActions({
   "open-universal-modal-13": (el, ev) => { openUniversalModal('philosopher', el.dataset.a1, 'view'); },
   "open-universal-modal-14": (el, ev) => { openUniversalModal('connection', findConnection(el.dataset.a1, el.dataset.a2, false), 'view'); },
   "clear-path-highlight": (el, ev) => { clearPathHighlight(); },
-  "open-concept-by-id-3": (el, ev) => { openConceptById(el.dataset.a1); },
   "open-universal-modal-15": (el, ev) => { openUniversalModal('connection', findConnection(el.dataset.a1, el.dataset.a2, false), 'view'); },
   "handle-path-arrow-hover-mouseenter": (el, ev) => { handlePathArrowHover(ev, true); },
   "handle-path-arrow-hover-mouseleave": (el, ev) => { handlePathArrowHover(ev, false); },

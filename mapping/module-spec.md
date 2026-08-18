@@ -140,7 +140,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/stats/views/rankings.js` | 141 | 2 | 5 |
 | `modules/ui/about.js` | 102 | 4 | 1 |
 | `modules/ui/actions-byname.js` | 20 | 0 | 2 |
-| `modules/ui/actions-dyn.js` | 148 | 0 | 31 |
+| `modules/ui/actions-dyn.js` | 147 | 0 | 31 |
 | `modules/ui/actions-static.js` | 121 | 0 | 21 |
 | `modules/ui/actions.js` | 27 | 3 | 0 |
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
@@ -148,7 +148,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/ui/hint.js` | 60 | 7 | 1 |
 | `modules/ui/legend.js` | 317 | 27 | 7 |
 | `modules/ui/panels.js` | 40 | 2 | 0 |
-| `modules/ui/search-legend.js` | 140 | 7 | 16 |
+| `modules/ui/search-legend.js` | 141 | 7 | 16 |
 | `modules/ui/search-link.js` | 117 | 6 | 8 |
 | `modules/ui/search-philosopher.js` | 98 | 7 | 5 |
 | `modules/util/color.js` | 23 | 1 | 0 |
@@ -432,7 +432,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 **Ввозит:** _ничего_
 
-**Содержит:** `DATA`, `MET`, `S`, `VIEWS`
+**Содержит:** `DATA`, `FILES`, `MET`, `S`, `VIEWS`, `loaded`
 
 ### `modules/core/ready.js`
 
@@ -1826,11 +1826,11 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./actions.js`: `registerActions`
 - из `../modal/persist.js`: `deleteConcept`, `deleteConnection`, `deletePhilosopher`, `saveConceptData`, `saveConnectionData`, `savePhilosopherData`
 
-**Содержит:** _только исполняемый код_
+**Содержит:** `BY_NAME`, `callByName`
 
 ### `modules/ui/actions-dyn.js`
 
-Строк 148.
+Строк 147.
 
 **Вывозит:** _ничего_
 
@@ -1910,7 +1910,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 **Ввозит:** _ничего_
 
-**Содержит:** `actionNames`, `registerActions`, `runAction`
+**Содержит:** `ACTIONS`, `actionNames`, `registerActions`, `runAction`
 
 ### `modules/ui/delegation.js`
 
@@ -1922,7 +1922,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 - из `./actions.js`: `runAction`
 
-**Содержит:** `installDelegation`
+**Содержит:** `BOUNDS`, `EVENTS`, `installDelegation`, `withEventSwap`
 
 ### `modules/ui/export.js`
 
@@ -1988,7 +1988,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/ui/search-legend.js`
 
-Строк 140.
+Строк 141.
 
 **Вывозит:** `clearLegendSearch`, `handleLegendSearch`, `installLegendSearchDismiss`, `searchKind`, `selectSearchResult`, `setSearchKind`, `toggleLegendSearch`
 

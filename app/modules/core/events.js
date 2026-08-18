@@ -19,23 +19,23 @@ const BUS_EVENTS = [
 
 const busSubscribers = new Map();
 
-function subscribe(событие, дело) {
-      if (!BUS_EVENTS.includes(событие)) {
-        console.error('шина: неизвестное событие при подписке —', событие);
+function subscribe(event, handler) {
+      if (!BUS_EVENTS.includes(event)) {
+        console.error('шина: неизвестное событие при подписке —', event);
         return;
       }
-      if (!busSubscribers.has(событие)) busSubscribers.set(событие, []);
-      busSubscribers.get(событие).push(дело);
+      if (!busSubscribers.has(event)) busSubscribers.set(event, []);
+      busSubscribers.get(event).push(handler);
     }
 
-function emit(событие, ...доводы) {
-      if (!BUS_EVENTS.includes(событие)) {
-        console.error('шина: неизвестное событие —', событие);
+function emit(event, ...args) {
+      if (!BUS_EVENTS.includes(event)) {
+        console.error('шина: неизвестное событие —', event);
         return;
       }
-      for (const дело of busSubscribers.get(событие) || []) {
-        try { дело(...доводы); }
-        catch (e) { console.error('шина: подписчик события «' + событие + '» упал —', e); }
+      for (const handler of busSubscribers.get(event) || []) {
+        try { handler(...args); }
+        catch (e) { console.error('шина: подписчик события «' + event + '» упал —', e); }
       }
     }
 

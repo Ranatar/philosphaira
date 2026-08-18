@@ -10,18 +10,18 @@ function handleLegendPhilSearch(query) {
       const clearBtn = document.querySelector('#rowPhilosopher .legend-search-clear');
       if (!box) return;
       if (clearBtn) clearBtn.classList.toggle('show', !!(query && query.trim()));
-      const найдено = pickPhilosophers(query);
-      box.innerHTML = найдено.length
-        ? найдено.map(f => {
-            const цвет = DATA.philosopherConcepts[f.nameRu]
+      const found = pickPhilosophers(query);
+      box.innerHTML = found.length
+        ? found.map(f => {
+            const color = DATA.philosopherConcepts[f.nameRu]
               ? DATA.philosopherConcepts[f.nameRu].color : '#6c5ce7';
-            const сколько = DATA.concepts.filter(c => c.philosopher === f.id).length;
+            const count = DATA.concepts.filter(c => c.philosopher === f.id).length;
             return `
               <div class="concept-row" data-act-click="pick-philosopher-from-search" data-a1="${f.nameRu}">
-                <div class="concept-row-color" style="background:${цвет};box-shadow:0 0 6px ${цвет};"></div>
+                <div class="concept-row-color" style="background:${color};box-shadow:0 0 6px ${color};"></div>
                 <div class="concept-row-text">
                   <div class="concept-row-label">${f.nameRu}</div>
-                  <div class="concept-row-phil">${f.years} · концепций ${сколько}</div>
+                  <div class="concept-row-phil">${f.years} · концепций ${count}</div>
                 </div>
               </div>`;
           }).join('')
@@ -29,27 +29,27 @@ function handleLegendPhilSearch(query) {
       box.classList.add('show');
     }
 
-function pickPhilosopherFromSearch(имя) {
-      highlightPhilosopherOnGraph(имя);
+function pickPhilosopherFromSearch(name) {
+      highlightPhilosopherOnGraph(name);
       clearLegendPhilSearch();
     }
 
 function clearLegendPhilSearch() {
-      const поле = document.getElementById('legendPhilInput');
+      const field = document.getElementById('legendPhilInput');
       const box = document.getElementById('legendPhilResults');
-      if (поле) поле.value = '';
+      if (field) field.value = '';
       if (box) { box.classList.remove('show'); box.innerHTML = ''; }
     }
 
 function pickPhilosophers(query) {
       const q = (query || '').trim().toLowerCase();
-      const словаЗапроса = q ? q.split(/\s+/).filter(Boolean) : [];
-      const годится = p => {
-        if (!словаЗапроса.length) return true;
-        const слова = (p.nameRu + ' ' + (p.nameEn || '')).toLowerCase().split(/\s+/);
-        return словаЗапроса.every(з => слова.some(w => w.startsWith(з)));
+      const queryWords = q ? q.split(/\s+/).filter(Boolean) : [];
+      const fits = p => {
+        if (!queryWords.length) return true;
+        const words = (p.nameRu + ' ' + (p.nameEn || '')).toLowerCase().split(/\s+/);
+        return queryWords.every(q => words.some(w => w.startsWith(q)));
       };
-      return DATA.philosophers.filter(годится)
+      return DATA.philosophers.filter(fits)
         .sort((a, b) => (a.birth || 0) - (b.birth || 0));
     }
 
@@ -59,20 +59,20 @@ function handlePhilosopherSearch(query) {
       if (!box) return;
       if (clearBtn) clearBtn.classList.toggle('show', !!(query && query.trim()));
 
-      const найдено = pickPhilosophers(query);
-      box.innerHTML = найдено.length
-        ? найдено.map(p => {
-            const цвет = DATA.philosopherConcepts[p.nameRu]
+      const found = pickPhilosophers(query);
+      box.innerHTML = found.length
+        ? found.map(p => {
+            const color = DATA.philosopherConcepts[p.nameRu]
               ? DATA.philosopherConcepts[p.nameRu].color : '#6c5ce7';
             // Считаем по идентификатору философа: в concepts поле philosopher
             // хранит именно id («aristotle»), а не имя.
-            const сколько = DATA.concepts.filter(c => c.philosopher === p.id).length;
+            const count = DATA.concepts.filter(c => c.philosopher === p.id).length;
             return `
               <div class="concept-row" data-act-click="select-philosopher-result" data-a1="${p.nameRu}">
-                <div class="concept-row-color" style="background:${цвет};box-shadow:0 0 6px ${цвет};"></div>
+                <div class="concept-row-color" style="background:${color};box-shadow:0 0 6px ${color};"></div>
                 <div class="concept-row-text">
                   <div class="concept-row-label">${p.nameRu}</div>
-                  <div class="concept-row-phil">${p.years} · концепций ${сколько}</div>
+                  <div class="concept-row-phil">${p.years} · концепций ${count}</div>
                 </div>
               </div>`;
           }).join('')
@@ -80,16 +80,16 @@ function handlePhilosopherSearch(query) {
       box.classList.add('show');
     }
 
-function selectPhilosopherResult(имя) {
+function selectPhilosopherResult(name) {
       clearPhilosopherSearch();
-      openUniversalModal('philosopher', имя, 'view');
+      openUniversalModal('philosopher', name, 'view');
     }
 
 function clearPhilosopherSearch() {
-      const поле = document.getElementById('philSearchInput');
+      const field = document.getElementById('philSearchInput');
       const box = document.getElementById('philSearchResults');
       const clearBtn = document.querySelector('#philSearch .legend-search-clear');
-      if (поле) поле.value = '';
+      if (field) field.value = '';
       if (box) { box.classList.remove('show'); box.innerHTML = ''; }
       if (clearBtn) clearBtn.classList.remove('show');
     }

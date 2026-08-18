@@ -27,9 +27,9 @@ function populateCustomSelect(type, query = '') {
 
       // Тот же отбор и та же строка, что везде: прежде здесь список
       // выпадал весь, но без цветного кружка философа.
-      const узлы = pickConcepts(query);
-      dropdown.innerHTML = узлы.length
-        ? узлы.map(n => `
+      const nodes = pickConcepts(query);
+      dropdown.innerHTML = nodes.length
+        ? nodes.map(n => `
             <div class="concept-row" data-act-click="select-custom-option" data-a1="${type}" data-a2="${n.id}">
               ${rowInner(n)}
             </div>`).join('')

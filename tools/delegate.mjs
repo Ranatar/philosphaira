@@ -152,30 +152,30 @@ const HEAD = '// Сгенерировано tools/delegate.mjs — правки 
 fs.mkdirSync(path.join(ROOT, 'modules/ui'), { recursive: true });
 
 fs.writeFileSync(path.join(ROOT, 'modules/ui/actions.js'), HEAD + `
-// Реестр действий разметки. Разметка несёт ИМЯ ДЕЙСТВИЯ, а не имя функции,
+// Реестр действий разметки. Разметка несёт ИМЯ ACTIONS, а не name функции,
 // поэтому глобальное пространство имён ей больше не нужно.
 //
 // Промах по имени ОБЯЗАН шуметь: это единственное, чем делегирование хуже
 // встроенного обработчика — строка data-act-click="открыть-концепцию"
 // молчаливее, чем onclick="openUniversalModal(…)". Молчаливых отказов в
-// этом приложении уже было довольно.
-const ДЕЙСТВИЯ = new Map();
+// этом приложении already было довольно.
+const ACTIONS = new Map();
 
 export function registerActions(map) {
-  for (const имя of Object.keys(map)) {
-    if (ДЕЙСТВИЯ.has(имя)) console.error('делегирование: имя действия занято —', имя);
-    ДЕЙСТВИЯ.set(имя, map[имя]);
+  for (const name of Object.keys(map)) {
+    if (ACTIONS.has(name)) console.error('делегирование: name действия занято —', name);
+    ACTIONS.set(name, map[name]);
   }
 }
 
-export function runAction(имя, el, ev) {
-  const fn = ДЕЙСТВИЯ.get(имя);
-  if (!fn) { console.error('делегирование: неизвестное действие —', имя, el); return; }
+export function runAction(name, el, ev) {
+  const fn = ACTIONS.get(name);
+  if (!fn) { console.error('делегирование: неизвестное действие —', name, el); return; }
   try { return fn(el, ev); }
-  catch (e) { console.error('делегирование: действие «' + имя + '» упало —', e); }
+  catch (e) { console.error('делегирование: действие «' + name + '» упало —', e); }
 }
 
-export function actionNames() { return [...ДЕЙСТВИЯ.keys()]; }
+export function actionNames() { return [...ACTIONS.keys()]; }
 `);
 
 fs.writeFileSync(path.join(ROOT, 'modules/ui/delegation.js'), HEAD + `
@@ -186,7 +186,7 @@ import { runAction } from './actions.js';
 //   focus НЕ всплывает, поэтому focusin.
 // Разметка перерисовывается сорока генераторами, и делегированию это
 // родная задача: обработчики не приходится возвращать после перерисовки.
-const СОБЫТИЯ = [['click', 'click'], ['change', 'change'],
+const EVENTS = [['click', 'click'], ['change', 'change'],
                  ['input', 'input'], ['focusin', 'focus']];
 
 // mouseenter и mouseleave НЕ ВСПЛЫВАЮТ — делегировать их напрямую нельзя.
@@ -194,7 +194,7 @@ const СОБЫТИЯ = [['click', 'click'], ['change', 'change'],
 // отбросить переходы ВНУТРИ элемента: вход считается, только когда курсор
 // пришёл извне, выход — только когда ушёл наружу. Это стандартная замена,
 // и она снимает последнюю нужду в глобальном имени.
-const ГРАНИЦЫ = [['mouseover', 'enter'], ['mouseout', 'leave']];
+const BOUNDS = [['mouseover', 'enter'], ['mouseout', 'leave']];
 
 // Подмена window.event на время действия.
 //
@@ -203,46 +203,46 @@ const ГРАНИЦЫ = [['mouseover', 'enter'], ['mouseout', 'leave']];
 // встроенном обработчике currentTarget — сам элемент; при делегировании —
 // document, потому что слушатель висит на нём. Поэтому на время вызова
 // window.event подменяется прослойкой, у которой currentTarget — тот
-// элемент, что нёс имя действия. Всё прочее берётся у настоящего события.
-function сПодменойСобытия(ev, el, дело) {
-  const своё = Object.getOwnPropertyDescriptor(window, 'event');
-  const прослойка = new Proxy(ev, {
+// элемент, что нёс name действия. Всё прочее берётся у настоящего события.
+function withEventSwap(ev, el, handler) {
+  const own = Object.getOwnPropertyDescriptor(window, 'event');
+  const layer = new Proxy(ev, {
     get: function (t, p) {
       if (p === 'currentTarget') return el;
       var v = t[p];
       return typeof v === 'function' ? v.bind(t) : v;
     },
   });
-  Object.defineProperty(window, 'event', { configurable: true, value: прослойка });
-  try { return дело(прослойка); }
+  Object.defineProperty(window, 'event', { configurable: true, value: layer });
+  try { return handler(layer); }
   finally {
-    if (своё) Object.defineProperty(window, 'event', своё);
+    if (own) Object.defineProperty(window, 'event', own);
     else delete window.event;      // вернуть встроенный доступ через прототип
   }
 }
 
 export function installDelegation(root = document) {
-  for (const [событие, признак] of ГРАНИЦЫ) {
-    root.addEventListener(событие, ev => {
+  for (const [event, flag] of BOUNDS) {
+    root.addEventListener(event, ev => {
       const t = ev.target;
       if (!t || !t.closest) return;
-      const el = t.closest('[data-act-' + признак + ']');
+      const el = t.closest('[data-act-' + flag + ']');
       if (!el) return;
       // переход внутри самого элемента границей не считается
-      const другой = ev.relatedTarget;
-      if (другой && el.contains(другой)) return;
-      сПодменойСобытия(ev, el, прослойка =>
-        runAction(el.getAttribute('data-act-' + признак), el, прослойка));
+      const other = ev.relatedTarget;
+      if (other && el.contains(other)) return;
+      withEventSwap(ev, el, layer =>
+        runAction(el.getAttribute('data-act-' + flag), el, layer));
     });
   }
-  for (const [событие, признак] of СОБЫТИЯ) {
-    root.addEventListener(событие, ev => {
+  for (const [event, flag] of EVENTS) {
+    root.addEventListener(event, ev => {
       const t = ev.target;
       if (!t || !t.closest) return;
-      const el = t.closest('[data-act-' + признак + ']');
+      const el = t.closest('[data-act-' + flag + ']');
       if (!el) return;
-      сПодменойСобытия(ev, el, прослойка =>
-        runAction(el.getAttribute('data-act-' + признак), el, прослойка));
+      withEventSwap(ev, el, layer =>
+        runAction(el.getAttribute('data-act-' + flag), el, layer));
     });
   }
 }
@@ -277,8 +277,8 @@ if (ЗАХОД === 'static') {
 // Единственное место, которое механически не переводится: в разметку
 // подставляется НЕ ДАННОЕ, а ИМЯ ФУНКЦИИ и кусок исходного кода
 // (`onclick="${saveFn}()"`, deleteArg = "'c1'" или "'a', 'b'"). При
-// делегировании имя функции ничего не значит, а куску кода взяться неоткуда.
-// Поэтому три места правятся явно: доводы передаются НАБОРОМ ЗНАЧЕНИЙ,
+// делегировании name функции ничего не значит, а куску кода взяться неоткуда.
+// Поэтому три места правятся явно: args передаются НАБОРОМ ЗНАЧЕНИЙ,
 // а вызов идёт через таблицу имён с руганью на промах.
 // ИСКАТЬ НАДО ПО ОБЪЯВЛЕНИЮ В ДЕРЕВЕ, А НЕ ПО ВЫВОЗУ: сущности пространств
 // (VIEWS.generateConceptEditContent и подобные) поимённо НЕ ВЫВОЗЯТСЯ, и
@@ -286,12 +286,12 @@ if (ЗАХОД === 'static') {
 // три правки из пяти — удаление сущности перестало работать, а поймал это
 // только probe6.
 let беда = false;
-function модульСущности(имя) {
-  const рв = new RegExp(
-    `(?:^|\\n)\\s*(?:async\\s+)?(?:function|const|let|var)\\s+${имя}\\b` +
-    `|(?:^|\\n)\\s*(?:DATA|S|MET|VIEWS)\\.${имя}\\s*=`);
+function модульСущности(name) {
+  const re = new RegExp(
+    `(?:^|\\n)\\s*(?:async\\s+)?(?:function|const|let|var)\\s+${name}\\b` +
+    `|(?:^|\\n)\\s*(?:DATA|S|MET|VIEWS)\\.${name}\\s*=`);
   for (const f of файлыДерева()) {
-    if (рв.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))) return f;
+    if (re.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))) return f;
   }
   return null;
 }
@@ -361,20 +361,20 @@ if (беда) { console.error('ручная статья не применена
   for (const m of [...need.keys()].sort())
     out += `import { ${[...need.get(m)].sort().join(', ')} } from '${вДереве('modules/ui/actions-byname.js', m)}';\n`;
   out += `
-// Кнопки «Сохранить» и «Удалить» в формах правки: имя обработчика приходит
+// Кнопки «Сохранить» и «Удалить» в формах правки: name обработчика приходит
 // из данных, потому что одна и та же полоса кнопок обслуживает концепции,
 // философов и связи. Промах по имени — ошибка, а не тишина.
-const ПОИМЕНИ = { ${имена.join(', ')} };
+const BY_NAME = { ${имена.join(', ')} };
 
-function вызватьПоИмени(имя, ...доводы) {
-  const fn = ПОИМЕНИ[имя];
-  if (!fn) { console.error('делегирование: нет функции по имени —', имя); return; }
-  return fn(...доводы.filter(d => d !== undefined && d !== ''));
+function callByName(name, ...args) {
+  const fn = BY_NAME[name];
+  if (!fn) { console.error('делегирование: нет функции по имени —', name); return; }
+  return fn(...args.filter(d => d !== undefined && d !== ''));
 }
 
 registerActions({
-  'сохранить-сущность': (el) => вызватьПоИмени(el.dataset.a1),
-  'удалить-сущность': (el) => вызватьПоИмени(el.dataset.a1, el.dataset.a2, el.dataset.a3),
+  'сохранить-сущность': (el) => callByName(el.dataset.a1),
+  'удалить-сущность': (el) => callByName(el.dataset.a1, el.dataset.a2, el.dataset.a3),
 });
 `;
   fs.writeFileSync(path.join(ROOT, 'modules/ui/actions-byname.js'), out);
@@ -394,69 +394,69 @@ registerActions({
 const ATTR_JS = /\bon(click|change|input|focus|mouseenter|mouseleave)\s*=\s*(\\?")((?:[^"\\]|\\.)*?)\2/g;
 
 if (ЗАХОД === 'dyn') {
-  const файлы = [];
+  const files = [];
   (function walk(d) {
     for (const f of fs.readdirSync(d)) {
       const q = path.join(d, f);
       if (fs.statSync(q).isDirectory()) { if (f !== 'vendor') walk(q); continue; }
-      if (q.endsWith('.js') && !f.startsWith('_ref')) файлы.push(q);
+      if (q.endsWith('.js') && !f.startsWith('_ref')) files.push(q);
     }
   })(ROOT);
 
-  for (const q of файлы) {
+  for (const q of files) {
     const rel = path.relative(ROOT, q).replace(/\\/g, '/');
     if (rel.startsWith('modules/ui/actions')) continue;
     let text = fs.readFileSync(q, 'utf8');
-    let изменён = false;
+    let changed = false;
     text = text.replace(ATTR_JS, (all, ev, кав, code) => {
       const attr = 'on' + ev.toLowerCase();
-      const признак = ПРИЗНАК[ev.toLowerCase()];
-      if (!признак) { оставлено++; return all; }
-      const чистый = code.replace(/\\"/g, '"').replace(/\\'/g, "'");
-      const { body, args } = разобрать(чистый);
-      const имя = имяДействия(attr, чистый);
-      const уже = карта[имя] !== undefined;
-      карта[имя] = { код: чистый, attr, тело: body, аргументов: args.length, откуда: rel };
-      поИсходному.set(attr + ' :: ' + чистый, имя);
-      if (!уже) новые.push(имя);
+      const flag = ПРИЗНАК[ev.toLowerCase()];
+      if (!flag) { оставлено++; return all; }
+      const clean = code.replace(/\\"/g, '"').replace(/\\'/g, "'");
+      const { body, args } = разобрать(clean);
+      const name = имяДействия(attr, clean);
+      const already = карта[name] !== undefined;
+      карта[name] = { код: clean, attr, тело: body, аргументов: args.length, откуда: rel };
+      поИсходному.set(attr + ' :: ' + clean, name);
+      if (!already) новые.push(name);
       переведено++;
-      изменён = true;
-      let out = `data-act-${признак}=${кав}${имя}${кав}`;
+      changed = true;
+      let out = `data-act-${flag}=${кав}${name}${кав}`;
       args.forEach((выр, i) => { out += ` data-a${i + 1}=${кав}\${${выр}}${кав}`; });
       return out;
     });
-    if (изменён) fs.writeFileSync(q, text);
+    if (changed) fs.writeFileSync(q, text);
   }
 }
 
 // ── сборка модуля с телами ──────────────────────────────────────────
 if (новые.length) {
-  const файл = `modules/ui/actions-${ЗАХОД}.js`;
+  const file = `modules/ui/actions-${ЗАХОД}.js`;
   const need = new Map(), ns = new Set();
-  for (const имя of новые) {
-    const r = нужныеИмена(карта[имя].тело);
+  for (const name of новые) {
+    const r = нужныеИмена(карта[name].тело);
     for (const [m, s] of r.need) {
       if (!need.has(m)) need.set(m, new Set());
       s.forEach(x => need.get(m).add(x));
     }
     r.ns.forEach(x => ns.add(x));
   }
-  const rel = to => вДереве(файл, to);
+  const rel = to => вДереве(file, to);
   let out = HEAD + `import { registerActions } from './actions.js';\n`;
   if (ns.size) out += `import { ${[...ns].sort().join(', ')} } from '${rel('core/ns.js')}';\n`;
   for (const m of [...need.keys()].sort())
     out += `import { ${[...need.get(m)].sort().join(', ')} } from '${rel(m)}';\n`;
   out += `\nregisterActions({\n`;
-  for (const имя of новые)
-    out += `  ${JSON.stringify(имя)}: (el, ev) => { ${карта[имя].тело}; },\n`;
+  for (const name of новые)
+    out += `  ${JSON.stringify(name)}: (el, ev) => { ${карта[name].тело}; },\n`;
   out += `});\n`;
-  fs.writeFileSync(path.join(ROOT, файл), out);
+  fs.writeFileSync(path.join(ROOT, file), out);
 
   // подключить в main.js и поставить делегирование
   const mp = path.join(ROOT, 'main.js');
   let main = fs.readFileSync(mp, 'utf8');
-  if (!main.includes(`'./${файл}'`))
-    main = main.replace(/^import \{ boot \}/m, `import './${файл}';\nimport { boot }`);
+  if (!main.includes(`'./${file}'`))
+    main = main.replace(/^import \{ boot \}/m, `import './${file}';\nimport { boot }`);
   if (!main.includes('installDelegation'))
     main = main.replace(/^import \{ boot \}/m,
       `import { installDelegation } from './modules/ui/delegation.js';\nimport { boot }`);

@@ -14002,19 +14002,19 @@
     function nodeAge(id) {
       const n = DATA_nodes_find(id);
       if (!n) return null;
-      const ф = philosophers.find(p => p.nameRu === n.concept);
-      return ф ? ф.birth : null;
+      const phil = philosophers.find(p => p.nameRu === n.concept);
+      return phil ? phil.birth : null;
     }
 
     function DATA_nodes_find(id) { return nodes.find(n => n.id === id); }
 
-    function stepWithoutGap(отId, кId, ход, крайний) {
-      const a = DATA_nodes_find(отId), b = DATA_nodes_find(кId);
+    function stepWithoutGap(fromId, toId, step, last) {
+      const a = DATA_nodes_find(fromId), b = DATA_nodes_find(toId);
       if (!a || !b) return true;
       if (a.concept === b.concept) return true;   // внутри философа — свободно
-      const г = nodeAge(кId);
-      if (г === null || крайний === null) return true;
-      return ход > 0 ? г >= крайний : г <= крайний;
+      const year = nodeAge(toId);
+      if (year === null || last === null) return true;
+      return step > 0 ? year >= last : year <= last;
     }
 
     // Текущий режим хронологии (по умолчанию строгий)
@@ -14312,9 +14312,9 @@
 
       // Режим без разрывов: ход выбирается по концам. Цель раньше источника —
       // ищем ход НАЗАД, и путь читается как родословная: «восходит к».
-      const безРазрывов = respectChronology && currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
-      const годА = nodeAge(sourceId), годБ = nodeAge(targetId);
-      const ход = (годА !== null && годБ !== null && годБ < годА) ? -1 : +1;
+      const noGaps = respectChronology && currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
+      const yearA = nodeAge(sourceId), yearB = nodeAge(targetId);
+      const step = (yearA !== null && yearB !== null && yearB < yearA) ? -1 : +1;
       
       const distances = {};
       const previous = {};
@@ -14355,7 +14355,7 @@
           let neighbor = null;
           let canTraverse = false;
           
-          if (безРазрывов) {
+          if (noGaps) {
             // Ход времени задают ГОДЫ, а не стрелка: связь, пройденная
             // против стрелки, читается как «восходит к».
             if (src === current) { neighbor = tgt; canTraverse = true; }
@@ -14386,11 +14386,11 @@
             const cost = 4 - weight;
             const alt = distances[current] + cost;
             
-            if (безРазрывов) {
+            if (noGaps) {
               // Проверяется ПУТЬ, а не ребро: при монотонности крайний
               // достигнутый год равен году текущего узла, поэтому условие
               // местное и Дейкстра работает без изменений.
-              if (!stepWithoutGap(current, neighbor, ход, nodeAge(current))) return;
+              if (!stepWithoutGap(current, neighbor, step, nodeAge(current))) return;
             } else if (respectChronology) {
               // B1: тип ребра определяет, в какую сторону оно читается
               if (!isChronologicallyValid(current, neighbor, currentChronologyMode, link.type)) {
@@ -14425,9 +14425,9 @@
 
       // Режим без разрывов: ход выбирается по концам. Цель раньше источника —
       // ищем ход НАЗАД, и путь читается как родословная: «восходит к».
-      const безРазрывов = respectChronology && currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
-      const годА = nodeAge(sourceId), годБ = nodeAge(targetId);
-      const ход = (годА !== null && годБ !== null && годБ < годА) ? -1 : +1;
+      const noGaps = respectChronology && currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
+      const yearA = nodeAge(sourceId), yearB = nodeAge(targetId);
+      const step = (yearA !== null && yearB !== null && yearB < yearA) ? -1 : +1;
       
       const queue = [[sourceId]];
       const visited = new Set([sourceId]);
@@ -14441,7 +14441,7 @@
         const src = l.source.id || l.source;
         const tgt = l.target.id || l.target;
         
-        if (безРазрывов || !shouldRespectDirection) {
+        if (noGaps || !shouldRespectDirection) {
           // Без разрывов ход времени задают ГОДЫ, а не стрелка: связь,
           // пройденная против стрелки, читается как «восходит к».
           adjacency[src].push({ id: tgt, type: l.type });
@@ -14469,8 +14469,8 @@
         for (const edge of neighbors) {
           const neighborId = edge.id;
           if (!visited.has(neighborId)) {
-            if (безРазрывов) {
-              if (!stepWithoutGap(currentNodeId, neighborId, ход, nodeAge(currentNodeId))) continue;
+            if (noGaps) {
+              if (!stepWithoutGap(currentNodeId, neighborId, step, nodeAge(currentNodeId))) continue;
             } else if (respectChronology) {
               // B1: тип ребра определяет, в какую сторону оно читается
               if (!isChronologicallyValid(currentNodeId, neighborId, currentChronologyMode, edge.type)) {
@@ -14657,35 +14657,35 @@
       // прятался между концами. Годы у каждого узла загромоздили бы цепочку,
       // поэтому они собраны в одну строку — подряд идущие повторы (шаги
       // внутри одного философа) сливаются.
-      const ходЛет = [];
+      const yearStep = [];
       pathNodes.forEach(n => {
-        const ф = philosophers.find(p => p.nameRu === n.concept);
-        if (!ф) return;
-        const год = ф.birth < 0 ? Math.abs(ф.birth) + ' до н.э.' : String(ф.birth);
-        if (ходЛет[ходЛет.length - 1] !== год) ходЛет.push(год);
+        const phil = philosophers.find(p => p.nameRu === n.concept);
+        if (!phil) return;
+        const year = phil.birth < 0 ? Math.abs(phil.birth) + ' до н.э.' : String(phil.birth);
+        if (yearStep[yearStep.length - 1] !== year) yearStep.push(year);
       });
 
       // Разрыв — это шаг против общего хода времени. Считаем по числам, а не
       // по типам связей: тип говорит, как связь читается, а не куда идёт путь.
-      let разрывов = 0;
+      let gaps = 0;
       {
-        const годы = pathNodes.map(n => {
-          const ф = philosophers.find(p => p.nameRu === n.concept);
-          return ф ? ф.birth : null;
-        }).filter(г => г !== null);
-        const ход = годы.length > 1 && годы[годы.length - 1] < годы[0] ? -1 : 1;
-        let край = годы[0];
-        for (const г of годы.slice(1)) {
-          if (ход > 0 ? г < край : г > край) разрывов++;
-          край = ход > 0 ? Math.max(край, г) : Math.min(край, г);
+        const years = pathNodes.map(n => {
+          const phil = philosophers.find(p => p.nameRu === n.concept);
+          return phil ? phil.birth : null;
+        }).filter(year => year !== null);
+        const step = years.length > 1 && years[years.length - 1] < years[0] ? -1 : 1;
+        let edge = years[0];
+        for (const year of years.slice(1)) {
+          if (step > 0 ? year < edge : year > edge) gaps++;
+          edge = step > 0 ? Math.max(edge, year) : Math.min(edge, year);
         }
       }
 
       const chronologyInfo = respectChronology ? 
         `<div style="margin-top: 8px; font-size: 10px; color: var(--fg-muted);">
-          <strong>Ход времени:</strong> ${ходЛет.join(' → ')}<br>
+          <strong>Ход времени:</strong> ${yearStep.join(' → ')}<br>
           <strong>Режим:</strong> ${modeNames[selectedChronologyMode]}${
-            разрывов ? ` · <span style="color:#e0b83a;">разрывов: ${разрывов}</span>` : ''}
+            gaps ? ` · <span style="color:#e0b83a;">разрывов: ${gaps}</span>` : ''}
         </div>` : '';
       
       // Сводка по традициям. Различных традиций и переходов — порознь:
@@ -14808,14 +14808,14 @@
       // и возвращал null: в панели путь ещё показывался, а в окне описаний
       // оставался один исходный узел — связи не находились, а вместе с ними
       // пропадали и следующие за ними узлы.
-      const безРазрывов = currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
+      const noGaps = currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
       for (let i = 0; i < path.length - 1; i++) {
         const a = typeof path[i] === 'object' ? path[i].id : path[i];
         const b = typeof path[i + 1] === 'object' ? path[i + 1].id : path[i + 1];
         list.push(links.find(l => {
           const src = l.source.id || l.source;
           const tgt = l.target.id || l.target;
-          if (respectDirectionFlag && !безРазрывов) {
+          if (respectDirectionFlag && !noGaps) {
             // C1: прежде читался только флаг. После снятия флага
             // у симметричных типов (D8) ребро, пройденное назад,
             // возвращалось бы null и путь рвался.
@@ -14894,25 +14894,25 @@
       // Плашка философа — как в окне концепции под её названием: цвет несёт
       // авторство, и строка «Философ: имя» тут лишняя. Заголовок открывает
       // окно концепции: в этом окне она названа, а перейти к ней было нечем.
-      const блокУзла = (узел, i, роль) => {
-        const цвет = philosopherConcepts[узел.concept]
-          ? philosopherConcepts[узел.concept].color : '#6c5ce7';
-        const ф = philosophers.find(x => x.nameRu === узел.concept);
+      const nodeBlock = (node, i, role) => {
+        const color = philosopherConcepts[node.concept]
+          ? philosopherConcepts[node.concept].color : '#6c5ce7';
+        const phil = philosophers.find(x => x.nameRu === node.concept);
         return `
         <div class="path-node-full-description" id="node-desc-${i}">
-          <h4 class="path-open" onclick="openConceptById('${узел.id}')"
-              data-tip="Открыть окно концепции">${роль}: ${узел.label}</h4>
-          <div class="philosopher-tag" style="background: ${цвет}; color: ${getContrastColor(цвет)}"
-               onclick="openUniversalModal('philosopher', '${узел.concept}', 'view')"
+          <h4 class="path-open" onclick="openConceptById('${node.id}')"
+              data-tip="Открыть окно концепции">${role}: ${node.label}</h4>
+          <div class="philosopher-tag" style="background: ${color}; color: ${getContrastColor(color)}"
+               onclick="openUniversalModal('philosopher', '${node.concept}', 'view')"
                data-tip="Открыть окно философа">
-            ${узел.concept}${ф ? ' · ' + ф.years : ''}
+            ${node.concept}${phil ? ' · ' + phil.years : ''}
           </div>
-          <p><strong>Описание:</strong> ${узел.extendedDescription || 'Описание отсутствует'}</p>
+          <p><strong>Описание:</strong> ${node.extendedDescription || 'Описание отсутствует'}</p>
         </div>
       `;
       };
 
-      html += блокУзла(pathNodes[0], 0, 'Исходный узел');
+      html += nodeBlock(pathNodes[0], 0, 'Исходный узел');
 
       // Проходим по всем связям в пути
       for (let i = 0; i < pathNodes.length - 1; i++) {
@@ -14973,8 +14973,8 @@
         // Узел добавляется НЕЗАВИСИМО от того, нашлась ли связь: прежде он
         // лежал внутри ветки `if (link)`, и одна ненайденная связь уносила
         // с собой весь дальнейший перечень.
-        const последний = i === pathNodes.length - 2;
-        html += блокУзла(nextNode, i + 1, последний ? 'Конечный узел' : 'Узел');
+        const last = i === pathNodes.length - 2;
+        html += nodeBlock(nextNode, i + 1, last ? 'Конечный узел' : 'Узел');
       }
       
       content.innerHTML = html;
@@ -14991,8 +14991,8 @@
       // ДЕФЕКТ И-2 (вторая половина): подложка общая. Если поверх окна пути
       // открыт просмотр, гасить её нельзя — просмотр остался бы без затемнения
       // и выглядел бы закрытым вместе с путём.
-      const просмотр = document.getElementById('universalModal');
-      if (!просмотр || !просмотр.classList.contains('show')) {
+      const view = document.getElementById('universalModal');
+      if (!view || !view.classList.contains('show')) {
         overlay.classList.remove('show');
       }
 
@@ -15030,30 +15030,30 @@
     let searchKind = 'concept';
 
     function toggleLegendSearch() {
-      const тело = document.getElementById('searchBody');
-      const открыт = тело.style.display !== 'none';
-      тело.style.display = открыт ? 'none' : 'block';
-      if (открыт) {
+      const body = document.getElementById('searchBody');
+      const open = body.style.display !== 'none';
+      body.style.display = open ? 'none' : 'block';
+      if (open) {
         clearLegendSearch();
         clearLegendPhilSearch();
         clearLinkSearch();
       } else {
         setSearchKind('concept');   // по умолчанию — концепции
-        const поле = document.getElementById('legendSearchInput');
-        if (поле) поле.focus();
+        const field = document.getElementById('legendSearchInput');
+        if (field) field.focus();
       }
     }
 
-    function setSearchKind(вид) {
-      searchKind = вид;
-      const строки = { philosopher: 'rowPhilosopher', concept: 'rowConcept', connection: 'rowConnection' };
-      Object.entries(строки).forEach(([к, id]) => {
+    function setSearchKind(kind) {
+      searchKind = kind;
+      const rows = { philosopher: 'rowPhilosopher', concept: 'rowConcept', connection: 'rowConnection' };
+      Object.entries(rows).forEach(([key, id]) => {
         const el = document.getElementById(id);
-        if (el) el.style.display = (к === вид) ? (к === 'connection' ? 'block' : 'flex') : 'none';
+        if (el) el.style.display = (key === kind) ? (key === 'connection' ? 'block' : 'flex') : 'none';
       });
-      ['Philosopher', 'Concept', 'Connection'].forEach(к => {
-        const b = document.getElementById('kind' + к);
-        if (b) b.classList.toggle('active', к.toLowerCase() === вид);
+      ['Philosopher', 'Concept', 'Connection'].forEach(key => {
+        const b = document.getElementById('kind' + key);
+        if (b) b.classList.toggle('active', key.toLowerCase() === kind);
       });
       // Найденное прежним видом убираем: оно уже не про то, что спрашивают.
       clearLegendSearch();
@@ -15067,18 +15067,18 @@
       const clearBtn = document.querySelector('#rowPhilosopher .legend-search-clear');
       if (!box) return;
       if (clearBtn) clearBtn.classList.toggle('show', !!(query && query.trim()));
-      const найдено = pickPhilosophers(query);
-      box.innerHTML = найдено.length
-        ? найдено.map(f => {
-            const цвет = philosopherConcepts[f.nameRu]
+      const found = pickPhilosophers(query);
+      box.innerHTML = found.length
+        ? found.map(f => {
+            const color = philosopherConcepts[f.nameRu]
               ? philosopherConcepts[f.nameRu].color : '#6c5ce7';
-            const сколько = concepts.filter(c => c.philosopher === f.id).length;
+            const count = concepts.filter(c => c.philosopher === f.id).length;
             return `
               <div class="concept-row" onclick="pickPhilosopherFromSearch('${f.nameRu}')">
-                <div class="concept-row-color" style="background:${цвет};box-shadow:0 0 6px ${цвет};"></div>
+                <div class="concept-row-color" style="background:${color};box-shadow:0 0 6px ${color};"></div>
                 <div class="concept-row-text">
                   <div class="concept-row-label">${f.nameRu}</div>
-                  <div class="concept-row-phil">${f.years} · концепций ${сколько}</div>
+                  <div class="concept-row-phil">${f.years} · концепций ${count}</div>
                 </div>
               </div>`;
           }).join('')
@@ -15087,15 +15087,15 @@
     }
 
     // Из поиска легенды: подсветить и убрать за собой список.
-    function pickPhilosopherFromSearch(имя) {
-      highlightPhilosopherOnGraph(имя);
+    function pickPhilosopherFromSearch(name) {
+      highlightPhilosopherOnGraph(name);
       clearLegendPhilSearch();
     }
 
     function clearLegendPhilSearch() {
-      const поле = document.getElementById('legendPhilInput');
+      const field = document.getElementById('legendPhilInput');
       const box = document.getElementById('legendPhilResults');
-      if (поле) поле.value = '';
+      if (field) field.value = '';
       if (box) { box.classList.remove('show'); box.innerHTML = ''; }
     }
 
@@ -15117,13 +15117,13 @@
       });
     }
 
-    function highlightPhilosopherOnGraph(имя, добавить) {
-      if (добавить) {
-        if (chosenPhilosophers.has(имя)) chosenPhilosophers.delete(имя);
-        else chosenPhilosophers.add(имя);
+    function highlightPhilosopherOnGraph(name, add) {
+      if (add) {
+        if (chosenPhilosophers.has(name)) chosenPhilosophers.delete(name);
+        else chosenPhilosophers.add(name);
       } else {
         chosenPhilosophers.clear();
-        chosenPhilosophers.add(имя);
+        chosenPhilosophers.add(name);
       }
       if (!chosenPhilosophers.size) {
         emit('philosophers-chosen');
@@ -15132,17 +15132,17 @@
         return;
       }
 
-      const свои = nodes.filter(n => chosenPhilosophers.has(n.concept));
-      if (!свои.length) return;
+      const own = nodes.filter(n => chosenPhilosophers.has(n.concept));
+      if (!own.length) return;
 
       selectedNodes.clear();
       selectedEdges.clear();
       resetHighlight();
 
-      const мои = new Set(свои.map(n => n.id));
-      const конец = l => [l.source.id || l.source, l.target.id || l.target];
-      const касается = l => { const [a, b] = конец(l); return мои.has(a) || мои.has(b); };
-      const внутри  = l => { const [a, b] = конец(l); return мои.has(a) && мои.has(b); };
+      const mine = new Set(own.map(n => n.id));
+      const end = l => [l.source.id || l.source, l.target.id || l.target];
+      const touches = l => { const [a, b] = end(l); return mine.has(a) || mine.has(b); };
+      const inner  = l => { const [a, b] = end(l); return mine.has(a) && mine.has(b); };
 
       // СОСЕДИ ПО ВНЕШНИМ СВЯЗЯМ НЕ ГАСЯТСЯ. Прежде они гасли до 0,2, а сами
       // связи оставались обычными — выходили «связи в никуда». У концепций
@@ -15151,91 +15151,91 @@
       // (белый 3), приглушённая (0,2). Жёлтый остаётся ТОЛЬКО за явным
       // выбором — концепции философа берут подсвеченное состояние, соседи
       // остаются обычными, и связь к ним ведёт к видимому.
-      const соседи = new Set();
+      const neighbours = new Set();
       links.forEach(l => {
-        const [a, b] = конец(l);
-        if (мои.has(a) && !мои.has(b)) соседи.add(b);
-        if (мои.has(b) && !мои.has(a)) соседи.add(a);
+        const [a, b] = end(l);
+        if (mine.has(a) && !mine.has(b)) neighbours.add(b);
+        if (mine.has(b) && !mine.has(a)) neighbours.add(a);
       });
 
       emit('philosophers-chosen');
-      gfxNode.classed('highlighted', d => мои.has(d.id));
-      gfxNode.classed('dimmed', d => !мои.has(d.id) && !соседи.has(d.id));
-      gfxLinkAll.classed('highlighted', внутри);
-      gfxLinkAll.classed('dimmed', l => !касается(l));
+      gfxNode.classed('highlighted', d => mine.has(d.id));
+      gfxNode.classed('dimmed', d => !mine.has(d.id) && !neighbours.has(d.id));
+      gfxLinkAll.classed('highlighted', inner);
+      gfxLinkAll.classed('dimmed', l => !touches(l));
 
       requestDraw();
       // Поле поиска чистит ВЫЗЫВАЮЩИЙ: подсветка на графе не должна знать о
       // легенде — иначе она тянет за собой ввоз снизу вверх (замер: одно
       // ребро 5→6 появилось ровно из-за этой строки).
-      const имена = [...chosenPhilosophers];
-      showTemporaryMessage(имена.length === 1
-        ? `${имена[0]}: концепций ${свои.length}, соседей ${соседи.size}`
-        : `Выбрано философов: ${имена.length}, концепций ${свои.length}`);
+      const names = [...chosenPhilosophers];
+      showTemporaryMessage(names.length === 1
+        ? `${names[0]}: концепций ${own.length}, соседей ${neighbours.size}`
+        : `Выбрано философов: ${names.length}, концепций ${own.length}`);
     }
 
     // ── связь в легенде: две строки, как в окне связи ───────────────
     const linkSearch = { from: null, to: null };
 
-    function handleLegendLinkSearch(конец, query) {
-      const box = document.getElementById(конец === 'from' ? 'legendLinkFromResults' : 'legendLinkToResults');
+    function handleLegendLinkSearch(end, query) {
+      const box = document.getElementById(end === 'from' ? 'legendLinkFromResults' : 'legendLinkToResults');
       if (!box) return;
       // Второй конец сужает выбор: показываем только то, с чем связь есть.
-      const другой = конец === 'from' ? linkSearch.to : linkSearch.from;
-      let набор = nodes;
-      if (другой) {
-        const соседи = new Set();
+      const other = end === 'from' ? linkSearch.to : linkSearch.from;
+      let set = nodes;
+      if (other) {
+        const neighbours = new Set();
         links.forEach(l => {
           const a = l.source.id || l.source, b = l.target.id || l.target;
-          if (a === другой.id) соседи.add(b);
-          if (b === другой.id) соседи.add(a);
+          if (a === other.id) neighbours.add(b);
+          if (b === other.id) neighbours.add(a);
         });
-        набор = nodes.filter(n => соседи.has(n.id));
+        set = nodes.filter(n => neighbours.has(n.id));
       }
-      const найдено = pickConcepts(query, набор);
-      box.innerHTML = найдено.length
-        ? найдено.map(n => `
-            <div class="concept-row" onclick="pickLinkEnd('${конец}', '${n.id}')">
+      const found = pickConcepts(query, set);
+      box.innerHTML = found.length
+        ? found.map(n => `
+            <div class="concept-row" onclick="pickLinkEnd('${end}', '${n.id}')">
               ${rowInner(n)}
             </div>`).join('')
-        : emptyList(другой ? 'Среди связанных ничего не найдено' : 'Ничего не найдено');
+        : emptyList(other ? 'Среди связанных ничего не найдено' : 'Ничего не найдено');
       box.classList.add('show');
     }
 
-    function pickLinkEnd(конец, id) {
-      const узел = nodes.find(n => n.id === id);
-      if (!узел) return;
-      linkSearch[конец] = узел;
-      const поле = document.getElementById(конец === 'from' ? 'legendLinkFrom' : 'legendLinkTo');
-      if (поле) поле.value = `${узел.label} (${узел.concept})`;
-      const box = document.getElementById(конец === 'from' ? 'legendLinkFromResults' : 'legendLinkToResults');
+    function pickLinkEnd(end, id) {
+      const node = nodes.find(n => n.id === id);
+      if (!node) return;
+      linkSearch[end] = node;
+      const field = document.getElementById(end === 'from' ? 'legendLinkFrom' : 'legendLinkTo');
+      if (field) field.value = `${node.label} (${node.concept})`;
+      const box = document.getElementById(end === 'from' ? 'legendLinkFromResults' : 'legendLinkToResults');
       if (box) { box.classList.remove('show'); box.innerHTML = ''; }
       showFoundLinks();
     }
 
     function showFoundLinks() {
-      const короб = document.getElementById('legendLinkFound');
-      if (!короб) return;
+      const box = document.getElementById('legendLinkFound');
+      if (!box) return;
       const { from, to } = linkSearch;
-      if (!from || !to) { короб.innerHTML = ''; return; }
+      if (!from || !to) { box.innerHTML = ''; return; }
 
-      const найденные = links.filter(l => {
+      const found = links.filter(l => {
         const a = l.source.id || l.source, b = l.target.id || l.target;
         return (a === from.id && b === to.id) || (a === to.id && b === from.id);
       });
-      if (!найденные.length) {
-        короб.innerHTML = emptyList('Между ними связи нет');
+      if (!found.length) {
+        box.innerHTML = emptyList('Между ними связи нет');
         return;
       }
-      короб.innerHTML = найденные.map((l, k) => {
+      box.innerHTML = found.map((l, k) => {
         const t = relationTypesObj[l.type] || {};
         const a = l.source.id || l.source;
-        const стрелка = l.bidirectional ? '↔' : (a === from.id ? '→' : '←');
+        const arrow = l.bidirectional ? '↔' : (a === from.id ? '→' : '←');
         return `
           <div class="concept-row" onclick="highlightLinkOnGraph('${from.id}', '${to.id}', ${k})">
             <div class="concept-row-color" style="background:${t.color || '#6c5ce7'};"></div>
             <div class="concept-row-text">
-              <div class="concept-row-label">${from.label} ${стрелка} ${to.label}</div>
+              <div class="concept-row-label">${from.label} ${arrow} ${to.label}</div>
               <div class="concept-row-phil">${t.label || l.type} · вес ${l.weight || 2}</div>
             </div>
           </div>`;
@@ -15243,20 +15243,20 @@
     }
 
     function highlightLinkOnGraph(idA, idB, k) {
-      const найденные = links.filter(l => {
+      const found = links.filter(l => {
         const a = l.source.id || l.source, b = l.target.id || l.target;
         return (a === idA && b === idB) || (a === idB && b === idA);
       });
-      const связь = найденные[k] || найденные[0];
-      if (!связь) return;
+      const link = found[k] || found[0];
+      if (!link) return;
 
       selectedNodes.clear();
       selectedEdges.clear();
-      selectedEdges.add(связь);
+      selectedEdges.add(link);
       highlightCombined();
 
       // Ведём к ней взгляд: середина связи в середину полотна.
-      const a = связь.source, b = связь.target;
+      const a = link.source, b = link.target;
       if (a && b && a.x !== undefined && b.x !== undefined) {
         const transform = d3.zoomIdentity
           .translate(viewWidth / 2 - (a.x + b.x) / 2, viewHeight / 2 - (a.y + b.y) / 2)
@@ -15270,8 +15270,8 @@
       linkSearch.from = null;
       linkSearch.to = null;
       ['legendLinkFrom', 'legendLinkTo'].forEach(id => {
-        const поле = document.getElementById(id);
-        if (поле) поле.value = '';
+        const field = document.getElementById(id);
+        if (field) field.value = '';
       });
       ['legendLinkFromResults', 'legendLinkToResults', 'legendLinkFound'].forEach(id => {
         const box = document.getElementById(id);
@@ -15290,11 +15290,11 @@
     const pinnedDespiteFilter = new Set();
 
     function updateFilterNote() {
-      const раздел = document.getElementById('beyondFilterSection');
-      const счёт = document.getElementById('beyondFilterCount');
-      if (!раздел) return;
-      if (счёт) счёт.textContent = pinnedDespiteFilter.size;
-      раздел.style.display = pinnedDespiteFilter.size ? 'block' : 'none';
+      const section = document.getElementById('beyondFilterSection');
+      const count = document.getElementById('beyondFilterCount');
+      if (!section) return;
+      if (count) count.textContent = pinnedDespiteFilter.size;
+      section.style.display = pinnedDespiteFilter.size ? 'block' : 'none';
     }
 
     // Имя ЛАТИНСКОЕ намеренно: делегирование делает имя действия из первого
@@ -15314,16 +15314,16 @@
     // Правка в перечень не входит намеренно — она показывается отдельным
     // окном при входе под учётной записью.
     function buildAboutText() {
-      const кол = {
-        концепций: concepts.length, связей: relations.length,
-        философов: philosophers.length, традиций: traditions.length,
-        рубрик: rubrics.length, типов: relationTypes.length,
+      const counts = {
+        concepts: concepts.length, relations: relations.length,
+        philosophers: philosophers.length, traditions: traditions.length,
+        rubrics: rubrics.length, relationTypes: relationTypes.length,
       };
-      const годы = philosophers.map(p => p.birth).filter(г => typeof г === 'number');
-      const ранний = Math.min(...годы), поздний = Math.max(...годы);
-      const век = г => г < 0 ? Math.abs(г) + ' до н.э.' : String(г);
+      const years = philosophers.map(p => p.birth).filter(year => typeof year === 'number');
+      const earliest = Math.min(...years), latest = Math.max(...years);
+      const century = year => year < 0 ? Math.abs(year) + ' до н.э.' : String(year);
 
-      const строка = (что, как) => `<tr><td>${что}</td><td>${как}</td></tr>`;
+      const row = (what, how) => `<tr><td>${what}</td><td>${how}</td></tr>`;
 
       return `
         <h2>ΦilosΦaira</h2>
@@ -15333,60 +15333,60 @@
 
         <h3>Что в базе</h3>
         <table>
-          ${строка('Концепции', `${кол.концепций} — понятия, каждое принадлежит философу`)}
-          ${строка('Связи', `${кол.связей} по ${кол.типов} типам: влияние, развитие, критика,
+          ${row('Концепции', `${counts.concepts} — понятия, каждое принадлежит философу`)}
+          ${row('Связи', `${counts.relations} по ${counts.relationTypes} типам: влияние, развитие, критика,
             противопоставление, предпосылка и другие`)}
-          ${строка('Философы', `${кол.философов}, от ${век(ранний)} до ${век(поздний)}`)}
-          ${строка('Традиции', `${кол.традиций} — школы и направления`)}
-          ${строка('Рубрики', `${кол.рубрик} — разделы философии: онтология, этика и прочие`)}
+          ${row('Философы', `${counts.philosophers}, от ${century(earliest)} до ${century(latest)}`)}
+          ${row('Традиции', `${counts.traditions} — школы и направления`)}
+          ${row('Рубрики', `${counts.rubrics} — разделы философии: онтология, этика и прочие`)}
         </table>
 
         <h3>Граф</h3>
         <table>
-          ${строка('Щелчок по узлу', 'подсветить соседей; несмежные связи гаснут')}
-          ${строка('Ctrl+щелчок', 'добавить узел или связь к выбору, повторный — снять')}
-          ${строка('Двойной щелчок', 'открыть окно концепции')}
-          ${строка('Щелчок по связи', 'открыть окно связи')}
-          ${строка('Перетаскивание', 'сдвинуть узел; отпустите — он останется свободным')}
-          ${строка('Колесо', 'масштаб; перетаскивание пустого места — сдвиг полотна')}
-          ${строка('Наведение', 'подсказка с описанием узла или связи')}
-          ${строка('Состояния', `выбранная концепция — жёлтый ободок, подсвеченная — белый
+          ${row('Щелчок по узлу', 'подсветить соседей; несмежные связи гаснут')}
+          ${row('Ctrl+щелчок', 'добавить узел или связь к выбору, повторный — снять')}
+          ${row('Двойной щелчок', 'открыть окно концепции')}
+          ${row('Щелчок по связи', 'открыть окно связи')}
+          ${row('Перетаскивание', 'сдвинуть узел; отпустите — он останется свободным')}
+          ${row('Колесо', 'масштаб; перетаскивание пустого места — сдвиг полотна')}
+          ${row('Наведение', 'подсказка с описанием узла или связи')}
+          ${row('Состояния', `выбранная концепция — жёлтый ободок, подсвеченная — белый
             потолще со свечением, обычная — тонкий белый, приглушённая — полупрозрачная`)}
         </table>
 
         <h3>Легенда слева</h3>
         <table>
-          ${строка('Галочки', 'показать или скрыть философов, типы связей, рубрики, традиции')}
-          ${строка('Заголовки разделов', 'свернуть или развернуть раздел')}
-          ${строка('Щелчок по строке философа', `выбрать его на графе: концепции подсвечиваются,
+          ${row('Галочки', 'показать или скрыть философов, типы связей, рубрики, традиции')}
+          ${row('Заголовки разделов', 'свернуть или развернуть раздел')}
+          ${row('Щелчок по строке философа', `выбрать его на графе: концепции подсвечиваются,
             соседи по внешним связям остаются видны, прочее гаснет`)}
-          ${строка('Ctrl+щелчок по строке', 'добавить философа к выбору')}
-          ${строка('Двойной щелчок по строке', 'окно философа')}
-          ${строка('Поиск', `раскрывается кнопкой; три вида — философ, концепция, связь.
+          ${row('Ctrl+щелчок по строке', 'добавить философа к выбору')}
+          ${row('Двойной щелчок по строке', 'окно философа')}
+          ${row('Поиск', `раскрывается кнопкой; три вида — философ, концепция, связь.
             Связь ищется по двум концам, и второй сужает выбор первого`)}
-          ${строка('Скрытая отбором', `находится и помечается; выбор показывает её ПОВЕРХ
+          ${row('Скрытая отбором', `находится и помечается; выбор показывает её ПОВЕРХ
             отбора, а в легенде появляется кнопка возврата`)}
         </table>
 
         <h3>Поиск пути</h3>
         <table>
-          ${строка('Откуда и куда', 'выбор концепции из полного списка или печатью')}
-          ${строка('Веса', 'сильные связи считаются более короткими')}
-          ${строка('Направленность', 'идти только по стрелке связи')}
-          ${строка('Хронология', 'режимы: строгий, умеренный, свободный и «без разрывов»')}
-          ${строка('Без разрывов', `время идёт только в одну сторону. Если цель раньше
+          ${row('Откуда и куда', 'выбор концепции из полного списка или печатью')}
+          ${row('Веса', 'сильные связи считаются более короткими')}
+          ${row('Направленность', 'идти только по стрелке связи')}
+          ${row('Хронология', 'режимы: строгий, умеренный, свободный и «без разрывов»')}
+          ${row('Без разрывов', `время идёт только в одну сторону. Если цель раньше
             источника, путь читается как родословная — «восходит к». Прочие режимы
             проверяют каждую связь по отдельности, поэтому путь может уйти вперёд на
             века и вернуться назад`)}
-          ${строка('Описания пути', 'узлы и связи по порядку, с годами и традициями')}
+          ${row('Описания пути', 'узлы и связи по порядку, с годами и традициями')}
         </table>
 
         <h3>Статистика</h3>
         <table>
-          ${строка('39 видов', 'от простых счётчиков до метрик влияния и напряжения')}
-          ${строка('Область счёта', 'по всему графу или только по видимой части')}
-          ${строка('Нормировка', 'сырые числа или приведённые к общей шкале')}
-          ${строка('Визуализировать размером', `узлы меняют размер по метрике; окно
+          ${row('39 видов', 'от простых счётчиков до метрик влияния и напряжения')}
+          ${row('Область счёта', 'по всему графу или только по видимой части')}
+          ${row('Нормировка', 'сырые числа или приведённые к общей шкале')}
+          ${row('Визуализировать размером', `узлы меняют размер по метрике; окно
             закрывается, а в легенде появляется кнопка сброса`)}
         </table>
 
@@ -15417,23 +15417,23 @@
     // document один раз — как и всё прочее делегирование.
     let hintBox = null;
 
-    function showHint(эл, текст) {
+    function showHint(el, text) {
       if (!hintBox) {
         hintBox = document.createElement('div');
         hintBox.id = 'hintBox';
         document.body.appendChild(hintBox);
       }
-      hintBox.textContent = текст;
+      hintBox.textContent = text;
       hintBox.classList.add('show');
 
       // Ставим над элементом; если сверху не помещается — под ним, а по
       // горизонтали держим в пределах окна.
-      const r = эл.getBoundingClientRect();
-      const к = hintBox.getBoundingClientRect();
-      let x = r.left + r.width / 2 - к.width / 2;
-      let y = r.top - к.height - 8;
+      const r = el.getBoundingClientRect();
+      const key = hintBox.getBoundingClientRect();
+      let x = r.left + r.width / 2 - key.width / 2;
+      let y = r.top - key.height - 8;
       if (y < 4) y = r.bottom + 8;
-      x = Math.max(4, Math.min(x, window.innerWidth - к.width - 4));
+      x = Math.max(4, Math.min(x, window.innerWidth - key.width - 4));
       hintBox.style.left = x + 'px';
       hintBox.style.top = y + 'px';
     }
@@ -15467,23 +15467,23 @@
     ];
     const busSubscribers = new Map();
 
-    function subscribe(событие, дело) {
-      if (!BUS_EVENTS.includes(событие)) {
-        console.error('шина: неизвестное событие при подписке —', событие);
+    function subscribe(event, handler) {
+      if (!BUS_EVENTS.includes(event)) {
+        console.error('шина: неизвестное событие при подписке —', event);
         return;
       }
-      if (!busSubscribers.has(событие)) busSubscribers.set(событие, []);
-      busSubscribers.get(событие).push(дело);
+      if (!busSubscribers.has(event)) busSubscribers.set(event, []);
+      busSubscribers.get(event).push(handler);
     }
 
-    function emit(событие, ...доводы) {
-      if (!BUS_EVENTS.includes(событие)) {
-        console.error('шина: неизвестное событие —', событие);
+    function emit(event, ...args) {
+      if (!BUS_EVENTS.includes(event)) {
+        console.error('шина: неизвестное событие —', event);
         return;
       }
-      for (const дело of busSubscribers.get(событие) || []) {
-        try { дело(...доводы); }
-        catch (e) { console.error('шина: подписчик события «' + событие + '» упал —', e); }
+      for (const handler of busSubscribers.get(event) || []) {
+        try { handler(...args); }
+        catch (e) { console.error('шина: подписчик события «' + event + '» упал —', e); }
       }
     }
 
@@ -21640,22 +21640,22 @@
     // прозрачность на САМОЙ стрелке, а ярлык лежал внутри неё и всё это
     // наследовал. Поэтому вес и прозрачность переехали на глиф, а ярлык
     // остался снаружи их влияния — один вид для всех связей.
-    function linkArrow(глиф, цвет, вес, подпись, ещё, откуда, куда) {
-      const в = вес || 2;
+    function linkArrow(glyph, color, weight, label, more, from, to) {
+      const to2 = weight || 2;
       // Щелчок по стрелке открывает окно связи. Прежде войти в него можно
       // было лишь с полотна да из формы правки концепции: в списках связей
       // окна концепции, окна философа и описаний пути сама связь была
       // видна, а открыть её было нечем — щелчок по строке вёл к соседней
       // КОНЦЕПЦИИ, и до связи добраться было неоткуда.
-      const открыть = откуда && куда;
-      const текст = `${подпись} · вес ${в} — ${WEIGHT_WORDS[в]}` +
-                    (открыть ? ' · щёлкните, чтобы открыть связь' : '');
-      const действие = открыть
-        ? ` onclick="openUniversalModal('connection', findConnection('${откуда}', '${куда}', false), 'view')"`
+      const openable = from && to;
+      const text = `${label} · вес ${to2} — ${WEIGHT_WORDS[to2]}` +
+                    (openable ? ' · щёлкните, чтобы открыть связь' : '');
+      const action = openable
+        ? ` onclick="openUniversalModal('connection', findConnection('${from}', '${to}', false), 'view')"`
         : '';
-      return `<div class="connection-arrow${открыть ? ' clickable' : ''}"` +
-             ` style="color:${цвет};${ещё || ''}" data-tip="${текст}"${действие}>` +
-             `<span class="connection-arrow-glyph cw-${в}">${глиф}</span>` +
+      return `<div class="connection-arrow${openable ? ' clickable' : ''}"` +
+             ` style="color:${color};${more || ''}" data-tip="${text}"${action}>` +
+             `<span class="connection-arrow-glyph cw-${to2}">${glyph}</span>` +
              `</div>`;
     }
 
@@ -24506,19 +24506,19 @@
 
     function pickConcepts(query, pool) {
       const q = (query || '').trim().toLowerCase();
-      const набор = pool || nodes;
+      const set = pool || nodes;
       // Запрос делится на слова, и КАЖДОЕ должно найти себе слово в названии
       // или в имени философа. Прежде запрос сравнивался целиком с началом
       // каждого отдельного слова, и «миф о пещере» не находил ничего: ни
       // одно слово с этой строки не начинается. Теперь находит — и порядок
       // слов не важен, «пещере миф» тоже.
-      const словаЗапроса = q ? q.split(/\s+/).filter(Boolean) : [];
-      const годится = n => {
-        if (!словаЗапроса.length) return true;   // пустой запрос = показать всё
-        const слова = (n.label + ' ' + n.concept).toLowerCase().split(/\s+/);
-        return словаЗапроса.every(з => слова.some(w => w.startsWith(з)));
+      const queryWords = q ? q.split(/\s+/).filter(Boolean) : [];
+      const fits = n => {
+        if (!queryWords.length) return true;   // пустой запрос = показать всё
+        const words = (n.label + ' ' + n.concept).toLowerCase().split(/\s+/);
+        return queryWords.every(q => words.some(w => w.startsWith(q)));
       };
-      return набор.filter(годится).sort((a, b) => {
+      return set.filter(fits).sort((a, b) => {
         const ao = philosopherOrder[a.concept] || 0;
         const bo = philosopherOrder[b.concept] || 0;
         return ao !== bo ? ao - bo : a.label.localeCompare(b.label);
@@ -24533,20 +24533,20 @@
     // текстом, а подставляться могут только ДОВОДЫ. Подставишь весь вызов
     // целиком — делегирование увидит один довод и не поймёт, что звать;
     // ровно на этом уже спотыкался modalActions.
-    function rowInner(n, хвост) {
-      const цвет = philosopherConcepts[n.concept]
+    function rowInner(n, tail) {
+      const color = philosopherConcepts[n.concept]
         ? philosopherConcepts[n.concept].color : '#6c5ce7';
       return `
-          <div class="concept-row-color" style="background:${цвет};box-shadow:0 0 6px ${цвет};"></div>
+          <div class="concept-row-color" style="background:${color};box-shadow:0 0 6px ${color};"></div>
           <div class="concept-row-text">
             <div class="concept-row-label">${n.label}</div>
             <div class="concept-row-phil">${n.concept}</div>
           </div>
-          ${хвост || ''}`;
+          ${tail || ''}`;
     }
 
-    function emptyList(текст) {
-      return `<div class="concept-row-empty">${текст || 'Ничего не найдено'}</div>`;
+    function emptyList(text) {
+      return `<div class="concept-row-empty">${text || 'Ничего не найдено'}</div>`;
     }
 
     function searchNodes(query) {
@@ -24564,13 +24564,13 @@
       // находить. Но помечаются — иначе выбор такой концепции выглядел бы
       // поломкой: соседи подсвечиваются, а сама она не появляется.
       container.innerHTML = results.map(node => {
-        const скрыта = !isNodeVisible(node);
-        const хвост = скрыта
+        const hidden = !isNodeVisible(node);
+        const tail = hidden
           ? '<div class="concept-row-note" title="">скрыта отбором</div>' : '';
         return `
-        <div class="concept-row${скрыта ? ' hidden-by-filter' : ''}"
+        <div class="concept-row${hidden ? ' hidden-by-filter' : ''}"
              onclick="selectSearchResult('${node.id}', '${context}')">
-          ${rowInner(node, хвост)}
+          ${rowInner(node, tail)}
         </div>`;
       }).join('');
       
@@ -24657,13 +24657,13 @@
     // философа нет «своего философа», поэтому вторая строка занята годами.
     function pickPhilosophers(query) {
       const q = (query || '').trim().toLowerCase();
-      const словаЗапроса = q ? q.split(/\s+/).filter(Boolean) : [];
-      const годится = p => {
-        if (!словаЗапроса.length) return true;
-        const слова = (p.nameRu + ' ' + (p.nameEn || '')).toLowerCase().split(/\s+/);
-        return словаЗапроса.every(з => слова.some(w => w.startsWith(з)));
+      const queryWords = q ? q.split(/\s+/).filter(Boolean) : [];
+      const fits = p => {
+        if (!queryWords.length) return true;
+        const words = (p.nameRu + ' ' + (p.nameEn || '')).toLowerCase().split(/\s+/);
+        return queryWords.every(q => words.some(w => w.startsWith(q)));
       };
-      return philosophers.filter(годится)
+      return philosophers.filter(fits)
         .sort((a, b) => (a.birth || 0) - (b.birth || 0));
     }
 
@@ -24673,20 +24673,20 @@
       if (!box) return;
       if (clearBtn) clearBtn.classList.toggle('show', !!(query && query.trim()));
 
-      const найдено = pickPhilosophers(query);
-      box.innerHTML = найдено.length
-        ? найдено.map(p => {
-            const цвет = philosopherConcepts[p.nameRu]
+      const found = pickPhilosophers(query);
+      box.innerHTML = found.length
+        ? found.map(p => {
+            const color = philosopherConcepts[p.nameRu]
               ? philosopherConcepts[p.nameRu].color : '#6c5ce7';
             // Считаем по идентификатору философа: в concepts поле philosopher
             // хранит именно id («aristotle»), а не имя.
-            const сколько = concepts.filter(c => c.philosopher === p.id).length;
+            const count = concepts.filter(c => c.philosopher === p.id).length;
             return `
               <div class="concept-row" onclick="selectPhilosopherResult('${p.nameRu}')">
-                <div class="concept-row-color" style="background:${цвет};box-shadow:0 0 6px ${цвет};"></div>
+                <div class="concept-row-color" style="background:${color};box-shadow:0 0 6px ${color};"></div>
                 <div class="concept-row-text">
                   <div class="concept-row-label">${p.nameRu}</div>
-                  <div class="concept-row-phil">${p.years} · концепций ${сколько}</div>
+                  <div class="concept-row-phil">${p.years} · концепций ${count}</div>
                 </div>
               </div>`;
           }).join('')
@@ -24694,16 +24694,16 @@
       box.classList.add('show');
     }
 
-    function selectPhilosopherResult(имя) {
+    function selectPhilosopherResult(name) {
       clearPhilosopherSearch();
-      openUniversalModal('philosopher', имя, 'view');
+      openUniversalModal('philosopher', name, 'view');
     }
 
     function clearPhilosopherSearch() {
-      const поле = document.getElementById('philSearchInput');
+      const field = document.getElementById('philSearchInput');
       const box = document.getElementById('philSearchResults');
       const clearBtn = document.querySelector('#philSearch .legend-search-clear');
-      if (поле) поле.value = '';
+      if (field) field.value = '';
       if (box) { box.classList.remove('show'); box.innerHTML = ''; }
       if (clearBtn) clearBtn.classList.remove('show');
     }
@@ -24765,9 +24765,9 @@
 
       // Тот же отбор и та же строка, что везде: прежде здесь список
       // выпадал весь, но без цветного кружка философа.
-      const узлы = pickConcepts(query);
-      dropdown.innerHTML = узлы.length
-        ? узлы.map(n => `
+      const nodes = pickConcepts(query);
+      dropdown.innerHTML = nodes.length
+        ? nodes.map(n => `
             <div class="concept-row" onclick="selectCustomOption('${type}', '${n.id}')">
               ${rowInner(n)}
             </div>`).join('')
@@ -25238,7 +25238,7 @@
     // Иначе выходит круг — цикл ввозит отрисовку, отрисовка ввозит цикл, —
     // и половина отрисовки оказывается связана сама с собой.
     let painter = null;
-    function setPainter(дело) { painter = дело; }
+    function setPainter(handler) { painter = handler; }
 
     function requestDraw() {
       if (drawScheduled) return;
@@ -26356,9 +26356,9 @@
     function toggleSimulationFreeze() {
       if (simLockedByHand) {
         simLockedByHand = false;
-        const улеглась = !simulation || tickCount >= maxTicks;
+        const settled = !simulation || tickCount >= maxTicks;
         unfreezeSimulation('рука');
-        if (улеглась) showTemporaryMessage('Раскладка уже улеглась — двигаться нечему', 2000);
+        if (settled) showTemporaryMessage('Раскладка уже улеглась — двигаться нечему', 2000);
       } else {
         freezeSimulation('рука');
       }
@@ -26391,14 +26391,14 @@
     // Замок: раскладка заморожена РУКОЙ и сама собой не оттает.
     let simLockedByHand = false;
 
-    function freezeSimulation(источник) {
-      if (источник === 'рука') simLockedByHand = true;
+    function freezeSimulation(source) {
+      if (source === 'рука') simLockedByHand = true;
       if (simulation) simulation.stop();
     }
 
-    function unfreezeSimulation(источник) {
+    function unfreezeSimulation(source) {
       // Замок сильнее окон: пока он стоит, закрытие окна раскладку не будит.
-      if (simLockedByHand && источник !== 'рука') return;
+      if (simLockedByHand && source !== 'рука') return;
       // Окно закрылось — граф снова виден, возобновляем непрерывную
       // отрисовку. Сам цикл не проснётся: он завершился, и
       // animLoopRunning уже false.
@@ -27694,12 +27694,12 @@
       return { traditions, philosophers, rubrics, relationTypes, concepts, relations };
     }
 
-    function deliverFile(имя, текст) {
-      const blob = new Blob([текст], { type: 'application/json' });
+    function deliverFile(name, text) {
+      const blob = new Blob([text], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = имя;
+      a.download = name;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -27707,8 +27707,8 @@
     }
 
     function downloadData() {
-      const база = collectData();
-      for (const имя of DATA_SETS) deliverFile(имя + '.json', JSON.stringify(база[имя], null, 1));
+      const data = collectData();
+      for (const name of DATA_SETS) deliverFile(name + '.json', JSON.stringify(data[name], null, 1));
       hasUnsavedEdits = false;
       return DATA_SETS.length;
     }
@@ -27722,11 +27722,11 @@
       }
       try {
         if (!dataFolder) dataFolder = await window.showDirectoryPicker({ mode: 'readwrite' });
-        const база = collectData();
-        for (const имя of DATA_SETS) {
-          const ф = await dataFolder.getFileHandle(имя + '.json', { create: true });
-          const w = await ф.createWritable();
-          await w.write(JSON.stringify(база[имя], null, 1));
+        const data = collectData();
+        for (const name of DATA_SETS) {
+          const phil = await dataFolder.getFileHandle(name + '.json', { create: true });
+          const w = await phil.createWritable();
+          await w.write(JSON.stringify(data[name], null, 1));
           await w.close();
         }
         hasUnsavedEdits = false;
@@ -28983,13 +28983,13 @@
       const other = ModalContext.editState[
         type === 'source' ? 'selectedTarget' : 'selectedSource'];
       box.innerHTML = results.map(n => {
-        const связей = other ? connectionsBetween(n.id, other).length : 0;
-        const хвост = связей
-          ? `<div class="concept-row-note" data-tip="Связей с уже выбранной концепцией">${связей} св.</div>`
+        const links = other ? connectionsBetween(n.id, other).length : 0;
+        const tail = links
+          ? `<div class="concept-row-note" data-tip="Связей с уже выбранной концепцией">${links} св.</div>`
           : '';
         return `
           <div class="concept-row" onclick="selectConnectionEditConcept('${type}', '${n.id}')">
-            ${rowInner(n, хвост)}
+            ${rowInner(n, tail)}
           </div>`;
       }).join('');
       box.classList.add('show');
@@ -29952,9 +29952,9 @@
     // рубрики там перечисляются другие концепции той же рубрики, здесь у
     // традиции перечисляются другие философы той же традиции. Порядок
     // хронологический: традиция — это преемство, и годы в ней говорят.
-    function philosopherTraditionsBlock(имя) {
-      const свои = DATA_traditions_of(имя);
-      if (!свои.length) {
+    function philosopherTraditionsBlock(name) {
+      const own = DATA_traditions_of(name);
+      if (!own.length) {
         return `<div class="rubric-section">
           <div class="rubric-description" style="color: var(--fg-muted);">
             Этот философ пока не отнесён ни к одной традиции.
@@ -29962,18 +29962,18 @@
         </div>`;
       }
 
-      return свои.map(tr => {
-        const другие = philosophers
-          .filter(f => f.nameRu !== имя && (philosopherTraditions[f.nameRu] || []).includes(tr.id))
+      return own.map(tr => {
+        const others = philosophers
+          .filter(f => f.nameRu !== name && (philosopherTraditions[f.nameRu] || []).includes(tr.id))
           .sort((a, b) => (a.birth || 0) - (b.birth || 0));
         return `
           <div class="rubric-section">
             <div class="rubric-title">🏛 Традиция: ${tr.name}</div>
             <div class="rubric-description">${tr.description || ''}</div>
-            ${другие.length ? `
+            ${others.length ? `
               <div class="related-concepts">
-                <div class="related-title">Также в этой традиции (${другие.length}):</div>
-                ${другие.map(f => `
+                <div class="related-title">Также в этой традиции (${others.length}):</div>
+                ${others.map(f => `
                   <div class="concept-item" onclick="openUniversalModal('philosopher', '${f.nameRu}', 'view');">
                     <div class="concept-color" style="background: ${philosopherConcepts[f.nameRu]
                       ? philosopherConcepts[f.nameRu].color : '#6c5ce7'}"></div>
@@ -29991,8 +29991,8 @@
     }
 
     // Традиции философа как записи справочника, а не как их имена.
-    function DATA_traditions_of(имя) {
-      const ids = philosopherTraditions[имя] || [];
+    function DATA_traditions_of(name) {
+      const ids = philosopherTraditions[name] || [];
       return ids.map(id => traditions.find(t => t.id === id)).filter(Boolean);
     }
 
@@ -30739,12 +30739,12 @@
     // Метрики и фильтры не знают о панели статистики — они лишь извещают,
     // что счёт устарел. Открыта ли панель, решает подписчик.
     // Полотно не знает об окнах: щелчок лишь извещает, чего просят.
-    subscribe('concept-picked', (режим, тип, id) => {
-      if (режим === 'view') selectConnectionViewConcept(тип, id);
-      else selectConnectionEditConcept(тип, id);
+    subscribe('concept-picked', (mode, type, id) => {
+      if (mode === 'view') selectConnectionViewConcept(type, id);
+      else selectConnectionEditConcept(type, id);
     });
     subscribe('comparison-refresh', () => renderComparison());
-    subscribe('switch-stats-view', (вид) => switchStatsView(вид));
+    subscribe('switch-stats-view', (kind) => switchStatsView(kind));
     subscribe('philosophers-chosen', () => markChosenInLegend());
     subscribe('selection-cleared', () => {
       // Показ поверх отбора держался ради выделения; выделения нет — нет и
@@ -30756,12 +30756,12 @@
     setPainter(draw);
 
     document.addEventListener('mouseover', ev => {
-      const эл = ev.target && ev.target.closest && ev.target.closest('[data-tip]');
-      if (эл) showHint(эл, эл.getAttribute('data-tip'));
+      const el = ev.target && ev.target.closest && ev.target.closest('[data-tip]');
+      if (el) showHint(el, el.getAttribute('data-tip'));
     });
     document.addEventListener('mouseout', ev => {
-      const эл = ev.target && ev.target.closest && ev.target.closest('[data-tip]');
-      if (эл && !эл.contains(ev.relatedTarget)) hideHint();
+      const el = ev.target && ev.target.closest && ev.target.closest('[data-tip]');
+      if (el && !el.contains(ev.relatedTarget)) hideHint();
     });
     document.addEventListener('scroll', hideHint, true);
     // ДЕФЕКТ И-3: подсказка «по нему можно кликнуть» висела после щелчка —
@@ -30771,8 +30771,8 @@
     subscribe('close-stats', () => closeStatsModal());
     subscribe('close-modals', () => closeDetailModal());
 
-    subscribe('open-concept', (узел) => showDetailModal(узел));
-    subscribe('open-link', (связь) => openUniversalModal('connection', связь, 'view'));
+    subscribe('open-concept', (node) => showDetailModal(node));
+    subscribe('open-link', (link) => openUniversalModal('connection', link, 'view'));
     subscribe('edit-concept', (id) => openEditConceptModal(id));
     subscribe('edit-link', (a, b) => openEditConnectionModal(a, b));
 

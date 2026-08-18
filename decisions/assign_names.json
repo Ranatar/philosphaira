@@ -854,14 +854,6 @@
    "модуль": "stats/modal.js",
    "имя": "installStatsModalDismiss"
   },
-  "document.addEventListener('mouseover') @8a2e7fc6": {
-   "модуль": "ui/hint.js",
-   "имя": "installHintOver"
-  },
-  "document.addEventListener('mouseout') @8a9ed5ad": {
-   "модуль": "ui/hint.js",
-   "имя": "installHintOut"
-  },
   "document.addEventListener('scroll') @64e740c4": {
    "модуль": "ui/hint.js",
    "имя": "installHintOnScroll"
@@ -869,6 +861,14 @@
   "document.addEventListener('click') @d0a2e14a": {
    "модуль": "ui/hint.js",
    "имя": "installHintOnClick"
+  },
+  "document.addEventListener('mouseover') @acf7f7d9": {
+   "модуль": "ui/hint.js",
+   "имя": "installHintOver"
+  },
+  "document.addEventListener('mouseout') @85dee8c5": {
+   "модуль": "ui/hint.js",
+   "имя": "installHintOut"
   }
  }
 }

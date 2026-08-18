@@ -14,12 +14,12 @@ function collectData() {
       return { traditions: DATA.traditions, philosophers: DATA.philosophers, rubrics: DATA.rubrics, relationTypes: DATA.relationTypes, concepts: DATA.concepts, relations: DATA.relations };
     }
 
-function deliverFile(имя, текст) {
-      const blob = new Blob([текст], { type: 'application/json' });
+function deliverFile(name, text) {
+      const blob = new Blob([text], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = имя;
+      a.download = name;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -27,8 +27,8 @@ function deliverFile(имя, текст) {
     }
 
 function downloadData() {
-      const база = collectData();
-      for (const имя of DATA_SETS) deliverFile(имя + '.json', JSON.stringify(база[имя], null, 1));
+      const data = collectData();
+      for (const name of DATA_SETS) deliverFile(name + '.json', JSON.stringify(data[name], null, 1));
       hasUnsavedEdits = false;
       return DATA_SETS.length;
     }
@@ -42,11 +42,11 @@ async function saveToFolder() {
       }
       try {
         if (!dataFolder) dataFolder = await window.showDirectoryPicker({ mode: 'readwrite' });
-        const база = collectData();
-        for (const имя of DATA_SETS) {
-          const ф = await dataFolder.getFileHandle(имя + '.json', { create: true });
-          const w = await ф.createWritable();
-          await w.write(JSON.stringify(база[имя], null, 1));
+        const data = collectData();
+        for (const name of DATA_SETS) {
+          const phil = await dataFolder.getFileHandle(name + '.json', { create: true });
+          const w = await phil.createWritable();
+          await w.write(JSON.stringify(data[name], null, 1));
           await w.close();
         }
         hasUnsavedEdits = false;

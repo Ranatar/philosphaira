@@ -11,6 +11,7 @@ import { showDetailModal } from '../modal/entry.js';
 import { clearModalSearch } from '../modal/search.js';
 import { gfxSvg } from '../render/canvas-core.js';
 import { gfxZoom } from '../render/d3-layer.js';
+
 import { highlightConnected } from '../render/selection.js';
 import { pinnedDespiteFilter, pinnedVisibleNodes } from '../state/filters.js';
 import { selectedNodes } from '../state/render.js';
@@ -20,30 +21,30 @@ import { clearLegendPhilSearch } from './search-philosopher.js';
 let searchKind = 'concept';
 
 function toggleLegendSearch() {
-      const тело = document.getElementById('searchBody');
-      const открыт = тело.style.display !== 'none';
-      тело.style.display = открыт ? 'none' : 'block';
-      if (открыт) {
+      const body = document.getElementById('searchBody');
+      const open = body.style.display !== 'none';
+      body.style.display = open ? 'none' : 'block';
+      if (open) {
         clearLegendSearch();
         clearLegendPhilSearch();
         clearLinkSearch();
       } else {
         setSearchKind('concept');   // по умолчанию — концепции
-        const поле = document.getElementById('legendSearchInput');
-        if (поле) поле.focus();
+        const field = document.getElementById('legendSearchInput');
+        if (field) field.focus();
       }
     }
 
-function setSearchKind(вид) {
-      searchKind = вид;
-      const строки = { philosopher: 'rowPhilosopher', concept: 'rowConcept', connection: 'rowConnection' };
-      Object.entries(строки).forEach(([к, id]) => {
+function setSearchKind(kind) {
+      searchKind = kind;
+      const rows = { philosopher: 'rowPhilosopher', concept: 'rowConcept', connection: 'rowConnection' };
+      Object.entries(rows).forEach(([key, id]) => {
         const el = document.getElementById(id);
-        if (el) el.style.display = (к === вид) ? (к === 'connection' ? 'block' : 'flex') : 'none';
+        if (el) el.style.display = (key === kind) ? (key === 'connection' ? 'block' : 'flex') : 'none';
       });
-      ['Philosopher', 'Concept', 'Connection'].forEach(к => {
-        const b = document.getElementById('kind' + к);
-        if (b) b.classList.toggle('active', к.toLowerCase() === вид);
+      ['Philosopher', 'Concept', 'Connection'].forEach(key => {
+        const b = document.getElementById('kind' + key);
+        if (b) b.classList.toggle('active', key.toLowerCase() === kind);
       });
       // Найденное прежним видом убираем: оно уже не про то, что спрашивают.
       clearLegendSearch();

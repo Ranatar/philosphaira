@@ -2,7 +2,7 @@
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
 115 модулей, 17607 строк, 661 объявлений,
-666 вывозов, 692 рёбер ввоза. Составлено 2026-08-18 17:40:44.
+666 вывозов, 692 рёбер ввоза. Составлено 2026-08-18 19:59:47.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -183,7 +183,7 @@
 | `modules/stats/views/rankings.js` | 141 | 2 | 2 | 5 | DATA:2, S:1 |
 | `modules/ui/about.js` | 102 | 4 | 4 | 1 | DATA:6 |
 | `modules/ui/actions-byname.js` | 20 | 2 | 0 | 2 | — |
-| `modules/ui/actions-dyn.js` | 148 | 0 | 0 | 31 | DATA:1, S:9 |
+| `modules/ui/actions-dyn.js` | 147 | 0 | 0 | 31 | DATA:1, S:9 |
 | `modules/ui/actions-static.js` | 121 | 0 | 0 | 21 | — |
 | `modules/ui/actions.js` | 27 | 1 | 3 | 0 | — |
 | `modules/ui/delegation.js` | 70 | 3 | 1 | 1 | — |
@@ -191,7 +191,7 @@
 | `modules/ui/hint.js` | 60 | 7 | 7 | 1 | S:1 |
 | `modules/ui/legend.js` | 317 | 27 | 27 | 7 | DATA:7, S:10 |
 | `modules/ui/panels.js` | 40 | 2 | 2 | 0 | — |
-| `modules/ui/search-legend.js` | 140 | 7 | 7 | 17 | DATA:1, S:2 |
+| `modules/ui/search-legend.js` | 141 | 7 | 7 | 17 | DATA:1, S:2 |
 | `modules/ui/search-link.js` | 117 | 6 | 6 | 9 | DATA:3, S:2 |
 | `modules/ui/search-philosopher.js` | 98 | 7 | 7 | 5 | DATA:3 |
 | `modules/util/color.js` | 23 | 1 | 1 | 0 | — |
@@ -255,8 +255,8 @@
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `ФАЙЛЫ` | const | 1 | — |
-| `прочитано` | const | 1 | — |
+| `FILES` | const | 1 | — |
+| `loaded` | const | 1 | — |
 
 ### `modules/core/relation-types.js` — 59 строк, объявлений 6
 
@@ -1241,22 +1241,22 @@
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `вызватьПоИмени` | function | 5 | — |
-| `ПОИМЕНИ` | const | 1 | — |
+| `callByName` | function | 5 | — |
+| `BY_NAME` | const | 1 | — |
 
 ### `modules/ui/actions.js` — 27 строк, объявлений 1
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `ДЕЙСТВИЯ` | const | 1 | — |
+| `ACTIONS` | const | 1 | — |
 
 ### `modules/ui/delegation.js` — 70 строк, объявлений 3
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `сПодменойСобытия` | function | 16 | — |
-| `СОБЫТИЯ` | const | 1 | — |
-| `ГРАНИЦЫ` | const | 1 | — |
+| `withEventSwap` | function | 16 | — |
+| `EVENTS` | const | 1 | — |
+| `BOUNDS` | const | 1 | — |
 
 ### `modules/ui/export.js` — 126 строк, объявлений 2
 
@@ -1316,7 +1316,7 @@
 | `togglePanel` | function | 20 | да |
 | `restorePanelStates` | function | 14 | да |
 
-### `modules/ui/search-legend.js` — 140 строк, объявлений 7
+### `modules/ui/search-legend.js` — 141 строк, объявлений 7
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|

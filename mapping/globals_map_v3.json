@@ -1,11 +1,11 @@
 {
   "meta": {
     "file": "source/philosophy_graph_v3.html",
-    "bytes": 2009000,
+    "bytes": 2008974,
     "lines": 30850,
     "scriptFrom": 5088,
     "scriptTo": 30847,
-    "generated": "2026-08-18T16:16:26.186Z",
+    "generated": "2026-08-18T19:59:46.221Z",
     "counts": {
       "total": 814,
       "functions": 511,
@@ -2379,10 +2379,10 @@
       "endLine": 14018,
       "lines": 8,
       "params": [
-        "отId",
-        "кId",
-        "ход",
-        "крайний"
+        "fromId",
+        "toId",
+        "step",
+        "last"
       ],
       "uses": [
         {
@@ -3807,7 +3807,7 @@
       "endLine": 15062,
       "lines": 16,
       "params": [
-        "вид"
+        "kind"
       ],
       "uses": [
         {
@@ -3895,7 +3895,7 @@
       "endLine": 15093,
       "lines": 4,
       "params": [
-        "имя"
+        "name"
       ],
       "uses": [
         {
@@ -4009,8 +4009,8 @@
       "endLine": 15175,
       "lines": 56,
       "params": [
-        "имя",
-        "добавить"
+        "name",
+        "add"
       ],
       "uses": [
         {
@@ -4120,7 +4120,7 @@
       "endLine": 15203,
       "lines": 24,
       "params": [
-        "конец",
+        "end",
         "query"
       ],
       "uses": [
@@ -4172,7 +4172,7 @@
       "endLine": 15214,
       "lines": 10,
       "params": [
-        "конец",
+        "end",
         "id"
       ],
       "uses": [
@@ -4602,8 +4602,8 @@
       "endLine": 15439,
       "lines": 20,
       "params": [
-        "эл",
-        "текст"
+        "el",
+        "text"
       ],
       "uses": [
         {
@@ -4706,8 +4706,8 @@
       "endLine": 15477,
       "lines": 8,
       "params": [
-        "событие",
-        "дело"
+        "event",
+        "handler"
       ],
       "uses": [
         {
@@ -4822,8 +4822,8 @@
       "endLine": 15488,
       "lines": 10,
       "params": [
-        "событие",
-        "...доводы"
+        "event",
+        "...args"
       ],
       "uses": [
         {
@@ -15856,13 +15856,13 @@
       "endLine": 21660,
       "lines": 18,
       "params": [
-        "глиф",
-        "цвет",
-        "вес",
-        "подпись",
-        "ещё",
-        "откуда",
-        "куда"
+        "glyph",
+        "color",
+        "weight",
+        "label",
+        "more",
+        "from",
+        "to"
       ],
       "uses": [
         {
@@ -20735,7 +20735,7 @@
       "lines": 11,
       "params": [
         "n",
-        "хвост"
+        "tail"
       ],
       "uses": [
         {
@@ -20777,7 +20777,7 @@
       "endLine": 24550,
       "lines": 3,
       "params": [
-        "текст"
+        "text"
       ],
       "uses": [],
       "usedBy": [
@@ -21110,7 +21110,7 @@
       "endLine": 24700,
       "lines": 4,
       "params": [
-        "имя"
+        "name"
       ],
       "uses": [
         {
@@ -22957,7 +22957,7 @@
       "endLine": 25241,
       "lines": 1,
       "params": [
-        "дело"
+        "handler"
       ],
       "uses": [
         {
@@ -26151,7 +26151,7 @@
       "endLine": 26397,
       "lines": 4,
       "params": [
-        "источник"
+        "source"
       ],
       "uses": [
         {
@@ -26203,7 +26203,7 @@
       "endLine": 26415,
       "lines": 17,
       "params": [
-        "источник"
+        "source"
       ],
       "uses": [
         {
@@ -29567,8 +29567,8 @@
       "endLine": 27707,
       "lines": 11,
       "params": [
-        "имя",
-        "текст"
+        "name",
+        "text"
       ],
       "uses": [],
       "usedBy": [
@@ -32386,7 +32386,7 @@
       "endLine": 29991,
       "lines": 37,
       "params": [
-        "имя"
+        "name"
       ],
       "uses": [
         {
@@ -32427,7 +32427,7 @@
       "endLine": 29997,
       "lines": 4,
       "params": [
-        "имя"
+        "name"
       ],
       "uses": [
         {
@@ -36463,7 +36463,7 @@
         "attr": "onclick",
         "line": 14903,
         "producer": "showPathDescriptionsModal",
-        "code": "openConceptById('${узел.id}')",
+        "code": "openConceptById('${node.id}')",
         "calls": [
           "openConceptById"
         ]
@@ -36472,7 +36472,7 @@
         "attr": "onclick",
         "line": 14906,
         "producer": "showPathDescriptionsModal",
-        "code": "openUniversalModal('philosopher', '${узел.concept}', 'view')",
+        "code": "openUniversalModal('philosopher', '${node.concept}', 'view')",
         "calls": [
           "openUniversalModal"
         ]
@@ -36500,7 +36500,7 @@
         "attr": "onclick",
         "line": 15198,
         "producer": "handleLegendLinkSearch",
-        "code": "pickLinkEnd('${конец}', '${n.id}')",
+        "code": "pickLinkEnd('${end}', '${n.id}')",
         "calls": [
           "pickLinkEnd"
         ]
@@ -36581,7 +36581,7 @@
         "attr": "onclick",
         "line": 21654,
         "producer": "linkArrow",
-        "code": "openUniversalModal('connection', findConnection('${откуда}', '${куда}', false), 'view')",
+        "code": "openUniversalModal('connection', findConnection('${from}', '${to}', false), 'view')",
         "calls": [
           "openUniversalModal",
           "findConnection"

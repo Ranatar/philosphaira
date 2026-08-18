@@ -15,9 +15,9 @@ import { getContrastColor } from '../util/color.js';
 import { formatBirthYear, philosopherBirth, philosopherYears, sortPhilosophersByBirth } from '../util/philosopher-label.js';
 import { conjugateVerb, declinePhilosopher } from '../util/ru.js';
 
-function philosopherTraditionsBlock(имя) {
-      const свои = DATA_traditions_of(имя);
-      if (!свои.length) {
+function philosopherTraditionsBlock(name) {
+      const own = DATA_traditions_of(name);
+      if (!own.length) {
         return `<div class="rubric-section">
           <div class="rubric-description" style="color: var(--fg-muted);">
             Этот философ пока не отнесён ни к одной традиции.
@@ -25,18 +25,18 @@ function philosopherTraditionsBlock(имя) {
         </div>`;
       }
 
-      return свои.map(tr => {
-        const другие = DATA.philosophers
-          .filter(f => f.nameRu !== имя && (DATA.philosopherTraditions[f.nameRu] || []).includes(tr.id))
+      return own.map(tr => {
+        const others = DATA.philosophers
+          .filter(f => f.nameRu !== name && (DATA.philosopherTraditions[f.nameRu] || []).includes(tr.id))
           .sort((a, b) => (a.birth || 0) - (b.birth || 0));
         return `
           <div class="rubric-section">
             <div class="rubric-title">🏛 Традиция: ${tr.name}</div>
             <div class="rubric-description">${tr.description || ''}</div>
-            ${другие.length ? `
+            ${others.length ? `
               <div class="related-concepts">
-                <div class="related-title">Также в этой традиции (${другие.length}):</div>
-                ${другие.map(f => `
+                <div class="related-title">Также в этой традиции (${others.length}):</div>
+                ${others.map(f => `
                   <div class="concept-item" data-act-click="open-universal-modal-9" data-a1="${f.nameRu}">
                     <div class="concept-color" style="background: ${DATA.philosopherConcepts[f.nameRu]
                       ? DATA.philosopherConcepts[f.nameRu].color : '#6c5ce7'}"></div>
@@ -53,8 +53,8 @@ function philosopherTraditionsBlock(имя) {
       }).join('');
     }
 
-function DATA_traditions_of(имя) {
-      const ids = DATA.philosopherTraditions[имя] || [];
+function DATA_traditions_of(name) {
+      const ids = DATA.philosopherTraditions[name] || [];
       return ids.map(id => DATA.traditions.find(t => t.id === id)).filter(Boolean);
     }
 

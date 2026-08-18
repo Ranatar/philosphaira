@@ -6,19 +6,19 @@ import { CHRONOLOGY_MODES, MATURITY_AGE } from '../core/time.js';
 function nodeAge(id) {
       const n = DATA_nodes_find(id);
       if (!n) return null;
-      const ф = DATA.philosophers.find(p => p.nameRu === n.concept);
-      return ф ? ф.birth : null;
+      const phil = DATA.philosophers.find(p => p.nameRu === n.concept);
+      return phil ? phil.birth : null;
     }
 
 function DATA_nodes_find(id) { return DATA.nodes.find(n => n.id === id); }
 
-function stepWithoutGap(отId, кId, ход, крайний) {
-      const a = DATA_nodes_find(отId), b = DATA_nodes_find(кId);
+function stepWithoutGap(fromId, toId, step, last) {
+      const a = DATA_nodes_find(fromId), b = DATA_nodes_find(toId);
       if (!a || !b) return true;
       if (a.concept === b.concept) return true;   // внутри философа — свободно
-      const г = nodeAge(кId);
-      if (г === null || крайний === null) return true;
-      return ход > 0 ? г >= крайний : г <= крайний;
+      const year = nodeAge(toId);
+      if (year === null || last === null) return true;
+      return step > 0 ? year >= last : year <= last;
     }
 
 function strictChronologyCheck(fromPhil, toPhil) {

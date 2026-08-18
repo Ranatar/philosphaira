@@ -833,7 +833,7 @@
   "откуда": "modules/modal/connection-edit.js"
  },
  "open-universal-modal-4": {
-  "код": "openUniversalModal('connection', findConnection('${откуда}', '${куда}', false), 'view')",
+  "код": "openUniversalModal('connection', findConnection('${from}', '${to}', false), 'view')",
   "attr": "onclick",
   "тело": "openUniversalModal('connection', findConnection(el.dataset.a1, el.dataset.a2, false), 'view')",
   "аргументов": 2,
@@ -1134,14 +1134,14 @@
   "откуда": "modules/paths/path-descriptions.js"
  },
  "open-concept-by-id-2": {
-  "код": "openConceptById('${узел.id}')",
+  "код": "openConceptById('${node.id}')",
   "attr": "onclick",
   "тело": "openConceptById(el.dataset.a1)",
   "аргументов": 1,
-  "откуда": "modules/paths/path-descriptions.js"
+  "откуда": "modules/paths/path-ui.js"
  },
  "open-universal-modal-13": {
-  "код": "openUniversalModal('philosopher', '${узел.concept}', 'view')",
+  "код": "openUniversalModal('philosopher', '${node.concept}', 'view')",
   "attr": "onclick",
   "тело": "openUniversalModal('philosopher', el.dataset.a1, 'view')",
   "аргументов": 1,
@@ -1159,13 +1159,6 @@
   "attr": "onclick",
   "тело": "clearPathHighlight()",
   "аргументов": 0,
-  "откуда": "modules/paths/path-ui.js"
- },
- "open-concept-by-id-3": {
-  "код": "openConceptById('${node.id}')",
-  "attr": "onclick",
-  "тело": "openConceptById(el.dataset.a1)",
-  "аргументов": 1,
   "откуда": "modules/paths/path-ui.js"
  },
  "open-universal-modal-15": {
@@ -1428,7 +1421,7 @@
   "откуда": "modules/ui/legend.js"
  },
  "pick-link-end": {
-  "код": "pickLinkEnd('${конец}', '${n.id}')",
+  "код": "pickLinkEnd('${end}', '${n.id}')",
   "attr": "onclick",
   "тело": "pickLinkEnd(el.dataset.a1, el.dataset.a2)",
   "аргументов": 2,

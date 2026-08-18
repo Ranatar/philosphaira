@@ -10,22 +10,22 @@ import { ModalContext } from './context.js';
 
 import { getContrastColor } from '../util/color.js';
 
-function linkArrow(глиф, цвет, вес, подпись, ещё, откуда, куда) {
-      const в = вес || 2;
+function linkArrow(glyph, color, weight, label, more, from, to) {
+      const to2 = weight || 2;
       // Щелчок по стрелке открывает окно связи. Прежде войти в него можно
       // было лишь с полотна да из формы правки концепции: в списках связей
       // окна концепции, окна философа и описаний пути сама связь была
       // видна, а открыть её было нечем — щелчок по строке вёл к соседней
       // КОНЦЕПЦИИ, и до связи добраться было неоткуда.
-      const открыть = откуда && куда;
-      const текст = `${подпись} · вес ${в} — ${WEIGHT_WORDS[в]}` +
-                    (открыть ? ' · щёлкните, чтобы открыть связь' : '');
-      const действие = открыть
-        ? ` data-act-click="open-universal-modal-4" data-a1="${откуда}" data-a2="${куда}"`
+      const openable = from && to;
+      const text = `${label} · вес ${to2} — ${WEIGHT_WORDS[to2]}` +
+                    (openable ? ' · щёлкните, чтобы открыть связь' : '');
+      const action = openable
+        ? ` data-act-click="open-universal-modal-4" data-a1="${from}" data-a2="${to}"`
         : '';
-      return `<div class="connection-arrow${открыть ? ' clickable' : ''}"` +
-             ` style="color:${цвет};${ещё || ''}" data-tip="${текст}"${действие}>` +
-             `<span class="connection-arrow-glyph cw-${в}">${глиф}</span>` +
+      return `<div class="connection-arrow${openable ? ' clickable' : ''}"` +
+             ` style="color:${color};${more || ''}" data-tip="${text}"${action}>` +
+             `<span class="connection-arrow-glyph cw-${to2}">${glyph}</span>` +
              `</div>`;
     }
 

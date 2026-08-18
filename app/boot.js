@@ -149,14 +149,14 @@ export async function boot() {
         if (S.isStatsModalOpen && S.currentStatsView) loadStatsContent(S.currentStatsView);
       });
   
-  subscribe('concept-picked', (режим, тип, id) => {
-        if (режим === 'view') selectConnectionViewConcept(тип, id);
-        else selectConnectionEditConcept(тип, id);
+  subscribe('concept-picked', (mode, type, id) => {
+        if (mode === 'view') selectConnectionViewConcept(type, id);
+        else selectConnectionEditConcept(type, id);
       });
   
   subscribe('comparison-refresh', () => renderComparison());
   
-  subscribe('switch-stats-view', (вид) => switchStatsView(вид));
+  subscribe('switch-stats-view', (kind) => switchStatsView(kind));
   
   subscribe('philosophers-chosen', () => markChosenInLegend());
   
@@ -181,9 +181,9 @@ export async function boot() {
   
   subscribe('close-modals', () => closeDetailModal());
   
-  subscribe('open-concept', (узел) => showDetailModal(узел));
+  subscribe('open-concept', (node) => showDetailModal(node));
   
-  subscribe('open-link', (связь) => openUniversalModal('connection', связь, 'view'));
+  subscribe('open-link', (link) => openUniversalModal('connection', link, 'view'));
   
   subscribe('edit-concept', (id) => openEditConceptModal(id));
   
