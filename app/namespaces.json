@@ -78,6 +78,7 @@
  "metricsScopeActive": "S",
  "metricsLinkSource": "S",
  "metricsNodeSource": "S",
+ "_reflexiveMap": "S",
  "_concepts": "S",
  "_philosophers": "S",
  "_relations": "S",

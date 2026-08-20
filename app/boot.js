@@ -32,6 +32,7 @@ import { installChronologyToggle } from './modules/paths/chronology.js';
 import { installChronologyMode } from './modules/paths/chronology.js';
 import { showChronologyModeIfOn } from './modules/paths/chronology.js';
 import { subscribe } from './modules/core/events.js';
+import { rebuildIndexes } from './modules/core/graph-index.js';
 import { resetBeyondFilter } from './modules/filters/beyond-filter.js';
 import { applyFiltersImmediate } from './modules/filters/filters.js';
 import { initializePhilosophyMetrics } from './modules/metrics/link-indexes.js';
@@ -61,6 +62,8 @@ export async function boot() {
   buildConceptToRubrics();
   
   buildRubricsIndex();
+  
+  rebuildIndexes();
   
   buildPhilosopherTraditions();
   

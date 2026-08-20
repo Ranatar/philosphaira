@@ -1190,16 +1190,16 @@
   "откуда": "modules/paths/path-ui.js"
  },
  "show-similarity-overlay-2": {
-  "код": "showSimilarityOverlay('${S.similarityOverlay.sourceId}','profile')",
+  "код": "showSimilarityOverlay('${S.similarityOverlay.sourceId}','${k}')",
   "attr": "onclick",
-  "тело": "showSimilarityOverlay(el.dataset.a1,'profile')",
-  "аргументов": 1,
+  "тело": "showSimilarityOverlay(el.dataset.a1,el.dataset.a2)",
+  "аргументов": 2,
   "откуда": "modules/render/similarity-overlay.js"
  },
- "show-similarity-overlay-3": {
-  "код": "showSimilarityOverlay('${S.similarityOverlay.sourceId}','structure')",
+ "set-similarity-links": {
+  "код": "setSimilarityLinks('${m}')",
   "attr": "onclick",
-  "тело": "showSimilarityOverlay(el.dataset.a1,'structure')",
+  "тело": "setSimilarityLinks(el.dataset.a1)",
   "аргументов": 1,
   "откуда": "modules/render/similarity-overlay.js"
  },
@@ -1366,6 +1366,13 @@
  },
  "set-influence-scope": {
   "код": "setInfluenceScope('${k}')",
+  "attr": "onclick",
+  "тело": "setInfluenceScope(el.dataset.a1)",
+  "аргументов": 1,
+  "откуда": "modules/stats/views/philosophical.js"
+ },
+ "set-influence-scope-2": {
+  "код": "setInfluenceScope('${S.influenceScope === 'within_ext' ? 'within' : 'within_ext'}')",
   "attr": "onclick",
   "тело": "setInfluenceScope(el.dataset.a1)",
   "аргументов": 1,

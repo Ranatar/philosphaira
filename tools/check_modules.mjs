@@ -95,5 +95,40 @@ for (const f of files) {
     }
   }
 }
-console.log(`\nфайлов ${files.length} | несведённых имён ${bad} | негодных ввозов ${badImports}`);
-process.exit(bad + badImports === 0 ? 0 : 1);
+// ── достижимость от точки входа ─────────────────────────────────────
+// Мина №4 из doc/build.md: «модуль, который никто не ввозит, не исполняется».
+// Она молчалива вдвойне — файл на месте, разбор его хвалит, страница
+// открывается, и только часть поведения отсутствует. Так пропажа ввоза
+// `actions-dyn.js` из main.js стоила 111 действий из 206 при полностью
+// зелёных проверках строения.
+// Спрашиваем о неизменном: дойдёт ли ввоз от main.js до каждого модуля.
+const ВНЕ = new Set(['_probe-rig.js', 'modules/dead.js']);   // оснастка и склад
+const достижимые = new Set();
+(function обойти(rel) {
+  if (достижимые.has(rel)) return;
+  достижимые.add(rel);
+  const p = path.join(ROOT, rel);
+  if (!fs.existsSync(p) || !p.endsWith('.js')) return;
+  let ast;
+  try { ast = acorn.parse(fs.readFileSync(p, 'utf8'), { ecmaVersion: 'latest', sourceType: 'module' }); }
+  catch { return; }
+  for (const n of ast.body) {
+    const из = (n.type === 'ImportDeclaration' || n.type === 'ExportNamedDeclaration'
+             || n.type === 'ExportAllDeclaration') && n.source && n.source.value;
+    if (!из || !из.startsWith('.')) continue;
+    обойти(path.posix.normalize(path.posix.join(path.posix.dirname(rel), из)));
+  }
+})('main.js');
+
+let недостижимых = 0;
+for (const f of files) {
+  const rel = path.relative(ROOT, f).split(path.sep).join('/');
+  if (ВНЕ.has(rel) || rel === 'main.js') continue;
+  if (!достижимые.has(rel)) {
+    console.log(`${rel}: НЕ ДОСТИЖИМ от main.js — модуль не исполнится`);
+    недостижимых++;
+  }
+}
+
+console.log(`\nфайлов ${files.length} | несведённых имён ${bad} | негодных ввозов ${badImports} | недостижимых ${недостижимых}`);
+process.exit(bad + badImports + недостижимых === 0 ? 0 : 1);

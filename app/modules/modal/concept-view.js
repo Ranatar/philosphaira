@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById, rubricById } from '../core/graph-index.js';
 import { medianNodeDegree, nodeDegreeOf } from '../metrics/network.js';
 import { nearestConcepts } from '../metrics/similarity-concepts.js';
 import { linkArrow } from './connection-view.js';
@@ -15,7 +16,7 @@ function similarConceptsBlock(conceptId) {
       } catch (e) { return ''; }
       if (!byProfile.length && !byStructure.length) return '';
 
-      const nodeById = id => DATA.nodes.find(n => n.id === id);
+      const nodeById = id => conceptById.get(id);
       const item = (x, unit) => {
         const n = nodeById(x.id);
         if (!n) return '';
@@ -119,7 +120,7 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
           const tgt = conn.target.id || conn.target;
           const isSource = src === conceptData.id;
           const connectedNodeId = isSource ? tgt : src;
-          const connectedNode = DATA.nodes.find(n => n.id === connectedNodeId);
+          const connectedNode = conceptById.get(connectedNodeId);
           
           if (!connectedNode) return;
           
@@ -279,7 +280,7 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
       // Секция рубрик (без изменений)
       if (conceptRubrics.length > 0) {
         const rubricDataArray = conceptRubrics.map(rubricId => 
-          DATA.rubrics.find(r => r.id === rubricId)
+          rubricById.get(rubricId)
         ).filter(r => r !== undefined);
         
         rubricDataArray.forEach(rubricData => {
@@ -332,4 +333,3 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
       return html;
     };
 
-export { similarConceptsBlock };

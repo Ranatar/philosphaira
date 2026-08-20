@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
+import { philosopherByName } from '../core/graph-index.js';
 import { modalEntityExists } from './assembly.js';
 import { ModalContext } from './context.js';
 
@@ -37,7 +38,7 @@ function hasFilledFields() {
     }
 
 function hasPhilosopherChanges(original) {
-      const philosopherData = DATA.philosophers.find(p => p.nameRu === original);
+      const philosopherData = philosopherByName.get(original);
       if (!philosopherData) return false;
 
       const nameInput  = document.getElementById('philName');
@@ -107,4 +108,4 @@ function hasConnectionChanges(original) {
         || (tgtNow !== undefined && tgtNow !== tgtWas);
     }
 
-export { hasConceptChanges, hasConnectionChanges, hasFilledFields, hasPhilosopherChanges, hasUnsavedChanges };
+export { hasUnsavedChanges };

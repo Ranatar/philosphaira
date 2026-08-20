@@ -239,4 +239,4 @@ function nearestConcepts(conceptId, kind, k) {
       return res;
     }
 
-export { PAIRS_CHUNK_ROWS, _neighborCache, _pairCache, _pairCalculating, _simCache, allConceptPairs, allConceptPairsAsync, invalidateSimilarityCache, nearestConcepts, neighborSets, profileIsMeaningful, profileSimilarity, similarityData, structuralSimilarity, typeProfileOf };
+export { _pairCalculating, _simCache, allConceptPairs, allConceptPairsAsync, invalidateSimilarityCache, nearestConcepts, profileIsMeaningful, profileSimilarity, similarityData, structuralSimilarity };

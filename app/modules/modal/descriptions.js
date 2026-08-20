@@ -158,4 +158,4 @@ function toggleAllPhilosopherConnectionDescriptions(btn) {
         '▼ Развернуть все описания связей';
     }
 
-export { allDescriptionsExpanded, allPhilosopherConceptDescriptionsExpanded, allPhilosopherConnectionDescriptionsExpanded, toggleAllConnectionDescriptions, toggleAllPhilosopherConceptDescriptions, toggleAllPhilosopherConnectionDescriptions, toggleAllRoot, toggleConnectionDescription, togglePhilosopherConceptDescription, toggleSubsection };
+export { toggleAllConnectionDescriptions, toggleAllPhilosopherConceptDescriptions, toggleAllPhilosopherConnectionDescriptions, toggleConnectionDescription, togglePhilosopherConceptDescription, toggleSubsection };

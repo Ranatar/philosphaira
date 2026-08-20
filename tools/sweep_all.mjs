@@ -275,6 +275,37 @@ async function run(pageName, part) {
         const m = document.getElementById('statsModal');
         return m ? getComputedStyle(m).display : null;
       });
+      // Окна профилей до действия. Часть действий их открывает (карточка
+      // концепции в виде статистики зовёт showConceptProfileModal), и след
+      // тянется во ВСЕ дальнейшие снимки: содержимое профиля и его display.
+      // Именно этим отличались две моды обхода, из-за которых эталон нельзя
+      // было переучредить: в одном прогоне окно оставалось открытым, в другом
+      // действие попадалось дважды и само себя отменяло.
+      // Спрашиваем о состоянии ДО, а не о том, что окно закрыто вообще: в
+      // частях 2 и 3 обход идёт ВНУТРИ этих самых окон, и закрывать их там
+      // нельзя.
+      const профильБыл = await page.evaluate(() => {
+        const д = id => { const e = document.getElementById(id); return e ? getComputedStyle(e).display : null; };
+        return { концепция: д('conceptProfileModal'), философ: д('philosopherProfileModal') };
+      });
+      // Режим значений метрики (сырые / нормированные). Легенда при показанной
+      // метрике печатает значения, и переключение режима меняет её на 11 знаков
+      // — след, тянущийся во все дальнейшие снимки. Кнопка режима попадается
+      // обходу то один раз, то два (во втором случае действие само себя
+      // отменяет) — отсюда ДВЕ МОДЫ снимка, из-за которых эталон невозможно
+      // было переучредить: два прогона подряд ложились в одну моду и выглядели
+      // воспроизводимыми, а третий ложился в другую.
+      //
+      // ЧИТАЕТСЯ ИЗ РАЗМЕТКИ, А НЕ ИЗ ЯЧЕЙКИ. Первая попытка брала значение
+      // через __app (S.metricValueMode в сборке, глобальное имя в исходнике) —
+      // и молча не работала на исходнике: там это `let`, а объявленное через
+      // let в window не попадает. Сборка стабилизировалась, исходник нет, и
+      // СТОРОНЫ РАЗОШЛИСЬ на 43 снимках — прибор стал врать ровно так, как
+      // ему запрещено. Подпись кнопки одинакова у обеих сторон по построению.
+      const режимБыл = await page.evaluate(() => {
+        const b = document.querySelector('#statsContentArea .metric-norm-btn .layout-text');
+        return b ? b.textContent.trim() : null;
+      });
       const res = await page.evaluate(k => window.__fire(k), h.key);
       await wait(220);
       // Снимок берётся УСТОЯВШИЙСЯ. Часть действий тянет за собой отложенную
@@ -297,6 +328,30 @@ async function run(pageName, part) {
           if (b) b.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }
       });
+
+      // Окна профилей возвращаются в то состояние, в каком были до действия.
+      // Имена берутся через __app и потому одинаковы для обеих сторон: в
+      // исходнике это глобальные функции, в сборке их подаёт _probe-rig.js.
+      await page.evaluate(б => {
+        const закрыть = (id, было, чем) => {
+          const e = document.getElementById(id);
+          if (было === 'none' && e && getComputedStyle(e).display !== 'none'
+              && typeof window.__app[чем] === 'function') window.__app[чем]();
+        };
+        закрыть('conceptProfileModal', б.концепция, 'closeConceptProfileModal');
+        закрыть('philosopherProfileModal', б.философ, 'closePhilosopherProfileModal');
+      }, профильБыл);
+
+      // Режим значений возвращается нажатием той самой кнопки, что его сбила:
+      // так одинаково для обеих сторон и не зависит от того, как имя объявлено.
+      await page.evaluate(р => {
+        if (р == null) return;
+        const b = document.querySelector('#statsContentArea .metric-norm-btn .layout-text');
+        if (b && b.textContent.trim() !== р) {
+          const knopka = b.closest('button');
+          if (knopka) knopka.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        }
+      }, режимБыл);
 
       // Окно статистики тоже возвращается: включение визуализации его
       // закрывает. Прежде возвращались только радиусы и раздел легенды —
@@ -461,11 +516,30 @@ async function run(pageName, part) {
   counts['шапка статистики'] = await safe('шапка', () => sweep('#statsModal', 'статистика')) || 0;
   let vсум = 0;
   const МЕДЛЕННЫЕ = ['closest-pairs', 'philosopher-pairs', 'philosopher-comparison', 'comparison'];
+  // ОЖИДАНИЕ ПО УСТОЯВШЕМУСЯ, А НЕ ПО СРОКУ. Прежде здесь стоял глухой срок
+  // (1700 мс, у медленных 5000), и этого хватало не всегда: метрика считается
+  // порциями, и кнопки «Визуализировать размером» и «Нормировать» появлялись
+  // то в этом виде, то в следующем. Ключ от имени вида уже отвязан, но
+  // СОДЕРЖИМОЕ снимка осталось зависимым — легенда называет ту метрику, на
+  // которой визуализация успела сработать, и снимок расходился на 11 знаков
+  // в 38 видах. Две моды: «кнопка попалась однажды» и «дважды».
+  // Спрашиваем о неизменном: ждём, пока перечень обработчиков перестанет
+  // расти. Срок остаётся потолком, а не мерой.
+  const устояться = async (sel, потолок) => {
+    const t0 = Date.now();
+    let было = -1, тихо = 0;
+    while (Date.now() - t0 < потолок) {
+      await wait(250);
+      const n = await page.evaluate(s => window.__handlers(s).length, sel).catch(() => -1);
+      if (n === было && n >= 0) { if (++тихо >= 2) return; } else { тихо = 0; было = n; }
+    }
+  };
   for (const v of VIEWS) {
     await ensureStats();
     await safe('вид ' + v, () => page.evaluate(n => window.__app.switchStatsView(n), v));
     // строки близких пар считаются порциями и появляются не сразу
-    await wait(МЕДЛЕННЫЕ.includes(v) ? 5000 : 1700);
+    await wait(600);
+    await устояться('#statsContentArea', МЕДЛЕННЫЕ.includes(v) ? 12000 : 6000);
     // ПОДПИСЬ БЕЗ ИМЕНИ ВИДА. Обработчик срабатывает в том виде, где он
     // попался первым, а это гуляет: метрика считается порциями, и кнопка
     // «Визуализировать размером» появляется то в betweenness, то в

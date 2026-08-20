@@ -137,4 +137,4 @@ function invalidateGeneratePhilosopherRankingsCache() {
       generatePhilosopherRankingsCache = null;
     }
 
-export { generatePhilosopherRankings, generatePhilosopherRankingsCache, generateRankings, invalidateGeneratePhilosopherRankingsCache, invalidateGenerateRankingsCache };
+export { generatePhilosopherRankings, generateRankings, invalidateGeneratePhilosopherRankingsCache, invalidateGenerateRankingsCache };

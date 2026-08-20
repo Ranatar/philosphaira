@@ -3,6 +3,7 @@ import { DATA, S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
 import { emit } from '../core/events.js';
+import { conceptById } from '../core/graph-index.js';
 import { isReflexiveLink, isSymmetricLink } from '../core/link-facts.js';
 import { canEdit } from '../core/session.js';
 import { handleLinkClick, handleNodeClick } from '../graph/click-actions.js';
@@ -143,7 +144,7 @@ function initGraphEventHandlers() {
       gfxCanvas.addEventListener("click", dispatchClick);
     }
 
-// gfxNode.on("mouseover") @521a9ae5
+// gfxNode.on("mouseover") @a3eb00f6
 function installNodeHover() {
 gfxNode.on("mouseover", function(event, d) {
       if (S.tooltipTimeout) clearTimeout(S.tooltipTimeout);
@@ -153,7 +154,7 @@ gfxNode.on("mouseover", function(event, d) {
         if (S.similarityOverlay && d.id !== S.similarityOverlay.sourceId) {
           const sv = S.similarityOverlay.values.get(d.id);
           if (sv !== undefined) {
-            const src = DATA.nodes.find(n => n.id === S.similarityOverlay.sourceId);
+            const src = conceptById.get(S.similarityOverlay.sourceId);
             simNote = `<br/><span style="color:#ffd700">Сходство с «${src ? src.label : '—'}»: ` +
                   `${sv.toFixed(3)}</span>`;
           }
@@ -174,7 +175,7 @@ gfxNode.on("mouseover", function(event, d) {
     });
 }
 
-// gfxLink.on("mouseover") @1a928fa2
+// gfxLink.on("mouseover") @54b79ad6
 function installLinkHover() {
 gfxLink.on("mouseover", function(event, d) {
       const tooltip = document.getElementById('tooltip');
@@ -182,8 +183,8 @@ gfxLink.on("mouseover", function(event, d) {
       // Получаем данные узлов source и target
       const sourceId = d.source.id || d.source;
       const targetId = d.target.id || d.target;
-      const sourceNode = DATA.nodes.find(n => n.id === sourceId);
-      const targetNode = DATA.nodes.find(n => n.id === targetId);
+      const sourceNode = conceptById.get(sourceId);
+      const targetNode = conceptById.get(targetId);
       
       if (!sourceNode || !targetNode) return;
       
@@ -303,4 +304,4 @@ gfxLink.on("mouseover", function(event, d) {
     });
 }
 
-export { dispatchClick, dispatchMove, initGraphEventHandlers, installLinkHover, installNodeDrag, installNodeHover, lastHoverLink, lastHoverNode };
+export { initGraphEventHandlers, installLinkHover, installNodeDrag, installNodeHover };

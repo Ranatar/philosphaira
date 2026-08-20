@@ -430,8 +430,8 @@ if (ЗАХОД === 'dyn') {
 }
 
 // ── сборка модуля с телами ──────────────────────────────────────────
+const file = `modules/ui/actions-${ЗАХОД}.js`;
 if (новые.length) {
-  const file = `modules/ui/actions-${ЗАХОД}.js`;
   const need = new Map(), ns = new Set();
   for (const name of новые) {
     const r = нужныеИмена(карта[name].тело);
@@ -451,8 +451,20 @@ if (новые.length) {
     out += `  ${JSON.stringify(name)}: (el, ev) => { ${карта[name].тело}; },\n`;
   out += `});\n`;
   fs.writeFileSync(path.join(ROOT, file), out);
+}
 
-  // подключить в main.js и поставить делегирование
+// ── подключение в main.js: по НАЛИЧИЮ ФАЙЛА, а не по числу новых имён ─
+// Прежде этот блок стоял под `if (новые.length)`. Стоило дереву уцелеть от
+// прошлой сборки — и `actions_map.json` отдавал все имена уже известными:
+// новых ноль, блок пропущен, ввоз в точку входа не поставлен. Реестр терял
+// 111 действий из 206, и ни одна проверка строения этого не замечала.
+// Наличие файла — вопрос о неизменном; число новых имён — о ходе прогона.
+if (переведено && !fs.existsSync(path.join(ROOT, file))) {
+  console.error(`delegate: переведено ${переведено} атрибутов, а модуля ${file} нет.`);
+  console.error('Сборка прекращена: тела действий негде взять.');
+  process.exit(1);
+}
+if (fs.existsSync(path.join(ROOT, file))) {
   const mp = path.join(ROOT, 'main.js');
   let main = fs.readFileSync(mp, 'utf8');
   if (!main.includes(`'./${file}'`))
@@ -464,6 +476,10 @@ if (новые.length) {
     main = main.replace(/^installBridge\(\);.*$/m,
       'installDelegation();      // делегирование: разметка несёт имя действия\n$&');
   fs.writeFileSync(mp, main);
+  if (!fs.readFileSync(mp, 'utf8').includes(`'./${file}'`)) {
+    console.error(`delegate: ${file} есть, а ввоза в main.js не появилось — якорь «import { boot }» не найден.`);
+    process.exit(1);
+  }
 }
 
 fs.writeFileSync(mapFile, JSON.stringify(карта, null, 1));

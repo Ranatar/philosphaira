@@ -1,16 +1,17 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById, philosopherByName } from '../core/graph-index.js';
 import { CHRONOLOGY_MODES, MATURITY_AGE } from '../core/time.js';
 
 function nodeAge(id) {
       const n = DATA_nodes_find(id);
       if (!n) return null;
-      const phil = DATA.philosophers.find(p => p.nameRu === n.concept);
+      const phil = philosopherByName.get(n.concept);
       return phil ? phil.birth : null;
     }
 
-function DATA_nodes_find(id) { return DATA.nodes.find(n => n.id === id); }
+function DATA_nodes_find(id) { return conceptById.get(id); }
 
 function stepWithoutGap(fromId, toId, step, last) {
       const a = DATA_nodes_find(fromId), b = DATA_nodes_find(toId);
@@ -83,14 +84,14 @@ function looseChronologyCheck(fromPhil, toPhil) {
     }
 
 function isChronologicallyValid(fromNodeId, toNodeId, mode = S.currentChronologyMode, linkType = null) {
-      const fromNode = DATA.nodes.find(n => n.id === fromNodeId);
-      const toNode = DATA.nodes.find(n => n.id === toNodeId);
+      const fromNode = conceptById.get(fromNodeId);
+      const toNode = conceptById.get(toNodeId);
       
       if (!fromNode || !toNode) return true; // Если узлы не найдены, разрешаем
       
       // Находим данные философов по имени (nameRu)
-      let fromPhil = DATA.philosophers.find(p => p.nameRu === fromNode.concept);
-      let toPhil = DATA.philosophers.find(p => p.nameRu === toNode.concept);
+      let fromPhil = philosopherByName.get(fromNode.concept);
+      let toPhil = philosopherByName.get(toNode.concept);
       
       if (!fromPhil || !toPhil) return true; // Если философы не найдены, разрешаем
       
@@ -170,4 +171,4 @@ if (document.getElementById('respectChronology').checked) {
     }
 }
 
-export { DATA_nodes_find, installChronologyMode, installChronologyToggle, isChronologicallyValid, looseChronologyCheck, moderateChronologyCheck, nodeAge, showChronologyModeIfOn, stepWithoutGap, strictChronologyCheck };
+export { installChronologyMode, installChronologyToggle, isChronologicallyValid, nodeAge, showChronologyModeIfOn, stepWithoutGap };

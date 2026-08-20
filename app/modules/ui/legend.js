@@ -313,4 +313,4 @@ function syncLegendDirectionToggle() {
 if (legendDirectionToggle) legendDirectionToggle.checked = S.respectDirection;
 }
 
-export { addTradition, changeFilterMode, deselectAllPhilosophers, deselectAllRelations, deselectAllRubrics, deselectAllTraditions, initFilters, legendDirectionToggle, legendWeightsToggle, markChosenInLegend, onlyTradition, selectAllPhilosophers, selectAllRelations, selectAllRubrics, selectAllTraditions, syncLegendDirectionToggle, syncLegendWeightsToggle, syncPhilosopherCheckboxes, togglePhilosopher, toggleRelation, toggleRubric, toggleSection, toggleTradition, toggleUniformLinkWidth, traditionMembers, updateFilterStats, updatePhilosopherDimming };
+export { addTradition, changeFilterMode, deselectAllPhilosophers, deselectAllRelations, deselectAllRubrics, deselectAllTraditions, initFilters, markChosenInLegend, onlyTradition, selectAllPhilosophers, selectAllRelations, selectAllRubrics, selectAllTraditions, syncLegendDirectionToggle, syncLegendWeightsToggle, togglePhilosopher, toggleRelation, toggleRubric, toggleSection, toggleTradition, toggleUniformLinkWidth, updateFilterStats, updatePhilosopherDimming };

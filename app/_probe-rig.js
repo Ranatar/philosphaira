@@ -2,13 +2,18 @@
 // только измерительными программами, отдельным модульным тегом.
 // Сгенерировано tools/rig.mjs.
 import { DATA, S, MET, VIEWS } from './modules/core/ns.js';
+import { isSymmetricLink } from './modules/core/link-facts.js';
 import { isLinkVisible, isNodeVisible } from './modules/core/visibility.js';
 import { DATA_SETS, collectData, hasUnsaved } from './modules/data/save.js';
 import { resetBeyondFilter } from './modules/filters/beyond-filter.js';
 import { findConnection, getConceptConnections } from './modules/graph/graph-data.js';
 import { cancelGraphSelection } from './modules/graph/graph-selection.js';
 import { toggleMetricValueMode } from './modules/metrics/format.js';
+import { initializePhilosophyMetrics } from './modules/metrics/link-indexes.js';
+import { medianNodeDegree, nodeDegreeOf } from './modules/metrics/network.js';
 import { handleMetricsScopeChange } from './modules/metrics/scope.js';
+import { profileIsMeaningful, profileSimilarity, similarityData, structuralSimilarity } from './modules/metrics/similarity-concepts.js';
+import { philosopherSimilarity, philosopherSimilarityData } from './modules/metrics/similarity-philosophers.js';
 import { authLogout, closeAuthModal, openAuthModal, submitAuth } from './modules/modal/auth.js';
 import { handleConnectionViewSearch, toggleConnectionSearchSection } from './modules/modal/connection-view.js';
 import { closeUniversalModal, openUniversalModal, toggleModalMode } from './modules/modal/core.js';
@@ -38,7 +43,7 @@ import { handleLegendLinkSearch, pickLinkEnd } from './modules/ui/search-link.js
 import { clearPhilosopherSearch, handleLegendPhilSearch, handlePhilosopherSearch } from './modules/ui/search-philosopher.js';
 import { selectCustomOption, showCustomSelectDropdown } from './modules/widgets/custom-select.js';
 
-const A = { DATA, S, MET, VIEWS, DATA_SETS, actionNames, authLogout, cancelGraphSelection, changeFilterMode, clearLegendSearch, clearPhilosopherSearch, clearSimilarityOverlay, closeAboutModal, closeAuthModal, closeConceptProfileModal, closePathDescriptionsModal, closePhilosopherProfileModal, closeStatsModal, closeUniversalModal, collectData, deselectAllPhilosophers, deselectAllRubrics, exportToPNG, exportToSVG, findAndShowPath, findConnection, findShortestPath, freezeSimulation, getConceptConnections, handleConnectionViewSearch, handleLegendLinkSearch, handleLegendPhilSearch, handleLegendSearch, handleMetricsScopeChange, handleModalSearch, handlePhilosopherSearch, handleStatsParameterChange, hasNodeClass, hasUnsaved, highlightConnected, highlightNodeById, highlightPhilosopherOnGraph, isLinkVisible, isNodeVisible, linkDrawAlpha, linkVisualState, onlyTradition, openAboutModal, openAuthModal, openConceptById, openEditConceptModal, openEditConnectionModal, openStatsModal, openUniversalModal, pickLink, pickLinkEnd, pickNode, resetBeyondFilter, resetHighlight, selectAllPhilosophers, selectAllRelations, selectAllRubrics, selectAllTraditions, selectCustomOption, selectSearchResult, selectedEdges, selectedNodes, setSearchKind, showConceptProfileModal, showCustomSelectDropdown, showPathDescriptionsModal, showPhilosopherProfileModal, showSimilarityOverlay, submitAuth, switchStatsView, toGraph, toggleConnectionSearchSection, toggleGrouping, toggleLegendSearch, toggleMetricLayout, toggleMetricValueMode, toggleModalMode, togglePhilosopher, unfreezeSimulation };
+const A = { DATA, S, MET, VIEWS, DATA_SETS, actionNames, authLogout, cancelGraphSelection, changeFilterMode, clearLegendSearch, clearPhilosopherSearch, clearSimilarityOverlay, closeAboutModal, closeAuthModal, closeConceptProfileModal, closePathDescriptionsModal, closePhilosopherProfileModal, closeStatsModal, closeUniversalModal, collectData, deselectAllPhilosophers, deselectAllRubrics, exportToPNG, exportToSVG, findAndShowPath, findConnection, findShortestPath, freezeSimulation, getConceptConnections, handleConnectionViewSearch, handleLegendLinkSearch, handleLegendPhilSearch, handleLegendSearch, handleMetricsScopeChange, handleModalSearch, handlePhilosopherSearch, handleStatsParameterChange, hasNodeClass, hasUnsaved, highlightConnected, highlightNodeById, highlightPhilosopherOnGraph, initializePhilosophyMetrics, isLinkVisible, isNodeVisible, isSymmetricLink, linkDrawAlpha, linkVisualState, medianNodeDegree, nodeDegreeOf, onlyTradition, openAboutModal, openAuthModal, openConceptById, openEditConceptModal, openEditConnectionModal, openStatsModal, openUniversalModal, philosopherSimilarity, philosopherSimilarityData, pickLink, pickLinkEnd, pickNode, profileIsMeaningful, profileSimilarity, resetBeyondFilter, resetHighlight, selectAllPhilosophers, selectAllRelations, selectAllRubrics, selectAllTraditions, selectCustomOption, selectSearchResult, selectedEdges, selectedNodes, setSearchKind, showConceptProfileModal, showCustomSelectDropdown, showPathDescriptionsModal, showPhilosopherProfileModal, showSimilarityOverlay, similarityData, structuralSimilarity, submitAuth, switchStatsView, toGraph, toggleConnectionSearchSection, toggleGrouping, toggleLegendSearch, toggleMetricLayout, toggleMetricValueMode, toggleModalMode, togglePhilosopher, unfreezeSimulation };
 const FROM_MODULES = { get selectedNodes() { return typeof selectedNodes !== 'undefined' ? selectedNodes : undefined; },
                     get selectedEdges() { return typeof selectedEdges !== 'undefined' ? selectedEdges : undefined; } };
 

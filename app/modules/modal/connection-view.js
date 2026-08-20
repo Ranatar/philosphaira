@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById, traditionById } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { CONN_WEIGHT_WORDS, WEIGHT_WORDS, relationHint } from '../core/relation-types.js';
 import { emptyList, pickConcepts, rowInner } from '../core/search.js';
@@ -58,7 +59,7 @@ function connectionTraditionNote(aPhil, bPhil) {
       const ta = DATA.philosopherTraditions[aPhil] || [];
       const tb = DATA.philosopherTraditions[bPhil] || [];
       const shared = ta.filter(x => tb.includes(x))
-        .map(id => (DATA.traditions.find(t => t.id === id) || {}).name)
+        .map(id => (traditionById.get(id) || {}).name)
         .filter(Boolean);
       if (shared.length) return { crossing: false, text: 'общая — ' + shared.join(', ') };
       const from = traditionsOfPhilosopher(aPhil);
@@ -216,8 +217,8 @@ VIEWS.generateConnectionViewContent = function generateConnectionViewContent(con
                 || connectionData.source || connectionData.from;
         const targetId = (connectionData.target && connectionData.target.id)
                 || connectionData.target || connectionData.to;
-        const sourceNode = DATA.nodes.find(n => n.id === sourceId);
-        const targetNode = DATA.nodes.find(n => n.id === targetId);
+        const sourceNode = conceptById.get(sourceId);
+        const targetNode = conceptById.get(targetId);
         if (!sourceNode || !targetNode) {
           return '<p>Ошибка: не удалось найти концепции связи</p>';
         }
@@ -339,7 +340,7 @@ function handleConnectionViewSearch(type, query) {
     }
 
 function selectConnectionViewConcept(type, conceptId) {
-      const node = DATA.nodes.find(n => n.id === conceptId);
+      const node = conceptById.get(conceptId);
       if (!node) return;
       const cap = type.charAt(0).toUpperCase() + type.slice(1);
 
@@ -383,7 +384,7 @@ function updateConnectionVisualization() {
                  </div>`;
         return;
       }
-      const sn = DATA.nodes.find(n => n.id === s), tn = DATA.nodes.find(n => n.id === t);
+      const sn = conceptById.get(s), tn = conceptById.get(t);
       if (!sn || !tn) return;
       const found = connectionsBetween(s, t);
       // Перерисовываем на месте: полное переоткрытие окна сбросило бы
@@ -410,4 +411,4 @@ function initConnectionSearchFields(mode = 'edit') {
       });
     }
 
-export { conceptCircle, conceptPlate, connectionArrowSvg, connectionTraditionNote, generateConnectionVisualization, handleConnectionViewSearch, initConnectionSearchFields, linkArrow, selectConnectionViewConcept, toggleConnectionSearchSection, updateConnectionVisualization };
+export { handleConnectionViewSearch, initConnectionSearchFields, linkArrow, selectConnectionViewConcept, toggleConnectionSearchSection };

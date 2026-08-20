@@ -367,4 +367,4 @@ function resetNodeSizes() {
       console.log('✅ Оригинальные размеры узлов восстановлены');
     }
 
-export { currentVisualizedMetric, isVisualizingBySize, originalRadii, originalTextDy, resetNodeSizes, saveOriginalRadii, toggleMetricVisualization, updateVisualizationButtonText, updateVisualizationControlSection, visualizeMetricBySize };
+export { resetNodeSizes, saveOriginalRadii, toggleMetricVisualization };

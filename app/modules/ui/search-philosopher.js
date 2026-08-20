@@ -94,4 +94,4 @@ function clearPhilosopherSearch() {
       if (clearBtn) clearBtn.classList.remove('show');
     }
 
-export { clearLegendPhilSearch, clearPhilosopherSearch, handleLegendPhilSearch, handlePhilosopherSearch, pickPhilosopherFromSearch, pickPhilosophers, selectPhilosopherResult };
+export { clearLegendPhilSearch, clearPhilosopherSearch, handleLegendPhilSearch, handlePhilosopherSearch, pickPhilosopherFromSearch, selectPhilosopherResult };

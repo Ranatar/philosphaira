@@ -3,15 +3,16 @@ import { DATA, S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
 import { emit } from '../core/events.js';
+import { conceptById, linksByConcept, traditionById } from '../core/graph-index.js';
 import { renderState } from '../render/canvas-core.js';
 import { requestDraw } from '../render/loop.js';
 import { updateGraphData } from '../render/scene.js';
 import { pinnedVisibleNodes } from '../state/filters.js';
-import { selectedEdges, selectedNodes } from '../state/render.js';
+import { linkLayer, selectedEdges, selectedNodes } from '../state/render.js';
 
 function traditionsOfPhilosopher(name) {
       return (DATA.philosopherTraditions[name] || [])
-        .map(id => (DATA.traditions.find(t => t.id === id) || {}).name)
+        .map(id => (traditionById.get(id) || {}).name)
         .filter(Boolean);
     }
 
@@ -26,11 +27,12 @@ function findConnection(sourceId, targetId, bidirectional = true) {
     }
 
 function getConceptConnections(conceptId) {
-      return DATA.links.filter(l => {
-        const srcId = l.source.id || l.source;
-        const tgtId = l.target.id || l.target;
-        return srcId === conceptId || tgtId === conceptId;
-      });
+      // Ради этого места и заводился linksByConcept: прежде тут шёл полный
+      // проход по 1624 связям, а зовут отсюда семь мест, часть — в циклах.
+      // ОТДАЁТСЯ КОПИЯ, а не сам список указателя: прежняя filter возвращала
+      // свежий массив, и звавшие вправе его менять. Копия стоит длины ответа,
+      // а не длины базы.
+      return (linksByConcept.get(conceptId) || []).slice();
     }
 
 function addNodeToGraph(nodeData) {
@@ -50,14 +52,15 @@ function addNodeToGraph(nodeData) {
     }
 
 function updateNodeOnGraph() {
-      requestDraw();
+      linkLayer.key = null;   // метка и цвет узла живут вне слоя, но правка
+      requestDraw();          // могла задеть и философа, и связи
     }
 
 function addLinkToGraph(linkData) {
       // d3 ждёт в source/target объекты узлов, а не идентификаторы:
       // на строках сила связей молча не сработает.
-      const s = DATA.nodes.find(n => n.id === (linkData.source.id || linkData.source));
-      const t = DATA.nodes.find(n => n.id === (linkData.target.id || linkData.target));
+      const s = conceptById.get((linkData.source.id || linkData.source));
+      const t = conceptById.get((linkData.target.id || linkData.target));
       if (!s || !t) { console.error('Не найдены узлы для связи', linkData); return; }
       linkData.source = s;
       linkData.target = t;
@@ -67,7 +70,10 @@ function addLinkToGraph(linkData) {
 
 function updateLinkOnGraph() {
       // Тип, вес и взаимность меняют и вид, и полосу попадания.
+      // Признак годности слоя опирается на положения, счёт и ссылки на
+      // наборы — ничего из этого правка не трогает, поэтому сброс явный.
       S.pickDirty = true;
+      linkLayer.key = null;
       requestDraw();
     }
 

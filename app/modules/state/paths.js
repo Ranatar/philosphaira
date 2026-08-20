@@ -6,7 +6,7 @@ S.useWeightedPaths = true;
 
 S.respectDirection = true;
 
-S.skipTypologicalInPaths = false;
+S.skipTypologicalInPaths = true;
 
 S.currentChronologyMode = CHRONOLOGY_MODES.STRICT;
 

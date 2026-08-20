@@ -1031,7 +1031,8 @@ function invalidateTensionIndexCache() {
     }
 
 const INFLUENCE_SCOPE_LABELS = {
-      all: 'вся', within: 'внутри традиций', cross: 'за пределы традиций'
+      all: 'вся', within: 'внутри традиций', cross: 'за пределы традиций',
+      within_ext: 'внутри традиций, без внутренних связей'
     };
 
-export { DISRUPTIVE_TYPES, INFLUENCE_SCOPE_LABELS, SYSTEMATIC_TYPES, criticalPowerIndexCache, dialogicalIndexCache, foundationalIndexCache, influenceIndexCache, internalCoherenceIndexCache, invalidateCriticalPowerIndexCache, invalidateDialogicalIndexCache, invalidateFoundationalIndexCache, invalidateInfluenceIndexCache, invalidateInternalCoherenceIndexCache, invalidateParadigmShiftIndexCache, invalidateProblemGenerationIndexCache, invalidateRevolutionaryIndexCache, invalidateSyntheticIndexCache, invalidateTensionIndexCache, paradigmShiftIndexCache, problemGenerationIndexCache, revolutionaryIndexCache, syntheticIndexCache, tensionIndexCache };
+export { DISRUPTIVE_TYPES, INFLUENCE_SCOPE_LABELS, SYSTEMATIC_TYPES, invalidateCriticalPowerIndexCache, invalidateDialogicalIndexCache, invalidateFoundationalIndexCache, invalidateInfluenceIndexCache, invalidateInternalCoherenceIndexCache, invalidateParadigmShiftIndexCache, invalidateProblemGenerationIndexCache, invalidateRevolutionaryIndexCache, invalidateSyntheticIndexCache, invalidateTensionIndexCache };

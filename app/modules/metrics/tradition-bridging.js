@@ -1,5 +1,6 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { MET, S } from '../core/ns.js';
+import { isTypologicalLink } from '../core/link-facts.js';
 
 const BRIDGING_MIN_EXTERNAL = 5;
 
@@ -14,7 +15,17 @@ MET.traditionBridgingIndex = function traditionBridgingIndex(conceptId) {
       const ownTraditions = (S._philosopherMap.get(own) || {}).traditions || [];
 
       let external = 0, crossing = 0, crossWeight = 0, extWeight = 0;
-      const reached = new Set();
+      // М8. ТИПОЛОГИЧЕСКИЙ СЛОЙ СЧИТАЕТСЯ ОТДЕЛЬНО И В ИТОГ НЕ ВХОДИТ.
+      // Мостовость меряет, КАК ТРАДИЦИИ СООБЩАЮТСЯ, а типологическая связь
+      // по определению подсказки есть ОТСУТСТВИЕ сообщения: «сложившись
+      // независимо, прямого заимствования не было». Засчитывая её, мера
+      // принимала несообщение за сообщение. Замерено: типологические рёбра
+      // давали 10,1 % внешнего веса и задевали 98 концепций.
+      // Не выброшены, а вынесены в свои поля: схождение без контакта —
+      // само по себе сведение о традициях, только другого рода, и прятать
+      // его от подробностей было бы хуже, чем складывать с прочим.
+      let typoCross = 0, typoWeight = 0;
+      const reached = new Set(), typoReached = new Set();
       const links = [...(S._outgoingLinks.get(conceptId) || []),
                      ...(S._incomingLinks.get(conceptId) || [])];
       links.forEach(r => {
@@ -22,11 +33,16 @@ MET.traditionBridgingIndex = function traditionBridgingIndex(conceptId) {
         if (otherId === conceptId) return;
         const other = S._conceptMap.get(otherId);
         if (!other || other.philosopher === own) return;
-        external++;
         const w = r.weight || 2;
-        extWeight += w;
         const ot = (S._philosopherMap.get(other.philosopher) || {}).traditions || [];
-        if (!ownTraditions.some(t => ot.includes(t))) {
+        const crossesBorder = !ownTraditions.some(t => ot.includes(t));
+        if (isTypologicalLink(r)) {
+          if (crossesBorder) { typoCross++; typoWeight += w; ot.forEach(t => typoReached.add(t)); }
+          return;
+        }
+        external++;
+        extWeight += w;
+        if (crossesBorder) {
           crossing++; crossWeight += w;
           ot.forEach(t => reached.add(t));
         }
@@ -58,6 +74,9 @@ MET.traditionBridgingIndex = function traditionBridgingIndex(conceptId) {
         crossWeight: crossWeight,
         externalLinks: external,
         traditionsReached: reached.size,
+        typologicalCrossings: typoCross,
+        typologicalWeight: typoWeight,
+        typologicalReached: typoReached.size,
         belowThreshold: !enough
       };
     };
@@ -66,4 +85,4 @@ function invalidateTraditionBridgingCache() {
       traditionBridgingCache = null;
     }
 
-export { BRIDGING_MIN_EXTERNAL, BRIDGING_WEIGHT_REF, invalidateTraditionBridgingCache, traditionBridgingCache };
+export { BRIDGING_MIN_EXTERNAL, BRIDGING_WEIGHT_REF, invalidateTraditionBridgingCache };

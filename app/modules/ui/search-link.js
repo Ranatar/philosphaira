@@ -2,6 +2,7 @@
 import { DATA, S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
+import { conceptById } from '../core/graph-index.js';
 import { emptyList, pickConcepts, rowInner } from '../core/search.js';
 import { gfxSvg } from '../render/canvas-core.js';
 import { gfxZoom } from '../render/d3-layer.js';
@@ -37,7 +38,7 @@ function handleLegendLinkSearch(end, query) {
     }
 
 function pickLinkEnd(end, id) {
-      const node = DATA.nodes.find(n => n.id === id);
+      const node = conceptById.get(id);
       if (!node) return;
       linkSearch[end] = node;
       const field = document.getElementById(end === 'from' ? 'legendLinkFrom' : 'legendLinkTo');
@@ -113,4 +114,4 @@ function clearLinkSearch() {
       });
     }
 
-export { clearLinkSearch, handleLegendLinkSearch, highlightLinkOnGraph, linkSearch, pickLinkEnd, showFoundLinks };
+export { clearLinkSearch, handleLegendLinkSearch, highlightLinkOnGraph, pickLinkEnd };

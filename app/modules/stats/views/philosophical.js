@@ -19,16 +19,40 @@ function setInfluenceScope(scope) {
     }
 
 function influenceScopeSwitcher() {
+      // OWNLINKS-PATCH: 'within_ext' из ряда кнопок исключено — это не
+      // четвёртое положение, а уточнение третьего, и показывается флажком
+      // ниже. Кнопка «внутри традиций» считается нажатой при обоих значениях.
+      // Имя ЛАТИНСКОЕ. В исходнике латиницей записаны все 1657 объявлений;
+      // кириллица живёт только в оснастке (tools/), и граница между ними
+      // проведена намеренно. Сборка на местном имени, надо признать, НЕ
+      // споткнулась бы — проверено прогоном: латинский набор оснастка требует
+      // от имён установок (split.mjs) и от тел обработчиков (delegate.mjs), а
+      // до местных ей дела нет. Но правило держится не тем, где оно ловится:
+      // «собратьБазу» и «замокРаскладки» из ранних патчей были общими именами
+      // и стоили переименования, а исключение «здесь-то можно» нужно помнить
+      // — латиница везде не нуждается в памяти.
+      const withinActive = S.influenceScope === 'within' || S.influenceScope === 'within_ext';
       return `
         <div class="influence-scope">
           <span class="influence-scope-label">Влияние:</span>
-          ${Object.entries(INFLUENCE_SCOPE_LABELS).map(([k, v]) => `
-            <button class="influence-scope-btn${S.influenceScope === k ? ' active' : ''}"
+          ${Object.entries(INFLUENCE_SCOPE_LABELS)
+            .filter(([k]) => k !== 'within_ext').map(([k, v]) => `
+            <button class="influence-scope-btn${(k === 'within' ? withinActive : S.influenceScope === k) ? ' active' : ''}"
                 data-act-click="set-influence-scope" data-a1="${k}">${v}</button>
           `).join('')}
           <span class="influence-scope-note">${S.influenceScope === 'all'
             ? 'итог в точности прежний'
             : 'считается по разметке традиций'}</span>
+          ${withinActive ? `
+            <label class="influence-scope-own">
+              <input type="checkbox"${S.influenceScope === 'within_ext' ? ' checked' : ''}
+                  data-act-click="set-influence-scope-2" data-a1="${S.influenceScope === 'within_ext' ? 'within' : 'within_ext'}">
+              <span>без внутренних связей</span>
+            </label>
+            <span class="influence-scope-note">${S.influenceScope === 'within_ext'
+              ? 'только влияние на ДРУГИХ философов своей традиции; у философа, чья традиция в словаре представлена им одним, выйдет ровно ноль'
+              : 'сейчас в счёт входят и связи философа с самим собой — их в базе 669 из 1624'}</span>
+          ` : ''}
         </div>
       `;
     }

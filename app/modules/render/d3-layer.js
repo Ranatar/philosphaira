@@ -101,4 +101,4 @@ function dragended(event, d) {
       d.fy = null;
     }
 
-export { dragended, dragstarted, gfxLink, gfxLinkAll, gfxNode, gfxZoom, linkHandlers, makeClassed, nodeHandlers, subSelection, updateArrows };
+export { dragended, dragstarted, gfxLink, gfxLinkAll, gfxNode, gfxZoom, linkHandlers, nodeHandlers, updateArrows };

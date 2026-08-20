@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById, nodesByPhilosopher, philosopherByName } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { afterDataChange } from '../data/mutate.js';
 import { addLinkToGraph, addNodeToGraph, findConnection, forgetLink, forgetNode, getConceptConnections, updateLinkOnGraph, updateNodeOnGraph } from '../graph/graph-data.js';
@@ -51,8 +52,10 @@ function savePhilosopherData() {
 
       // Совпадение имени — единственный запрет, а не предупреждение:
       // имя служит ключом в philosopherConcepts и в nodes[].concept.
-      const clash = DATA.philosophers.find(p => p.nameRu === name
-                        && p.nameRu !== originalName);
+      // Условие ДВУСОСТАВНОЕ: имя совпало И это не тот же самый философ.
+      // Карта отдаёт запись по имени, второе условие остаётся снаружи —
+      // иначе от прежней стрелочной функции остаётся хвост с несведённым `p`.
+      const clash = (name !== originalName) ? philosopherByName.get(name) : null;
       if (clash) { alert('Философ с именем «' + name + '» уже существует'); return; }
 
       // Полнота (у каждого хотя бы одна традиция) — договорённость, а не
@@ -105,10 +108,10 @@ function savePhilosopherData() {
 
 function deletePhilosopher(philosopherName) {
       const name = philosopherName || ModalContext.currentData;
-      const data = DATA.philosophers.find(p => p.nameRu === name);
+      const data = philosopherByName.get(name);
       if (!data) { alert('Философ не найден'); return; }
 
-      const own = DATA.nodes.filter(n => n.concept === name);
+      const own = (nodesByPhilosopher.get(name) || []).slice();
       const isolated = getIsolatedConceptsAfterDeletion(name);
 
       let msg = 'Удалить философа «' + name + '»?\n\n'
@@ -178,7 +181,7 @@ function saveConceptData() {
       if (!label || !philosopher) {
         alert('Укажите название концепции и философа'); return;
       }
-      const philData = DATA.philosophers.find(p => p.nameRu === philosopher);
+      const philData = philosopherByName.get(philosopher);
       if (!philData) { alert('Философ не найден'); return; }
 
       const original = ModalContext.currentData;
@@ -221,7 +224,7 @@ function saveConceptData() {
 function deleteConcept(conceptId) {
       const id = conceptId
           || (ModalContext.currentData && ModalContext.currentData.id);
-      const node = DATA.nodes.find(n => n.id === id);
+      const node = conceptById.get(id);
       if (!node) { alert('Концепция не найдена'); return; }
 
       const own = getConceptConnections(id);
@@ -292,8 +295,8 @@ function saveConnectionData() {
       const oldTgt = originalLink.target.id || originalLink.target;
       const ri = relationIndexOf(oldSrc, oldTgt, originalLink.type);
 
-      const srcNode = DATA.nodes.find(n => n.id === source);
-      const tgtNode = DATA.nodes.find(n => n.id === target);
+      const srcNode = conceptById.get(source);
+      const tgtNode = conceptById.get(target);
       if (!srcNode || !tgtNode) { alert('Концепции связи не найдены'); return; }
 
       Object.assign(originalLink, { source: srcNode, target: tgtNode,
@@ -324,8 +327,8 @@ function deleteConnection(sourceId = null, targetId = null) {
       if (!link) { alert('Связь не найдена'); return; }
 
       const t = DATA.relationTypesObj[link.type] || {};
-      const src = DATA.nodes.find(n => n.id === (link.source.id || link.source));
-      const tgt = DATA.nodes.find(n => n.id === (link.target.id || link.target));
+      const src = conceptById.get((link.source.id || link.source));
+      const tgt = conceptById.get((link.target.id || link.target));
       const pair = isReflexiveLink(link)
         ? '«' + (src ? src.label : '?') + '» на себя'
         : '«' + (src ? src.label : '?') + '» → «' + (tgt ? tgt.label : '?') + '»';
@@ -350,10 +353,10 @@ function deleteConnection(sourceId = null, targetId = null) {
       if (ModalContext.currentEntity === 'connection') {
         closeUniversalModal();
       } else if (ModalContext.currentEntity === 'concept' && ModalContext.currentData) {
-        const cur = DATA.nodes.find(n => n.id === ModalContext.currentData.id);
+        const cur = conceptById.get(ModalContext.currentData.id);
         if (cur) openUniversalModal('concept', cur, ModalContext.currentMode,
                       { noPush: true });
       }
     }
 
-export { confirmWarnings, deleteConcept, deleteConnection, deletePhilosopher, generateId, removeConceptEverywhere, removeLinkEverywhere, saveConceptData, saveConnectionData, savePhilosopherData };
+export { deleteConcept, deleteConnection, deletePhilosopher, saveConceptData, saveConnectionData, savePhilosopherData };

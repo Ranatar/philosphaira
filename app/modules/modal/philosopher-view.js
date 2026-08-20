@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById, nodesByPhilosopher, philosopherByName, rubricById, traditionById } from '../core/graph-index.js';
 
 import { canEdit } from '../core/session.js';
 import { nearestPhilosophers } from '../metrics/similarity-philosophers.js';
@@ -55,7 +56,7 @@ function philosopherTraditionsBlock(name) {
 
 function DATA_traditions_of(name) {
       const ids = DATA.philosopherTraditions[name] || [];
-      return ids.map(id => DATA.traditions.find(t => t.id === id)).filter(Boolean);
+      return ids.map(id => traditionById.get(id)).filter(Boolean);
     }
 
 function similarPhilosophersBlock(philosopherName) {
@@ -92,7 +93,7 @@ function similarPhilosophersBlock(philosopherName) {
 
 VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(philosopherName) {
       // Находим данные философа
-      const philosopherData = DATA.philosophers.find(p => p.nameRu === philosopherName);
+      const philosopherData = philosopherByName.get(philosopherName);
       if (!philosopherData) {
         return '<p>Философ не найден</p>';
       }
@@ -136,7 +137,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
       // Поле множественное: у Хайдеггера традиций три.
 
       const philTraditions = (philosopherData.traditions || [])
-        .map(tid => DATA.traditions.find(t => t.id === tid))
+        .map(tid => traditionById.get(tid))
         .filter(t => t !== undefined);
 
       if (philTraditions.length > 0) {
@@ -158,13 +159,13 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
       // РАЗДЕЛ ВЗАИМОДЕЙСТВИЯ С ДРУГИМИ ФИЛОСОФАМИ
       // ========================================
 
-      const philosopherConcepts_ids = DATA.nodes.filter(n => n.concept === philosopherName).map(n => n.id);
+      const philosopherConcepts_ids = (nodesByPhilosopher.get(philosopherName) || []).map(n => n.id);
 
       const externalLinks = DATA.links.filter(l => {
         const srcId = l.source.id || l.source;
         const tgtId = l.target.id || l.target;
-        const srcNode = DATA.nodes.find(n => n.id === srcId);
-        const tgtNode = DATA.nodes.find(n => n.id === tgtId);
+        const srcNode = conceptById.get(srcId);
+        const tgtNode = conceptById.get(tgtId);
         
         if (!srcNode || !tgtNode) return false;
         
@@ -178,8 +179,8 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
         externalLinks.forEach(link => {
           const srcId = link.source.id || link.source;
           const tgtId = link.target.id || link.target;
-          const srcNode = DATA.nodes.find(n => n.id === srcId);
-          const tgtNode = DATA.nodes.find(n => n.id === tgtId);
+          const srcNode = conceptById.get(srcId);
+          const tgtNode = conceptById.get(tgtId);
           
           const linkType = link.type;
           const isOutgoing = srcNode.concept === philosopherName;
@@ -329,7 +330,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
       // ========================================
       
       const philosopherRubrics = new Set();
-      DATA.nodes.filter(n => n.concept === philosopherName).forEach(n => {
+      (nodesByPhilosopher.get(philosopherName) || []).forEach(n => {
         const nodeRubrics = DATA.conceptToRubrics[n.id] || [];
         nodeRubrics.forEach(rubricId => philosopherRubrics.add(rubricId));
       });
@@ -344,7 +345,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
         `;
         
         const rubricNames = Array.from(philosopherRubrics).map(rubricId => {
-          const rubric = DATA.rubrics.find(r => r.id === rubricId);
+          const rubric = rubricById.get(rubricId);
           if (!rubric) return '';
           return `
             <span class="rubric-name-tooltip" data-tip="${rubric.description}">${rubric.name}</span>
@@ -358,7 +359,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
       // РАЗДЕЛ КОНЦЕПЦИЙ ФИЛОСОФА
       // ========================================
       
-      const philosopherConceptsNodes = DATA.nodes.filter(n => n.concept === philosopherName);
+      const philosopherConceptsNodes = (nodesByPhilosopher.get(philosopherName) || []).slice();
       
       if (philosopherConceptsNodes.length > 0) {
         html += `
@@ -406,8 +407,8 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
         conceptConnections.forEach(conn => {
           const srcId = conn.source.id || conn.source;
           const tgtId = conn.target.id || conn.target;
-          const srcNode = DATA.nodes.find(n => n.id === srcId);
-          const tgtNode = DATA.nodes.find(n => n.id === tgtId);
+          const srcNode = conceptById.get(srcId);
+          const tgtNode = conceptById.get(tgtId);
           
           if (!srcNode || !tgtNode) return;
           
@@ -616,4 +617,4 @@ function makeLegendsEditable() {
       });
     }
 
-export { DATA_traditions_of, makeLegendsEditable, philosopherTraditionsBlock, similarPhilosophersBlock };
+export { makeLegendsEditable };

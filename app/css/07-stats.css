@@ -429,8 +429,15 @@
 
     /* ── Легенда карты сходства ──────────────────────────────── */
     #similarityLegend {
-      position: fixed; right: 18px; bottom: 18px; z-index: 900;
-      width: 230px; padding: 12px 14px; border-radius: 10px;
+      /* ВНИЗУ ПО ЦЕНТРУ, а не в правом углу. Прежде панель стояла
+         right: 18px; bottom: 18px — ровно поверх #controls (right: 20px;
+         bottom: 20px), и, открыв карту сходства, читатель терял панель
+         контроля целиком. Низ выбран потому, что верх занят шапкой и
+         легендой, а середина — самим графом. */
+      position: fixed; left: 50%; transform: translateX(-50%);
+      bottom: 18px; z-index: 900;
+      width: 260px; padding: 12px 14px; border-radius: 10px;
+      max-height: calc(100vh - 140px); overflow-y: auto;
       background: rgba(15, 12, 41, 0.94);
       border: 1px solid rgba(108, 92, 231, 0.45);
       box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
@@ -439,7 +446,23 @@
     .simleg-title {
       color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 8px;
     }
-    .simleg-mode { display: flex; gap: 6px; margin-bottom: 10px; }
+    .simleg-mode { display: flex; gap: 6px; margin-bottom: 8px; }
+    .simleg-links-title {
+      color: rgba(255,255,255,0.55); font-size: 10px;
+      text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;
+    }
+    .simleg-links { display: flex; gap: 4px; margin-bottom: 10px; }
+    .simleg-lbtn {
+      flex: 1; padding: 4px 5px; border-radius: 6px; cursor: pointer;
+      font-size: 10px; color: rgba(255,255,255,0.65);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .simleg-lbtn b { color: #ffd700; font-weight: 600; }
+    .simleg-lbtn.active {
+      color: #fff; background: rgba(108, 92, 231, 0.45);
+      border-color: rgba(108, 92, 231, 0.8);
+    }
     .simleg-btn {
       flex: 1; padding: 5px 6px; border-radius: 6px; cursor: pointer;
       font-size: 11px; color: rgba(255,255,255,0.65);

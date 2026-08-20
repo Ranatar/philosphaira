@@ -10,7 +10,7 @@
 # (graph_probe, probe4, probe5), эталонами НЕ проверяются: координаты у двух
 # прогонов разные. Они остаются на сравнении с исходником — см. accept_all.sh.
 set -e
-TREE_DIR="${1:-split}"
+TREE_DIR="${1:-app}"
 SNAPS="${2:-/tmp/по-эталонам}"
 mkdir -p "$SNAPS"
 bash tools/serve.sh "$TREE_DIR"
@@ -22,6 +22,14 @@ done
 node tools/sweep_all.mjs merge "$SNAPS/свод.json" - \
   "$SNAPS/m1.json" "$SNAPS/m2.json" "$SNAPS/m3.json"
 node tools/baseline.mjs проверить sweep_all "$SNAPS/свод.json"
+
+# Типослепая контрольная мера: сравнивает меры приложения с мерой, которая
+# типов связей не читает вовсе. Быстрая часть — секунды; медленная зовётся
+# явно доводом --медленно и в приёмку не входит (случайный выброс десятой
+# доли связей воспроизводим лишь в пределах этой случайности).
+echo "== blind_probe (типослепая контрольная мера)"
+node tools/blind_probe.mjs run index.html "$SNAPS/blind_probe.json"
+node tools/baseline.mjs проверить blind_probe "$SNAPS/blind_probe.json"
 
 for PROBE in compare probe6 probe7 probe8 css_probe; do
   echo "== $PROBE"

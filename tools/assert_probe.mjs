@@ -360,7 +360,15 @@ if (модуль) {
   await page.evaluate(() => window.__t.resetHighlight());
   await wait(500);
 
-  await page.evaluate(i => window.__t.showSimilarityOverlay(i, 'profile'), id);
+  // М1: карта сходства по профилю строится ТОЛЬКО для концепций со степенью
+  // не ниже медианной — тот же отсев, что в списке окна. Прежде здесь стоял
+  // nodes[5] (logos_heraclitus, степень 5 при медиане 6), и утверждение
+  // «карта включилась» молча предполагало, что она включается всегда.
+  // Берём заведомо связную концепцию, а отказ на малосвязной проверяем
+  // отдельным утверждением ниже: покрытие от правки выросло, а не сжалось.
+  const idСвязный = await page.evaluate(() =>
+    window.__t.DATA.nodes.find(n => n.id === 'eidos').id);
+  await page.evaluate(i => window.__t.showSimilarityOverlay(i, 'profile'), idСвязный);
   await wait(2500);
   const карта = await мера();
   проверить('карта сходства включилась', карта.карта, true, карта.карта);
@@ -371,6 +379,20 @@ if (модуль) {
   const после = await мера();
   проверить('после снятия карты связи вернулись',
     после.прозрачность['0.40'] === после.связей, после.связей, после.прозрачность['0.40']);
+
+  // М1, встречное утверждение: на малосвязной концепции карта НЕ строится,
+  // и отказ ГРОМКИЙ. Первая редакция правки возвращала пустоту молча —
+  // кнопка нажималась и не делала ничего, что от поломки неотличимо.
+  await page.evaluate(i => window.__t.showSimilarityOverlay(i, 'profile'), id);
+  await wait(1200);
+  const вырожд = await мера();
+  проверить('на малосвязной концепции карта по профилю не строится',
+    вырожд.карта === false, false, вырожд.карта);
+  проверить('и отказ виден на странице',
+    await page.evaluate(() => document.body.innerText.includes('слишком мало связей')),
+    true, await page.evaluate(() => document.body.innerText.includes('слишком мало связей')));
+  await page.evaluate(() => window.__t.clearSimilarityOverlay());
+  await wait(400);
 }
 
 // ── 9г. стрелка связи: ровно ОДНА подсказка ────────────────────────
@@ -489,7 +511,13 @@ if (модуль) {
   // конечный получал отдельный. Читалось как несимметричное.
   const ид = await page.evaluate(() => window.__t.DATA.nodes.map(n => n.id));
   await page.evaluate(i => window.__t.selectCustomOption('source', i), ид[0]);
-  await page.evaluate(i => window.__t.selectCustomOption('target', i), ид[120]);
+  // М8: типологические связи в путях пропускаются по умолчанию — они
+  // утверждают, что контакта НЕ БЫЛО, и предъявлять их как цепочку передачи
+  // нечестно. Прежняя цель (ид[120]) достижима от ид[0] направленно ТОЛЬКО
+  // через типологическое ребро, и после правки путь туда честно не находится.
+  // Замерено: так теряется 6,3 % направленно достижимых пар — цена названа,
+  // а не спрятана. Цель заменена на достижимую без типологического слоя.
+  await page.evaluate(i => window.__t.selectCustomOption('target', i), 'one_being');
   await page.evaluate(() => {
     const c = document.getElementById('respectChronology');
     if (c) c.checked = false;
@@ -1059,7 +1087,13 @@ if (модуль) {
   });
   const ид = await page.evaluate(() => window.__t.DATA.nodes.map(n => n.id));
   await page.evaluate(i => window.__t.selectCustomOption('source', i), ид[0]);
-  await page.evaluate(i => window.__t.selectCustomOption('target', i), ид[120]);
+  // М8: типологические связи в путях пропускаются по умолчанию — они
+  // утверждают, что контакта НЕ БЫЛО, и предъявлять их как цепочку передачи
+  // нечестно. Прежняя цель (ид[120]) достижима от ид[0] направленно ТОЛЬКО
+  // через типологическое ребро, и после правки путь туда честно не находится.
+  // Замерено: так теряется 6,3 % направленно достижимых пар — цена названа,
+  // а не спрятана. Цель заменена на достижимую без типологического слоя.
+  await page.evaluate(i => window.__t.selectCustomOption('target', i), 'one_being');
   await page.evaluate(() => window.__t.findAndShowPath());
   await wait(2400);
   await page.evaluate(() => window.__t.showPathDescriptionsModal());

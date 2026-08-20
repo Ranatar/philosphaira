@@ -20,13 +20,19 @@ function isReflexiveLink(r) {
       return s === t;
     }
 
-function reflexiveLinkOf(conceptId) {
-      for (const r of S._relations) {
+function buildReflexiveMap() {
+      const m = new Map();
+      S._relations.forEach(r => {
         const s = (r.source && r.source.id) || r.source;
         const t = (r.target && r.target.id) || r.target;
-        if (s === conceptId && t === conceptId) return r;
-      }
-      return null;
+        if (s === t && !m.has(s)) m.set(s, r);
+      });
+      return m;
+    }
+
+function reflexiveLinkOf(conceptId) {
+      if (!S._reflexiveMap) S._reflexiveMap = buildReflexiveMap();
+      return S._reflexiveMap.get(conceptId) || null;
     }
 
 function sumWeight(links) {
@@ -38,4 +44,4 @@ function otherPhilosopher(r, conceptId) {
       return other ? S._philosopherMap.get(other.philosopher) : null;
     }
 
-export { isReflexiveLink, isSymmetricLink, isTypologicalLink, otherPhilosopher, reflexiveLinkOf, sumWeight };
+export { buildReflexiveMap, isReflexiveLink, isSymmetricLink, isTypologicalLink, otherPhilosopher, reflexiveLinkOf, sumWeight };

@@ -421,7 +421,7 @@
   "exportToPNG": "ui/export.js",
   "exportToSVG": "ui/export.js",
   "handleLegendSearch": "ui/search-legend.js",
-  "searchNodes": "core/search.js",
+  "searchNodes": "dead.js",
   "displaySearchResults": "core/search.js",
   "selectSearchResult": "ui/search-legend.js",
   "clearLegendSearch": "ui/search-legend.js",
@@ -741,7 +741,29 @@
   "markChosenInLegend": "ui/legend.js",
   "philosopherTraditionsBlock": "modal/philosopher-view.js",
   "DATA_traditions_of": "modal/philosopher-view.js",
-  "graphSelectionContext": "state/edit.js"
+  "graphSelectionContext": "dead.js",
+  "conceptById": "core/graph-index.js",
+  "philosopherByName": "core/graph-index.js",
+  "traditionById": "core/graph-index.js",
+  "rubricById": "core/graph-index.js",
+  "nodesByPhilosopher": "core/graph-index.js",
+  "linksByConcept": "core/graph-index.js",
+  "rebuildIndexes": "core/graph-index.js",
+  "_reflexiveMap": "core/base-cells.js",
+  "buildReflexiveMap": "core/link-facts.js",
+  "linkLayer": "state/render.js",
+  "lastLayerKey": "render/scene.js",
+  "linkOutOfLayer": "render/scene.js",
+  "linkDrawnLive": "render/scene.js",
+  "linksLayerKey": "render/scene.js",
+  "sameLayerKey": "render/scene.js",
+  "paintLinkLayer": "render/scene.js",
+  "drawLinkSet": "render/scene.js",
+  "LABEL_SHADOW_PASSES": "render/scene.js",
+  "linkAmongHighlighted": "render/similarity-overlay.js",
+  "nodeLitBySimilarity": "render/similarity-overlay.js",
+  "similarityLinkCount": "render/similarity-overlay.js",
+  "setSimilarityLinks": "render/similarity-overlay.js"
  },
  "новые": [
   "DATA_SETS",
@@ -802,11 +824,11 @@
    "модуль": "render/simulation.js",
    "имя": "installSimulationLog"
   },
-  "gfxNode.on(\"mouseover\") @521a9ae5": {
+  "gfxNode.on(\"mouseover\") @a3eb00f6": {
    "модуль": "render/interactions.js",
    "имя": "installNodeHover"
   },
-  "gfxLink.on(\"mouseover\") @1a928fa2": {
+  "gfxLink.on(\"mouseover\") @54b79ad6": {
    "модуль": "render/interactions.js",
    "имя": "installLinkHover"
   },

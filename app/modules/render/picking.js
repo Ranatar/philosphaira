@@ -75,4 +75,4 @@ function pickLink(clientX, clientY) {
       return DATA.links[id - 1];
     }
 
-export { pickLink, pickNode, quadtree, rebuildQuadtree, repaintPickCanvas, toGraph };
+export { pickLink, pickNode, rebuildQuadtree, toGraph };

@@ -37,7 +37,10 @@ selectSearchResult setSearchKind showConceptProfileModal showCustomSelectDropdow
 showPathDescriptionsModal showPhilosopherProfileModal showSimilarityOverlay submitAuth
 switchStatsView toGraph toggleConnectionSearchSection toggleGrouping toggleLegendSearch
 toggleMetricLayout toggleMetricValueMode toggleModalMode togglePhilosopher unfreezeSimulation
-DATA_SETS actionNames`.split(/\s+/).filter(Boolean);
+DATA_SETS actionNames
+profileSimilarity structuralSimilarity profileIsMeaningful medianNodeDegree nodeDegreeOf
+isSymmetricLink similarityData
+philosopherSimilarity philosopherSimilarityData initializePhilosophyMetrics`.split(/\s+/).filter(Boolean);
 
 // где что вывозится
 const exportsOf = new Map();

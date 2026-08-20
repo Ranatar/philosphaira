@@ -1,9 +1,10 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
+import { philosopherByName } from '../core/graph-index.js';
 
 function philosopherBirth(nameRu) {
-      const p = DATA.philosophers.find(x => x.nameRu === nameRu);
+      const p = philosopherByName.get(nameRu);
       return p ? p.birth : 0;
     }
 
@@ -16,7 +17,7 @@ function sortPhilosophersByBirth(list) {
     }
 
 function philosopherYears(nameRu) {
-      const p = DATA.philosophers.find(x => x.nameRu === nameRu);
+      const p = philosopherByName.get(nameRu);
       return p ? p.years : '';
     }
 
@@ -35,4 +36,4 @@ function labelWithAuthor(node) {
         ? `${node.label} (${node.concept})` : node.label;
     }
 
-export { _ambiguousLabels, ambiguousLabels, formatBirthYear, labelWithAuthor, philosopherBirth, philosopherYears, sortPhilosophersByBirth };
+export { formatBirthYear, labelWithAuthor, philosopherBirth, philosopherYears, sortPhilosophersByBirth };

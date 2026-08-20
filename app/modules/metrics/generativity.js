@@ -9,12 +9,14 @@ function sameTraditionPhil(a, b) {
     }
 
 function linkInInfluenceScope(r, ownPhilosopher, scope) {
-      if ((scope || S.influenceScope) === 'all') return true;
+      const sc = scope || S.influenceScope;
+      if (sc === 'all') return true;
       const s = S._conceptMap.get(r.source), t = S._conceptMap.get(r.target);
       if (!s || !t) return false;
       const other = s.philosopher === ownPhilosopher ? t.philosopher : s.philosopher;
+      if (sc === 'within_ext' && other === ownPhilosopher) return false;
       const same = sameTraditionPhil(ownPhilosopher, other);
-      return (scope || S.influenceScope) === 'within' ? same : !same;
+      return sc === 'cross' ? !same : same;
     }
 
 const GENERATIVITY_DAMPING = 0.85;
@@ -39,8 +41,14 @@ function generativityScores(scope) {
         if (sc !== 'all') {
           const sc2 = S._conceptMap.get(r.source), tc = S._conceptMap.get(r.target);
           if (!sc2 || !tc) continue;
+          // OWNLINKS-PATCH: тот же отбор, что в linkInInfluenceScope. Правку
+          // ОБЯЗАТЕЛЬНО держать в согласии с ним: генеративность — первое из
+          // трёх слагаемых влиятельности, и разойдись эти два правила, метрика
+          // считала бы часть по одному взгляду, а часть по другому, оставаясь
+          // при этом внутренне согласной и потому неотличимой от исправной.
+          if (sc === 'within_ext' && sc2.philosopher === tc.philosopher) continue;
           const same = sameTraditionPhil(sc2.philosopher, tc.philosopher);
-          if (sc === 'within' ? !same : same) continue;
+          if (sc === 'cross' ? same : !same) continue;
         }
         out[s].push({ t, w: (r.weight || 1) / 3 });
       }
@@ -98,4 +106,4 @@ MET.generativeIndex = function generativeIndex(conceptId) {
       };
     };
 
-export { GENERATIVITY_DAMPING, GENERATIVITY_ITERATIONS, _generativityCacheByScope, generativity, generativityScores, invalidateGenerativityCache, linkInInfluenceScope, sameTraditionPhil };
+export { generativity, invalidateGenerativityCache, linkInInfluenceScope };

@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById, philosopherByName } from '../core/graph-index.js';
 import { isSymmetricLink } from '../core/link-facts.js';
 import { CHRONOLOGY_MODES } from '../core/time.js';
 
@@ -77,9 +78,6 @@ function findAndShowPath() {
       S.currentChronologyMode = originalChronologyMode; // НОВОЕ: Восстанавливаем режим
       
       if (!path) {
-        const sourceNode = DATA.nodes.find(n => n.id === sourceId);
-        const targetNode = DATA.nodes.find(n => n.id === targetId);
-        
         let message = 'Эти концепции не связаны';
         if (respectChronology && respectDirectionPath) {
           message += ' хронологически корректным путём с учётом направленности связей.';
@@ -108,9 +106,12 @@ function findAndShowPath() {
       const anachronismWarnings = analyzePath(path, selectedChronologyMode);
 
       // Формируем визуальное представление пути
-      const pathNodes = path.map(id => DATA.nodes.find(n => n.id === id));
+      const pathNodes = path.map(id => conceptById.get(id));
       // Б9: рёбра пути вычисляются один раз на все три потребителя
-      const pathLinkList = resolvePathLinkList(path, respectDirectionPath);
+      // SEAMLESS-PATCH: режим передаётся тот, КОТОРЫМ ИСКАЛИ, а не тот, что
+      // стоит в переменной сейчас — её уже восстановили тремя строками выше.
+      const pathLinkList = resolvePathLinkList(path, respectDirectionPath,
+                                               selectedChronologyMode);
       const pathTraditions = analyzePathTraditions(pathNodes);
       const pathTraditionSegments = pathTraditions.segments;
       
@@ -205,7 +206,7 @@ function findAndShowPath() {
       // внутри одного философа) сливаются.
       const yearStep = [];
       pathNodes.forEach(n => {
-        const phil = DATA.philosophers.find(p => p.nameRu === n.concept);
+        const phil = philosopherByName.get(n.concept);
         if (!phil) return;
         const year = phil.birth < 0 ? Math.abs(phil.birth) + ' до н.э.' : String(phil.birth);
         if (yearStep[yearStep.length - 1] !== year) yearStep.push(year);
@@ -216,7 +217,7 @@ function findAndShowPath() {
       let gaps = 0;
       {
         const years = pathNodes.map(n => {
-          const phil = DATA.philosophers.find(p => p.nameRu === n.concept);
+          const phil = philosopherByName.get(n.concept);
           return phil ? phil.birth : null;
         }).filter(year => year !== null);
         const step = years.length > 1 && years[years.length - 1] < years[0] ? -1 : 1;
@@ -290,13 +291,17 @@ function findAndShowPath() {
       S.currentPathData = {
         path: path,
         pathNodes: pathNodes,
-        respectDirection: respectDirectionPath
+        respectDirection: respectDirectionPath,
+        // SEAMLESS-PATCH: окно описаний открывается позже — иногда много
+        // позже, — и к тому мигу режим в списке может быть уже другим.
+        // Путь принадлежит тому режиму, которым его нашли.
+        chronologyMode: selectedChronologyMode
       };
 
       resultDiv.classList.add('show');
       
       // Подсвечиваем путь на графе
-      highlightPath(path, respectDirectionPath);
+      highlightPath(path, respectDirectionPath, selectedChronologyMode);
     }
 
 let arrowHoverTimer = null;
@@ -343,14 +348,25 @@ function handlePathArrowHover(event, isEntering) {
       }
     }
 
-function resolvePathLinkList(path, respectDirectionFlag = true) {
+function resolvePathLinkList(path, respectDirectionFlag = true,
+                                 mode = S.currentChronologyMode) {
       const list = [];
       // В режиме без разрывов путь идёт по ГОДАМ, а не по стрелкам, и ребро
       // сплошь и рядом пройдено против своей стрелки. Разбор об этом не знал
       // и возвращал null: в панели путь ещё показывался, а в окне описаний
       // оставался один исходный узел — связи не находились, а вместе с ними
       // пропадали и следующие за ними узлы.
-      const noGaps = S.currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
+      //
+      // SEAMLESS-PATCH: режим приходит ДОВОДОМ, а не читается из живой
+      // переменной. Прежде здесь стояло currentChronologyMode, и верный ответ
+      // держался на том, что переменную поддерживает в согласии со списком
+      // обработчик change. Но findAndShowPath на время поиска ПОДМЕНЯЕТ эту же
+      // переменную и восстанавливает её ДО вызова разбора, а окно описаний
+      // открывается и вовсе потом. Согласие двух мест ничем не обеспечено:
+      // стоит любой будущей правке выставить режим не через список — и разбор
+      // молча вернёт null, то есть серую ненажимаемую стрелку «→» вместо связи,
+      // и заодно соврёт о направлении. Довод убирает зависимость вовсе.
+      const noGaps = mode === CHRONOLOGY_MODES.SEAMLESS;
       for (let i = 0; i < path.length - 1; i++) {
         const a = typeof path[i] === 'object' ? path[i].id : path[i];
         const b = typeof path[i + 1] === 'object' ? path[i + 1].id : path[i + 1];
@@ -370,12 +386,15 @@ function resolvePathLinkList(path, respectDirectionFlag = true) {
       return list;
     }
 
-function highlightPath(path, respectDirection = true) {
+function highlightPath(path, respectDirection = true,
+                           mode = S.currentChronologyMode) {
       resetHighlight();
       
       const pathSet = new Set(path);
       // Б9: единый источник набора рёбер пути
-      const pathLinks = new Set(resolvePathLinkList(path, respectDirection).filter(Boolean));
+      // SEAMLESS-PATCH: рёбра, пройденные против стрелки, иначе выпадали бы из
+      // набора — и на полотне подсвечивался бы путь с дырами.
+      const pathLinks = new Set(resolvePathLinkList(path, respectDirection, mode).filter(Boolean));
       
       // Применяем стили
       gfxNode.classed("dimmed", d => !pathSet.has(d.id))
@@ -393,4 +412,4 @@ function clearPathHighlight() {
       resultDiv.innerHTML = '';
     }
 
-export { ARROW_HOVER_DELAY, arrowHoverTimer, clearPathHighlight, findAndShowPath, handlePathArrowHover, highlightPath, initPathFinder, resolvePathLinkList };
+export { clearPathHighlight, findAndShowPath, handlePathArrowHover, initPathFinder, resolvePathLinkList };

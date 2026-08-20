@@ -68,4 +68,4 @@ window.addEventListener('beforeunload', ev => {
     });
 }
 
-export { DATA_SETS, collectData, dataFolder, deliverFile, downloadData, hasUnsaved, hasUnsavedEdits, installUnsavedGuard, markDirty, saveToFolder };
+export { DATA_SETS, collectData, downloadData, hasUnsaved, installUnsavedGuard, markDirty, saveToFolder };

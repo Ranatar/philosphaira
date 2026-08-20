@@ -231,8 +231,30 @@ function generateMetricResults(data, title, description, metricKey, valueKey, is
         // Приписка к самому числу: короткая, из тех величин, из которых
         // число собрано. Нужна там, где одно число рейтинга без разбора
         // читается неверно — см. мостовость.
-        getValueNote = null
+        getValueNote = null,
+        // Ч1. ЧИСЛО НЕПОКАЗАННЫХ — СВОЙСТВО ВИДА, А НЕ ОБЩАЯ ЯЧЕЙКА.
+        // Прежде оно бралось из lastZeroCount — переменной модуля, которую
+        // наполняет rankKeep. Семь видов отсеивают через rankKeep и ячейку
+        // обновляют, а АБСТРАКТНОСТЬ отсеивает своим условием
+        // (r.value !== 0: у неё есть отрицательный полюс, и rankKeep с
+        // условием value > 0 срезал бы «конкретный» край). Свой отсев она
+        // взяла, а ячейку трогать перестала — и печатала число нулевых
+        // ОТ ПРЕДЫДУЩЕГО ВИДА. В обходе перед ней стоит мостовость, и после
+        // правки мостовости цифра в чужом виде поехала следом: 273 → 301.
+        // Открытая первой, абстрактность не показывала блок вовсе.
+        // Ныне число приходит доводом; ячейка осталась умолчанием, поэтому
+        // двадцать шесть прочих вызовов править не пришлось.
+        zeroCount = null
       } = options;
+      // Ячейка ЧИТАЕТСЯ И ТУТ ЖЕ ОБНУЛЯЕТСЯ. Иначе её наследует всякий
+      // следующий вид: девять видов (PageRank, посредничество, близость,
+      // собственный вектор, взвешенная кластеризация, локальная когезия,
+      // rich-club, когерентность, сложность) не отсеивают НИЧЕГО и потому
+      // rankKeep не зовут — а приписку «ещё N концептов не попали»
+      // показывали, взяв N у предыдущего вида. Обнуление при чтении делает
+      // подмену невозможной по устройству: не наполнил — получил ноль.
+      const hiddenCount = zeroCount === null ? lastZeroCount : zeroCount;
+      lastZeroCount = 0;
       
       if (!data || data.length === 0) {
         return `
@@ -298,9 +320,9 @@ function generateMetricResults(data, title, description, metricKey, valueKey, is
         ${generateMetricDescriptionBlock(metricKey)}
         ${generateMetricCoverageBlock(metricKey)}
 
-        ${lastZeroCount > 0 ? `
+        ${hiddenCount > 0 ? `
           <div class="metric-zero-note">
-            Ещё ${lastZeroCount} концептов имеют нулевое значение этой метрики
+            Ещё ${hiddenCount} концептов имеют нулевое значение этой метрики
             и в таблицу не попали.
           </div>
         ` : ''}
@@ -388,4 +410,4 @@ function toggleMetricDetails(button) {
       }
     }
 
-export { METRIC_FIELD_LABELS, applyMetricLayout, generateCalculateButton, generateMetricDescriptionBlock, generateMetricResults, genericDetailsHTML, lastZeroCount, rankKeep, restoreMetricLayoutMode, toggleMetricDetails, toggleMetricLayout };
+export { applyMetricLayout, generateCalculateButton, generateMetricDescriptionBlock, generateMetricResults, rankKeep, restoreMetricLayoutMode, toggleMetricDetails, toggleMetricLayout };

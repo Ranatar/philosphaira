@@ -55,4 +55,4 @@ const WEIGHT_OPTIONS = [
 
 const CONN_WEIGHT_WORDS = { 1: 'слабая', 2: 'обычная', 3: 'сильная' };
 
-export { CONN_WEIGHT_WORDS, LAYER_NAMES, RELATION_HINTS, WEIGHT_OPTIONS, WEIGHT_WORDS, relationHint };
+export { CONN_WEIGHT_WORDS, WEIGHT_OPTIONS, WEIGHT_WORDS, relationHint };

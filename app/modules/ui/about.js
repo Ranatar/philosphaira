@@ -98,4 +98,4 @@ function onAboutBackdropClick(ev) {
       if (ev.target && ev.target.id === 'aboutModal') closeAboutModal();
     }
 
-export { buildAboutText, closeAboutModal, onAboutBackdropClick, openAboutModal };
+export { closeAboutModal, onAboutBackdropClick, openAboutModal };

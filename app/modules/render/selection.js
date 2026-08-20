@@ -3,6 +3,7 @@ import { DATA, S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
 import { emit } from '../core/events.js';
+import { conceptById } from '../core/graph-index.js';
 import { showTemporaryMessage } from '../core/long-task.js';
 import { gfxSvg } from './canvas-core.js';
 import { gfxLinkAll, gfxNode, gfxZoom } from './d3-layer.js';
@@ -68,7 +69,7 @@ function highlightPhilosopherOnGraph(name, add) {
     }
 
 function highlightNodeById(nodeId) {
-      const nodeData = DATA.nodes.find(n => n.id === nodeId);
+      const nodeData = conceptById.get(nodeId);
       if (nodeData) {
         selectedNodes.clear();
         selectedNodes.add(nodeData);
@@ -256,4 +257,4 @@ function resetHighlight() {
         .classed("path-highlight", false);
     }
 
-export { highlightCombined, highlightConnected, highlightNodeById, highlightPhilosopherOnGraph, isEdgeConnectedToNode, isEdgeConnectedToSelectedNodes, isNodeConnectedToSelectedEdges, resetHighlight };
+export { highlightCombined, highlightConnected, highlightNodeById, highlightPhilosopherOnGraph, isEdgeConnectedToSelectedNodes, isNodeConnectedToSelectedEdges, resetHighlight };

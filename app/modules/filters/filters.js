@@ -450,4 +450,4 @@ const debouncedApplyFilters = debounce(applyFiltersImmediate, 150);
 
 function applyFilters() { debouncedApplyFilters(); }
 
-export { FilterModes, applyBasicFilter, applyChainVisibility, applyFilters, applyFiltersImmediate, cleanupInvisibleSelections, debounce, debouncedApplyFilters, handleChainsMode, handleUniqueChainsMode, linkPassesTraditions, philTraditionsSelected, philosopherPassesTraditions, refreshMetricsIfScoped };
+export { applyFilters, applyFiltersImmediate, philosopherPassesTraditions };

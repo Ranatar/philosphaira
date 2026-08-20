@@ -124,4 +124,4 @@ async function runSingleMetric(metricName) {
       }
     }
 
-export { calculateMetricFromModal, hideProgress, runSingleMetric, showProgress };
+export { calculateMetricFromModal };

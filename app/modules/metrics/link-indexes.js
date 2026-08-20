@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
-import { isReflexiveLink, isSymmetricLink } from '../core/link-facts.js';
+import { buildReflexiveMap, isReflexiveLink, isSymmetricLink } from '../core/link-facts.js';
 import { isNodeVisible } from '../core/visibility.js';
 import { effectiveScopeFlags, transformForScope } from './scope-select.js';
 
@@ -46,6 +46,7 @@ function initializeMetricsData(conceptsData, relationsData, philosophersData) {
       S._philosopherMap = new Map(S._philosophers.map(p => [p.id, p]));
       S._incomingLinks = buildIncomingLinks();
       S._outgoingLinks = buildOutgoingLinks();
+      S._reflexiveMap = buildReflexiveMap();
     }
 
 function initializePhilosophyMetrics() {
@@ -117,4 +118,4 @@ function initializePhilosophyMetrics() {
       }
     }
 
-export { buildIncomingLinks, buildOutgoingLinks, initializeMetricsData, initializePhilosophyMetrics };
+export { initializePhilosophyMetrics };

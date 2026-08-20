@@ -2,6 +2,7 @@
 import { DATA, S } from '../../core/ns.js';
 import '../../core/graph-index.js';
 import { emit } from '../../core/events.js';
+import { conceptById } from '../../core/graph-index.js';
 import { LoadingIndicator } from '../../core/long-task.js';
 import { initializePhilosophyMetrics } from '../../metrics/link-indexes.js';
 import { philosopherProfile } from '../../metrics/philosopher.js';
@@ -50,7 +51,7 @@ function renderPhilosopherComparison() {
       const a = S._pcmpA, b = S._pcmpB;
       if (!a || !b) return;
 
-      const scores = ['profile', 'style', 'structure', 'rubrics'].map(k =>
+      const scores = Object.keys(PHIL_SIM_LABELS).map(k =>
         ({ k, v: philosopherSimilarity(a, b, k) }));
 
       const prA = philosopherProfile(a) || {}, prB = philosopherProfile(b) || {};
@@ -322,7 +323,7 @@ function generateComparisonContent() {
       if (!S._cmpB) S._cmpB = D.ids[1];
 
       const captionOf = id => {
-        const n = DATA.nodes.find(x => x.id === id);
+        const n = conceptById.get(id);
         return n ? `${n.label} (${n.concept})` : '';
       };
       const selectField = (slot, label) => `
@@ -364,7 +365,7 @@ function renderComparison() {
       const box = document.getElementById('cmpBody');
       if (!box) return;
       const D = similarityData();
-      const a = DATA.nodes.find(n => n.id === S._cmpA), b = DATA.nodes.find(n => n.id === S._cmpB);
+      const a = conceptById.get(S._cmpA), b = conceptById.get(S._cmpB);
       if (!a || !b) { box.innerHTML = ''; return; }
 
       const prof = profileSimilarity(S._cmpA, S._cmpB);

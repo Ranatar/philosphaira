@@ -8,6 +8,4 @@ let editMode = {
       pendingConceptSelection: [] // Для последовательного выбора двух концепций
     };
 
-let graphSelectionContext = { active: false, type: null, mode: 'edit' };
-
-export { editMode, graphSelectionContext };
+export { editMode };

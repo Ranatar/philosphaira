@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById, nodesByPhilosopher, philosopherByName } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { isConceptIsolated } from './entry.js';
 import { philosopherBirth, philosopherYears } from '../util/philosopher-label.js';
@@ -12,8 +13,8 @@ function relationIndexOf(srcId, tgtId, type) {
     }
 
 function activityOverlap(nameA, nameB) {
-      const a = DATA.philosophers.find(p => p.nameRu === nameA);
-      const b = DATA.philosophers.find(p => p.nameRu === nameB);
+      const a = philosopherByName.get(nameA);
+      const b = philosopherByName.get(nameB);
       if (!a || !b) return true;
       // Период ЗРЕЛОСТИ, а не жизни: прежде Конт и Кант считались
       // современниками, хотя Конту при смерти Канта было шесть лет.
@@ -70,15 +71,15 @@ const nConcepts = n => pluralRu(n, 'концепцию', 'концепции', '
 const nLinks = n => pluralRu(n, 'связь', 'связи', 'связей');
 
 const labelOf = id => {
-      const n = DATA.nodes.find(x => x.id === id);
+      const n = conceptById.get(id);
       return n ? n.label : id;
     };
 
 function connectionIntegrityWarnings(srcId, tgtId, type, weight, bidir, original) {
       const w = [];
       const t = DATA.relationTypesObj[type] || {};
-      const srcNode = DATA.nodes.find(n => n.id === srcId);
-      const tgtNode = DATA.nodes.find(n => n.id === tgtId);
+      const srcNode = conceptById.get(srcId);
+      const tgtNode = conceptById.get(tgtId);
       if (!srcNode || !tgtNode) return w;
 
       const isSame = l => l === original;
@@ -238,7 +239,7 @@ function philosopherIntegrityWarnings(name, birth, death, original) {
         w.push('Год смерти раньше года рождения.');
       }
       if (original && name !== original) {
-        const own = DATA.nodes.filter(n => n.concept === original).length;
+        const own = (nodesByPhilosopher.get(original) || []).length;
         w.push('Переименование затронет ' + nConcepts(own) + ': у каждой '
            + 'обновится ссылка на философа.');
       }
@@ -249,4 +250,4 @@ function philosopherIntegrityWarnings(name, birth, death, original) {
       return w;
     }
 
-export { GROUNDING_TYPES, activityOverlap, conceptIntegrityWarnings, connectionIntegrityWarnings, groundingCyclePath, labelOf, nConcepts, nLinks, philosopherIntegrityWarnings, relationIndexOf };
+export { conceptIntegrityWarnings, connectionIntegrityWarnings, nConcepts, nLinks, philosopherIntegrityWarnings, relationIndexOf };

@@ -158,4 +158,4 @@ function authLogout() {
       }
     }
 
-export { authError, authLogout, authModalEl, authModalKind, authNoticeAdmin, authNoticeMember, closeAuthModal, openAuthModal, showAuthNotice, submitAuth };
+export { authLogout, closeAuthModal, openAuthModal, submitAuth };

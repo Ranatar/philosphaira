@@ -131,4 +131,4 @@ function handleMetricsScopeChange() {
       emit('stats-stale');
     }
 
-export { applyMetricsScope, handleMetricsScopeChange, installMetricScopeWrappers, metricScopeFactor, metricsScopeCounts, updateMetricsScopeHint, updateScopeToggles };
+export { applyMetricsScope, handleMetricsScopeChange, installMetricScopeWrappers, metricsScopeCounts, updateMetricsScopeHint, updateScopeToggles };

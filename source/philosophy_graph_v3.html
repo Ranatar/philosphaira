@@ -822,6 +822,18 @@
       color: #fff;
     }
     .influence-scope-note { font-style: italic; opacity: 0.8; }
+    /* OWNLINKS-PATCH: флажок уточнения. Разрыв строки перед ним нужен, чтобы
+       он читался как подчинённый ряду кнопок, а не как четвёртая кнопка. */
+    .influence-scope-own {
+      flex-basis: 100%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 2px;
+      cursor: pointer;
+      color: #a29bfe;
+    }
+    .influence-scope-own input { cursor: pointer; margin: 0; }
 
     .tradition-pick {
       flex: none;
@@ -2650,8 +2662,15 @@
 
     /* ── Легенда карты сходства ──────────────────────────────── */
     #similarityLegend {
-      position: fixed; right: 18px; bottom: 18px; z-index: 900;
-      width: 230px; padding: 12px 14px; border-radius: 10px;
+      /* ВНИЗУ ПО ЦЕНТРУ, а не в правом углу. Прежде панель стояла
+         right: 18px; bottom: 18px — ровно поверх #controls (right: 20px;
+         bottom: 20px), и, открыв карту сходства, читатель терял панель
+         контроля целиком. Низ выбран потому, что верх занят шапкой и
+         легендой, а середина — самим графом. */
+      position: fixed; left: 50%; transform: translateX(-50%);
+      bottom: 18px; z-index: 900;
+      width: 260px; padding: 12px 14px; border-radius: 10px;
+      max-height: calc(100vh - 140px); overflow-y: auto;
       background: rgba(15, 12, 41, 0.94);
       border: 1px solid rgba(108, 92, 231, 0.45);
       box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
@@ -2660,7 +2679,23 @@
     .simleg-title {
       color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 8px;
     }
-    .simleg-mode { display: flex; gap: 6px; margin-bottom: 10px; }
+    .simleg-mode { display: flex; gap: 6px; margin-bottom: 8px; }
+    .simleg-links-title {
+      color: rgba(255,255,255,0.55); font-size: 10px;
+      text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;
+    }
+    .simleg-links { display: flex; gap: 4px; margin-bottom: 10px; }
+    .simleg-lbtn {
+      flex: 1; padding: 4px 5px; border-radius: 6px; cursor: pointer;
+      font-size: 10px; color: rgba(255,255,255,0.65);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .simleg-lbtn b { color: #ffd700; font-weight: 600; }
+    .simleg-lbtn.active {
+      color: #fff; background: rgba(108, 92, 231, 0.45);
+      border-color: rgba(108, 92, 231, 0.8);
+    }
     .simleg-btn {
       flex: 1; padding: 5px 6px; border-radius: 6px; cursor: pointer;
       font-size: 11px; color: rgba(255,255,255,0.65);
@@ -4718,7 +4753,7 @@
             </label>
             <label style="display: flex; align-items: center; cursor: pointer;"
                  data-tip="Типологические связи симметричны и дают короткие пути через понятия, между которыми не было исторического контакта">
-              <input type="checkbox" id="skipTypologicalPath" style="margin-right: 8px;">
+              <input type="checkbox" id="skipTypologicalPath" checked style="margin-right: 8px;">
               <span>Без типологических связей</span>
             </label>
           </div>
@@ -13954,6 +13989,76 @@
         description: r.description
       };
     });
+
+    /* IDX-PATCH */
+    // ── Указатели по идентификаторам ──────────────────────────────────
+    // Слой выше даёт карты философа, типа и рубрики, но НЕ даёт карты
+    // концепции — и по файлу разошлось 69 линейных поисков узла по
+    // идентификатору, из них 25 внутри циклов. Здесь достраивается
+    // недостающее.
+    //
+    // Все указатели пересобираются при всякой правке данных: вызов
+    // rebuildIndexes() стоит в afterDataChange рядом с rebuildDerivedIndexes.
+    // Разошедшаяся с данными карта — отказ ХУЖЕ медленного поиска: перебор
+    // всегда отвечал верно, устаревшая карта отвечает неверно и молчит.
+    //
+    // linksByConcept — смежность общего пользования. Своих смежностей в файле
+    // уже пять (BFS, buildAdjacencyGraph, граф метрик, обоснования,
+    // входящие/исходящие метрик); шестая заводится не вместо них, а для
+    // getConceptConnections — единственного места, которое обходилось полным
+    // проходом по links и зовётся семью разными местами.
+    //
+    // nodesByPhilosopher — узлы философа; восемь мест брали их фильтрацией
+    // по всем 453 узлам.
+    //
+    // Оба указателя ОТДАЮТСЯ КОПИЕЙ. Прежние filter возвращали свежий массив,
+    // и звавшие вправе его менять; общий список, розданный семи местам, — это
+    // молчаливая порча указателя при первой же правке на стороне звавшего.
+    const conceptById        = new Map();
+    const philosopherByName  = new Map();
+    const traditionById      = new Map();
+    const rubricById         = new Map();
+    const nodesByPhilosopher = new Map();
+    const linksByConcept     = new Map();
+
+    function rebuildIndexes() {
+      conceptById.clear();
+      nodes.forEach(n => conceptById.set(n.id, n));
+
+      philosopherByName.clear();
+      philosophers.forEach(p => philosopherByName.set(p.nameRu, p));
+
+      traditionById.clear();
+      traditions.forEach(t => traditionById.set(t.id, t));
+
+      rubricById.clear();
+      rubrics.forEach(r => rubricById.set(r.id, r));
+
+      nodesByPhilosopher.clear();
+      nodes.forEach(n => {
+        let a = nodesByPhilosopher.get(n.concept);
+        if (!a) { a = []; nodesByPhilosopher.set(n.concept, a); }
+        a.push(n);
+      });
+
+      // d3 подменяет source/target ссылками на узлы уже на первом тике,
+      // поэтому конец связи читается через (l.source && l.source.id).
+      linksByConcept.clear();
+      nodes.forEach(n => linksByConcept.set(n.id, []));
+      links.forEach(l => {
+        const s = (l.source && l.source.id) || l.source;
+        const t = (l.target && l.target.id) || l.target;
+        let a = linksByConcept.get(s);
+        if (!a) { a = []; linksByConcept.set(s, a); }
+        a.push(l);
+        if (t !== s) {
+          let b = linksByConcept.get(t);
+          if (!b) { b = []; linksByConcept.set(t, b); }
+          b.push(l);
+        }
+      });
+    }
+    rebuildIndexes();
     // Глобальные переменные для переключения режимов расчёта
     let useWeightedPaths = true;
     let respectDirection = true;
@@ -13961,7 +14066,19 @@
     // Типологический слой (сходство и противопоставление) утверждает,
     // что контакта не было. Для истории влияний такие рёбра — короткое
     // замыкание, для сопоставления систем — самое интересное.
-    let skipTypologicalInPaths = false;
+    //
+    // М8. УМОЛЧАНИЕ ПЕРЕВЕДЕНО В «ПРОПУСКАТЬ». Путь предъявляется читателю
+    // как цепочка передачи, а cost = 4 − weight делает типологическое ребро
+    // веса 3 («схождение разительное») таким же коротким, как историческое
+    // веса 3 («без этого отношения понятие не возникло бы»). Показывать
+    // как передачу то, в чём передачи не было, — хуже, чем не найти путь.
+    // Кому нужно сопоставление систем, снимает флажок; но выбор должен
+    // быть заявленным, а не молчаливым.
+    //
+    // Правится В ДВУХ МЕСТАХ: значение читается из флажка при каждом
+    // поиске (см. ниже, скрытая перезапись), и правка одной переменной
+    // была бы молчаливо бесполезной — самый неприятный род правки.
+    let skipTypologicalInPaths = true;
     function isTypologicalLink(l) {
       const t = relationTypesObj[l && l.type];
       return !!(t && t.layer === 'typological');
@@ -14002,11 +14119,11 @@
     function nodeAge(id) {
       const n = DATA_nodes_find(id);
       if (!n) return null;
-      const phil = philosophers.find(p => p.nameRu === n.concept);
+      const phil = philosopherByName.get(n.concept);
       return phil ? phil.birth : null;
     }
 
-    function DATA_nodes_find(id) { return nodes.find(n => n.id === id); }
+    function DATA_nodes_find(id) { return conceptById.get(id); }
 
     function stepWithoutGap(fromId, toId, step, last) {
       const a = DATA_nodes_find(fromId), b = DATA_nodes_find(toId);
@@ -14156,14 +14273,14 @@
      * @returns {boolean} - Валиден ли переход
      */
     function isChronologicallyValid(fromNodeId, toNodeId, mode = currentChronologyMode, linkType = null) {
-      const fromNode = nodes.find(n => n.id === fromNodeId);
-      const toNode = nodes.find(n => n.id === toNodeId);
+      const fromNode = conceptById.get(fromNodeId);
+      const toNode = conceptById.get(toNodeId);
       
       if (!fromNode || !toNode) return true; // Если узлы не найдены, разрешаем
       
       // Находим данные философов по имени (nameRu)
-      let fromPhil = philosophers.find(p => p.nameRu === fromNode.concept);
-      let toPhil = philosophers.find(p => p.nameRu === toNode.concept);
+      let fromPhil = philosopherByName.get(fromNode.concept);
+      let toPhil = philosopherByName.get(toNode.concept);
       
       if (!fromPhil || !toPhil) return true; // Если философы не найдены, разрешаем
       
@@ -14234,12 +14351,12 @@
         const edgeType = edge ? edge.type : null;
         
         if (!isChronologicallyValid(fromId, toId, mode, edgeType)) {
-          const fromNode = nodes.find(n => n.id === fromId);
-          const toNode = nodes.find(n => n.id === toId);
+          const fromNode = conceptById.get(fromId);
+          const toNode = conceptById.get(toId);
           
           if (fromNode && toNode) {
-            const fromPhil = philosophers.find(p => p.nameRu === fromNode.concept);
-            const toPhil = philosophers.find(p => p.nameRu === toNode.concept);
+            const fromPhil = philosopherByName.get(fromNode.concept);
+            const toPhil = philosopherByName.get(toNode.concept);
             
             if (fromPhil && toPhil) {
               warnings.push({
@@ -14268,7 +14385,7 @@
     // Локк и Юм: эмпиризм и Просвещение).
     function traditionsOfPhilosopher(name) {
       return (philosopherTraditions[name] || [])
-        .map(id => (traditions.find(t => t.id === id) || {}).name)
+        .map(id => (traditionById.get(id) || {}).name)
         .filter(Boolean);
     }
 
@@ -14281,7 +14398,7 @@
         const shared = ta.filter(x => tb.includes(x));
         segments.push(shared.length
           ? { kind: 'shared', shared: shared.map(id =>
-              (traditions.find(t => t.id === id) || {}).name).filter(Boolean) }
+              (traditionById.get(id) || {}).name).filter(Boolean) }
           : { kind: 'crossing', from: traditionsOfPhilosopher(a),
               to: traditionsOfPhilosopher(b) });
       }
@@ -14327,6 +14444,29 @@
       });
       
       distances[sourceId] = 0;
+
+      // Список смежности строится ОДИН раз, а не перебирается заново на
+      // каждом шаге: до правки внешний цикл в 248 шагов давал 400 тысяч
+      // проходов по массиву связей. Ветвление ниже дословно повторяет
+      // прежнее: без разрывов и без учёта направления связь проходима в обе
+      // стороны, при учёте направления обратный ход даёт только симметричный
+      // тип. Тот же приём уже применён в findShortestPathUnweighted.
+      const adjacency = new Map();
+      nodes.forEach(n => adjacency.set(n.id, []));
+      links.forEach(link => {
+        if (!pathLinkAllowed(link)) return;
+        const src = link.source.id || link.source;
+        const tgt = link.target.id || link.target;
+        const cost = 4 - (link.weight || 2);
+        let a = adjacency.get(src);
+        if (!a) { a = []; adjacency.set(src, a); }
+        a.push({ id: tgt, type: link.type, cost: cost });
+        if (noGaps || !shouldRespectDirection || isSymmetricLink(link)) {
+          let b = adjacency.get(tgt);
+          if (!b) { b = []; adjacency.set(tgt, b); }
+          b.push({ id: src, type: link.type, cost: cost });
+        }
+      });
       
       while (unvisited.size > 0) {
         // Найти узел с минимальным расстоянием
@@ -14344,66 +14484,34 @@
         
         unvisited.delete(current);
         
-        const currentNode = nodes.find(n => n.id === current);
-        
-        // Обновить расстояния до соседей
-        links.forEach(link => {
-          if (!pathLinkAllowed(link)) return;
-          const src = link.source.id || link.source;
-          const tgt = link.target.id || link.target;
-          
-          let neighbor = null;
-          let canTraverse = false;
-          
+        // Обновить расстояния до соседей.
+        // curAge вынесен из цикла: current на его протяжении постоянен, а
+        // nodeAge до правки пересчитывался на КАЖДОЙ связи, и каждый
+        // пересчёт был линейным поиском по узлам и по философам.
+        const curAge = noGaps ? nodeAge(current) : null;
+        for (const edge of (adjacency.get(current) || [])) {
+          const neighbor = edge.id;
+          if (!unvisited.has(neighbor)) continue;
+
+          const alt = distances[current] + edge.cost;
+
           if (noGaps) {
-            // Ход времени задают ГОДЫ, а не стрелка: связь, пройденная
-            // против стрелки, читается как «восходит к».
-            if (src === current) { neighbor = tgt; canTraverse = true; }
-            else if (tgt === current) { neighbor = src; canTraverse = true; }
-          } else if (shouldRespectDirection) {
-            // Учитываем направленность
-            if (src === current) {
-              neighbor = tgt;
-              canTraverse = true;
-            } else if (isSymmetricLink(link) && tgt === current) {
-              neighbor = src;
-              canTraverse = true;
-            }
-          } else {
-            // Не учитываем направленность - граф ненаправленный
-            if (src === current) {
-              neighbor = tgt;
-              canTraverse = true;
-            } else if (tgt === current) {
-              neighbor = src;
-              canTraverse = true;
+            // Проверяется ПУТЬ, а не ребро: при монотонности крайний
+            // достигнутый год равен году текущего узла, поэтому условие
+            // местное и Дейкстра работает без изменений.
+            if (!stepWithoutGap(current, neighbor, step, curAge)) continue;
+          } else if (respectChronology) {
+            // B1: тип ребра определяет, в какую сторону оно читается
+            if (!isChronologicallyValid(current, neighbor, currentChronologyMode, edge.type)) {
+              continue; // Пропускаем этот переход как хронологически некорректный
             }
           }
-          
-          if (canTraverse && neighbor && unvisited.has(neighbor)) {
-            // Преобразуем вес: больший вес = меньшая "стоимость" связи
-            const weight = link.weight || 2;
-            const cost = 4 - weight;
-            const alt = distances[current] + cost;
-            
-            if (noGaps) {
-              // Проверяется ПУТЬ, а не ребро: при монотонности крайний
-              // достигнутый год равен году текущего узла, поэтому условие
-              // местное и Дейкстра работает без изменений.
-              if (!stepWithoutGap(current, neighbor, step, nodeAge(current))) return;
-            } else if (respectChronology) {
-              // B1: тип ребра определяет, в какую сторону оно читается
-              if (!isChronologicallyValid(current, neighbor, currentChronologyMode, link.type)) {
-                return; // Пропускаем этот переход как хронологически некорректный
-              }
-            }
-            
-            if (alt < distances[neighbor]) {
-              distances[neighbor] = alt;
-              previous[neighbor] = current;
-            }
+
+          if (alt < distances[neighbor]) {
+            distances[neighbor] = alt;
+            previous[neighbor] = current;
           }
-        });
+        }
       }
       
       // Восстановить путь
@@ -14466,11 +14574,14 @@
         }
         
         const neighbors = adjacency[currentNodeId] || [];
+        // curAge вынесен из цикла по той же причине, что и в Дейкстре:
+        // currentNodeId постоянен, а nodeAge пересчитывался на каждом соседе.
+        const curAge = noGaps ? nodeAge(currentNodeId) : null;
         for (const edge of neighbors) {
           const neighborId = edge.id;
           if (!visited.has(neighborId)) {
             if (noGaps) {
-              if (!stepWithoutGap(currentNodeId, neighborId, step, nodeAge(currentNodeId))) continue;
+              if (!stepWithoutGap(currentNodeId, neighborId, step, curAge)) continue;
             } else if (respectChronology) {
               // B1: тип ребра определяет, в какую сторону оно читается
               if (!isChronologicallyValid(currentNodeId, neighborId, currentChronologyMode, edge.type)) {
@@ -14531,9 +14642,6 @@
       currentChronologyMode = originalChronologyMode; // НОВОЕ: Восстанавливаем режим
       
       if (!path) {
-        const sourceNode = nodes.find(n => n.id === sourceId);
-        const targetNode = nodes.find(n => n.id === targetId);
-        
         let message = 'Эти концепции не связаны';
         if (respectChronology && respectDirectionPath) {
           message += ' хронологически корректным путём с учётом направленности связей.';
@@ -14562,9 +14670,12 @@
       const anachronismWarnings = analyzePath(path, selectedChronologyMode);
 
       // Формируем визуальное представление пути
-      const pathNodes = path.map(id => nodes.find(n => n.id === id));
+      const pathNodes = path.map(id => conceptById.get(id));
       // Б9: рёбра пути вычисляются один раз на все три потребителя
-      const pathLinkList = resolvePathLinkList(path, respectDirectionPath);
+      // SEAMLESS-PATCH: режим передаётся тот, КОТОРЫМ ИСКАЛИ, а не тот, что
+      // стоит в переменной сейчас — её уже восстановили тремя строками выше.
+      const pathLinkList = resolvePathLinkList(path, respectDirectionPath,
+                                               selectedChronologyMode);
       const pathTraditions = analyzePathTraditions(pathNodes);
       const pathTraditionSegments = pathTraditions.segments;
       
@@ -14659,7 +14770,7 @@
       // внутри одного философа) сливаются.
       const yearStep = [];
       pathNodes.forEach(n => {
-        const phil = philosophers.find(p => p.nameRu === n.concept);
+        const phil = philosopherByName.get(n.concept);
         if (!phil) return;
         const year = phil.birth < 0 ? Math.abs(phil.birth) + ' до н.э.' : String(phil.birth);
         if (yearStep[yearStep.length - 1] !== year) yearStep.push(year);
@@ -14670,7 +14781,7 @@
       let gaps = 0;
       {
         const years = pathNodes.map(n => {
-          const phil = philosophers.find(p => p.nameRu === n.concept);
+          const phil = philosopherByName.get(n.concept);
           return phil ? phil.birth : null;
         }).filter(year => year !== null);
         const step = years.length > 1 && years[years.length - 1] < years[0] ? -1 : 1;
@@ -14744,13 +14855,17 @@
       currentPathData = {
         path: path,
         pathNodes: pathNodes,
-        respectDirection: respectDirectionPath
+        respectDirection: respectDirectionPath,
+        // SEAMLESS-PATCH: окно описаний открывается позже — иногда много
+        // позже, — и к тому мигу режим в списке может быть уже другим.
+        // Путь принадлежит тому режиму, которым его нашли.
+        chronologyMode: selectedChronologyMode
       };
 
       resultDiv.classList.add('show');
       
       // Подсвечиваем путь на графе
-      highlightPath(path, respectDirectionPath);
+      highlightPath(path, respectDirectionPath, selectedChronologyMode);
     }
 
     // Обработчик наведения на стрелку пути с таймером и глобальным tooltip
@@ -14801,14 +14916,25 @@
     // в findAndShowPath (для стрелок в панели), в highlightPath и в
     // showPathDescriptionsModal, каждый раз проходом links.find по 1561 связи
     // на каждый сегмент. Теперь одна функция; результат — по сегментам, в порядке пути.
-    function resolvePathLinkList(path, respectDirectionFlag = true) {
+    function resolvePathLinkList(path, respectDirectionFlag = true,
+                                 mode = currentChronologyMode) {
       const list = [];
       // В режиме без разрывов путь идёт по ГОДАМ, а не по стрелкам, и ребро
       // сплошь и рядом пройдено против своей стрелки. Разбор об этом не знал
       // и возвращал null: в панели путь ещё показывался, а в окне описаний
       // оставался один исходный узел — связи не находились, а вместе с ними
       // пропадали и следующие за ними узлы.
-      const noGaps = currentChronologyMode === CHRONOLOGY_MODES.SEAMLESS;
+      //
+      // SEAMLESS-PATCH: режим приходит ДОВОДОМ, а не читается из живой
+      // переменной. Прежде здесь стояло currentChronologyMode, и верный ответ
+      // держался на том, что переменную поддерживает в согласии со списком
+      // обработчик change. Но findAndShowPath на время поиска ПОДМЕНЯЕТ эту же
+      // переменную и восстанавливает её ДО вызова разбора, а окно описаний
+      // открывается и вовсе потом. Согласие двух мест ничем не обеспечено:
+      // стоит любой будущей правке выставить режим не через список — и разбор
+      // молча вернёт null, то есть серую ненажимаемую стрелку «→» вместо связи,
+      // и заодно соврёт о направлении. Довод убирает зависимость вовсе.
+      const noGaps = mode === CHRONOLOGY_MODES.SEAMLESS;
       for (let i = 0; i < path.length - 1; i++) {
         const a = typeof path[i] === 'object' ? path[i].id : path[i];
         const b = typeof path[i + 1] === 'object' ? path[i + 1].id : path[i + 1];
@@ -14829,12 +14955,15 @@
     }
 
     // Подсветка пути на графе
-    function highlightPath(path, respectDirection = true) {
+    function highlightPath(path, respectDirection = true,
+                           mode = currentChronologyMode) {
       resetHighlight();
       
       const pathSet = new Set(path);
       // Б9: единый источник набора рёбер пути
-      const pathLinks = new Set(resolvePathLinkList(path, respectDirection).filter(Boolean));
+      // SEAMLESS-PATCH: рёбра, пройденные против стрелки, иначе выпадали бы из
+      // набора — и на полотне подсвечивался бы путь с дырами.
+      const pathLinks = new Set(resolvePathLinkList(path, respectDirection, mode).filter(Boolean));
       
       // Применяем стили
       gfxNode.classed("dimmed", d => !pathSet.has(d.id))
@@ -14860,9 +14989,13 @@
     function showPathDescriptionsModal() {
       if (!currentPathData) return;
       
-      const { path, pathNodes, respectDirection } = currentPathData;
+      // SEAMLESS-PATCH: режим берётся из записи о пути. Старые записи (если
+      // окно откроют по пути, найденному до этой правки) режима не несут —
+      // тогда, как и прежде, действует текущий.
+      const { path, pathNodes, respectDirection, chronologyMode } = currentPathData;
       // Б9: тот же единый источник
-      const pathLinkList = resolvePathLinkList(path, respectDirection);
+      const pathLinkList = resolvePathLinkList(path, respectDirection,
+                                               chronologyMode || currentChronologyMode);
       const modal = document.getElementById('pathDescriptionsModal');
       const overlay = document.getElementById('modalOverlay');
       const content = document.getElementById('pathDescriptionsContent');
@@ -14897,7 +15030,7 @@
       const nodeBlock = (node, i, role) => {
         const color = philosopherConcepts[node.concept]
           ? philosopherConcepts[node.concept].color : '#6c5ce7';
-        const phil = philosophers.find(x => x.nameRu === node.concept);
+        const phil = philosopherByName.get(node.concept);
         return `
         <div class="path-node-full-description" id="node-desc-${i}">
           <h4 class="path-open" onclick="openConceptById('${node.id}')"
@@ -15203,7 +15336,7 @@
     }
 
     function pickLinkEnd(end, id) {
-      const node = nodes.find(n => n.id === id);
+      const node = conceptById.get(id);
       if (!node) return;
       linkSearch[end] = node;
       const field = document.getElementById(end === 'from' ? 'legendLinkFrom' : 'legendLinkTo');
@@ -17236,7 +17369,7 @@
       
       const result = Object.entries(betweenness)
         .map(([id, value]) => ({
-          node: nodes.find(n => n.id === id),
+          node: conceptById.get(id),
           value: value,
           count: Math.round(value)
         }))
@@ -17376,7 +17509,7 @@
         // Формирование результата
         const result = Object.entries(pageRank)
           .map(([id, value]) => ({
-            node: nodes.find(n => n.id === id),
+            node: conceptById.get(id),
             value: value
           }))
           .sort((a, b) => b.value - a.value);
@@ -17976,7 +18109,7 @@
         
         const result = Object.entries(eigenvector)
           .map(([id, value]) => ({
-            node: nodes.find(n => n.id === id),
+            node: conceptById.get(id),
             value: value
           }))
           .sort((a, b) => b.value - a.value);
@@ -18046,6 +18179,7 @@
     let _philosopherMap = null;
     let _incomingLinks = null;
     let _outgoingLinks = null;
+    let _reflexiveMap = null;   // IDX: петли по концепции, см. reflexiveLinkOf
 
     // Вспомогательные функции для построения графа связей
     // Рефлексивные связи (петли) в метриках не участвуют: петля
@@ -18060,13 +18194,22 @@
 
     // Петля концепции, если есть. Списки для метрик её не содержат,
     // поэтому берём из исходных отношений.
-    function reflexiveLinkOf(conceptId) {
-      for (const r of _relations) {
+    // Петель в базе два десятка, а проход был по всем отношениям и звался
+    // трижды на концепцию при пересчёте метрик. Карта строится одним
+    // проходом при initializeMetricsData.
+    function buildReflexiveMap() {
+      const m = new Map();
+      _relations.forEach(r => {
         const s = (r.source && r.source.id) || r.source;
         const t = (r.target && r.target.id) || r.target;
-        if (s === conceptId && t === conceptId) return r;
-      }
-      return null;
+        if (s === t && !m.has(s)) m.set(s, r);
+      });
+      return m;
+    }
+
+    function reflexiveLinkOf(conceptId) {
+      if (!_reflexiveMap) _reflexiveMap = buildReflexiveMap();
+      return _reflexiveMap.get(conceptId) || null;
     }
 
     function buildIncomingLinks() {
@@ -18111,6 +18254,7 @@
       _philosopherMap = new Map(_philosophers.map(p => [p.id, p]));
       _incomingLinks = buildIncomingLinks();
       _outgoingLinks = buildOutgoingLinks();
+      _reflexiveMap = buildReflexiveMap();
     }
 
     // ============================================
@@ -18734,16 +18878,40 @@
     }
 
     function influenceScopeSwitcher() {
+      // OWNLINKS-PATCH: 'within_ext' из ряда кнопок исключено — это не
+      // четвёртое положение, а уточнение третьего, и показывается флажком
+      // ниже. Кнопка «внутри традиций» считается нажатой при обоих значениях.
+      // Имя ЛАТИНСКОЕ. В исходнике латиницей записаны все 1657 объявлений;
+      // кириллица живёт только в оснастке (tools/), и граница между ними
+      // проведена намеренно. Сборка на местном имени, надо признать, НЕ
+      // споткнулась бы — проверено прогоном: латинский набор оснастка требует
+      // от имён установок (split.mjs) и от тел обработчиков (delegate.mjs), а
+      // до местных ей дела нет. Но правило держится не тем, где оно ловится:
+      // «собратьБазу» и «замокРаскладки» из ранних патчей были общими именами
+      // и стоили переименования, а исключение «здесь-то можно» нужно помнить
+      // — латиница везде не нуждается в памяти.
+      const withinActive = influenceScope === 'within' || influenceScope === 'within_ext';
       return `
         <div class="influence-scope">
           <span class="influence-scope-label">Влияние:</span>
-          ${Object.entries(INFLUENCE_SCOPE_LABELS).map(([k, v]) => `
-            <button class="influence-scope-btn${influenceScope === k ? ' active' : ''}"
+          ${Object.entries(INFLUENCE_SCOPE_LABELS)
+            .filter(([k]) => k !== 'within_ext').map(([k, v]) => `
+            <button class="influence-scope-btn${(k === 'within' ? withinActive : influenceScope === k) ? ' active' : ''}"
                 onclick="setInfluenceScope('${k}')">${v}</button>
           `).join('')}
           <span class="influence-scope-note">${influenceScope === 'all'
             ? 'итог в точности прежний'
             : 'считается по разметке традиций'}</span>
+          ${withinActive ? `
+            <label class="influence-scope-own">
+              <input type="checkbox"${influenceScope === 'within_ext' ? ' checked' : ''}
+                  onclick="setInfluenceScope('${influenceScope === 'within_ext' ? 'within' : 'within_ext'}')">
+              <span>без внутренних связей</span>
+            </label>
+            <span class="influence-scope-note">${influenceScope === 'within_ext'
+              ? 'только влияние на ДРУГИХ философов своей традиции; у философа, чья традиция в словаре представлена им одним, выйдет ровно ноль'
+              : 'сейчас в счёт входят и связи философа с самим собой — их в базе 669 из 1624'}</span>
+          ` : ''}
         </div>
       `;
     }
@@ -20277,12 +20445,15 @@
 
       // — способ построения: доли типов связей
       const types = [...new Set(_relations.map(r => r.type))];
+      // types.indexOf стоял внутри цикла по связям внутри цикла по
+      // философам: 57 × 1624 линейных поисков по перечню типов.
+      const typeIndex = new Map(types.map((t, i) => [t, i]));
       const typeRaw = phs.map(ph => {
         const own = new Set(conceptsOf[ph]);
         const v = types.map(() => 0);
         for (const r of _relations) {
           if (own.has(r.source) || own.has(r.target)) {
-            v[types.indexOf(r.type)] += (r.weight || 1);
+            v[typeIndex.get(r.type)] += (r.weight || 1);
           }
         }
         const s = v.reduce((x, y) => x + y, 0) || 1;
@@ -20291,11 +20462,14 @@
 
       // — рубрики
       const rubrics = [...new Set(_concepts.flatMap(c => c.rubrics || []))];
+      // rubrics здесь — ЛОКАЛЬНЫЙ перечень, затеняющий одноимённый набор
+      // базы; карта строится по нему же.
+      const rubricIndex = new Map(rubrics.map((r, i) => [r, i]));
       const rubRaw = phs.map(ph => {
         const v = rubrics.map(() => 0);
         for (const id of conceptsOf[ph]) {
           const c = _conceptMap.get(id);
-          (c && c.rubrics || []).forEach(rb => v[rubrics.indexOf(rb)]++);
+          (c && c.rubrics || []).forEach(rb => v[rubricIndex.get(rb)]++);
         }
         const s = v.reduce((x, y) => x + y, 0) || 1;
         return v.map(x => x / s);
@@ -20396,8 +20570,17 @@
     // Связь внутри одной системы считается «своей»: у неё оба конца у одного
     // философа, и традиции у них по определению общие.
     var influenceScope = 'all';
+    // OWNLINKS-PATCH: четвёртое значение. Оно НЕ выводится отдельной кнопкой —
+    // это уточнение положения 'within', и в переключателе показывается
+    // флажком. Отдельного состояния под флажок нарочно не заводится: будь
+    // это булев признак рядом со строкой взгляда, его пришлось бы примешивать
+    // к ключу кеша генеративности (_generativityCacheByScope), к проверке в
+    // setInfluenceScope и к подписи в подробностях — четыре места вместо
+    // одного. Здесь же всё, что уже умеет работать со строкой взгляда,
+    // подхватывает новое значение само.
     const INFLUENCE_SCOPE_LABELS = {
-      all: 'вся', within: 'внутри традиций', cross: 'за пределы традиций'
+      all: 'вся', within: 'внутри традиций', cross: 'за пределы традиций',
+      within_ext: 'внутри традиций, без внутренних связей'
     };
 
     function sameTraditionPhil(a, b) {
@@ -20409,13 +20592,22 @@
 
     // Проходит ли ребро при данном взгляде. Точка отсчёта — философ той
     // концепции, для которой считается метрика.
+    //
+    // OWNLINKS-PATCH: связь философа с самим собой проходит взгляд 'within'
+    // по первой строке sameTraditionPhil (a === b). Это верно по букве —
+    // своя традиция у себя общая всегда, — но в счёт влиятельности попадают
+    // тем самым все связи внутри собственной системы, а их в базе 669 из
+    // 1624. Взгляд 'within_ext' их отбрасывает, оставляя только влияние на
+    // ДРУГИХ философов своей традиции.
     function linkInInfluenceScope(r, ownPhilosopher, scope) {
-      if ((scope || influenceScope) === 'all') return true;
+      const sc = scope || influenceScope;
+      if (sc === 'all') return true;
       const s = _conceptMap.get(r.source), t = _conceptMap.get(r.target);
       if (!s || !t) return false;
       const other = s.philosopher === ownPhilosopher ? t.philosopher : s.philosopher;
+      if (sc === 'within_ext' && other === ownPhilosopher) return false;
       const same = sameTraditionPhil(ownPhilosopher, other);
-      return (scope || influenceScope) === 'within' ? same : !same;
+      return sc === 'cross' ? !same : same;
     }
 
     const GENERATIVITY_DAMPING = 0.85;
@@ -20442,8 +20634,14 @@
         if (sc !== 'all') {
           const sc2 = _conceptMap.get(r.source), tc = _conceptMap.get(r.target);
           if (!sc2 || !tc) continue;
+          // OWNLINKS-PATCH: тот же отбор, что в linkInInfluenceScope. Правку
+          // ОБЯЗАТЕЛЬНО держать в согласии с ним: генеративность — первое из
+          // трёх слагаемых влиятельности, и разойдись эти два правила, метрика
+          // считала бы часть по одному взгляду, а часть по другому, оставаясь
+          // при этом внутренне согласной и потому неотличимой от исправной.
+          if (sc === 'within_ext' && sc2.philosopher === tc.philosopher) continue;
           const same = sameTraditionPhil(sc2.philosopher, tc.philosopher);
-          if (sc === 'within' ? !same : same) continue;
+          if (sc === 'cross' ? same : !same) continue;
         }
         out[s].push({ t, w: (r.weight || 1) / 3 });
       }
@@ -20578,7 +20776,17 @@
       const ownTraditions = (_philosopherMap.get(own) || {}).traditions || [];
 
       let external = 0, crossing = 0, crossWeight = 0, extWeight = 0;
-      const reached = new Set();
+      // М8. ТИПОЛОГИЧЕСКИЙ СЛОЙ СЧИТАЕТСЯ ОТДЕЛЬНО И В ИТОГ НЕ ВХОДИТ.
+      // Мостовость меряет, КАК ТРАДИЦИИ СООБЩАЮТСЯ, а типологическая связь
+      // по определению подсказки есть ОТСУТСТВИЕ сообщения: «сложившись
+      // независимо, прямого заимствования не было». Засчитывая её, мера
+      // принимала несообщение за сообщение. Замерено: типологические рёбра
+      // давали 10,1 % внешнего веса и задевали 98 концепций.
+      // Не выброшены, а вынесены в свои поля: схождение без контакта —
+      // само по себе сведение о традициях, только другого рода, и прятать
+      // его от подробностей было бы хуже, чем складывать с прочим.
+      let typoCross = 0, typoWeight = 0;
+      const reached = new Set(), typoReached = new Set();
       const links = [...(_outgoingLinks.get(conceptId) || []),
                      ...(_incomingLinks.get(conceptId) || [])];
       links.forEach(r => {
@@ -20586,11 +20794,16 @@
         if (otherId === conceptId) return;
         const other = _conceptMap.get(otherId);
         if (!other || other.philosopher === own) return;
-        external++;
         const w = r.weight || 2;
-        extWeight += w;
         const ot = (_philosopherMap.get(other.philosopher) || {}).traditions || [];
-        if (!ownTraditions.some(t => ot.includes(t))) {
+        const crossesBorder = !ownTraditions.some(t => ot.includes(t));
+        if (isTypologicalLink(r)) {
+          if (crossesBorder) { typoCross++; typoWeight += w; ot.forEach(t => typoReached.add(t)); }
+          return;
+        }
+        external++;
+        extWeight += w;
+        if (crossesBorder) {
           crossing++; crossWeight += w;
           ot.forEach(t => reached.add(t));
         }
@@ -20622,6 +20835,9 @@
         crossWeight: crossWeight,
         externalLinks: external,
         traditionsReached: reached.size,
+        typologicalCrossings: typoCross,
+        typologicalWeight: typoWeight,
+        typologicalReached: typoReached.size,
         belowThreshold: !enough
       };
     }
@@ -21663,7 +21879,7 @@
     // неупорядоченное множество, и линия преемственности не видна.
     // Сортировка делается явно, год доступен в подсказке и мелким шрифтом.
     function philosopherBirth(nameRu) {
-      const p = philosophers.find(x => x.nameRu === nameRu);
+      const p = philosopherByName.get(nameRu);
       return p ? p.birth : 0;
     }
     // Отрицательный год без пояснения читается как «-515», поэтому
@@ -21675,7 +21891,7 @@
       return Array.from(list).sort((a, b) => philosopherBirth(a) - philosopherBirth(b));
     }
     function philosopherYears(nameRu) {
-      const p = philosophers.find(x => x.nameRu === nameRu);
+      const p = philosopherByName.get(nameRu);
       return p ? p.years : '';
     }
 
@@ -22065,8 +22281,30 @@
         // Приписка к самому числу: короткая, из тех величин, из которых
         // число собрано. Нужна там, где одно число рейтинга без разбора
         // читается неверно — см. мостовость.
-        getValueNote = null
+        getValueNote = null,
+        // Ч1. ЧИСЛО НЕПОКАЗАННЫХ — СВОЙСТВО ВИДА, А НЕ ОБЩАЯ ЯЧЕЙКА.
+        // Прежде оно бралось из lastZeroCount — переменной модуля, которую
+        // наполняет rankKeep. Семь видов отсеивают через rankKeep и ячейку
+        // обновляют, а АБСТРАКТНОСТЬ отсеивает своим условием
+        // (r.value !== 0: у неё есть отрицательный полюс, и rankKeep с
+        // условием value > 0 срезал бы «конкретный» край). Свой отсев она
+        // взяла, а ячейку трогать перестала — и печатала число нулевых
+        // ОТ ПРЕДЫДУЩЕГО ВИДА. В обходе перед ней стоит мостовость, и после
+        // правки мостовости цифра в чужом виде поехала следом: 273 → 301.
+        // Открытая первой, абстрактность не показывала блок вовсе.
+        // Ныне число приходит доводом; ячейка осталась умолчанием, поэтому
+        // двадцать шесть прочих вызовов править не пришлось.
+        zeroCount = null
       } = options;
+      // Ячейка ЧИТАЕТСЯ И ТУТ ЖЕ ОБНУЛЯЕТСЯ. Иначе её наследует всякий
+      // следующий вид: девять видов (PageRank, посредничество, близость,
+      // собственный вектор, взвешенная кластеризация, локальная когезия,
+      // rich-club, когерентность, сложность) не отсеивают НИЧЕГО и потому
+      // rankKeep не зовут — а приписку «ещё N концептов не попали»
+      // показывали, взяв N у предыдущего вида. Обнуление при чтении делает
+      // подмену невозможной по устройству: не наполнил — получил ноль.
+      const hiddenCount = zeroCount === null ? lastZeroCount : zeroCount;
+      lastZeroCount = 0;
       
       if (!data || data.length === 0) {
         return `
@@ -22132,9 +22370,9 @@
         ${generateMetricDescriptionBlock(metricKey)}
         ${generateMetricCoverageBlock(metricKey)}
 
-        ${lastZeroCount > 0 ? `
+        ${hiddenCount > 0 ? `
           <div class="metric-zero-note">
-            Ещё ${lastZeroCount} концептов имеют нулевое значение этой метрики
+            Ещё ${hiddenCount} концептов имеют нулевое значение этой метрики
             и в таблицу не попали.
           </div>
         ` : ''}
@@ -22887,8 +23125,25 @@
     var _pairsCrossTradition = false;
 
     var _pcmpA = null, _pcmpB = null;
-    const PHIL_SIM_LABELS = { profile: 'профиль метрик', style: 'способ построения',
-                  structure: 'структура связей', rubrics: 'тематический охват' };
+    // Ф2. ПОРЯДОК ПОДАЧИ: рубрики впереди. Порядок ключей задаёт и ряд
+    // кнопок, и колонки в сравнении, поэтому он здесь — решение, а не
+    // случайность записи.
+    //
+    // Замерено на пятёрках ближайших у 57 философов: `rubrics` устойчив к
+    // выбросу десятой части связей РОВНО НА ЕДИНИЦУ (он на связи вообще не
+    // смотрит), наименее зависим от размера системы (+0,046 против +0,377 у
+    // структуры и −0,310 у типослепого пробного), и при этом лучше всех
+    // согласуется с базой: связь в базе есть у 42,5 % отобранных пар против
+    // 30,8 % у нулевой модели с целями пропорционально числу связей. Мера,
+    // не видевшая графа, угадывает граф лучше тех, что его читают: рубрики
+    // и связи расставлялись независимо и сошлись — это внешняя проверка,
+    // а не самосогласование.
+    //
+    // `profile` при том же счёте даёт 25,1 % — НИЖЕ нулевой модели, то есть
+    // отбирает пары, среди которых связанных меньше, чем при отборе наугад
+    // по числу связей. Оставлен, но не первым и не умолчанием.
+    const PHIL_SIM_LABELS = { rubrics: 'тематический охват', style: 'способ построения',
+                  structure: 'структура связей', profile: 'профиль метрик' };
 
     function generatePhilosopherComparisonContent() {
       if (!concepts || !relations) initializePhilosophyMetrics();
@@ -22930,7 +23185,7 @@
       const a = _pcmpA, b = _pcmpB;
       if (!a || !b) return;
 
-      const scores = ['profile', 'style', 'structure', 'rubrics'].map(k =>
+      const scores = Object.keys(PHIL_SIM_LABELS).map(k =>
         ({ k, v: philosopherSimilarity(a, b, k) }));
 
       const prA = philosopherProfile(a) || {}, prB = philosopherProfile(b) || {};
@@ -22987,7 +23242,8 @@
       `;
     }
 
-    var _philPairsKind = 'profile';
+    // Ф2: умолчание — рубрики, а не профиль (см. PHIL_SIM_LABELS ниже).
+    var _philPairsKind = 'rubrics';
 
     function generatePhilosopherPairsContent() {
       if (!concepts || !relations) initializePhilosophyMetrics();
@@ -23204,7 +23460,7 @@
       if (!_cmpB) _cmpB = D.ids[1];
 
       const captionOf = id => {
-        const n = nodes.find(x => x.id === id);
+        const n = conceptById.get(id);
         return n ? `${n.label} (${n.concept})` : '';
       };
       const selectField = (slot, label) => `
@@ -23246,7 +23502,7 @@
       const box = document.getElementById('cmpBody');
       if (!box) return;
       const D = similarityData();
-      const a = nodes.find(n => n.id === _cmpA), b = nodes.find(n => n.id === _cmpB);
+      const a = conceptById.get(_cmpA), b = conceptById.get(_cmpB);
       if (!a || !b) { box.innerHTML = ''; return; }
 
       const prof = profileSimilarity(_cmpA, _cmpB);
@@ -23381,10 +23637,11 @@
 
       // Шкала знаковая, поэтому нулевые значения отбрасывать нельзя тем же
       // фильтром: показываем и абстрактный, и конкретный полюс.
-      const all = nodes.map(n => {
+      const measured = nodes.map(n => {
         const metric = abstractionIndex(n.id);
         return { node: n, value: metric.total, details: metric };
-      }).filter(r => r.value !== 0).sort((a, b) => b.value - a.value);
+      });
+      const all = measured.filter(r => r.value !== 0).sort((a, b) => b.value - a.value);
 
       return generateMetricResults(
         all.slice(0, 30),
@@ -23392,7 +23649,11 @@
         'Положительные значения — общие принципы, отрицательные — иллюстрации',
         'abstraction',
         'value',
-        true
+        true,
+        // Ч1: своё число непоказанных. Этот вид отсеивает не через rankKeep,
+        // а своим условием, и общую ячейку не наполняет — прежде он печатал
+        // чужую цифру, от предыдущего вида.
+        { zeroCount: measured.length - all.length }
       );
     }
 
@@ -24342,7 +24603,7 @@
     
     // Подсветка узла по ID
     function highlightNodeById(nodeId) {
-      const nodeData = nodes.find(n => n.id === nodeId);
+      const nodeData = conceptById.get(nodeId);
       if (nodeData) {
         selectedNodes.clear();
         selectedNodes.add(nodeData);
@@ -24578,7 +24839,7 @@
     }
 
     function selectSearchResult(nodeId, context) {
-      const nodeData = nodes.find(n => n.id === nodeId);
+      const nodeData = conceptById.get(nodeId);
       if (!nodeData) return;
       
       if (context === 'legend') {
@@ -24798,7 +25059,7 @@
     }
 
     function selectCustomOption(type, nodeId) {
-      const node = nodes.find(n => n.id === nodeId);
+      const node = conceptById.get(nodeId);
       if (!node) return;
       
       const input = document.getElementById(`${type}SelectInput`);
@@ -25138,17 +25399,67 @@
       if (!_simCache && typeof showTemporaryMessage === 'function') {
         showTemporaryMessage('Считаю метрики для карты сходства…', 1500);
       }
+      if (kind === 'profile' && !profileIsMeaningful(sourceId)) {
+        // ОТКАЗ ГРОМКИЙ, А НЕ МОЛЧАЛИВЫЙ. Первая редакция этой правки просто
+        // возвращала пустоту — кнопка нажималась и не делала ничего, и
+        // отличить это от поломки было нельзя. У концепции со степенью ниже
+        // медианной профиль вырожден по существу, и честный ответ —
+        // сказать об этом, а не показать карту, которой нельзя верить.
+        if (typeof showTemporaryMessage === 'function') {
+          showTemporaryMessage(
+            'У этой концепции слишком мало связей: профиль метрик почти сплошь нулевой, '
+            + 'и сходство по нему неотличимо от сходства с любой такой же. '
+            + 'Попробуйте вид «по структуре» — он вырожденности не подвержен.', 4000);
+        }
+        return;
+      }
       const values = new Map();
+      // М1. ОТСЕВ ВЫРОЖДЕННЫХ ПРОФИЛЕЙ — тот же, что в списке окна.
+      // Прежде карта звала profileSimilarity напрямую, и на один вопрос в
+      // одном файле было два ответа, причём худший показывался на графе:
+      // Спирмен(степень, верхнее сходство) −0.466 против −0.178 в окне —
+      // ровно то значение, которое комментарий C5 называет состоянием ДО
+      // исправления. У малосвязной концепции нули во всех метриках сразу,
+      // после z-нормировки её профиль сходится к общей точке, и косинус к
+      // любой такой же стремится к единице.
+      // Отсев только для профиля: жаккар вырожденности не подвержен.
+      // С2. НИЧЬИ РЕШАЮТСЯ ОБЩИМИ СОСЕДЯМИ, А НЕ ПОРЯДКОМ ПЕРЕБОРА.
+      // У жаккара значения ложатся на редкую сетку дробей: у 370 концепций
+      // из 453 внутри шестёрки есть повторы, у 181 шестое место — ничья,
+      // обрезанная порядком обхода. У пары с четырьмя общими соседями из
+      // восьми и пары с одним из двух жаккар одинаков, а свидетельство
+      // разное. Величина shared уже возвращалась из structuralSimilarity и
+      // нигде не использовалась.
+      const sharedOf = new Map();
       for (const n of nodes) {
         if (n.id === sourceId) continue;
-        const v = kind === 'structure'
-          ? structuralSimilarity(sourceId, n.id).jaccard
-          : profileSimilarity(sourceId, n.id);
+        // Отсев вырожденных нужен только профилю: жаккар и косинус по типам
+        // строятся не на z-нормированных метриках и к нулям нечувствительны.
+        if (kind === 'profile' && !profileIsMeaningful(n.id)) continue;
+        let v;
+        if (kind === 'structure') {
+          const st = structuralSimilarity(sourceId, n.id);
+          v = st.jaccard;
+          sharedOf.set(n.id, st.shared);
+        } else if (kind === 'types') {
+          // С3. ТРЕТИЙ ВИД: доли типов связей, косинус. Величина уже
+          // считалась в structuralSimilarity и уже показывалась в окне
+          // сравнения концепций — на карте её просто не было.
+          // Перевес над нулевой моделью 3,4× (141 пара «дуга + связь» из
+          // 1893) против 2,1× у профиля; зависимость от степени наименьшая
+          // из трёх: −0,258 против −0,364 у жаккара и −0,474 у профиля.
+          // Отчёт называет это «вдвое больше попаданий, чем у профиля» —
+          // на деле 141 против 88, то есть в 1,6 раза; вывод тот же.
+          v = structuralSimilarity(sourceId, n.id).typeCosine;
+        } else {
+          v = profileSimilarity(sourceId, n.id);
+        }
         values.set(n.id, v);
       }
       const nearest = [...values.entries()]
         .filter(([, v]) => v > 0)
-        .sort((a, b) => b[1] - a[1])
+        .sort((a, b) => (b[1] - a[1])
+          || ((sharedOf.get(b[0]) || 0) - (sharedOf.get(a[0]) || 0)))
         .slice(0, SIMILARITY_ARCS)
         .map(([id]) => id);
 
@@ -25162,15 +25473,16 @@
       // только настоящие нули: ненулевых соседей у медианного узла 43,
       // и все они содержательны.
       let dimBelow;
-      if (kind === 'structure') {
+      if (kind === 'structure' || kind === 'types') {
         dimBelow = 0;
       } else {
         const sorted = [...mags].sort((a, b) => a - b);
         dimBelow = sorted[Math.floor(SIMILARITY_KEEP_QUANTILE * (sorted.length - 1))] || 0;
       }
 
+      const keepLinks = similarityOverlay ? (similarityOverlay.linkMode || 'none') : 'none';
       similarityOverlay = { sourceId, kind, values, nearest,
-                  rowMax: rowMax || 1, dimBelow };
+                  rowMax: rowMax || 1, dimBelow, linkMode: keepLinks };
       emit('close-modals');
       requestDraw();
       updateSimilarityLegend();
@@ -25180,6 +25492,79 @@
       if (!similarityOverlay) return;
       showSimilarityOverlay(similarityOverlay.sourceId,
         similarityOverlay.kind === 'profile' ? 'structure' : 'profile');
+    }
+
+    // ПОКАЗ СВЯЗЕЙ ПРИ КАРТЕ СХОДСТВА — ТРИ ПОЛОЖЕНИЯ, НЕ ДВА.
+    // Карта гасит все 1624 связи разом (см. linkDrawAlpha): иначе рёбра в
+    // полную силу перетягивают внимание на то, что карта как раз отодвигает.
+    // Но гасить ВСЁ — значит прятать и то, ради чего карта строится.
+    //
+    //   'none'   — как было: гаснут все;
+    //   'source' — связи, у которых один конец есть сама сравниваемая
+    //              концепция. Отвечают на вопрос, совпало ли сходство с
+    //              прямым отношением, — внешняя проверка меры;
+    //   'all'    — связи между ЛЮБЫМИ двумя подсвеченными. Показывают,
+    //              сложилась ли подсвеченная часть в связную область.
+    //
+    // Три, а не два, потому что объёмы несопоставимы, и это ЗАМЕРЕНО.
+    // «Эйдос»: по профилю ярких 41 и связей между ними 45; по структуре
+    // 144 и 389; по типам 446 из 453 и 1608 из 1624 — то есть под видом
+    // «по типам» положение 'all' возвращает карту в исходное состояние,
+    // ради выхода из которого связи и гасились. Отменять его не за что —
+    // на других видах оно полезно, — но число показываемых связей панель
+    // называет ЗАРАНЕЕ, чтобы решение принималось до нажатия, а не после.
+    //
+    // Признак 'source' УЖЕ, чем «оба конца в шестёрке»: у «Идеи
+    // бесконечного» по типам связей источника с его шестёркой НОЛЬ, и это
+    // само по себе сведение — ближайшие по типам не связаны с ним ничем.
+    function setSimilarityLinks(mode) {
+      if (!similarityOverlay) return;
+      similarityOverlay.linkMode = mode;
+      requestDraw();
+      updateSimilarityLegend();
+    }
+
+    // Ярок ли узел на карте — тот же признак, по которому renderScene
+    // решает, гасить ли его. Держится в одном месте, чтобы подсветка связей
+    // и подсветка узлов не разошлись: два ответа на один вопрос в одном
+    // файле — то, что мы уже ловили правкой М1.
+    function nodeLitBySimilarity(id) {
+      if (!similarityOverlay) return false;
+      if (id === similarityOverlay.sourceId) return true;
+      const v = similarityOverlay.values.get(id);
+      if (v === undefined) return false;
+      return similarityOverlay.kind === 'profile'
+        ? Math.abs(v) >= similarityOverlay.dimBelow
+        : v > 0;
+    }
+
+    // Сколько связей покажет то или иное положение — для подписи в панели.
+    function similarityLinkCount(mode) {
+      if (!similarityOverlay || mode === 'none') return 0;
+      let n = 0;
+      for (const l of links) {
+        const s = l.source.id || l.source, t = l.target.id || l.target;
+        if (s === t) continue;
+        if (mode === 'source') {
+          if ((s === similarityOverlay.sourceId && nodeLitBySimilarity(t))
+           || (t === similarityOverlay.sourceId && nodeLitBySimilarity(s))) n++;
+        } else if (nodeLitBySimilarity(s) && nodeLitBySimilarity(t)) n++;
+      }
+      return n;
+    }
+
+    // Показывать ли эту связь в полную силу.
+    function linkAmongHighlighted(l) {
+      if (!similarityOverlay) return false;
+      const mode = similarityOverlay.linkMode || 'none';
+      if (mode === 'none') return false;
+      const s = l.source.id || l.source, t = l.target.id || l.target;
+      if (s === t) return false;
+      if (mode === 'source') {
+        return (s === similarityOverlay.sourceId && nodeLitBySimilarity(t))
+            || (t === similarityOverlay.sourceId && nodeLitBySimilarity(s));
+      }
+      return nodeLitBySimilarity(s) && nodeLitBySimilarity(t);
     }
 
     function clearSimilarityOverlay() {
@@ -25196,15 +25581,26 @@
         box.id = 'similarityLegend';
         document.body.appendChild(box);
       }
-      const src = nodes.find(n => n.id === similarityOverlay.sourceId);
-      const isProfile = similarityOverlay.kind === 'profile';
+      const src = conceptById.get(similarityOverlay.sourceId);
+      const mode = similarityOverlay.kind;
+      const isProfile = mode === 'profile';
+      const btn = (k, caption) =>
+        `<button class="simleg-btn ${mode === k ? 'active' : ''}"
+             onclick="showSimilarityOverlay('${similarityOverlay.sourceId}','${k}')">${caption}</button>`;
       box.innerHTML = `
         <div class="simleg-title">Сходство с «${src ? src.label : '—'}»</div>
         <div class="simleg-mode">
-          <button class="simleg-btn ${isProfile ? 'active' : ''}"
-              onclick="showSimilarityOverlay('${similarityOverlay.sourceId}','profile')">По профилю</button>
-          <button class="simleg-btn ${!isProfile ? 'active' : ''}"
-              onclick="showSimilarityOverlay('${similarityOverlay.sourceId}','structure')">По структуре</button>
+          ${btn('profile', 'По профилю')}
+          ${btn('structure', 'По структуре')}
+          ${btn('types', 'По типам')}
+        </div>
+        <div class="simleg-links-title">Связи из базы</div>
+        <div class="simleg-links" data-tip="Карта гасит все связи разом, чтобы рёбра не перетягивали внимание. «С источником» показывает, совпало ли сходство с прямым отношением; «между похожими» — сложилась ли подсвеченная часть в связную область">
+          ${[['none', 'нет', 0],
+             ['source', 'с источником', similarityLinkCount('source')],
+             ['all', 'между похожими', similarityLinkCount('all')]].map(([m, подпись, n]) =>
+            `<button class="simleg-lbtn ${(similarityOverlay.linkMode || 'none') === m ? 'active' : ''}"
+                 onclick="setSimilarityLinks('${m}')">${подпись}${m === 'none' ? '' : ` <b>${n}</b>`}</button>`).join('')}
         </div>
         <div class="simleg-scale ${isProfile ? '' : 'one-sided'}"></div>
         <div class="simleg-ticks">
@@ -25419,7 +25815,9 @@
       // Приглушать связи ПО СХОДСТВУ нечем: у связи такого значения нет, а
       // похожие концепции чаще всего рёбрами и не соединены. Поэтому
       // признак другой, чем при щелчке: не «несмежные», а «все обычные».
-      if (similarityOverlay) return 0.07;
+      // Связь между двумя подсвеченными показывается в полную силу, если
+      // переключатель включён: см. toggleSimilarityLinks.
+      if (similarityOverlay) return linkAmongHighlighted(l) ? 0.85 : 0.07;
 
       return 0.4;
     }
@@ -25480,17 +25878,109 @@
 
     const DRAW_ORDER = ["dimmed", "normal", "highlighted", "selected", "path"];
 
-    function renderScene(c, opts) {
-      opts = opts || {};
-      const tms = performance.now();
-      c.lineCap = "round";
-      c.lineJoin = "round";
+    /* FRAME-PATCH */
+    // ── Слой застывших связей ─────────────────────────────────────────
+    // Связи — 69 % кадра (40 мс дуг плюс 11 мс надбавки за штриховку из
+    // 74 мс). При этом между кадрами они почти всегда одни и те же:
+    // положения застывают после 300 тиков, стили меняются по действию
+    // пользователя. Поэтому застывшая часть рисуется в запасной холст
+    // один раз и переносится готовой — перенос стоит 0,7 мс.
+    //
+    // Замерено и ОТВЕРГНУТО (см. spec_frame.md §3): отсечение по полю
+    // зрения ничего не даёт — Skia отсекает невидимое сама и дешевле нас;
+    // сборка всех дуг в один путь втрое ХУЖЕ.
+    const linkLayer = { canvas: null, ctx: null, key: null };
+    // Признак предыдущего кадра. Пока картинка движется (тик симуляции,
+    // перетаскивание, панорама, приближение), слой строить НЕЛЬЗЯ: он
+    // перестраивался бы каждый кадр и только удорожал его — замер показал
+    // раскладку 30,7 → 34,0 с. Поэтому слой строится лишь тогда, когда
+    // кадр в точности повторил предыдущий, то есть движение прекратилось.
+    let lastLayerKey = null;
 
-      // §6.3 / В1: приглушённые снизу, путь сверху — подсветка больше не
-      // перекрывается соседними рёбрами (осознанное отступление от Ц2)
+    // Живыми остаются только те, чей вид зависит от времени. Наведённая и
+    // выделенные в слое ЕСТЬ (в своём обычном виде) и дорисовываются поверх
+    // шире и плотнее — так их не приходится вносить в признак годности,
+    // и наведение мышью не перерисовывает слой.
+    //
+    // ОТСТУПЛЕНИЕ ОТ ПРЕЖНЕГО ВИДА, ЕДИНСТВЕННОЕ. Двадцать связей с бегущим
+    // пунктиром ложатся теперь ПОВЕРХ прочих связей своего состояния, а не
+    // на своё место в порядке массива. Замер: заметно иных точек 0,25 %;
+    // если живых связей нет вовсе — 0,005 %, то есть остальное совпадает.
+    // Порядок внутри одного состояния смысла не нёс (это порядок записей в
+    // базе), а противоречия теперь заметнее, что скорее к лучшему.
+    function linkOutOfLayer(l) {
+      if (l.type === "internal_contradiction") return true;  // бегущий пунктир
+      if (hasLinkClass("path-highlight", l)) return true;    // мигание подсветки пути
+      return false;
+    }
+    function linkDrawnLive(l) {
+      return linkOutOfLayer(l)
+          || renderState.hoveredLink === l
+          || selectedEdges.has(l);
+    }
+
+    // Признак годности слоя. Всё, что влияет на вид застывших связей,
+    // сведено к набору значений; слой перерисовывается, когда набор изменился.
+    //
+    // Положения и радиусы берутся КОНТРОЛЬНОЙ СУММОЙ, а не счётчиком версии:
+    // сумма ловит всякое изменение — тик симуляции, перетаскивание узла,
+    // анимацию радиусов, правку данных, — и не требует расставлять пометки
+    // по четырём местам, одно из которых непременно забудется.
+    // Наборы классов и видимости переприсваиваются целиком (makeClassed,
+    // applyFilters), поэтому для них довольно сличения по ссылке.
+    function linksLayerKey(c) {
+      let pos = 0;
+      for (const n of nodes) if (n.x !== undefined) pos += n.x + n.y;
+      let rad = 0;
+      renderState.radius.forEach(v => { rad += v; });
+      let sel = '';
+      selectedEdges.forEach(l => {
+        sel += ((l.source && l.source.id) || l.source) + '>' +
+               ((l.target && l.target.id) || l.target) + ':' + l.type + ';';
+      });
+      const t = renderState.transform;
+      const key = [pos, rad, t.k, t.x, t.y, c.canvas.width, c.canvas.height,
+                   links.length, nodes.length, visibleLinkSet, sel,
+                   !!similarityOverlay, !!renderState.uniformLinkWidth];
+      // Классы связей: имена заранее не известны, поэтому берём все.
+      const names = Object.keys(renderState.linkClasses).sort();
+      for (const nm of names) { key.push(nm); key.push(renderState.linkClasses[nm]); }
+      return key;
+    }
+    function sameLayerKey(a, b) {
+      if (!a || !b || a.length !== b.length) return false;
+      for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+      return true;
+    }
+
+    function paintLinkLayer(c, key) {
+      if (!linkLayer.canvas) {
+        linkLayer.canvas = document.createElement("canvas");
+        linkLayer.ctx = linkLayer.canvas.getContext("2d");
+      }
+      const cv = linkLayer.canvas;
+      if (cv.width !== c.canvas.width || cv.height !== c.canvas.height) {
+        cv.width = c.canvas.width;
+        cv.height = c.canvas.height;
+      }
+      const lc = linkLayer.ctx, t = renderState.transform;
+      lc.setTransform(1, 0, 0, 1, 0, 0);
+      lc.clearRect(0, 0, cv.width, cv.height);
+      lc.setTransform(dpr * t.k, 0, 0, dpr * t.k, dpr * t.x, dpr * t.y);
+      lc.lineCap = "round";
+      lc.lineJoin = "round";
+      // tms = 0: от времени зависят только мигание пути и бегущий пунктир,
+      // а они в слой не попадают.
+      drawLinkSet(lc, 0, l => isLinkVisible(l) && !linkOutOfLayer(l));
+      linkLayer.key = key;
+    }
+
+    // Прежний двойной цикл по DRAW_ORDER, вынесенный как есть; изменилось
+    // одно: какие связи брать, решает довод take.
+    function drawLinkSet(c, tms, take) {
       for (const state of DRAW_ORDER) {
         for (const l of links) {
-          if (!isLinkVisible(l)) continue;
+          if (!take(l)) continue;
           if (linkVisualState(l) !== state) continue;
           const w = linkDrawWidth(l, state);
           c.globalAlpha = linkDrawAlpha(l, state, tms);
@@ -25522,11 +26012,55 @@
           }
         }
       }
+    }
+
+    // Подписи узлов рисуются тенью несколько раз подряд, воспроизводя
+    // text-shadow. Каждый проход — 453 fillText с размытием: три прохода
+    // стоят 6,4 мс, один — 2,9. Умолчание оставлено ПРЕЖНЕЕ (три), чтобы
+    // патч не менял вид сам собой; поставьте 1, если −3,5 мс на кадр
+    // важнее густоты тени (тогда стоит увеличить shadowBlur).
+    const LABEL_SHADOW_PASSES = 3;
+
+    function renderScene(c, opts) {
+      opts = opts || {};
+      const tms = performance.now();
+      c.lineCap = "round";
+      c.lineJoin = "round";
+
+      // §6.3 / В1: приглушённые снизу, путь сверху — подсветка больше не
+      // перекрывается соседними рёбрами (осознанное отступление от Ц2).
+      // Порядок сохранён: слой рисуется тем же двойным циклом, живые связи
+      // ложатся поверх — а все они и так принадлежат верхним состояниям.
+      //
+      // Слой применяется ТОЛЬКО к экранному холсту: этим же кодом идут
+      // выгрузка в PNG и холст хит-теста, у них свой контекст и свой размер.
+      const useLayer = (c === ctx) && !opts.noLayer;
+      if (useLayer) {
+        const key = linksLayerKey(c);
+        const ready = sameLayerKey(key, linkLayer.key)
+                   || sameLayerKey(key, lastLayerKey);   // движение прекратилось
+        lastLayerKey = key;
+        if (ready) {
+          if (!sameLayerKey(key, linkLayer.key)) paintLinkLayer(c, key);
+          c.save();
+          c.setTransform(1, 0, 0, 1, 0, 0);
+          c.globalAlpha = 1;
+          c.drawImage(linkLayer.canvas, 0, 0);
+          c.restore();
+          drawLinkSet(c, tms, l => isLinkVisible(l) && linkDrawnLive(l));
+        } else {
+          // Картинка ещё движется — рисуем прямо, как прежде.
+          linkLayer.key = null;
+          drawLinkSet(c, tms, isLinkVisible);
+        }
+      } else {
+        drawLinkSet(c, tms, isLinkVisible);
+      }
 
       // Р3: дуги к ближайшим — заведомо иным стилем, чем настоящие связи:
       // пунктир, единый цвет, без стрелки. Рисуются под узлами.
       if (similarityOverlay && similarityOverlay.nearest.length) {
-        const src = nodes.find(n => n.id === similarityOverlay.sourceId);
+        const src = conceptById.get(similarityOverlay.sourceId);
         if (src && src.x !== undefined) {
           c.setLineDash([6, 5]);
           c.lineDashOffset = 0;
@@ -25534,7 +26068,7 @@
           c.strokeStyle = "#ffd700";
           c.lineWidth = 1.8;
           for (const id of similarityOverlay.nearest) {
-            const t = nodes.find(n => n.id === id);
+            const t = conceptById.get(id);
             if (!t || t.x === undefined || !isNodeVisible(t)) continue;
             const p = arcParams(src, t);
             if (!p) continue;
@@ -25618,7 +26152,7 @@
           const x = d.x, y = d.y + nodeLabelDy(d);
           // text-shadow: 0 0 4px black трижды
           c.shadowColor = "#000"; c.shadowBlur = 4;
-          for (let i = 0; i < 3; i++) c.fillText(d.label, x, y);
+          for (let i = 0; i < LABEL_SHADOW_PASSES; i++) c.fillText(d.label, x, y);
           c.shadowBlur = 0;
           c.fillText(d.label, x, y);
         }
@@ -26177,7 +26711,7 @@
         if (similarityOverlay && d.id !== similarityOverlay.sourceId) {
           const sv = similarityOverlay.values.get(d.id);
           if (sv !== undefined) {
-            const src = nodes.find(n => n.id === similarityOverlay.sourceId);
+            const src = conceptById.get(similarityOverlay.sourceId);
             simNote = `<br/><span style="color:#ffd700">Сходство с «${src ? src.label : '—'}»: ` +
                   `${sv.toFixed(3)}</span>`;
           }
@@ -26204,8 +26738,8 @@
       // Получаем данные узлов source и target
       const sourceId = d.source.id || d.source;
       const targetId = d.target.id || d.target;
-      const sourceNode = nodes.find(n => n.id === sourceId);
-      const targetNode = nodes.find(n => n.id === targetId);
+      const sourceNode = conceptById.get(sourceId);
+      const targetNode = conceptById.get(targetId);
       
       if (!sourceNode || !targetNode) return;
       
@@ -26538,7 +27072,7 @@
     });
     
     function openConceptById(conceptId) {
-      const node = nodes.find(n => n.id === conceptId);
+      const node = conceptById.get(conceptId);
       if (node) showDetailModal(node);
     }
 
@@ -26550,7 +27084,7 @@
       } catch (e) { return ''; }
       if (!byProfile.length && !byStructure.length) return '';
 
-      const nodeById = id => nodes.find(n => n.id === id);
+      const nodeById = id => conceptById.get(id);
       const item = (x, unit) => {
         const n = nodeById(x.id);
         if (!n) return '';
@@ -26701,7 +27235,7 @@
 
     function showConceptProfileModal(conceptId) {
       if (!concepts || !relations) initializePhilosophyMetrics();
-      const node = nodes.find(n => n.id === conceptId);
+      const node = conceptById.get(conceptId);
       if (!node) return;
       const modal = document.getElementById('conceptProfileModal');
       const overlay = document.getElementById('modalOverlay');
@@ -26788,11 +27322,11 @@
       const modal = document.getElementById('philosopherProfileModal');
       const overlay = document.getElementById('modalOverlay');
       const content = document.getElementById('philosopherProfileContent');
-      const philData = philosophers.find(x => x.nameRu === philosopherName);
+      const philData = philosopherByName.get(philosopherName);
       if (!philData) return;
       freezeSimulation();
 
-      const own = nodes.filter(n => n.concept === philosopherName);
+      const own = (nodesByPhilosopher.get(philosopherName) || []).slice();
       const color = philosopherConcepts[philosopherName]
         ? philosopherConcepts[philosopherName].color : '#6c5ce7';
 
@@ -26851,7 +27385,7 @@
       own.forEach(n => (n.rubrics || []).forEach(r => rubCount[r] = (rubCount[r] || 0) + 1));
       const rubList = Object.entries(rubCount).sort((a, b) => b[1] - a[1])
         .map(([r, c]) => {
-          const rd = rubrics.find(x => x.id === r);
+          const rd = rubricById.get(r);
           return `<span>${rd ? rd.name : r}: <strong>${c}</strong></span>`;
         }).join('');
 
@@ -27373,7 +27907,7 @@
     }
 
     function hasPhilosopherChanges(original) {
-      const philosopherData = philosophers.find(p => p.nameRu === original);
+      const philosopherData = philosopherByName.get(original);
       if (!philosopherData) return false;
 
       const nameInput  = document.getElementById('philName');
@@ -27459,11 +27993,12 @@
     }
 
     function getConceptConnections(conceptId) {
-      return links.filter(l => {
-        const srcId = l.source.id || l.source;
-        const tgtId = l.target.id || l.target;
-        return srcId === conceptId || tgtId === conceptId;
-      });
+      // Ради этого места и заводился linksByConcept: прежде тут шёл полный
+      // проход по 1624 связям, а зовут отсюда семь мест, часть — в циклах.
+      // ОТДАЁТСЯ КОПИЯ, а не сам список указателя: прежняя filter возвращала
+      // свежий массив, и звавшие вправе его менять. Копия стоит длины ответа,
+      // а не длины базы.
+      return (linksByConcept.get(conceptId) || []).slice();
     }
 
     function isConceptIsolated(conceptId) {
@@ -27474,7 +28009,7 @@
     // системы: после удаления философа они исчезнут бесследно, и об этом
     // стоит предупредить поимённо.
     function getIsolatedConceptsAfterDeletion(philosopherName) {
-      const own  = nodes.filter(n => n.concept === philosopherName);
+      const own  = (nodesByPhilosopher.get(philosopherName) || []).slice();
       const ownIds = new Set(own.map(c => c.id));
       const isolated = [];
       own.forEach(concept => {
@@ -27513,7 +28048,7 @@
     function openEditConceptModal(concept = null) {
       if (!canEdit()) return;                       // ЗАСЛОН ПРАВКИ
       const data = (typeof concept === 'string')
-        ? nodes.find(n => n.id === concept) : concept;
+        ? conceptById.get(concept) : concept;
       openUniversalModal('concept', data, 'edit');
     }
 
@@ -27552,6 +28087,7 @@
 
       rebuildQuadtree();   // хит-тест узлов
       pickDirty = true;    // хит-тест связей (карта выбора)
+      linkLayer.key = null;  // слой застывших связей
       requestDraw();
       simulation.alpha(0.3).restart();
     }
@@ -27575,14 +28111,15 @@
     // Цвет, метка и радиус читаются отрисовщиком из данных каждый кадр,
     // поэтому отдельного присвоения не нужно — только просьба перерисовать.
     function updateNodeOnGraph() {
-      requestDraw();
+      linkLayer.key = null;   // метка и цвет узла живут вне слоя, но правка
+      requestDraw();          // могла задеть и философа, и связи
     }
 
     function addLinkToGraph(linkData) {
       // d3 ждёт в source/target объекты узлов, а не идентификаторы:
       // на строках сила связей молча не сработает.
-      const s = nodes.find(n => n.id === (linkData.source.id || linkData.source));
-      const t = nodes.find(n => n.id === (linkData.target.id || linkData.target));
+      const s = conceptById.get((linkData.source.id || linkData.source));
+      const t = conceptById.get((linkData.target.id || linkData.target));
       if (!s || !t) { console.error('Не найдены узлы для связи', linkData); return; }
       linkData.source = s;
       linkData.target = t;
@@ -27592,7 +28129,10 @@
 
     function updateLinkOnGraph() {
       // Тип, вес и взаимность меняют и вид, и полосу попадания.
+      // Признак годности слоя опирается на положения, счёт и ссылки на
+      // наборы — ничего из этого правка не трогает, поэтому сброс явный.
       pickDirty = true;
+      linkLayer.key = null;
       requestDraw();
     }
 
@@ -27754,6 +28294,19 @@
       markDirty();
 
       rebuildDerivedIndexes(what);
+      // Указатели по идентификаторам — здесь же, единой точкой. Разбрасывать
+      // вызов по функциям правки значило бы завести седьмое место, где о нём
+      // можно забыть.
+      rebuildIndexes();
+
+      // Слой связей. Правка меняет их вид, НЕ трогая ни положений, ни счёта:
+      // тип, вес, направленность, цвет типа, концы связи. Признак годности
+      // этого не ловит — он опирается на положения, счёт и ссылки на наборы.
+      // Проверка показала, что слой спасался лишь случайно: applyFilters
+      // заново создаёт набор видимых связей, и сличение по ссылке давало
+      // промах. Полагаться на это нельзя, поэтому сбрасываем явно — здесь,
+      // в той единой точке, через которую проходит всякое изменение базы.
+      linkLayer.key = null;
 
 
       // Новый философ должен попасть в множество выбранных, иначе будет
@@ -27876,8 +28429,8 @@
     // кто кого критиковал, если оба были живы, — при пересечении это справка,
     // а не нарушение.
     function activityOverlap(nameA, nameB) {
-      const a = philosophers.find(p => p.nameRu === nameA);
-      const b = philosophers.find(p => p.nameRu === nameB);
+      const a = philosopherByName.get(nameA);
+      const b = philosopherByName.get(nameB);
       if (!a || !b) return true;
       // Период ЗРЕЛОСТИ, а не жизни: прежде Конт и Кант считались
       // современниками, хотя Конту при смерти Канта было шесть лет.
@@ -27945,7 +28498,7 @@
     const nLinks  = n => pluralRu(n, 'связь', 'связи', 'связей');
 
     const labelOf = id => {
-      const n = nodes.find(x => x.id === id);
+      const n = conceptById.get(id);
       return n ? n.label : id;
     };
 
@@ -27956,8 +28509,8 @@
     function connectionIntegrityWarnings(srcId, tgtId, type, weight, bidir, original) {
       const w = [];
       const t = relationTypesObj[type] || {};
-      const srcNode = nodes.find(n => n.id === srcId);
-      const tgtNode = nodes.find(n => n.id === tgtId);
+      const srcNode = conceptById.get(srcId);
+      const tgtNode = conceptById.get(tgtId);
       if (!srcNode || !tgtNode) return w;
 
       const isSame = l => l === original;
@@ -28117,7 +28670,7 @@
         w.push('Год смерти раньше года рождения.');
       }
       if (original && name !== original) {
-        const own = nodes.filter(n => n.concept === original).length;
+        const own = (nodesByPhilosopher.get(original) || []).length;
         w.push('Переименование затронет ' + nConcepts(own) + ': у каждой '
            + 'обновится ссылка на философа.');
       }
@@ -28170,8 +28723,10 @@
 
       // Совпадение имени — единственный запрет, а не предупреждение:
       // имя служит ключом в philosopherConcepts и в nodes[].concept.
-      const clash = philosophers.find(p => p.nameRu === name
-                        && p.nameRu !== originalName);
+      // Условие ДВУСОСТАВНОЕ: имя совпало И это не тот же самый философ.
+      // Карта отдаёт запись по имени, второе условие остаётся снаружи —
+      // иначе от прежней стрелочной функции остаётся хвост с несведённым `p`.
+      const clash = (name !== originalName) ? philosopherByName.get(name) : null;
       if (clash) { alert('Философ с именем «' + name + '» уже существует'); return; }
 
       // Полнота (у каждого хотя бы одна традиция) — договорённость, а не
@@ -28224,10 +28779,10 @@
 
     function deletePhilosopher(philosopherName) {
       const name = philosopherName || ModalContext.currentData;
-      const data = philosophers.find(p => p.nameRu === name);
+      const data = philosopherByName.get(name);
       if (!data) { alert('Философ не найден'); return; }
 
-      const own = nodes.filter(n => n.concept === name);
+      const own = (nodesByPhilosopher.get(name) || []).slice();
       const isolated = getIsolatedConceptsAfterDeletion(name);
 
       let msg = 'Удалить философа «' + name + '»?\n\n'
@@ -28303,7 +28858,7 @@
       if (!label || !philosopher) {
         alert('Укажите название концепции и философа'); return;
       }
-      const philData = philosophers.find(p => p.nameRu === philosopher);
+      const philData = philosopherByName.get(philosopher);
       if (!philData) { alert('Философ не найден'); return; }
 
       const original = ModalContext.currentData;
@@ -28346,7 +28901,7 @@
     function deleteConcept(conceptId) {
       const id = conceptId
           || (ModalContext.currentData && ModalContext.currentData.id);
-      const node = nodes.find(n => n.id === id);
+      const node = conceptById.get(id);
       if (!node) { alert('Концепция не найдена'); return; }
 
       const own = getConceptConnections(id);
@@ -28421,8 +28976,8 @@
       const oldTgt = originalLink.target.id || originalLink.target;
       const ri = relationIndexOf(oldSrc, oldTgt, originalLink.type);
 
-      const srcNode = nodes.find(n => n.id === source);
-      const tgtNode = nodes.find(n => n.id === target);
+      const srcNode = conceptById.get(source);
+      const tgtNode = conceptById.get(target);
       if (!srcNode || !tgtNode) { alert('Концепции связи не найдены'); return; }
 
       Object.assign(originalLink, { source: srcNode, target: tgtNode,
@@ -28453,8 +29008,8 @@
       if (!link) { alert('Связь не найдена'); return; }
 
       const t = relationTypesObj[link.type] || {};
-      const src = nodes.find(n => n.id === (link.source.id || link.source));
-      const tgt = nodes.find(n => n.id === (link.target.id || link.target));
+      const src = conceptById.get((link.source.id || link.source));
+      const tgt = conceptById.get((link.target.id || link.target));
       const pair = isReflexiveLink(link)
         ? '«' + (src ? src.label : '?') + '» на себя'
         : '«' + (src ? src.label : '?') + '» → «' + (tgt ? tgt.label : '?') + '»';
@@ -28479,7 +29034,7 @@
       if (ModalContext.currentEntity === 'connection') {
         closeUniversalModal();
       } else if (ModalContext.currentEntity === 'concept' && ModalContext.currentData) {
-        const cur = nodes.find(n => n.id === ModalContext.currentData.id);
+        const cur = conceptById.get(ModalContext.currentData.id);
         if (cur) openUniversalModal('concept', cur, ModalContext.currentMode,
                       { noPush: true });
       }
@@ -28534,7 +29089,7 @@
 
     function generatePhilosopherEditContent(philosopherName) {
       const philosopherData = philosopherName
-        ? philosophers.find(p => p.nameRu === philosopherName) : null;
+        ? philosopherByName.get(philosopherName) : null;
       const isNew = !philosopherData;
 
       let html = `
@@ -28609,7 +29164,7 @@
       `;
 
       if (philosopherData) {
-        const own = nodes.filter(n => n.concept === philosopherName);
+        const own = (nodesByPhilosopher.get(philosopherName) || []).slice();
         html += `
           <div class="modal-section-title">
             💡 Концепции философа (${own.length})
@@ -28709,7 +29264,7 @@
           const srcId = conn.source.id || conn.source;
           const tgtId = conn.target.id || conn.target;
           const otherId = srcId === conceptData.id ? tgtId : srcId;
-          const other = nodes.find(n => n.id === otherId);
+          const other = conceptById.get(otherId);
           if (!other) return;
           const rec = { conn, other, isSource: srcId === conceptData.id,
                   reflexive: isReflexiveLink(conn) };
@@ -28878,8 +29433,8 @@
       ModalContext.editState.selectedSource = srcId;
       ModalContext.editState.selectedTarget = tgtId;
 
-      const srcNode = srcId ? nodes.find(n => n.id === srcId) : null;
-      const tgtNode = tgtId ? nodes.find(n => n.id === tgtId) : null;
+      const srcNode = srcId ? conceptById.get(srcId) : null;
+      const tgtNode = tgtId ? conceptById.get(tgtId) : null;
 
       let html = `
         <h2>${isNew ? 'Создать связь' : 'Редактировать связь'}</h2>
@@ -28996,7 +29551,7 @@
     }
 
     function selectConnectionEditConcept(type, conceptId) {
-      const node = nodes.find(n => n.id === conceptId);
+      const node = conceptById.get(conceptId);
       if (!node) return;
       const cap = type.charAt(0).toUpperCase() + type.slice(1);
       ModalContext.editState[`selected${cap}`] = conceptId;
@@ -29035,7 +29590,7 @@
 
       [['source', 'Source'], ['target', 'Target']].forEach(([type, cap]) => {
         const id = ModalContext.editState[`selected${cap}`];
-        const node = id ? nodes.find(n => n.id === id) : null;
+        const node = id ? conceptById.get(id) : null;
         const sel = document.getElementById(`conn${cap}Selected`);
         if (!sel) return;
         if (node) {
@@ -29055,7 +29610,7 @@
     }
 
     function createNewConnectionForConcept(conceptId) {
-      const node = nodes.find(n => n.id === conceptId);
+      const node = conceptById.get(conceptId);
       if (!node) return;
       openUniversalModal('connection', { source: conceptId, target: null,
                          type: '', weight: 2,
@@ -29118,7 +29673,7 @@
       const ta = philosopherTraditions[aPhil] || [];
       const tb = philosopherTraditions[bPhil] || [];
       const shared = ta.filter(x => tb.includes(x))
-        .map(id => (traditions.find(t => t.id === id) || {}).name)
+        .map(id => (traditionById.get(id) || {}).name)
         .filter(Boolean);
       if (shared.length) return { crossing: false, text: 'общая — ' + shared.join(', ') };
       const from = traditionsOfPhilosopher(aPhil);
@@ -29277,8 +29832,8 @@
                 || connectionData.source || connectionData.from;
         const targetId = (connectionData.target && connectionData.target.id)
                 || connectionData.target || connectionData.to;
-        const sourceNode = nodes.find(n => n.id === sourceId);
-        const targetNode = nodes.find(n => n.id === targetId);
+        const sourceNode = conceptById.get(sourceId);
+        const targetNode = conceptById.get(targetId);
         if (!sourceNode || !targetNode) {
           return '<p>Ошибка: не удалось найти концепции связи</p>';
         }
@@ -29422,7 +29977,7 @@
     }
 
     function selectConnectionViewConcept(type, conceptId) {
-      const node = nodes.find(n => n.id === conceptId);
+      const node = conceptById.get(conceptId);
       if (!node) return;
       const cap = type.charAt(0).toUpperCase() + type.slice(1);
 
@@ -29466,7 +30021,7 @@
                  </div>`;
         return;
       }
-      const sn = nodes.find(n => n.id === s), tn = nodes.find(n => n.id === t);
+      const sn = conceptById.get(s), tn = conceptById.get(t);
       if (!sn || !tn) return;
       const found = connectionsBetween(s, t);
       // Перерисовываем на месте: полное переоткрытие окна сбросило бы
@@ -29554,7 +30109,7 @@
           const tgt = conn.target.id || conn.target;
           const isSource = src === conceptData.id;
           const connectedNodeId = isSource ? tgt : src;
-          const connectedNode = nodes.find(n => n.id === connectedNodeId);
+          const connectedNode = conceptById.get(connectedNodeId);
           
           if (!connectedNode) return;
           
@@ -29714,7 +30269,7 @@
       // Секция рубрик (без изменений)
       if (conceptRubrics.length > 0) {
         const rubricDataArray = conceptRubrics.map(rubricId => 
-          rubrics.find(r => r.id === rubricId)
+          rubricById.get(rubricId)
         ).filter(r => r !== undefined);
         
         rubricDataArray.forEach(rubricData => {
@@ -29854,7 +30409,7 @@
       closeDetailModal();
       
       setTimeout(() => {
-        const nodeData = nodes.find(n => n.id === nodeId);
+        const nodeData = conceptById.get(nodeId);
         if (nodeData) {
           // Выделяем узел
           selectedNodes.clear();
@@ -29876,7 +30431,7 @@
 
     // Функция показа всех концепций в рубрике
     function showAllConcepts(rubricId, currentConceptId) {
-      const rubricData = rubrics.find(r => r.id === rubricId);
+      const rubricData = rubricById.get(rubricId);
       if (!rubricData) return;
       
       const relatedConcepts = nodes.filter(n => {
@@ -29993,7 +30548,7 @@
     // Традиции философа как записи справочника, а не как их имена.
     function DATA_traditions_of(name) {
       const ids = philosopherTraditions[name] || [];
-      return ids.map(id => traditions.find(t => t.id === id)).filter(Boolean);
+      return ids.map(id => traditionById.get(id)).filter(Boolean);
     }
 
     function similarPhilosophersBlock(philosopherName) {
@@ -30034,7 +30589,7 @@
     // философов — ничего этого в unimod нет.
     function generatePhilosopherViewContent(philosopherName) {
       // Находим данные философа
-      const philosopherData = philosophers.find(p => p.nameRu === philosopherName);
+      const philosopherData = philosopherByName.get(philosopherName);
       if (!philosopherData) {
         return '<p>Философ не найден</p>';
       }
@@ -30078,7 +30633,7 @@
       // Поле множественное: у Хайдеггера традиций три.
 
       const philTraditions = (philosopherData.traditions || [])
-        .map(tid => traditions.find(t => t.id === tid))
+        .map(tid => traditionById.get(tid))
         .filter(t => t !== undefined);
 
       if (philTraditions.length > 0) {
@@ -30100,13 +30655,13 @@
       // РАЗДЕЛ ВЗАИМОДЕЙСТВИЯ С ДРУГИМИ ФИЛОСОФАМИ
       // ========================================
 
-      const philosopherConcepts_ids = nodes.filter(n => n.concept === philosopherName).map(n => n.id);
+      const philosopherConcepts_ids = (nodesByPhilosopher.get(philosopherName) || []).map(n => n.id);
 
       const externalLinks = links.filter(l => {
         const srcId = l.source.id || l.source;
         const tgtId = l.target.id || l.target;
-        const srcNode = nodes.find(n => n.id === srcId);
-        const tgtNode = nodes.find(n => n.id === tgtId);
+        const srcNode = conceptById.get(srcId);
+        const tgtNode = conceptById.get(tgtId);
         
         if (!srcNode || !tgtNode) return false;
         
@@ -30120,8 +30675,8 @@
         externalLinks.forEach(link => {
           const srcId = link.source.id || link.source;
           const tgtId = link.target.id || link.target;
-          const srcNode = nodes.find(n => n.id === srcId);
-          const tgtNode = nodes.find(n => n.id === tgtId);
+          const srcNode = conceptById.get(srcId);
+          const tgtNode = conceptById.get(tgtId);
           
           const linkType = link.type;
           const isOutgoing = srcNode.concept === philosopherName;
@@ -30271,7 +30826,7 @@
       // ========================================
       
       const philosopherRubrics = new Set();
-      nodes.filter(n => n.concept === philosopherName).forEach(n => {
+      (nodesByPhilosopher.get(philosopherName) || []).forEach(n => {
         const nodeRubrics = conceptToRubrics[n.id] || [];
         nodeRubrics.forEach(rubricId => philosopherRubrics.add(rubricId));
       });
@@ -30286,7 +30841,7 @@
         `;
         
         const rubricNames = Array.from(philosopherRubrics).map(rubricId => {
-          const rubric = rubrics.find(r => r.id === rubricId);
+          const rubric = rubricById.get(rubricId);
           if (!rubric) return '';
           return `
             <span class="rubric-name-tooltip" data-tip="${rubric.description}">${rubric.name}</span>
@@ -30300,7 +30855,7 @@
       // РАЗДЕЛ КОНЦЕПЦИЙ ФИЛОСОФА
       // ========================================
       
-      const philosopherConceptsNodes = nodes.filter(n => n.concept === philosopherName);
+      const philosopherConceptsNodes = (nodesByPhilosopher.get(philosopherName) || []).slice();
       
       if (philosopherConceptsNodes.length > 0) {
         html += `
@@ -30348,8 +30903,8 @@
         conceptConnections.forEach(conn => {
           const srcId = conn.source.id || conn.source;
           const tgtId = conn.target.id || conn.target;
-          const srcNode = nodes.find(n => n.id === srcId);
-          const tgtNode = nodes.find(n => n.id === tgtId);
+          const srcNode = conceptById.get(srcId);
+          const tgtNode = conceptById.get(tgtId);
           
           if (!srcNode || !tgtNode) return;
           

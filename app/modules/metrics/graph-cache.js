@@ -113,4 +113,4 @@ let graphCache = null;
 
 function invalidateGraphCache() { graphCache = null; }
 
-export { buildGlobalGraphCache, graphCache, invalidateGraphCache };
+export { buildGlobalGraphCache, invalidateGraphCache };

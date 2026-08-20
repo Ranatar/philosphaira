@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 115 модулей, 17607 строк.
+Составлено из готовой сборки: 115 модулей, 18024 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/gen_spec2.mjs`
 после каждой сборки.
@@ -41,128 +41,128 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 | Модуль | Строк | Вывозит | Ввозит из |
 |---|---|---|---|
-| `boot.js` | 225 | 1 | 56 |
+| `boot.js` | 228 | 1 | 57 |
 | `main.js` | 121 | 0 | 110 |
-| `modules/boot-defs.js` | 62 | 3 | 8 |
-| `modules/core/base-cells.js` | 17 | 0 | 1 |
-| `modules/core/events.js` | 43 | 4 | 0 |
-| `modules/core/graph-index.js` | 99 | 4 | 1 |
-| `modules/core/link-facts.js` | 42 | 6 | 2 |
+| `modules/boot-defs.js` | 62 | 2 | 8 |
+| `modules/core/base-cells.js` | 19 | 0 | 1 |
+| `modules/core/events.js` | 43 | 2 | 0 |
+| `modules/core/graph-index.js` | 150 | 10 | 1 |
+| `modules/core/link-facts.js` | 48 | 7 | 2 |
 | `modules/core/long-task.js` | 120 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
 | `modules/core/ready.js` | 15 | 2 | 0 |
-| `modules/core/relation-types.js` | 59 | 6 | 2 |
-| `modules/core/search.js` | 72 | 5 | 3 |
+| `modules/core/relation-types.js` | 59 | 4 | 2 |
+| `modules/core/search.js` | 68 | 4 | 3 |
 | `modules/core/session.js` | 14 | 4 | 0 |
 | `modules/core/time.js` | 13 | 2 | 0 |
 | `modules/core/visibility.js` | 13 | 2 | 1 |
 | `modules/data/load.js` | 9 | 1 | 1 |
-| `modules/data/mutate.js` | 74 | 3 | 4 |
-| `modules/data/save.js` | 72 | 10 | 1 |
-| `modules/dead.js` | 79 | 4 | 4 |
+| `modules/data/mutate.js` | 89 | 1 | 6 |
+| `modules/data/save.js` | 72 | 7 | 1 |
+| `modules/dead.js` | 86 | 6 | 5 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 |
-| `modules/filters/chains.js` | 273 | 6 | 4 |
-| `modules/filters/filters.js` | 454 | 14 | 13 |
-| `modules/graph/click-actions.js` | 201 | 8 | 8 |
-| `modules/graph/graph-data.js` | 112 | 10 | 8 |
+| `modules/filters/chains.js` | 273 | 3 | 4 |
+| `modules/filters/filters.js` | 454 | 3 | 13 |
+| `modules/graph/click-actions.js` | 201 | 2 | 8 |
+| `modules/graph/graph-data.js` | 118 | 10 | 9 |
 | `modules/graph/graph-selection.js` | 55 | 3 | 3 |
-| `modules/metrics/by-link-type.js` | 116 | 6 | 2 |
-| `modules/metrics/concept-dynamics.js` | 224 | 8 | 2 |
-| `modules/metrics/descriptions.js` | 478 | 2 | 3 |
-| `modules/metrics/format.js` | 32 | 4 | 2 |
-| `modules/metrics/generativity.js` | 102 | 8 | 1 |
-| `modules/metrics/graph-cache.js` | 117 | 3 | 3 |
-| `modules/metrics/link-indexes.js` | 121 | 4 | 5 |
-| `modules/metrics/network.js` | 870 | 25 | 3 |
-| `modules/metrics/philosopher.js` | 308 | 13 | 2 |
-| `modules/metrics/philosophical.js` | 1038 | 23 | 4 |
-| `modules/metrics/rankings.js` | 141 | 5 | 3 |
-| `modules/metrics/scope-reset.js` | 64 | 3 | 12 |
+| `modules/metrics/by-link-type.js` | 116 | 3 | 2 |
+| `modules/metrics/concept-dynamics.js` | 224 | 4 | 2 |
+| `modules/metrics/descriptions.js` | 478 | 1 | 3 |
+| `modules/metrics/format.js` | 32 | 2 | 2 |
+| `modules/metrics/generativity.js` | 110 | 3 | 1 |
+| `modules/metrics/graph-cache.js` | 117 | 2 | 3 |
+| `modules/metrics/link-indexes.js` | 122 | 1 | 5 |
+| `modules/metrics/network.js` | 871 | 18 | 4 |
+| `modules/metrics/philosopher.js` | 308 | 6 | 2 |
+| `modules/metrics/philosophical.js` | 1039 | 13 | 4 |
+| `modules/metrics/rankings.js` | 141 | 4 | 3 |
+| `modules/metrics/scope-reset.js` | 64 | 1 | 12 |
 | `modules/metrics/scope-select.js` | 99 | 6 | 2 |
-| `modules/metrics/scope.js` | 135 | 7 | 8 |
-| `modules/metrics/similarity-concepts.js` | 243 | 15 | 3 |
-| `modules/metrics/similarity-philosophers.js` | 160 | 11 | 2 |
+| `modules/metrics/scope.js` | 135 | 6 | 8 |
+| `modules/metrics/similarity-concepts.js` | 243 | 10 | 3 |
+| `modules/metrics/similarity-philosophers.js` | 166 | 7 | 2 |
 | `modules/metrics/tension-cache.js` | 13 | 1 | 1 |
-| `modules/metrics/tradition-bridging.js` | 70 | 4 | 1 |
+| `modules/metrics/tradition-bridging.js` | 89 | 3 | 2 |
 | `modules/modal/assembly.js` | 54 | 3 | 1 |
-| `modules/modal/auth.js` | 162 | 10 | 4 |
-| `modules/modal/concept-view.js` | 336 | 1 | 6 |
-| `modules/modal/connection-edit.js` | 283 | 9 | 11 |
-| `modules/modal/connection-view.js` | 414 | 11 | 9 |
+| `modules/modal/auth.js` | 162 | 4 | 4 |
+| `modules/modal/concept-view.js` | 336 | 0 | 7 |
+| `modules/modal/connection-edit.js` | 284 | 5 | 12 |
+| `modules/modal/connection-view.js` | 415 | 5 | 10 |
 | `modules/modal/context.js` | 11 | 1 | 0 |
-| `modules/modal/core.js` | 154 | 7 | 9 |
-| `modules/modal/descriptions.js` | 162 | 10 | 0 |
-| `modules/modal/dirty.js` | 111 | 5 | 4 |
-| `modules/modal/edit-forms.js` | 287 | 2 | 10 |
+| `modules/modal/core.js` | 154 | 5 | 9 |
+| `modules/modal/descriptions.js` | 162 | 6 | 0 |
+| `modules/modal/dirty.js` | 112 | 1 | 5 |
+| `modules/modal/edit-forms.js` | 288 | 2 | 11 |
 | `modules/modal/edit-rights.js` | 53 | 3 | 3 |
-| `modules/modal/entry.js` | 123 | 12 | 9 |
-| `modules/modal/integrity.js` | 253 | 10 | 6 |
-| `modules/modal/persist.js` | 360 | 10 | 10 |
-| `modules/modal/philosopher-view.js` | 620 | 4 | 11 |
-| `modules/modal/profile-concept.js` | 181 | 8 | 7 |
-| `modules/modal/profile-philosopher.js` | 120 | 2 | 7 |
+| `modules/modal/entry.js` | 124 | 12 | 10 |
+| `modules/modal/integrity.js` | 254 | 6 | 7 |
+| `modules/modal/persist.js` | 363 | 6 | 11 |
+| `modules/modal/philosopher-view.js` | 621 | 1 | 12 |
+| `modules/modal/profile-concept.js` | 182 | 4 | 8 |
+| `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
-| `modules/paths/analysis.js` | 73 | 2 | 6 |
-| `modules/paths/chronology.js` | 174 | 10 | 3 |
-| `modules/paths/path-descriptions.js` | 174 | 4 | 7 |
-| `modules/paths/path-ui.js` | 397 | 8 | 8 |
-| `modules/paths/shortest-path.js` | 209 | 4 | 5 |
+| `modules/paths/analysis.js` | 74 | 2 | 7 |
+| `modules/paths/chronology.js` | 175 | 6 | 4 |
+| `modules/paths/path-descriptions.js` | 179 | 3 | 8 |
+| `modules/paths/path-ui.js` | 416 | 5 | 9 |
+| `modules/paths/shortest-path.js` | 203 | 1 | 5 |
 | `modules/render/canvas-core.js` | 45 | 9 | 2 |
-| `modules/render/d3-layer.js` | 105 | 11 | 5 |
-| `modules/render/draw-link.js` | 98 | 6 | 5 |
+| `modules/render/d3-layer.js` | 105 | 9 | 5 |
+| `modules/render/draw-link.js` | 101 | 6 | 6 |
 | `modules/render/geometry.js` | 95 | 6 | 3 |
-| `modules/render/grouping.js` | 103 | 7 | 5 |
-| `modules/render/interactions.js` | 307 | 8 | 17 |
-| `modules/render/loop.js` | 20 | 4 | 0 |
-| `modules/render/metric-visualization.js` | 371 | 10 | 5 |
-| `modules/render/picking.js` | 79 | 6 | 7 |
+| `modules/render/grouping.js` | 103 | 3 | 5 |
+| `modules/render/interactions.js` | 308 | 4 | 18 |
+| `modules/render/loop.js` | 20 | 2 | 0 |
+| `modules/render/metric-visualization.js` | 371 | 3 | 5 |
+| `modules/render/picking.js` | 79 | 4 | 7 |
 | `modules/render/render-state.js` | 17 | 6 | 1 |
-| `modules/render/scene.js` | 244 | 10 | 12 |
-| `modules/render/selection.js` | 260 | 8 | 9 |
-| `modules/render/similarity-overlay.js` | 112 | 6 | 7 |
-| `modules/render/simulation.js` | 126 | 11 | 9 |
+| `modules/render/scene.js` | 340 | 7 | 13 |
+| `modules/render/selection.js` | 261 | 7 | 10 |
+| `modules/render/similarity-overlay.js` | 219 | 5 | 8 |
+| `modules/render/simulation.js` | 126 | 8 | 9 |
 | `modules/render/tooltip-el.js` | 7 | 1 | 0 |
-| `modules/state/edit.js` | 14 | 2 | 0 |
+| `modules/state/edit.js` | 12 | 1 | 0 |
 | `modules/state/filters.js` | 22 | 3 | 2 |
 | `modules/state/metrics-scope.js` | 13 | 0 | 1 |
 | `modules/state/paths.js` | 18 | 0 | 2 |
-| `modules/state/render.js` | 36 | 2 | 2 |
+| `modules/state/render.js` | 38 | 3 | 2 |
 | `modules/state/stats.js` | 33 | 0 | 1 |
 | `modules/stats/coverage.js` | 66 | 3 | 6 |
 | `modules/stats/modal.js` | 238 | 8 | 16 |
-| `modules/stats/results.js` | 392 | 11 | 4 |
-| `modules/stats/run.js` | 128 | 4 | 3 |
-| `modules/stats/views/advanced.js` | 270 | 10 | 4 |
-| `modules/stats/views/comparison.js` | 427 | 10 | 9 |
+| `modules/stats/results.js` | 414 | 8 | 4 |
+| `modules/stats/run.js` | 128 | 1 | 3 |
+| `modules/stats/views/advanced.js` | 275 | 10 | 4 |
+| `modules/stats/views/comparison.js` | 428 | 10 | 10 |
 | `modules/stats/views/network.js` | 223 | 9 | 4 |
 | `modules/stats/views/philosopher.js` | 171 | 4 | 6 |
-| `modules/stats/views/philosophical.js` | 449 | 12 | 7 |
+| `modules/stats/views/philosophical.js` | 473 | 12 | 7 |
 | `modules/stats/views/rankings.js` | 141 | 2 | 5 |
-| `modules/ui/about.js` | 102 | 4 | 1 |
+| `modules/ui/about.js` | 102 | 3 | 1 |
 | `modules/ui/actions-byname.js` | 20 | 0 | 2 |
-| `modules/ui/actions-dyn.js` | 147 | 0 | 31 |
+| `modules/ui/actions-dyn.js` | 148 | 0 | 31 |
 | `modules/ui/actions-static.js` | 121 | 0 | 21 |
 | `modules/ui/actions.js` | 27 | 3 | 0 |
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
 | `modules/ui/export.js` | 126 | 2 | 11 |
-| `modules/ui/hint.js` | 60 | 7 | 1 |
-| `modules/ui/legend.js` | 317 | 27 | 7 |
+| `modules/ui/hint.js` | 60 | 4 | 1 |
+| `modules/ui/legend.js` | 317 | 23 | 7 |
 | `modules/ui/panels.js` | 40 | 2 | 0 |
-| `modules/ui/search-legend.js` | 141 | 7 | 16 |
-| `modules/ui/search-link.js` | 117 | 6 | 8 |
-| `modules/ui/search-philosopher.js` | 98 | 7 | 5 |
+| `modules/ui/search-legend.js` | 141 | 6 | 16 |
+| `modules/ui/search-link.js` | 118 | 4 | 9 |
+| `modules/ui/search-philosopher.js` | 98 | 6 | 5 |
 | `modules/util/color.js` | 23 | 1 | 0 |
 | `modules/util/html.js` | 9 | 1 | 0 |
-| `modules/util/philosopher-label.js` | 39 | 7 | 2 |
+| `modules/util/philosopher-label.js` | 40 | 5 | 3 |
 | `modules/util/ru.js` | 49 | 3 | 0 |
-| `modules/widgets/custom-select.js` | 88 | 5 | 4 |
+| `modules/widgets/custom-select.js` | 88 | 4 | 4 |
 
 ## Состав, вывоз и ввоз по модулям
 
 
 ### `boot.js`
 
-Строк 225.
+Строк 228.
 
 **Вывозит:** `boot`
 
@@ -200,6 +200,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./modules/paths/chronology.js`: `installChronologyMode`
 - из `./modules/paths/chronology.js`: `showChronologyModeIfOn`
 - из `./modules/core/events.js`: `subscribe`
+- из `./modules/core/graph-index.js`: `rebuildIndexes`
 - из `./modules/filters/beyond-filter.js`: `resetBeyondFilter`
 - из `./modules/filters/filters.js`: `applyFiltersImmediate`
 - из `./modules/metrics/link-indexes.js`: `initializePhilosophyMetrics`
@@ -352,7 +353,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 62.
 
-**Вывозит:** `closeAllModals`, `installModalKeys`, `installOverlayDismiss`
+**Вывозит:** `installModalKeys`, `installOverlayDismiss`
 
 **Ввозит:**
 
@@ -369,7 +370,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/core/base-cells.js`
 
-Строк 17.
+Строк 19.
 
 **Вывозит:** _ничего_
 
@@ -377,13 +378,13 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 - из `./ns.js`: `S`
 
-**Содержит:** `S._conceptMap`, `S._concepts`, `S._incomingLinks`, `S._outgoingLinks`, `S._philosopherMap`, `S._philosophers`, `S._relations`
+**Содержит:** `S._conceptMap`, `S._concepts`, `S._incomingLinks`, `S._outgoingLinks`, `S._philosopherMap`, `S._philosophers`, `S._reflexiveMap`, `S._relations`
 
 ### `modules/core/events.js`
 
 Строк 43.
 
-**Вывозит:** `BUS_EVENTS`, `busSubscribers`, `emit`, `subscribe`
+**Вывозит:** `emit`, `subscribe`
 
 **Ввозит:** _ничего_
 
@@ -391,28 +392,28 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/core/graph-index.js`
 
-Строк 99.
+Строк 150.
 
-**Вывозит:** `buildConceptToRubrics`, `buildIndexes`, `buildPhilosopherTraditions`, `buildRubricsIndex`
+**Вывозит:** `buildConceptToRubrics`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `conceptById`, `linksByConcept`, `nodesByPhilosopher`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
 
 **Ввозит:**
 
 - из `./ns.js`: `DATA`
 
-**Содержит:** `buildConceptToRubrics`, `buildIndexes`, `buildPhilosopherTraditions`, `buildRubricsIndex`
+**Содержит:** `buildConceptToRubrics`, `buildIndexes`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `conceptById`, `linksByConcept`, `nodesByPhilosopher`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
 
 ### `modules/core/link-facts.js`
 
-Строк 42.
+Строк 48.
 
-**Вывозит:** `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+**Вывозит:** `buildReflexiveMap`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 
 **Ввозит:**
 
 - из `./ns.js`: `DATA`, `S`
 - из `./graph-index.js`: _ради побочного действия_
 
-**Содержит:** `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+**Содержит:** `buildReflexiveMap`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 
 ### `modules/core/long-task.js`
 
@@ -448,7 +449,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 59.
 
-**Вывозит:** `CONN_WEIGHT_WORDS`, `LAYER_NAMES`, `RELATION_HINTS`, `WEIGHT_OPTIONS`, `WEIGHT_WORDS`, `relationHint`
+**Вывозит:** `CONN_WEIGHT_WORDS`, `WEIGHT_OPTIONS`, `WEIGHT_WORDS`, `relationHint`
 
 **Ввозит:**
 
@@ -459,9 +460,9 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/core/search.js`
 
-Строк 72.
+Строк 68.
 
-**Вывозит:** `displaySearchResults`, `emptyList`, `pickConcepts`, `rowInner`, `searchNodes`
+**Вывозит:** `displaySearchResults`, `emptyList`, `pickConcepts`, `rowInner`
 
 **Ввозит:**
 
@@ -469,7 +470,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./visibility.js`: `isNodeVisible`
 - из `./graph-index.js`: _ради побочного действия_
 
-**Содержит:** `displaySearchResults`, `emptyList`, `pickConcepts`, `rowInner`, `searchNodes`
+**Содержит:** `displaySearchResults`, `emptyList`, `pickConcepts`, `rowInner`
 
 ### `modules/core/session.js`
 
@@ -517,15 +518,17 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/data/mutate.js`
 
-Строк 74.
+Строк 89.
 
-**Вывозит:** `afterDataChange`, `rebuildDerivedIndexes`, `rebuildPhilosopherTraditions`
+**Вывозит:** `afterDataChange`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/events.js`: `emit`
+- из `../core/graph-index.js`: `rebuildIndexes`
 - из `./save.js`: `markDirty`
+- из `../state/render.js`: `linkLayer`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `afterDataChange`, `rebuildDerivedIndexes`, `rebuildPhilosopherTraditions`
@@ -534,7 +537,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 72.
 
-**Вывозит:** `DATA_SETS`, `collectData`, `dataFolder`, `deliverFile`, `downloadData`, `hasUnsaved`, `hasUnsavedEdits`, `installUnsavedGuard`, `markDirty`, `saveToFolder`
+**Вывозит:** `DATA_SETS`, `collectData`, `downloadData`, `hasUnsaved`, `installUnsavedGuard`, `markDirty`, `saveToFolder`
 
 **Ввозит:**
 
@@ -544,18 +547,19 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/dead.js`
 
-Строк 79.
+Строк 86.
 
-**Вывозит:** `TENSION_WEIGHTS`, `findConnectedComponents`, `tensionScales`, `toggleSimilarityKind`
+**Вывозит:** `TENSION_WEIGHTS`, `findConnectedComponents`, `graphSelectionContext`, `searchNodes`, `tensionScales`, `toggleSimilarityKind`
 
 **Ввозит:**
 
 - из `./core/ns.js`: `DATA`, `MET`, `S`
+- из `./core/search.js`: `pickConcepts`
 - из `./metrics/graph-cache.js`: `buildGlobalGraphCache`
 - из `./render/similarity-overlay.js`: `showSimilarityOverlay`
 - из `./core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `TENSION_WEIGHTS`, `findConnectedComponents`, `tensionScales`, `toggleSimilarityKind`
+**Содержит:** `TENSION_WEIGHTS`, `findConnectedComponents`, `graphSelectionContext`, `searchNodes`, `tensionScales`, `toggleSimilarityKind`
 
 ### `modules/filters/beyond-filter.js`
 
@@ -574,7 +578,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 273.
 
-**Вывозит:** `CHAIN_WARN_THRESHOLD`, `buildAdjacencyGraph`, `confirmLongChainSearch`, `findChainsThroughAllPhilosophers`, `findUniquePhilosopherChains`, `processBFS`
+**Вывозит:** `confirmLongChainSearch`, `findChainsThroughAllPhilosophers`, `findUniquePhilosopherChains`
 
 **Ввозит:**
 
@@ -589,7 +593,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 454.
 
-**Вывозит:** `FilterModes`, `applyBasicFilter`, `applyChainVisibility`, `applyFilters`, `applyFiltersImmediate`, `cleanupInvisibleSelections`, `debounce`, `debouncedApplyFilters`, `handleChainsMode`, `handleUniqueChainsMode`, `linkPassesTraditions`, `philTraditionsSelected`, `philosopherPassesTraditions`, `refreshMetricsIfScoped`
+**Вывозит:** `applyFilters`, `applyFiltersImmediate`, `philosopherPassesTraditions`
 
 **Ввозит:**
 
@@ -613,7 +617,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 201.
 
-**Вывозит:** `clickCount`, `clickTimer`, `handleLinkClick`, `handleLinkSelect`, `handleNodeClick`, `lastClickedNode`, `linkClickCount`, `linkClickTimer`
+**Вывозит:** `handleLinkClick`, `handleNodeClick`
 
 **Ввозит:**
 
@@ -630,7 +634,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/graph/graph-data.js`
 
-Строк 112.
+Строк 118.
 
 **Вывозит:** `addLinkToGraph`, `addNodeToGraph`, `connectionsBetween`, `findConnection`, `forgetLink`, `forgetNode`, `getConceptConnections`, `traditionsOfPhilosopher`, `updateLinkOnGraph`, `updateNodeOnGraph`
 
@@ -638,11 +642,12 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/events.js`: `emit`
+- из `../core/graph-index.js`: `conceptById`, `linksByConcept`, `traditionById`
 - из `../render/canvas-core.js`: `renderState`
 - из `../render/loop.js`: `requestDraw`
 - из `../render/scene.js`: `updateGraphData`
 - из `../state/filters.js`: `pinnedVisibleNodes`
-- из `../state/render.js`: `selectedEdges`, `selectedNodes`
+- из `../state/render.js`: `linkLayer`, `selectedEdges`, `selectedNodes`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `addLinkToGraph`, `addNodeToGraph`, `connectionsBetween`, `findConnection`, `forgetLink`, `forgetNode`, `getConceptConnections`, `traditionsOfPhilosopher`, `updateLinkOnGraph`, `updateNodeOnGraph`
@@ -665,7 +670,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 116.
 
-**Вывозит:** `abstractionIndexCache`, `deductiveIndexCache`, `instrumentalIndexCache`, `invalidateAbstractionIndexCache`, `invalidateDeductiveIndexCache`, `invalidateInstrumentalIndexCache`
+**Вывозит:** `invalidateAbstractionIndexCache`, `invalidateDeductiveIndexCache`, `invalidateInstrumentalIndexCache`
 
 **Ввозит:**
 
@@ -678,7 +683,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 224.
 
-**Вывозит:** `conceptualComplexityIndexCache`, `conceptualContinuityIndexCache`, `conceptualFertilityIndexCache`, `invalidateConceptualComplexityIndexCache`, `invalidateConceptualContinuityIndexCache`, `invalidateConceptualFertilityIndexCache`, `invalidateTransformationIndexCache`, `transformationIndexCache`
+**Вывозит:** `invalidateConceptualComplexityIndexCache`, `invalidateConceptualContinuityIndexCache`, `invalidateConceptualFertilityIndexCache`, `invalidateTransformationIndexCache`
 
 **Ввозит:**
 
@@ -691,7 +696,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 478.
 
-**Вывозит:** `getMetricDescription`, `metricDescriptions`
+**Вывозит:** `getMetricDescription`
 
 **Ввозит:**
 
@@ -705,7 +710,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 32.
 
-**Вывозит:** `applyMetricMode`, `conceptDegreeForNorm`, `normalizeMetricValue`, `toggleMetricValueMode`
+**Вывозит:** `applyMetricMode`, `toggleMetricValueMode`
 
 **Ввозит:**
 
@@ -716,9 +721,9 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/metrics/generativity.js`
 
-Строк 102.
+Строк 110.
 
-**Вывозит:** `GENERATIVITY_DAMPING`, `GENERATIVITY_ITERATIONS`, `_generativityCacheByScope`, `generativity`, `generativityScores`, `invalidateGenerativityCache`, `linkInInfluenceScope`, `sameTraditionPhil`
+**Вывозит:** `generativity`, `invalidateGenerativityCache`, `linkInInfluenceScope`
 
 **Ввозит:**
 
@@ -730,7 +735,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 117.
 
-**Вывозит:** `buildGlobalGraphCache`, `graphCache`, `invalidateGraphCache`
+**Вывозит:** `buildGlobalGraphCache`, `invalidateGraphCache`
 
 **Ввозит:**
 
@@ -742,14 +747,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/metrics/link-indexes.js`
 
-Строк 121.
+Строк 122.
 
-**Вывозит:** `buildIncomingLinks`, `buildOutgoingLinks`, `initializeMetricsData`, `initializePhilosophyMetrics`
+**Вывозит:** `initializePhilosophyMetrics`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
-- из `../core/link-facts.js`: `isReflexiveLink`, `isSymmetricLink`
+- из `../core/link-facts.js`: `buildReflexiveMap`, `isReflexiveLink`, `isSymmetricLink`
 - из `../core/visibility.js`: `isNodeVisible`
 - из `./scope-select.js`: `effectiveScopeFlags`, `transformForScope`
 - из `../core/graph-index.js`: _ради побочного действия_
@@ -758,13 +763,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/metrics/network.js`
 
-Строк 870.
+Строк 871.
 
-**Вывозит:** `betweennessCache`, `betweennessCalculating`, `bfsFromSource`, `calculateBetweennessAsync`, `closenessCache`, `closenessCalculating`, `clusteringCache`, `dijkstraFromSource`, `eigenvectorCache`, `eigenvectorCalculating`, `invalidateBetweennessCache`, `invalidateClosenessCache`, `invalidateClusteringCache`, `invalidateEigenvectorCache`, `invalidateLocalCohesionCache`, `invalidatePageRankCache`, `invalidateRichClubCache`, `invalidateWeightedClusteringCache`, `localCohesionCache`, `medianNodeDegree`, `nodeDegreeOf`, `pageRankCache`, `pageRankCalculating`, `richClubCache`, `weightedClusteringCache`
+**Вывозит:** `betweennessCache`, `calculateBetweennessAsync`, `closenessCache`, `eigenvectorCache`, `invalidateBetweennessCache`, `invalidateClosenessCache`, `invalidateClusteringCache`, `invalidateEigenvectorCache`, `invalidateLocalCohesionCache`, `invalidatePageRankCache`, `invalidateRichClubCache`, `invalidateWeightedClusteringCache`, `localCohesionCache`, `medianNodeDegree`, `nodeDegreeOf`, `pageRankCache`, `richClubCache`, `weightedClusteringCache`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `MET`, `S`
+- из `../core/graph-index.js`: `conceptById`
 - из `./graph-cache.js`: `buildGlobalGraphCache`
 - из `../core/graph-index.js`: _ради побочного действия_
 
@@ -774,7 +780,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 308.
 
-**Вывозит:** `CONSTRUCTIVE_TYPES`, `POLEMICAL_TYPES`, `invalidatePhilosopherHistoricalReachIndexCache`, `invalidatePhilosopherInterdisciplinaryIndexCache`, `invalidatePhilosopherProfileCache`, `invalidatePhilosopherSystematicIndexCache`, `invalidateTemporalInfluencePatternCache`, `philosopherHistoricalReachIndexCache`, `philosopherInterdisciplinaryIndexCache`, `philosopherProfile`, `philosopherProfileCache`, `philosopherSystematicIndexCache`, `temporalInfluencePatternCache`
+**Вывозит:** `invalidatePhilosopherHistoricalReachIndexCache`, `invalidatePhilosopherInterdisciplinaryIndexCache`, `invalidatePhilosopherProfileCache`, `invalidatePhilosopherSystematicIndexCache`, `invalidateTemporalInfluencePatternCache`, `philosopherProfile`
 
 **Ввозит:**
 
@@ -785,9 +791,9 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/metrics/philosophical.js`
 
-Строк 1038.
+Строк 1039.
 
-**Вывозит:** `DISRUPTIVE_TYPES`, `INFLUENCE_SCOPE_LABELS`, `SYSTEMATIC_TYPES`, `criticalPowerIndexCache`, `dialogicalIndexCache`, `foundationalIndexCache`, `influenceIndexCache`, `internalCoherenceIndexCache`, `invalidateCriticalPowerIndexCache`, `invalidateDialogicalIndexCache`, `invalidateFoundationalIndexCache`, `invalidateInfluenceIndexCache`, `invalidateInternalCoherenceIndexCache`, `invalidateParadigmShiftIndexCache`, `invalidateProblemGenerationIndexCache`, `invalidateRevolutionaryIndexCache`, `invalidateSyntheticIndexCache`, `invalidateTensionIndexCache`, `paradigmShiftIndexCache`, `problemGenerationIndexCache`, `revolutionaryIndexCache`, `syntheticIndexCache`, `tensionIndexCache`
+**Вывозит:** `DISRUPTIVE_TYPES`, `INFLUENCE_SCOPE_LABELS`, `SYSTEMATIC_TYPES`, `invalidateCriticalPowerIndexCache`, `invalidateDialogicalIndexCache`, `invalidateFoundationalIndexCache`, `invalidateInfluenceIndexCache`, `invalidateInternalCoherenceIndexCache`, `invalidateParadigmShiftIndexCache`, `invalidateProblemGenerationIndexCache`, `invalidateRevolutionaryIndexCache`, `invalidateSyntheticIndexCache`, `invalidateTensionIndexCache`
 
 **Ввозит:**
 
@@ -802,7 +808,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 141.
 
-**Вывозит:** `generatePhilosopherRankings`, `generatePhilosopherRankingsCache`, `generateRankings`, `invalidateGeneratePhilosopherRankingsCache`, `invalidateGenerateRankingsCache`
+**Вывозит:** `generatePhilosopherRankings`, `generateRankings`, `invalidateGeneratePhilosopherRankingsCache`, `invalidateGenerateRankingsCache`
 
 **Ввозит:**
 
@@ -816,7 +822,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 64.
 
-**Вывозит:** `invalidateAllMetricsCaches`, `invalidateEverythingForScope`, `invalidateMetricCoverageCache`
+**Вывозит:** `invalidateEverythingForScope`
 
 **Ввозит:**
 
@@ -852,7 +858,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 135.
 
-**Вывозит:** `applyMetricsScope`, `handleMetricsScopeChange`, `installMetricScopeWrappers`, `metricScopeFactor`, `metricsScopeCounts`, `updateMetricsScopeHint`, `updateScopeToggles`
+**Вывозит:** `applyMetricsScope`, `handleMetricsScopeChange`, `installMetricScopeWrappers`, `metricsScopeCounts`, `updateMetricsScopeHint`, `updateScopeToggles`
 
 **Ввозит:**
 
@@ -871,7 +877,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 243.
 
-**Вывозит:** `PAIRS_CHUNK_ROWS`, `_neighborCache`, `_pairCache`, `_pairCalculating`, `_simCache`, `allConceptPairs`, `allConceptPairsAsync`, `invalidateSimilarityCache`, `nearestConcepts`, `neighborSets`, `profileIsMeaningful`, `profileSimilarity`, `similarityData`, `structuralSimilarity`, `typeProfileOf`
+**Вывозит:** `_pairCalculating`, `_simCache`, `allConceptPairs`, `allConceptPairsAsync`, `invalidateSimilarityCache`, `nearestConcepts`, `profileIsMeaningful`, `profileSimilarity`, `similarityData`, `structuralSimilarity`
 
 **Ввозит:**
 
@@ -883,9 +889,9 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/metrics/similarity-philosophers.js`
 
-Строк 160.
+Строк 166.
 
-**Вывозит:** `PHIL_SIM_LABELS`, `PHIL_SIM_MIN_CONCEPTS`, `PHIL_SIM_MIN_RUBRIC_UNION`, `SIM_METRIC_LABELS`, `_philSimCache`, `cosineOf`, `invalidatePhilosopherSimilarityCache`, `nearestPhilosophers`, `philosopherSimilarity`, `philosopherSimilarityData`, `rubricUnionSize`
+**Вывозит:** `PHIL_SIM_LABELS`, `PHIL_SIM_MIN_RUBRIC_UNION`, `SIM_METRIC_LABELS`, `invalidatePhilosopherSimilarityCache`, `nearestPhilosophers`, `philosopherSimilarity`, `philosopherSimilarityData`
 
 **Ввозит:**
 
@@ -908,13 +914,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/metrics/tradition-bridging.js`
 
-Строк 70.
+Строк 89.
 
-**Вывозит:** `BRIDGING_MIN_EXTERNAL`, `BRIDGING_WEIGHT_REF`, `invalidateTraditionBridgingCache`, `traditionBridgingCache`
+**Вывозит:** `BRIDGING_MIN_EXTERNAL`, `BRIDGING_WEIGHT_REF`, `invalidateTraditionBridgingCache`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `MET`, `S`
+- из `../core/link-facts.js`: `isTypologicalLink`
 
 **Содержит:** `BRIDGING_MIN_EXTERNAL`, `BRIDGING_WEIGHT_REF`, `MET.traditionBridgingIndex`, `invalidateTraditionBridgingCache`, `traditionBridgingCache`
 
@@ -934,7 +941,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 162.
 
-**Вывозит:** `authError`, `authLogout`, `authModalEl`, `authModalKind`, `authNoticeAdmin`, `authNoticeMember`, `closeAuthModal`, `openAuthModal`, `showAuthNotice`, `submitAuth`
+**Вывозит:** `authLogout`, `closeAuthModal`, `openAuthModal`, `submitAuth`
 
 **Ввозит:**
 
@@ -949,11 +956,12 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 336.
 
-**Вывозит:** `similarConceptsBlock`
+**Вывозит:** _ничего_
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
+- из `../core/graph-index.js`: `conceptById`, `rubricById`
 - из `../metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
 - из `../metrics/similarity-concepts.js`: `nearestConcepts`
 - из `./connection-view.js`: `linkArrow`
@@ -964,13 +972,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/connection-edit.js`
 
-Строк 283.
+Строк 284.
 
-**Вывозит:** `connEditSelectedBlock`, `createNewConceptForPhilosopher`, `createNewConnectionForConcept`, `handleConnectionEditSearch`, `onConnTypeChange`, `selectConnectionEditConcept`, `setupConnectionEditSearchHandlers`, `swapConnectionConcepts`, `updateConnEditPairNote`
+**Вывозит:** `createNewConceptForPhilosopher`, `createNewConnectionForConcept`, `onConnTypeChange`, `selectConnectionEditConcept`, `swapConnectionConcepts`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
+- из `../core/graph-index.js`: `conceptById`
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../core/relation-types.js`: `WEIGHT_OPTIONS`, `relationHint`
 - из `../core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
@@ -986,13 +995,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/connection-view.js`
 
-Строк 414.
+Строк 415.
 
-**Вывозит:** `conceptCircle`, `conceptPlate`, `connectionArrowSvg`, `connectionTraditionNote`, `generateConnectionVisualization`, `handleConnectionViewSearch`, `initConnectionSearchFields`, `linkArrow`, `selectConnectionViewConcept`, `toggleConnectionSearchSection`, `updateConnectionVisualization`
+**Вывозит:** `handleConnectionViewSearch`, `initConnectionSearchFields`, `linkArrow`, `selectConnectionViewConcept`, `toggleConnectionSearchSection`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
+- из `../core/graph-index.js`: `conceptById`, `traditionById`
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../core/relation-types.js`: `CONN_WEIGHT_WORDS`, `WEIGHT_WORDS`, `relationHint`
 - из `../core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
@@ -1018,7 +1028,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 154.
 
-**Вывозит:** `MODAL_STACK_MAX`, `closeUniversalModal`, `modalStack`, `openUniversalModal`, `popModalState`, `pushModalState`, `toggleModalMode`
+**Вывозит:** `closeUniversalModal`, `modalStack`, `openUniversalModal`, `popModalState`, `toggleModalMode`
 
 **Ввозит:**
 
@@ -1038,7 +1048,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 162.
 
-**Вывозит:** `allDescriptionsExpanded`, `allPhilosopherConceptDescriptionsExpanded`, `allPhilosopherConnectionDescriptionsExpanded`, `toggleAllConnectionDescriptions`, `toggleAllPhilosopherConceptDescriptions`, `toggleAllPhilosopherConnectionDescriptions`, `toggleAllRoot`, `toggleConnectionDescription`, `togglePhilosopherConceptDescription`, `toggleSubsection`
+**Вывозит:** `toggleAllConnectionDescriptions`, `toggleAllPhilosopherConceptDescriptions`, `toggleAllPhilosopherConnectionDescriptions`, `toggleConnectionDescription`, `togglePhilosopherConceptDescription`, `toggleSubsection`
 
 **Ввозит:** _ничего_
 
@@ -1046,13 +1056,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/dirty.js`
 
-Строк 111.
+Строк 112.
 
-**Вывозит:** `hasConceptChanges`, `hasConnectionChanges`, `hasFilledFields`, `hasPhilosopherChanges`, `hasUnsavedChanges`
+**Вывозит:** `hasUnsavedChanges`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
+- из `../core/graph-index.js`: `philosopherByName`
 - из `./assembly.js`: `modalEntityExists`
 - из `./context.js`: `ModalContext`
 - из `../core/graph-index.js`: _ради побочного действия_
@@ -1061,13 +1072,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/edit-forms.js`
 
-Строк 287.
+Строк 288.
 
 **Вывозит:** `syncPhilColorFromPicker`, `updatePhilColorSample`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
+- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../core/relation-types.js`: `relationHint`
 - из `../graph/graph-data.js`: `getConceptConnections`
@@ -1096,13 +1108,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/entry.js`
 
-Строк 123.
+Строк 124.
 
 **Вывозит:** `closeDetailModal`, `closePhilosopherDetailModal`, `getIsolatedConceptsAfterDeletion`, `gotoNodeFromModal`, `isConceptIsolated`, `openConceptById`, `openEditConceptModal`, `openEditConnectionModal`, `openEditPhilosopherModal`, `showAllConcepts`, `showDetailModal`, `showPhilosopherDetailModal`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
+- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `rubricById`
 - из `../core/session.js`: `canEdit`
 - из `../graph/graph-data.js`: `findConnection`, `getConceptConnections`
 - из `./core.js`: `closeUniversalModal`, `openUniversalModal`
@@ -1116,13 +1129,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/integrity.js`
 
-Строк 253.
+Строк 254.
 
-**Вывозит:** `GROUNDING_TYPES`, `activityOverlap`, `conceptIntegrityWarnings`, `connectionIntegrityWarnings`, `groundingCyclePath`, `labelOf`, `nConcepts`, `nLinks`, `philosopherIntegrityWarnings`, `relationIndexOf`
+**Вывозит:** `conceptIntegrityWarnings`, `connectionIntegrityWarnings`, `nConcepts`, `nLinks`, `philosopherIntegrityWarnings`, `relationIndexOf`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
+- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `./entry.js`: `isConceptIsolated`
 - из `../util/philosopher-label.js`: `philosopherBirth`, `philosopherYears`
@@ -1133,13 +1147,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/persist.js`
 
-Строк 360.
+Строк 363.
 
-**Вывозит:** `confirmWarnings`, `deleteConcept`, `deleteConnection`, `deletePhilosopher`, `generateId`, `removeConceptEverywhere`, `removeLinkEverywhere`, `saveConceptData`, `saveConnectionData`, `savePhilosopherData`
+**Вывозит:** `deleteConcept`, `deleteConnection`, `deletePhilosopher`, `saveConceptData`, `saveConnectionData`, `savePhilosopherData`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
+- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../data/mutate.js`: `afterDataChange`
 - из `../graph/graph-data.js`: `addLinkToGraph`, `addNodeToGraph`, `findConnection`, `forgetLink`, `forgetNode`, `getConceptConnections`, `updateLinkOnGraph`, `updateNodeOnGraph`
@@ -1154,13 +1169,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/philosopher-view.js`
 
-Строк 620.
+Строк 621.
 
-**Вывозит:** `DATA_traditions_of`, `makeLegendsEditable`, `philosopherTraditionsBlock`, `similarPhilosophersBlock`
+**Вывозит:** `makeLegendsEditable`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
+- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `rubricById`, `traditionById`
 - из `../core/session.js`: `canEdit`
 - из `../metrics/similarity-philosophers.js`: `nearestPhilosophers`
 - из `./connection-view.js`: `linkArrow`
@@ -1176,13 +1192,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/profile-concept.js`
 
-Строк 181.
+Строк 182.
 
-**Вывозит:** `PROFILE_METRICS`, `closeConceptProfileModal`, `conceptDegreesDetailed`, `metricPartsText`, `metricPercentile`, `metricRank`, `showConceptProfileModal`, `toggleProfileOrder`
+**Вывозит:** `PROFILE_METRICS`, `closeConceptProfileModal`, `showConceptProfileModal`, `toggleProfileOrder`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `MET`, `S`
+- из `../core/graph-index.js`: `conceptById`
 - из `../metrics/link-indexes.js`: `initializePhilosophyMetrics`
 - из `../metrics/scope.js`: `metricsScopeCounts`
 - из `../render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
@@ -1194,13 +1211,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/profile-philosopher.js`
 
-Строк 120.
+Строк 121.
 
 **Вывозит:** `closePhilosopherProfileModal`, `showPhilosopherProfileModal`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `MET`, `S`
+- из `../core/graph-index.js`: `nodesByPhilosopher`, `philosopherByName`, `rubricById`
 - из `../metrics/link-indexes.js`: `initializePhilosophyMetrics`
 - из `./profile-concept.js`: `PROFILE_METRICS`
 - из `../render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
@@ -1224,13 +1242,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/paths/analysis.js`
 
-Строк 73.
+Строк 74.
 
 **Вывозит:** `analyzePath`, `analyzePathTraditions`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
+- из `../core/graph-index.js`: `conceptById`, `philosopherByName`, `traditionById`
 - из `../core/link-facts.js`: `isSymmetricLink`
 - из `../core/time.js`: `CHRONOLOGY_MODES`
 - из `../graph/graph-data.js`: `traditionsOfPhilosopher`
@@ -1241,13 +1260,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/paths/chronology.js`
 
-Строк 174.
+Строк 175.
 
-**Вывозит:** `DATA_nodes_find`, `installChronologyMode`, `installChronologyToggle`, `isChronologicallyValid`, `looseChronologyCheck`, `moderateChronologyCheck`, `nodeAge`, `showChronologyModeIfOn`, `stepWithoutGap`, `strictChronologyCheck`
+**Вывозит:** `installChronologyMode`, `installChronologyToggle`, `isChronologicallyValid`, `nodeAge`, `showChronologyModeIfOn`, `stepWithoutGap`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
+- из `../core/graph-index.js`: `conceptById`, `philosopherByName`
 - из `../core/time.js`: `CHRONOLOGY_MODES`, `MATURITY_AGE`
 - из `../core/graph-index.js`: _ради побочного действия_
 
@@ -1255,13 +1275,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/paths/path-descriptions.js`
 
-Строк 174.
+Строк 179.
 
-**Вывозит:** `closePathDescriptionsModal`, `nodesDescriptionsVisible`, `showPathDescriptionsModal`, `togglePathNodesDescriptions`
+**Вывозит:** `closePathDescriptionsModal`, `showPathDescriptionsModal`, `togglePathNodesDescriptions`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
+- из `../core/graph-index.js`: `philosopherByName`
 - из `../core/relation-types.js`: `WEIGHT_WORDS`
 - из `./analysis.js`: `analyzePathTraditions`
 - из `./path-ui.js`: `resolvePathLinkList`
@@ -1273,13 +1294,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/paths/path-ui.js`
 
-Строк 397.
+Строк 416.
 
-**Вывозит:** `ARROW_HOVER_DELAY`, `arrowHoverTimer`, `clearPathHighlight`, `findAndShowPath`, `handlePathArrowHover`, `highlightPath`, `initPathFinder`, `resolvePathLinkList`
+**Вывозит:** `clearPathHighlight`, `findAndShowPath`, `handlePathArrowHover`, `initPathFinder`, `resolvePathLinkList`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
+- из `../core/graph-index.js`: `conceptById`, `philosopherByName`
 - из `../core/link-facts.js`: `isSymmetricLink`
 - из `../core/time.js`: `CHRONOLOGY_MODES`
 - из `./analysis.js`: `analyzePath`, `analyzePathTraditions`
@@ -1292,9 +1314,9 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/paths/shortest-path.js`
 
-Строк 209.
+Строк 203.
 
-**Вывозит:** `findShortestPath`, `findShortestPathUnweighted`, `findShortestPathWeighted`, `pathLinkAllowed`
+**Вывозит:** `findShortestPath`
 
 **Ввозит:**
 
@@ -1323,7 +1345,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 105.
 
-**Вывозит:** `dragended`, `dragstarted`, `gfxLink`, `gfxLinkAll`, `gfxNode`, `gfxZoom`, `linkHandlers`, `makeClassed`, `nodeHandlers`, `subSelection`, `updateArrows`
+**Вывозит:** `dragended`, `dragstarted`, `gfxLink`, `gfxLinkAll`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`, `updateArrows`
 
 **Ввозит:**
 
@@ -1337,7 +1359,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/render/draw-link.js`
 
-Строк 98.
+Строк 101.
 
 **Вывозит:** `drawSelfLoop`, `fillArrow`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLink`
 
@@ -1347,6 +1369,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./canvas-core.js`: `renderState`
 - из `./geometry.js`: `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHasTwoHeads`, `linkHoverStrokeWidth`, `linkStrokeWidth`
 - из `./render-state.js`: `hasLinkClass`, `nodeRadius`
+- из `./similarity-overlay.js`: `linkAmongHighlighted`
 - из `../state/render.js`: `selectedEdges`
 
 **Содержит:** `drawSelfLoop`, `fillArrow`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLink`
@@ -1369,7 +1392,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 103.
 
-**Вывозит:** `buildGroupPositions`, `cols`, `groupPositions`, `installResize`, `philosopherNames`, `rows`, `toggleGrouping`
+**Вывозит:** `buildGroupPositions`, `installResize`, `toggleGrouping`
 
 **Ввозит:**
 
@@ -1383,14 +1406,15 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/render/interactions.js`
 
-Строк 307.
+Строк 308.
 
-**Вывозит:** `dispatchClick`, `dispatchMove`, `initGraphEventHandlers`, `installLinkHover`, `installNodeDrag`, `installNodeHover`, `lastHoverLink`, `lastHoverNode`
+**Вывозит:** `initGraphEventHandlers`, `installLinkHover`, `installNodeDrag`, `installNodeHover`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/events.js`: `emit`
+- из `../core/graph-index.js`: `conceptById`
 - из `../core/link-facts.js`: `isReflexiveLink`, `isSymmetricLink`
 - из `../core/session.js`: `canEdit`
 - из `../graph/click-actions.js`: `handleLinkClick`, `handleNodeClick`
@@ -1413,7 +1437,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 20.
 
-**Вывозит:** `drawScheduled`, `painter`, `requestDraw`, `setPainter`
+**Вывозит:** `requestDraw`, `setPainter`
 
 **Ввозит:** _ничего_
 
@@ -1423,7 +1447,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 371.
 
-**Вывозит:** `currentVisualizedMetric`, `isVisualizingBySize`, `originalRadii`, `originalTextDy`, `resetNodeSizes`, `saveOriginalRadii`, `toggleMetricVisualization`, `updateVisualizationButtonText`, `updateVisualizationControlSection`, `visualizeMetricBySize`
+**Вывозит:** `resetNodeSizes`, `saveOriginalRadii`, `toggleMetricVisualization`
 
 **Ввозит:**
 
@@ -1439,7 +1463,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 79.
 
-**Вывозит:** `pickLink`, `pickNode`, `quadtree`, `rebuildQuadtree`, `repaintPickCanvas`, `toGraph`
+**Вывозит:** `pickLink`, `pickNode`, `rebuildQuadtree`, `toGraph`
 
 **Ввозит:**
 
@@ -1467,13 +1491,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/render/scene.js`
 
-Строк 244.
+Строк 340.
 
-**Вывозит:** `DRAW_ORDER`, `animLoopRunning`, `draw`, `ensureAnimLoop`, `graphIsCovered`, `needsContinuousAnimation`, `renderScene`, `startRadiusAnimation`, `stepRadiusAnimation`, `updateGraphData`
+**Вывозит:** `DRAW_ORDER`, `draw`, `ensureAnimLoop`, `needsContinuousAnimation`, `renderScene`, `startRadiusAnimation`, `updateGraphData`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
+- из `../core/graph-index.js`: `conceptById`
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `./canvas-core.js`: `ctx`, `dpr`, `gfxCanvas`, `renderState`
@@ -1481,23 +1506,24 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./geometry.js`: `arcParams`, `linkHoverStrokeWidth`
 - из `./loop.js`: `requestDraw`
 - из `./picking.js`: `rebuildQuadtree`
-- из `./render-state.js`: `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `hasNodeClass`, `nodeLabelDy`, `nodeRadius`
+- из `./render-state.js`: `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `hasLinkClass`, `hasNodeClass`, `nodeLabelDy`, `nodeRadius`
 - из `./similarity-overlay.js`: `similarityColor`
-- из `../state/render.js`: `selectedNodes`
+- из `../state/render.js`: `linkLayer`, `selectedEdges`, `selectedNodes`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `DRAW_ORDER`, `animLoopRunning`, `draw`, `ensureAnimLoop`, `graphIsCovered`, `needsContinuousAnimation`, `renderScene`, `startRadiusAnimation`, `stepRadiusAnimation`, `updateGraphData`
+**Содержит:** `DRAW_ORDER`, `LABEL_SHADOW_PASSES`, `animLoopRunning`, `draw`, `drawLinkSet`, `ensureAnimLoop`, `graphIsCovered`, `lastLayerKey`, `linkDrawnLive`, `linkOutOfLayer`, `linksLayerKey`, `needsContinuousAnimation`, `paintLinkLayer`, `renderScene`, `sameLayerKey`, `startRadiusAnimation`, `stepRadiusAnimation`, `updateGraphData`
 
 ### `modules/render/selection.js`
 
-Строк 260.
+Строк 261.
 
-**Вывозит:** `highlightCombined`, `highlightConnected`, `highlightNodeById`, `highlightPhilosopherOnGraph`, `isEdgeConnectedToNode`, `isEdgeConnectedToSelectedNodes`, `isNodeConnectedToSelectedEdges`, `resetHighlight`
+**Вывозит:** `highlightCombined`, `highlightConnected`, `highlightNodeById`, `highlightPhilosopherOnGraph`, `isEdgeConnectedToSelectedNodes`, `isNodeConnectedToSelectedEdges`, `resetHighlight`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/events.js`: `emit`
+- из `../core/graph-index.js`: `conceptById`
 - из `../core/long-task.js`: `showTemporaryMessage`
 - из `./canvas-core.js`: `gfxSvg`
 - из `./d3-layer.js`: `gfxLinkAll`, `gfxNode`, `gfxZoom`
@@ -1510,27 +1536,28 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/render/similarity-overlay.js`
 
-Строк 112.
+Строк 219.
 
-**Вывозит:** `SIMILARITY_ARCS`, `SIMILARITY_KEEP_QUANTILE`, `clearSimilarityOverlay`, `showSimilarityOverlay`, `similarityColor`, `updateSimilarityLegend`
+**Вывозит:** `clearSimilarityOverlay`, `linkAmongHighlighted`, `setSimilarityLinks`, `showSimilarityOverlay`, `similarityColor`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/events.js`: `emit`
+- из `../core/graph-index.js`: `conceptById`
 - из `../core/long-task.js`: `showTemporaryMessage`
 - из `../metrics/link-indexes.js`: `initializePhilosophyMetrics`
-- из `../metrics/similarity-concepts.js`: `_simCache`, `profileSimilarity`, `structuralSimilarity`
+- из `../metrics/similarity-concepts.js`: `_simCache`, `profileIsMeaningful`, `profileSimilarity`, `structuralSimilarity`
 - из `./loop.js`: `requestDraw`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `SIMILARITY_ARCS`, `SIMILARITY_KEEP_QUANTILE`, `clearSimilarityOverlay`, `showSimilarityOverlay`, `similarityColor`, `updateSimilarityLegend`
+**Содержит:** `SIMILARITY_ARCS`, `SIMILARITY_KEEP_QUANTILE`, `clearSimilarityOverlay`, `linkAmongHighlighted`, `nodeLitBySimilarity`, `setSimilarityLinks`, `showSimilarityOverlay`, `similarityColor`, `similarityLinkCount`, `updateSimilarityLegend`
 
 ### `modules/render/simulation.js`
 
 Строк 126.
 
-**Вывозит:** `centerGraph`, `freezeSimulation`, `installSimulationLog`, `installSimulationStatsEnd`, `installSimulationTick`, `maxTicks`, `resetSimulation`, `simLockedByHand`, `toggleSimulationFreeze`, `unfreezeSimulation`, `updateFreezeButton`
+**Вывозит:** `centerGraph`, `freezeSimulation`, `installSimulationLog`, `installSimulationStatsEnd`, `installSimulationTick`, `resetSimulation`, `toggleSimulationFreeze`, `unfreezeSimulation`
 
 **Ввозит:**
 
@@ -1558,13 +1585,13 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/state/edit.js`
 
-Строк 14.
+Строк 12.
 
-**Вывозит:** `editMode`, `graphSelectionContext`
+**Вывозит:** `editMode`
 
 **Ввозит:** _ничего_
 
-**Содержит:** `editMode`, `graphSelectionContext`
+**Содержит:** `editMode`
 
 ### `modules/state/filters.js`
 
@@ -1606,16 +1633,16 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/state/render.js`
 
-Строк 36.
+Строк 38.
 
-**Вывозит:** `selectedEdges`, `selectedNodes`
+**Вывозит:** `linkLayer`, `selectedEdges`, `selectedNodes`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `S.arrowMode`, `S.arrowRadius`, `S.isGrouped`, `S.pickDirty`, `S.similarityOverlay`, `S.simulation`, `S.tickCount`, `S.uniformLinkWidthActive`, `S.viewHeight`, `S.viewWidth`, `selectedEdges`, `selectedNodes`
+**Содержит:** `S.arrowMode`, `S.arrowRadius`, `S.isGrouped`, `S.pickDirty`, `S.similarityOverlay`, `S.simulation`, `S.tickCount`, `S.uniformLinkWidthActive`, `S.viewHeight`, `S.viewWidth`, `linkLayer`, `selectedEdges`, `selectedNodes`
 
 ### `modules/state/stats.js`
 
@@ -1675,9 +1702,9 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/stats/results.js`
 
-Строк 392.
+Строк 414.
 
-**Вывозит:** `METRIC_FIELD_LABELS`, `applyMetricLayout`, `generateCalculateButton`, `generateMetricDescriptionBlock`, `generateMetricResults`, `genericDetailsHTML`, `lastZeroCount`, `rankKeep`, `restoreMetricLayoutMode`, `toggleMetricDetails`, `toggleMetricLayout`
+**Вывозит:** `applyMetricLayout`, `generateCalculateButton`, `generateMetricDescriptionBlock`, `generateMetricResults`, `rankKeep`, `restoreMetricLayoutMode`, `toggleMetricDetails`, `toggleMetricLayout`
 
 **Ввозит:**
 
@@ -1692,7 +1719,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 128.
 
-**Вывозит:** `calculateMetricFromModal`, `hideProgress`, `runSingleMetric`, `showProgress`
+**Вывозит:** `calculateMetricFromModal`
 
 **Ввозит:**
 
@@ -1704,7 +1731,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/stats/views/advanced.js`
 
-Строк 270.
+Строк 275.
 
 **Вывозит:** `generateAbstractionContent`, `generateBridgingContent`, `generateComplexityContent`, `generateContinuityContent`, `generateDeductiveContent`, `generateFertilityContent`, `generateGenerativeContent`, `generateInstrumentalContent`, `generateTemporalInfluenceContent`, `generateTransformationContent`
 
@@ -1719,7 +1746,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/stats/views/comparison.js`
 
-Строк 427.
+Строк 428.
 
 **Вывозит:** `generateClosestPairsContent`, `generateComparisonContent`, `generatePhilosopherComparisonContent`, `generatePhilosopherPairsContent`, `openPairInComparison`, `openPhilosopherPair`, `renderClosestPairs`, `renderComparison`, `renderPhilosopherComparison`, `renderPhilosopherPairs`
 
@@ -1727,6 +1754,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 - из `../../core/ns.js`: `DATA`, `S`
 - из `../../core/events.js`: `emit`
+- из `../../core/graph-index.js`: `conceptById`
 - из `../../core/long-task.js`: `LoadingIndicator`
 - из `../../metrics/link-indexes.js`: `initializePhilosophyMetrics`
 - из `../../metrics/philosopher.js`: `philosopherProfile`
@@ -1771,7 +1799,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/stats/views/philosophical.js`
 
-Строк 449.
+Строк 473.
 
 **Вывозит:** `generateCoherenceContent`, `generateCriticalPowerContent`, `generateDialogicalContent`, `generateFoundationalContent`, `generateInfluenceContent`, `generateParadigmShiftContent`, `generateProblemGenerationContent`, `generateRevolutionaryContent`, `generateSyntheticContent`, `generateTensionContent`, `influenceScopeSwitcher`, `setInfluenceScope`
 
@@ -1807,7 +1835,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 102.
 
-**Вывозит:** `buildAboutText`, `closeAboutModal`, `onAboutBackdropClick`, `openAboutModal`
+**Вывозит:** `closeAboutModal`, `onAboutBackdropClick`, `openAboutModal`
 
 **Ввозит:**
 
@@ -1830,7 +1858,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/ui/actions-dyn.js`
 
-Строк 147.
+Строк 148.
 
 **Вывозит:** _ничего_
 
@@ -1856,7 +1884,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../paths/path-ui.js`: `clearPathHighlight`, `handlePathArrowHover`
 - из `../render/metric-visualization.js`: `toggleMetricVisualization`
 - из `../render/selection.js`: `highlightNodeById`
-- из `../render/similarity-overlay.js`: `clearSimilarityOverlay`, `showSimilarityOverlay`
+- из `../render/similarity-overlay.js`: `clearSimilarityOverlay`, `setSimilarityLinks`, `showSimilarityOverlay`
 - из `../stats/modal.js`: `openStatsModal`, `switchStatsView`
 - из `../stats/results.js`: `toggleMetricDetails`, `toggleMetricLayout`
 - из `../stats/run.js`: `calculateMetricFromModal`
@@ -1950,7 +1978,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 60.
 
-**Вывозит:** `hideHint`, `hintBox`, `installHintOnClick`, `installHintOnScroll`, `installHintOut`, `installHintOver`, `showHint`
+**Вывозит:** `installHintOnClick`, `installHintOnScroll`, `installHintOut`, `installHintOver`
 
 **Ввозит:**
 
@@ -1962,7 +1990,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 317.
 
-**Вывозит:** `addTradition`, `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `legendDirectionToggle`, `legendWeightsToggle`, `markChosenInLegend`, `onlyTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `syncPhilosopherCheckboxes`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `traditionMembers`, `updateFilterStats`, `updatePhilosopherDimming`
+**Вывозит:** `addTradition`, `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `markChosenInLegend`, `onlyTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `updateFilterStats`, `updatePhilosopherDimming`
 
 **Ввозит:**
 
@@ -1990,11 +2018,12 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 141.
 
-**Вывозит:** `clearLegendSearch`, `handleLegendSearch`, `installLegendSearchDismiss`, `searchKind`, `selectSearchResult`, `setSearchKind`, `toggleLegendSearch`
+**Вывозит:** `clearLegendSearch`, `handleLegendSearch`, `installLegendSearchDismiss`, `selectSearchResult`, `setSearchKind`, `toggleLegendSearch`
 
 **Ввозит:**
 
-- из `../core/ns.js`: `DATA`, `S`
+- из `../core/ns.js`: `S`
+- из `../core/graph-index.js`: `conceptById`
 - из `../core/long-task.js`: `showTemporaryMessage`
 - из `../core/search.js`: `displaySearchResults`, `pickConcepts`
 - из `../core/visibility.js`: `isNodeVisible`
@@ -2009,19 +2038,19 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../state/render.js`: `selectedNodes`
 - из `./search-link.js`: `clearLinkSearch`
 - из `./search-philosopher.js`: `clearLegendPhilSearch`
-- из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `clearLegendSearch`, `handleLegendSearch`, `installLegendSearchDismiss`, `searchKind`, `selectSearchResult`, `setSearchKind`, `toggleLegendSearch`
 
 ### `modules/ui/search-link.js`
 
-Строк 117.
+Строк 118.
 
-**Вывозит:** `clearLinkSearch`, `handleLegendLinkSearch`, `highlightLinkOnGraph`, `linkSearch`, `pickLinkEnd`, `showFoundLinks`
+**Вывозит:** `clearLinkSearch`, `handleLegendLinkSearch`, `highlightLinkOnGraph`, `pickLinkEnd`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
+- из `../core/graph-index.js`: `conceptById`
 - из `../core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
 - из `../render/canvas-core.js`: `gfxSvg`
 - из `../render/d3-layer.js`: `gfxZoom`
@@ -2036,7 +2065,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 98.
 
-**Вывозит:** `clearLegendPhilSearch`, `clearPhilosopherSearch`, `handleLegendPhilSearch`, `handlePhilosopherSearch`, `pickPhilosopherFromSearch`, `pickPhilosophers`, `selectPhilosopherResult`
+**Вывозит:** `clearLegendPhilSearch`, `clearPhilosopherSearch`, `handleLegendPhilSearch`, `handlePhilosopherSearch`, `pickPhilosopherFromSearch`, `selectPhilosopherResult`
 
 **Ввозит:**
 
@@ -2070,13 +2099,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/util/philosopher-label.js`
 
-Строк 39.
+Строк 40.
 
-**Вывозит:** `_ambiguousLabels`, `ambiguousLabels`, `formatBirthYear`, `labelWithAuthor`, `philosopherBirth`, `philosopherYears`, `sortPhilosophersByBirth`
+**Вывозит:** `formatBirthYear`, `labelWithAuthor`, `philosopherBirth`, `philosopherYears`, `sortPhilosophersByBirth`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
+- из `../core/graph-index.js`: `philosopherByName`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `_ambiguousLabels`, `ambiguousLabels`, `formatBirthYear`, `labelWithAuthor`, `philosopherBirth`, `philosopherYears`, `sortPhilosophersByBirth`
@@ -2095,13 +2125,13 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 88.
 
-**Вывозит:** `filterCustomSelect`, `initializeCustomSelects`, `populateCustomSelect`, `selectCustomOption`, `showCustomSelectDropdown`
+**Вывозит:** `filterCustomSelect`, `initializeCustomSelects`, `selectCustomOption`, `showCustomSelectDropdown`
 
 **Ввозит:**
 
-- из `../core/ns.js`: `DATA`, `S`
+- из `../core/ns.js`: `S`
 - из `../core/events.js`: `emit`
+- из `../core/graph-index.js`: `conceptById`
 - из `../core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
-- из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `filterCustomSelect`, `initializeCustomSelects`, `populateCustomSelect`, `selectCustomOption`, `showCustomSelectDropdown`
