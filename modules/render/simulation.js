@@ -122,4 +122,4 @@ S.simulation.on("end.log", () => {
     });
 }
 
-export { centerGraph, freezeSimulation, installSimulationLog, installSimulationStatsEnd, installSimulationTick, maxTicks, resetSimulation, simLockedByHand, toggleSimulationFreeze, unfreezeSimulation, updateFreezeButton };
+export { centerGraph, freezeSimulation, installSimulationLog, installSimulationStatsEnd, installSimulationTick, resetSimulation, toggleSimulationFreeze, unfreezeSimulation };

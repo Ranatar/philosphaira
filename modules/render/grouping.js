@@ -99,4 +99,4 @@ window.addEventListener('resize', () => {
     });
 }
 
-export { buildGroupPositions, cols, groupPositions, installResize, philosopherNames, rows, toggleGrouping };
+export { buildGroupPositions, installResize, toggleGrouping };

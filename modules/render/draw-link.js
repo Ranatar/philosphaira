@@ -4,6 +4,7 @@ import { renderState } from './canvas-core.js';
 import { arcParams, arrowPoints, arrowPointsStart, linkHasTwoHeads, linkHoverStrokeWidth, linkStrokeWidth } from './geometry.js';
 import { hasLinkClass, nodeRadius } from './render-state.js';
 
+import { linkAmongHighlighted } from './similarity-overlay.js';
 import { selectedEdges } from '../state/render.js';
 
 function linkVisualState(l) {
@@ -38,7 +39,9 @@ function linkDrawAlpha(l, state, tms) {
       // Приглушать связи ПО СХОДСТВУ нечем: у связи такого значения нет, а
       // похожие концепции чаще всего рёбрами и не соединены. Поэтому
       // признак другой, чем при щелчке: не «несмежные», а «все обычные».
-      if (S.similarityOverlay) return 0.07;
+      // Связь между двумя подсвеченными показывается в полную силу, если
+      // переключатель включён: см. toggleSimilarityLinks.
+      if (S.similarityOverlay) return linkAmongHighlighted(l) ? 0.85 : 0.07;
 
       return 0.4;
     }

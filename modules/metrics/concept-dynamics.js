@@ -220,4 +220,4 @@ function invalidateConceptualContinuityIndexCache() {
       conceptualContinuityIndexCache = null;
     }
 
-export { conceptualComplexityIndexCache, conceptualContinuityIndexCache, conceptualFertilityIndexCache, invalidateConceptualComplexityIndexCache, invalidateConceptualContinuityIndexCache, invalidateConceptualFertilityIndexCache, invalidateTransformationIndexCache, transformationIndexCache };
+export { invalidateConceptualComplexityIndexCache, invalidateConceptualContinuityIndexCache, invalidateConceptualFertilityIndexCache, invalidateTransformationIndexCache };

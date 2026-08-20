@@ -28,4 +28,4 @@ function toggleMetricValueMode() {
       emit('stats-stale');
     }
 
-export { applyMetricMode, conceptDegreeForNorm, normalizeMetricValue, toggleMetricValueMode };
+export { applyMetricMode, toggleMetricValueMode };

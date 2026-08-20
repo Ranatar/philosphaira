@@ -2,7 +2,9 @@
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
 import { emit } from '../core/events.js';
+import { rebuildIndexes } from '../core/graph-index.js';
 import { markDirty } from './save.js';
+import { linkLayer } from '../state/render.js';
 
 function rebuildPhilosopherTraditions() {
       Object.keys(DATA.philosopherTraditions).forEach(k => delete DATA.philosopherTraditions[k]);
@@ -54,6 +56,19 @@ function afterDataChange(what) {
       markDirty();
 
       rebuildDerivedIndexes(what);
+      // Указатели по идентификаторам — здесь же, единой точкой. Разбрасывать
+      // вызов по функциям правки значило бы завести седьмое место, где о нём
+      // можно забыть.
+      rebuildIndexes();
+
+      // Слой связей. Правка меняет их вид, НЕ трогая ни положений, ни счёта:
+      // тип, вес, направленность, цвет типа, концы связи. Признак годности
+      // этого не ловит — он опирается на положения, счёт и ссылки на наборы.
+      // Проверка показала, что слой спасался лишь случайно: applyFilters
+      // заново создаёт набор видимых связей, и сличение по ссылке давало
+      // промах. Полагаться на это нельзя, поэтому сбрасываем явно — здесь,
+      // в той единой точке, через которую проходит всякое изменение базы.
+      linkLayer.key = null;
 
 
       // Новый философ должен попасть в множество выбранных, иначе будет
@@ -70,4 +85,4 @@ function afterDataChange(what) {
       emit('data-changed', what);
     }
 
-export { afterDataChange, rebuildDerivedIndexes, rebuildPhilosopherTraditions };
+export { afterDataChange };

@@ -197,4 +197,4 @@ function handleLinkSelect(event, d) {
       highlightCombined();
     }
 
-export { clickCount, clickTimer, handleLinkClick, handleLinkSelect, handleNodeClick, lastClickedNode, linkClickCount, linkClickTimer };
+export { handleLinkClick, handleNodeClick };

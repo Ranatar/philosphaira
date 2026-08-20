@@ -50,12 +50,15 @@ function philosopherSimilarityData() {
 
       // — способ построения: доли типов связей
       const types = [...new Set(S._relations.map(r => r.type))];
+      // types.indexOf стоял внутри цикла по связям внутри цикла по
+      // философам: 57 × 1624 линейных поисков по перечню типов.
+      const typeIndex = new Map(types.map((t, i) => [t, i]));
       const typeRaw = phs.map(ph => {
         const own = new Set(conceptsOf[ph]);
         const v = types.map(() => 0);
         for (const r of S._relations) {
           if (own.has(r.source) || own.has(r.target)) {
-            v[types.indexOf(r.type)] += (r.weight || 1);
+            v[typeIndex.get(r.type)] += (r.weight || 1);
           }
         }
         const s = v.reduce((x, y) => x + y, 0) || 1;
@@ -64,11 +67,14 @@ function philosopherSimilarityData() {
 
       // — рубрики
       const rubrics = [...new Set(S._concepts.flatMap(c => c.rubrics || []))];
+      // rubrics здесь — ЛОКАЛЬНЫЙ перечень, затеняющий одноимённый набор
+      // базы; карта строится по нему же.
+      const rubricIndex = new Map(rubrics.map((r, i) => [r, i]));
       const rubRaw = phs.map(ph => {
         const v = rubrics.map(() => 0);
         for (const id of conceptsOf[ph]) {
           const c = S._conceptMap.get(id);
-          (c && c.rubrics || []).forEach(rb => v[rubrics.indexOf(rb)]++);
+          (c && c.rubrics || []).forEach(rb => v[rubricIndex.get(rb)]++);
         }
         const s = v.reduce((x, y) => x + y, 0) || 1;
         return v.map(x => x / s);
@@ -153,7 +159,7 @@ function nearestPhilosophers(philosopherId, kind, k) {
       return out.slice(0, k || 5);
     }
 
-const PHIL_SIM_LABELS = { profile: 'профиль метрик', style: 'способ построения',
-                  structure: 'структура связей', rubrics: 'тематический охват' };
+const PHIL_SIM_LABELS = { rubrics: 'тематический охват', style: 'способ построения',
+                  structure: 'структура связей', profile: 'профиль метрик' };
 
-export { PHIL_SIM_LABELS, PHIL_SIM_MIN_CONCEPTS, PHIL_SIM_MIN_RUBRIC_UNION, SIM_METRIC_LABELS, _philSimCache, cosineOf, invalidatePhilosopherSimilarityCache, nearestPhilosophers, philosopherSimilarity, philosopherSimilarityData, rubricUnionSize };
+export { PHIL_SIM_LABELS, PHIL_SIM_MIN_RUBRIC_UNION, SIM_METRIC_LABELS, invalidatePhilosopherSimilarityCache, nearestPhilosophers, philosopherSimilarity, philosopherSimilarityData };

@@ -269,4 +269,4 @@ async function findUniquePhilosopherChains(selectedPhils, progressCallback = nul
       return { nodes: nodesInChains, links: linksInChains };
     }
 
-export { CHAIN_WARN_THRESHOLD, buildAdjacencyGraph, confirmLongChainSearch, findChainsThroughAllPhilosophers, findUniquePhilosopherChains, processBFS };
+export { confirmLongChainSearch, findChainsThroughAllPhilosophers, findUniquePhilosopherChains };

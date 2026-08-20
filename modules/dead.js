@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, MET, S } from './core/ns.js';
 import './core/graph-index.js';
+import { pickConcepts } from './core/search.js';
 import { buildGlobalGraphCache } from './metrics/graph-cache.js';
 import { showSimilarityOverlay } from './render/similarity-overlay.js';
 
@@ -69,10 +70,16 @@ function tensionScales() {
       return S._tensionScales;
     }
 
+function searchNodes(query) {
+      return pickConcepts(query);
+    }
+
 function toggleSimilarityKind() {
       if (!S.similarityOverlay) return;
       showSimilarityOverlay(S.similarityOverlay.sourceId,
         S.similarityOverlay.kind === 'profile' ? 'structure' : 'profile');
     }
 
-export { TENSION_WEIGHTS, findConnectedComponents, tensionScales, toggleSimilarityKind };
+let graphSelectionContext = { active: false, type: null, mode: 'edit' };
+
+export { TENSION_WEIGHTS, findConnectedComponents, graphSelectionContext, searchNodes, tensionScales, toggleSimilarityKind };

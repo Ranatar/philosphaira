@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById, nodesByPhilosopher, philosopherByName } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { relationHint } from '../core/relation-types.js';
 import { getConceptConnections } from '../graph/graph-data.js';
@@ -39,7 +40,7 @@ function syncPhilColorFromPicker() {
 
 VIEWS.generatePhilosopherEditContent = function generatePhilosopherEditContent(philosopherName) {
       const philosopherData = philosopherName
-        ? DATA.philosophers.find(p => p.nameRu === philosopherName) : null;
+        ? philosopherByName.get(philosopherName) : null;
       const isNew = !philosopherData;
 
       let html = `
@@ -114,7 +115,7 @@ VIEWS.generatePhilosopherEditContent = function generatePhilosopherEditContent(p
       `;
 
       if (philosopherData) {
-        const own = DATA.nodes.filter(n => n.concept === philosopherName);
+        const own = (nodesByPhilosopher.get(philosopherName) || []).slice();
         html += `
           <div class="modal-section-title">
             💡 Концепции философа (${own.length})
@@ -210,7 +211,7 @@ VIEWS.generateConceptEditContent = function generateConceptEditContent(conceptDa
           const srcId = conn.source.id || conn.source;
           const tgtId = conn.target.id || conn.target;
           const otherId = srcId === conceptData.id ? tgtId : srcId;
-          const other = DATA.nodes.find(n => n.id === otherId);
+          const other = conceptById.get(otherId);
           if (!other) return;
           const rec = { conn, other, isSource: srcId === conceptData.id,
                   reflexive: isReflexiveLink(conn) };

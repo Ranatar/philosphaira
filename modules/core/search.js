@@ -40,10 +40,6 @@ function emptyList(text) {
       return `<div class="concept-row-empty">${text || 'Ничего не найдено'}</div>`;
     }
 
-function searchNodes(query) {
-      return pickConcepts(query);
-    }
-
 function displaySearchResults(results, container, context) {
       if (results.length === 0) {
         container.innerHTML = emptyList();
@@ -68,4 +64,4 @@ function displaySearchResults(results, container, context) {
       container.classList.add('show');
     }
 
-export { displaySearchResults, emptyList, pickConcepts, rowInner, searchNodes };
+export { displaySearchResults, emptyList, pickConcepts, rowInner };

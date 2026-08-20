@@ -60,4 +60,4 @@ function invalidateEverythingForScope() {
 
 function invalidateMetricCoverageCache() { S._metricCoverageCache = {}; }
 
-export { invalidateAllMetricsCaches, invalidateEverythingForScope, invalidateMetricCoverageCache };
+export { invalidateEverythingForScope };

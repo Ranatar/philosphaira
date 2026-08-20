@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, MET, S } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById } from '../core/graph-index.js';
 import { buildGlobalGraphCache } from './graph-cache.js';
 
 let betweennessCache = null;
@@ -144,7 +145,7 @@ async function calculateBetweennessAsync(progressCallback) {
       
       const result = Object.entries(betweenness)
         .map(([id, value]) => ({
-          node: DATA.nodes.find(n => n.id === id),
+          node: conceptById.get(id),
           value: value,
           count: Math.round(value)
         }))
@@ -278,7 +279,7 @@ MET.calculatePageRank = function calculatePageRank(iterations = 20, dampingFacto
         // Формирование результата
         const result = Object.entries(pageRank)
           .map(([id, value]) => ({
-            node: DATA.nodes.find(n => n.id === id),
+            node: conceptById.get(id),
             value: value
           }))
           .sort((a, b) => b.value - a.value);
@@ -824,7 +825,7 @@ MET.calculateEigenvectorCentrality = async function calculateEigenvectorCentrali
         
         const result = Object.entries(eigenvector)
           .map(([id, value]) => ({
-            node: DATA.nodes.find(n => n.id === id),
+            node: conceptById.get(id),
             value: value
           }))
           .sort((a, b) => b.value - a.value);
@@ -866,4 +867,4 @@ function nodeDegreeOf(conceptId) {
       return d;
     }
 
-export { betweennessCache, betweennessCalculating, bfsFromSource, calculateBetweennessAsync, closenessCache, closenessCalculating, clusteringCache, dijkstraFromSource, eigenvectorCache, eigenvectorCalculating, invalidateBetweennessCache, invalidateClosenessCache, invalidateClusteringCache, invalidateEigenvectorCache, invalidateLocalCohesionCache, invalidatePageRankCache, invalidateRichClubCache, invalidateWeightedClusteringCache, localCohesionCache, medianNodeDegree, nodeDegreeOf, pageRankCache, pageRankCalculating, richClubCache, weightedClusteringCache };
+export { betweennessCache, calculateBetweennessAsync, closenessCache, eigenvectorCache, invalidateBetweennessCache, invalidateClosenessCache, invalidateClusteringCache, invalidateEigenvectorCache, invalidateLocalCohesionCache, invalidatePageRankCache, invalidateRichClubCache, invalidateWeightedClusteringCache, localCohesionCache, medianNodeDegree, nodeDegreeOf, pageRankCache, richClubCache, weightedClusteringCache };

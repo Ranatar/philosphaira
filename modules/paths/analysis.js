@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById, philosopherByName, traditionById } from '../core/graph-index.js';
 import { isSymmetricLink } from '../core/link-facts.js';
 import { CHRONOLOGY_MODES } from '../core/time.js';
 import { traditionsOfPhilosopher } from '../graph/graph-data.js';
@@ -23,12 +24,12 @@ function analyzePath(path, mode = CHRONOLOGY_MODES.STRICT) {
         const edgeType = edge ? edge.type : null;
         
         if (!isChronologicallyValid(fromId, toId, mode, edgeType)) {
-          const fromNode = DATA.nodes.find(n => n.id === fromId);
-          const toNode = DATA.nodes.find(n => n.id === toId);
+          const fromNode = conceptById.get(fromId);
+          const toNode = conceptById.get(toId);
           
           if (fromNode && toNode) {
-            const fromPhil = DATA.philosophers.find(p => p.nameRu === fromNode.concept);
-            const toPhil = DATA.philosophers.find(p => p.nameRu === toNode.concept);
+            const fromPhil = philosopherByName.get(fromNode.concept);
+            const toPhil = philosopherByName.get(toNode.concept);
             
             if (fromPhil && toPhil) {
               warnings.push({
@@ -56,7 +57,7 @@ function analyzePathTraditions(pathNodes) {
         const shared = ta.filter(x => tb.includes(x));
         segments.push(shared.length
           ? { kind: 'shared', shared: shared.map(id =>
-              (DATA.traditions.find(t => t.id === id) || {}).name).filter(Boolean) }
+              (traditionById.get(id) || {}).name).filter(Boolean) }
           : { kind: 'crossing', from: traditionsOfPhilosopher(a),
               to: traditionsOfPhilosopher(b) });
       }

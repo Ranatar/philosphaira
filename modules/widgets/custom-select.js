@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
-import { DATA, S } from '../core/ns.js';
-import '../core/graph-index.js';
+import { S } from '../core/ns.js';
 import { emit } from '../core/events.js';
+import { conceptById } from '../core/graph-index.js';
 import { emptyList, pickConcepts, rowInner } from '../core/search.js';
 
 function initializeCustomSelects() {
@@ -60,7 +60,7 @@ function filterCustomSelect(type, query) {
     }
 
 function selectCustomOption(type, nodeId) {
-      const node = DATA.nodes.find(n => n.id === nodeId);
+      const node = conceptById.get(nodeId);
       if (!node) return;
       
       const input = document.getElementById(`${type}SelectInput`);
@@ -84,4 +84,4 @@ function selectCustomOption(type, nodeId) {
       }
     }
 
-export { filterCustomSelect, initializeCustomSelects, populateCustomSelect, selectCustomOption, showCustomSelectDropdown };
+export { filterCustomSelect, initializeCustomSelects, selectCustomOption, showCustomSelectDropdown };

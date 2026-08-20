@@ -19,7 +19,7 @@ import { showPathDescriptionsModal, togglePathNodesDescriptions } from '../paths
 import { clearPathHighlight, handlePathArrowHover } from '../paths/path-ui.js';
 import { toggleMetricVisualization } from '../render/metric-visualization.js';
 import { highlightNodeById } from '../render/selection.js';
-import { clearSimilarityOverlay, showSimilarityOverlay } from '../render/similarity-overlay.js';
+import { clearSimilarityOverlay, setSimilarityLinks, showSimilarityOverlay } from '../render/similarity-overlay.js';
 import { openStatsModal, switchStatsView } from '../stats/modal.js';
 import { toggleMetricDetails, toggleMetricLayout } from '../stats/results.js';
 import { calculateMetricFromModal } from '../stats/run.js';
@@ -105,8 +105,8 @@ registerActions({
   "handle-path-arrow-hover-mouseenter": (el, ev) => { handlePathArrowHover(ev, true); },
   "handle-path-arrow-hover-mouseleave": (el, ev) => { handlePathArrowHover(ev, false); },
   "show-path-descriptions-modal": (el, ev) => { showPathDescriptionsModal(); },
-  "show-similarity-overlay-2": (el, ev) => { showSimilarityOverlay(el.dataset.a1,'profile'); },
-  "show-similarity-overlay-3": (el, ev) => { showSimilarityOverlay(el.dataset.a1,'structure'); },
+  "show-similarity-overlay-2": (el, ev) => { showSimilarityOverlay(el.dataset.a1,el.dataset.a2); },
+  "set-similarity-links": (el, ev) => { setSimilarityLinks(el.dataset.a1); },
   "clear-similarity-overlay": (el, ev) => { clearSimilarityOverlay(); },
   "calculate-metric-from-modal": (el, ev) => { calculateMetricFromModal(el.dataset.a1); },
   "toggle-metric-visualization": (el, ev) => { toggleMetricVisualization(el.dataset.a1); },
@@ -131,6 +131,7 @@ registerActions({
   "filter-custom-select-input-3": (el, ev) => { filterCustomSelect(el.dataset.a1, el.value); },
   "highlight-node-by-id-3": (el, ev) => { highlightNodeById(el.dataset.a1); },
   "set-influence-scope": (el, ev) => { setInfluenceScope(el.dataset.a1); },
+  "set-influence-scope-2": (el, ev) => { setInfluenceScope(el.dataset.a1); },
   "highlight-node-by-id-4": (el, ev) => { highlightNodeById(el.dataset.a1); },
   "toggle-philosopher-change": (el, ev) => { togglePhilosopher(el.dataset.a1); },
   "toggle-relation-change": (el, ev) => { toggleRelation(el.dataset.a1); },

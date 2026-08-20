@@ -1,5 +1,6 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA } from './ns.js';
+import d3 from '../../vendor/d3.js';
 
 // DATA.concepts.forEach(c => { DATA.conceptToRubrics[c.id] = c.r) @0293d862
 function buildConceptToRubrics() {
@@ -18,12 +19,62 @@ DATA.rubrics.forEach(r => {
     });
 }
 
+const conceptById = new Map();
+
+const philosopherByName = new Map();
+
+const traditionById = new Map();
+
+const rubricById = new Map();
+
+const nodesByPhilosopher = new Map();
+
+const linksByConcept = new Map();
+
+function rebuildIndexes() {
+      conceptById.clear();
+      DATA.nodes.forEach(n => conceptById.set(n.id, n));
+
+      philosopherByName.clear();
+      DATA.philosophers.forEach(p => philosopherByName.set(p.nameRu, p));
+
+      traditionById.clear();
+      DATA.traditions.forEach(t => traditionById.set(t.id, t));
+
+      rubricById.clear();
+      DATA.rubrics.forEach(r => rubricById.set(r.id, r));
+
+      nodesByPhilosopher.clear();
+      DATA.nodes.forEach(n => {
+        let a = nodesByPhilosopher.get(n.concept);
+        if (!a) { a = []; nodesByPhilosopher.set(n.concept, a); }
+        a.push(n);
+      });
+
+      // d3 подменяет source/target ссылками на узлы уже на первом тике,
+      // поэтому конец связи читается через (l.source && l.source.id).
+      linksByConcept.clear();
+      DATA.nodes.forEach(n => linksByConcept.set(n.id, []));
+      DATA.links.forEach(l => {
+        const s = (l.source && l.source.id) || l.source;
+        const t = (l.target && l.target.id) || l.target;
+        let a = linksByConcept.get(s);
+        if (!a) { a = []; linksByConcept.set(s, a); }
+        a.push(l);
+        if (t !== s) {
+          let b = linksByConcept.get(t);
+          if (!b) { b = []; linksByConcept.set(t, b); }
+          b.push(l);
+        }
+      });
+    }
+
 // DATA.philosophers.forEach(p => { DATA.philosopherTraditions[p.name) @bb1f233a
 function buildPhilosopherTraditions() {
 DATA.philosophers.forEach(p => { DATA.philosopherTraditions[p.nameRu] = p.traditions || []; });
 }
 
-export function buildIndexes() {
+function buildIndexes() {
   DATA.philosopherIdToName = {};
   
   DATA.philosophers.forEach(p => {
@@ -95,4 +146,4 @@ export function buildIndexes() {
 // всё, что от них считается, приходилось откладывать в boot.
 buildIndexes();
 
-export { buildConceptToRubrics, buildPhilosopherTraditions, buildRubricsIndex };
+export { buildConceptToRubrics, buildPhilosopherTraditions, buildRubricsIndex, conceptById, linksByConcept, nodesByPhilosopher, philosopherByName, rebuildIndexes, rubricById, traditionById };

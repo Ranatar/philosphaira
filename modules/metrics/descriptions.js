@@ -474,4 +474,4 @@ function getMetricDescription(metricKey) {
       };
     }
 
-export { getMetricDescription, metricDescriptions };
+export { getMetricDescription };

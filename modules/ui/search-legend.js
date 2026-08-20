@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
-import { DATA, S } from '../core/ns.js';
+import { S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
-import '../core/graph-index.js';
+import { conceptById } from '../core/graph-index.js';
 import { showTemporaryMessage } from '../core/long-task.js';
 import { displaySearchResults, pickConcepts } from '../core/search.js';
 import { isNodeVisible } from '../core/visibility.js';
@@ -66,7 +66,7 @@ function handleLegendSearch(query) {
     }
 
 function selectSearchResult(nodeId, context) {
-      const nodeData = DATA.nodes.find(n => n.id === nodeId);
+      const nodeData = conceptById.get(nodeId);
       if (!nodeData) return;
       
       if (context === 'legend') {
@@ -137,4 +137,4 @@ document.addEventListener('click', function(event) {
     });
 }
 
-export { clearLegendSearch, handleLegendSearch, installLegendSearchDismiss, searchKind, selectSearchResult, setSearchKind, toggleLegendSearch };
+export { clearLegendSearch, handleLegendSearch, installLegendSearchDismiss, selectSearchResult, setSearchKind, toggleLegendSearch };

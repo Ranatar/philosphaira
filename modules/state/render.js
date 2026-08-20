@@ -17,6 +17,8 @@ S.uniformLinkWidthActive = false;
 
 S.similarityOverlay = null;
 
+const linkLayer = { canvas: null, ctx: null, key: null };
+
 S.simulation = d3.forceSimulation(DATA.nodes)
       .force("link", d3.forceLink(DATA.links).id(d => d.id).distance(160))
       .force("charge", d3.forceManyBody().strength(-350))
@@ -32,4 +34,4 @@ let selectedEdges = new Set();
 
 S.isGrouped = false;
 
-export { selectedEdges, selectedNodes };
+export { linkLayer, selectedEdges, selectedNodes };

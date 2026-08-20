@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { WEIGHT_OPTIONS, relationHint } from '../core/relation-types.js';
 import { emptyList, pickConcepts, rowInner } from '../core/search.js';
@@ -100,8 +101,8 @@ VIEWS.generateConnectionEditContent = function generateConnectionEditContent(con
       ModalContext.editState.selectedSource = srcId;
       ModalContext.editState.selectedTarget = tgtId;
 
-      const srcNode = srcId ? DATA.nodes.find(n => n.id === srcId) : null;
-      const tgtNode = tgtId ? DATA.nodes.find(n => n.id === tgtId) : null;
+      const srcNode = srcId ? conceptById.get(srcId) : null;
+      const tgtNode = tgtId ? conceptById.get(tgtId) : null;
 
       let html = `
         <h2>${isNew ? 'Создать связь' : 'Редактировать связь'}</h2>
@@ -214,7 +215,7 @@ function handleConnectionEditSearch(type, query) {
     }
 
 function selectConnectionEditConcept(type, conceptId) {
-      const node = DATA.nodes.find(n => n.id === conceptId);
+      const node = conceptById.get(conceptId);
       if (!node) return;
       const cap = type.charAt(0).toUpperCase() + type.slice(1);
       ModalContext.editState[`selected${cap}`] = conceptId;
@@ -253,7 +254,7 @@ function swapConnectionConcepts() {
 
       [['source', 'Source'], ['target', 'Target']].forEach(([type, cap]) => {
         const id = ModalContext.editState[`selected${cap}`];
-        const node = id ? DATA.nodes.find(n => n.id === id) : null;
+        const node = id ? conceptById.get(id) : null;
         const sel = document.getElementById(`conn${cap}Selected`);
         if (!sel) return;
         if (node) {
@@ -272,11 +273,11 @@ function createNewConceptForPhilosopher(philosopherName) {
     }
 
 function createNewConnectionForConcept(conceptId) {
-      const node = DATA.nodes.find(n => n.id === conceptId);
+      const node = conceptById.get(conceptId);
       if (!node) return;
       openUniversalModal('connection', { source: conceptId, target: null,
                          type: '', weight: 2,
                          bidirectional: false, description: '' }, 'edit');
     }
 
-export { connEditSelectedBlock, createNewConceptForPhilosopher, createNewConnectionForConcept, handleConnectionEditSearch, onConnTypeChange, selectConnectionEditConcept, setupConnectionEditSearchHandlers, swapConnectionConcepts, updateConnEditPairNote };
+export { createNewConceptForPhilosopher, createNewConnectionForConcept, onConnTypeChange, selectConnectionEditConcept, swapConnectionConcepts };

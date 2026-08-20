@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, MET, S } from '../core/ns.js';
 import '../core/graph-index.js';
+import { conceptById } from '../core/graph-index.js';
 import { initializePhilosophyMetrics } from '../metrics/link-indexes.js';
 import { metricsScopeCounts } from '../metrics/scope.js';
 
@@ -95,7 +96,7 @@ function conceptDegreesDetailed(conceptId) {
 
 function showConceptProfileModal(conceptId) {
       if (!DATA.concepts || !DATA.relations) initializePhilosophyMetrics();
-      const node = DATA.nodes.find(n => n.id === conceptId);
+      const node = conceptById.get(conceptId);
       if (!node) return;
       const modal = document.getElementById('conceptProfileModal');
       const overlay = document.getElementById('modalOverlay');
@@ -177,4 +178,4 @@ function closeConceptProfileModal() {
       unfreezeSimulation();
     }
 
-export { PROFILE_METRICS, closeConceptProfileModal, conceptDegreesDetailed, metricPartsText, metricPercentile, metricRank, showConceptProfileModal, toggleProfileOrder };
+export { PROFILE_METRICS, closeConceptProfileModal, showConceptProfileModal, toggleProfileOrder };

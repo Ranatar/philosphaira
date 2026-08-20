@@ -46,6 +46,29 @@ function findShortestPathWeighted(sourceId, targetId, respectChronology = true, 
       });
       
       distances[sourceId] = 0;
+
+      // Список смежности строится ОДИН раз, а не перебирается заново на
+      // каждом шаге: до правки внешний цикл в 248 шагов давал 400 тысяч
+      // проходов по массиву связей. Ветвление ниже дословно повторяет
+      // прежнее: без разрывов и без учёта направления связь проходима в обе
+      // стороны, при учёте направления обратный ход даёт только симметричный
+      // тип. Тот же приём уже применён в findShortestPathUnweighted.
+      const adjacency = new Map();
+      DATA.nodes.forEach(n => adjacency.set(n.id, []));
+      DATA.links.forEach(link => {
+        if (!pathLinkAllowed(link)) return;
+        const src = link.source.id || link.source;
+        const tgt = link.target.id || link.target;
+        const cost = 4 - (link.weight || 2);
+        let a = adjacency.get(src);
+        if (!a) { a = []; adjacency.set(src, a); }
+        a.push({ id: tgt, type: link.type, cost: cost });
+        if (noGaps || !shouldRespectDirection || isSymmetricLink(link)) {
+          let b = adjacency.get(tgt);
+          if (!b) { b = []; adjacency.set(tgt, b); }
+          b.push({ id: src, type: link.type, cost: cost });
+        }
+      });
       
       while (unvisited.size > 0) {
         // Найти узел с минимальным расстоянием
@@ -63,66 +86,34 @@ function findShortestPathWeighted(sourceId, targetId, respectChronology = true, 
         
         unvisited.delete(current);
         
-        const currentNode = DATA.nodes.find(n => n.id === current);
-        
-        // Обновить расстояния до соседей
-        DATA.links.forEach(link => {
-          if (!pathLinkAllowed(link)) return;
-          const src = link.source.id || link.source;
-          const tgt = link.target.id || link.target;
-          
-          let neighbor = null;
-          let canTraverse = false;
-          
+        // Обновить расстояния до соседей.
+        // curAge вынесен из цикла: current на его протяжении постоянен, а
+        // nodeAge до правки пересчитывался на КАЖДОЙ связи, и каждый
+        // пересчёт был линейным поиском по узлам и по философам.
+        const curAge = noGaps ? nodeAge(current) : null;
+        for (const edge of (adjacency.get(current) || [])) {
+          const neighbor = edge.id;
+          if (!unvisited.has(neighbor)) continue;
+
+          const alt = distances[current] + edge.cost;
+
           if (noGaps) {
-            // Ход времени задают ГОДЫ, а не стрелка: связь, пройденная
-            // против стрелки, читается как «восходит к».
-            if (src === current) { neighbor = tgt; canTraverse = true; }
-            else if (tgt === current) { neighbor = src; canTraverse = true; }
-          } else if (shouldRespectDirection) {
-            // Учитываем направленность
-            if (src === current) {
-              neighbor = tgt;
-              canTraverse = true;
-            } else if (isSymmetricLink(link) && tgt === current) {
-              neighbor = src;
-              canTraverse = true;
-            }
-          } else {
-            // Не учитываем направленность - граф ненаправленный
-            if (src === current) {
-              neighbor = tgt;
-              canTraverse = true;
-            } else if (tgt === current) {
-              neighbor = src;
-              canTraverse = true;
+            // Проверяется ПУТЬ, а не ребро: при монотонности крайний
+            // достигнутый год равен году текущего узла, поэтому условие
+            // местное и Дейкстра работает без изменений.
+            if (!stepWithoutGap(current, neighbor, step, curAge)) continue;
+          } else if (respectChronology) {
+            // B1: тип ребра определяет, в какую сторону оно читается
+            if (!isChronologicallyValid(current, neighbor, S.currentChronologyMode, edge.type)) {
+              continue; // Пропускаем этот переход как хронологически некорректный
             }
           }
-          
-          if (canTraverse && neighbor && unvisited.has(neighbor)) {
-            // Преобразуем вес: больший вес = меньшая "стоимость" связи
-            const weight = link.weight || 2;
-            const cost = 4 - weight;
-            const alt = distances[current] + cost;
-            
-            if (noGaps) {
-              // Проверяется ПУТЬ, а не ребро: при монотонности крайний
-              // достигнутый год равен году текущего узла, поэтому условие
-              // местное и Дейкстра работает без изменений.
-              if (!stepWithoutGap(current, neighbor, step, nodeAge(current))) return;
-            } else if (respectChronology) {
-              // B1: тип ребра определяет, в какую сторону оно читается
-              if (!isChronologicallyValid(current, neighbor, S.currentChronologyMode, link.type)) {
-                return; // Пропускаем этот переход как хронологически некорректный
-              }
-            }
-            
-            if (alt < distances[neighbor]) {
-              distances[neighbor] = alt;
-              previous[neighbor] = current;
-            }
+
+          if (alt < distances[neighbor]) {
+            distances[neighbor] = alt;
+            previous[neighbor] = current;
           }
-        });
+        }
       }
       
       // Восстановить путь
@@ -184,11 +175,14 @@ function findShortestPathUnweighted(sourceId, targetId, respectChronology = true
         }
         
         const neighbors = adjacency[currentNodeId] || [];
+        // curAge вынесен из цикла по той же причине, что и в Дейкстре:
+        // currentNodeId постоянен, а nodeAge пересчитывался на каждом соседе.
+        const curAge = noGaps ? nodeAge(currentNodeId) : null;
         for (const edge of neighbors) {
           const neighborId = edge.id;
           if (!visited.has(neighborId)) {
             if (noGaps) {
-              if (!stepWithoutGap(currentNodeId, neighborId, step, nodeAge(currentNodeId))) continue;
+              if (!stepWithoutGap(currentNodeId, neighborId, step, curAge)) continue;
             } else if (respectChronology) {
               // B1: тип ребра определяет, в какую сторону оно читается
               if (!isChronologicallyValid(currentNodeId, neighborId, S.currentChronologyMode, edge.type)) {
@@ -205,4 +199,4 @@ function findShortestPathUnweighted(sourceId, targetId, respectChronology = true
       return null;
     }
 
-export { findShortestPath, findShortestPathUnweighted, findShortestPathWeighted, pathLinkAllowed };
+export { findShortestPath };

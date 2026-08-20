@@ -53,6 +53,18 @@
       color: #fff;
     }
     .influence-scope-note { font-style: italic; opacity: 0.8; }
+    /* OWNLINKS-PATCH: флажок уточнения. Разрыв строки перед ним нужен, чтобы
+       он читался как подчинённый ряду кнопок, а не как четвёртая кнопка. */
+    .influence-scope-own {
+      flex-basis: 100%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 2px;
+      cursor: pointer;
+      color: #a29bfe;
+    }
+    .influence-scope-own input { cursor: pointer; margin: 0; }
 
     .tradition-pick {
       flex: none;

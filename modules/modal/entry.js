@@ -2,6 +2,7 @@
 import { DATA, S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
+import { conceptById, nodesByPhilosopher, rubricById } from '../core/graph-index.js';
 import { canEdit } from '../core/session.js';
 import { findConnection, getConceptConnections } from '../graph/graph-data.js';
 import { closeUniversalModal, openUniversalModal } from './core.js';
@@ -11,7 +12,7 @@ import { highlightConnected } from '../render/selection.js';
 import { selectedNodes } from '../state/render.js';
 
 function openConceptById(conceptId) {
-      const node = DATA.nodes.find(n => n.id === conceptId);
+      const node = conceptById.get(conceptId);
       if (node) showDetailModal(node);
     }
 
@@ -20,7 +21,7 @@ function isConceptIsolated(conceptId) {
     }
 
 function getIsolatedConceptsAfterDeletion(philosopherName) {
-      const own  = DATA.nodes.filter(n => n.concept === philosopherName);
+      const own  = (nodesByPhilosopher.get(philosopherName) || []).slice();
       const ownIds = new Set(own.map(c => c.id));
       const isolated = [];
       own.forEach(concept => {
@@ -55,7 +56,7 @@ function openEditPhilosopherModal(philosopherName = null) {
 function openEditConceptModal(concept = null) {
       if (!canEdit()) return;                       // ЗАСЛОН ПРАВКИ
       const data = (typeof concept === 'string')
-        ? DATA.nodes.find(n => n.id === concept) : concept;
+        ? conceptById.get(concept) : concept;
       openUniversalModal('concept', data, 'edit');
     }
 
@@ -70,7 +71,7 @@ function gotoNodeFromModal(nodeId) {
       closeDetailModal();
       
       setTimeout(() => {
-        const nodeData = DATA.nodes.find(n => n.id === nodeId);
+        const nodeData = conceptById.get(nodeId);
         if (nodeData) {
           // Выделяем узел
           selectedNodes.clear();
@@ -91,7 +92,7 @@ function gotoNodeFromModal(nodeId) {
     }
 
 function showAllConcepts(rubricId, currentConceptId) {
-      const rubricData = DATA.rubrics.find(r => r.id === rubricId);
+      const rubricData = rubricById.get(rubricId);
       if (!rubricData) return;
       
       const relatedConcepts = DATA.nodes.filter(n => {

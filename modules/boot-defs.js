@@ -58,4 +58,4 @@ document.addEventListener('keydown', (e) => {
     });
 }
 
-export { closeAllModals, installModalKeys, installOverlayDismiss };
+export { installModalKeys, installOverlayDismiss };

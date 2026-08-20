@@ -27,6 +27,6 @@ S._pcmpA = null;
 
 S._pcmpB = null;
 
-S._philPairsKind = 'profile';
+S._philPairsKind = 'rubrics';
 
 S.profileOrderMode = 'rank';

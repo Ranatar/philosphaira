@@ -2,6 +2,7 @@
 import { DATA, S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
+import { conceptById } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
 import { ctx, dpr, gfxCanvas, renderState } from './canvas-core.js';
@@ -9,9 +10,9 @@ import { drawSelfLoop, fillArrow, linkDrawAlpha, linkDrawWidth, linkVisualState,
 import { arcParams, linkHoverStrokeWidth } from './geometry.js';
 import { requestDraw } from './loop.js';
 import { rebuildQuadtree } from './picking.js';
-import { LABEL_ALL_ABOVE, LABEL_HIDE_BELOW, hasNodeClass, nodeLabelDy, nodeRadius } from './render-state.js';
+import { LABEL_ALL_ABOVE, LABEL_HIDE_BELOW, hasLinkClass, hasNodeClass, nodeLabelDy, nodeRadius } from './render-state.js';
 import { similarityColor } from './similarity-overlay.js';
-import { selectedNodes } from '../state/render.js';
+import { linkLayer, selectedEdges, selectedNodes } from '../state/render.js';
 
 let animLoopRunning = false;
 
@@ -48,17 +49,72 @@ function ensureAnimLoop() {
 
 const DRAW_ORDER = ["dimmed", "normal", "highlighted", "selected", "path"];
 
-function renderScene(c, opts) {
-      opts = opts || {};
-      const tms = performance.now();
-      c.lineCap = "round";
-      c.lineJoin = "round";
+let lastLayerKey = null;
 
-      // §6.3 / В1: приглушённые снизу, путь сверху — подсветка больше не
-      // перекрывается соседними рёбрами (осознанное отступление от Ц2)
+function linkOutOfLayer(l) {
+      if (l.type === "internal_contradiction") return true;  // бегущий пунктир
+      if (hasLinkClass("path-highlight", l)) return true;    // мигание подсветки пути
+      return false;
+    }
+
+function linkDrawnLive(l) {
+      return linkOutOfLayer(l)
+          || renderState.hoveredLink === l
+          || selectedEdges.has(l);
+    }
+
+function linksLayerKey(c) {
+      let pos = 0;
+      for (const n of DATA.nodes) if (n.x !== undefined) pos += n.x + n.y;
+      let rad = 0;
+      renderState.radius.forEach(v => { rad += v; });
+      let sel = '';
+      selectedEdges.forEach(l => {
+        sel += ((l.source && l.source.id) || l.source) + '>' +
+               ((l.target && l.target.id) || l.target) + ':' + l.type + ';';
+      });
+      const t = renderState.transform;
+      const key = [pos, rad, t.k, t.x, t.y, c.canvas.width, c.canvas.height,
+                   DATA.links.length, DATA.nodes.length, S.visibleLinkSet, sel,
+                   !!S.similarityOverlay, !!renderState.uniformLinkWidth];
+      // Классы связей: имена заранее не известны, поэтому берём все.
+      const names = Object.keys(renderState.linkClasses).sort();
+      for (const nm of names) { key.push(nm); key.push(renderState.linkClasses[nm]); }
+      return key;
+    }
+
+function sameLayerKey(a, b) {
+      if (!a || !b || a.length !== b.length) return false;
+      for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+      return true;
+    }
+
+function paintLinkLayer(c, key) {
+      if (!linkLayer.canvas) {
+        linkLayer.canvas = document.createElement("canvas");
+        linkLayer.ctx = linkLayer.canvas.getContext("2d");
+      }
+      const cv = linkLayer.canvas;
+      if (cv.width !== c.canvas.width || cv.height !== c.canvas.height) {
+        cv.width = c.canvas.width;
+        cv.height = c.canvas.height;
+      }
+      const lc = linkLayer.ctx, t = renderState.transform;
+      lc.setTransform(1, 0, 0, 1, 0, 0);
+      lc.clearRect(0, 0, cv.width, cv.height);
+      lc.setTransform(dpr * t.k, 0, 0, dpr * t.k, dpr * t.x, dpr * t.y);
+      lc.lineCap = "round";
+      lc.lineJoin = "round";
+      // tms = 0: от времени зависят только мигание пути и бегущий пунктир,
+      // а они в слой не попадают.
+      drawLinkSet(lc, 0, l => isLinkVisible(l) && !linkOutOfLayer(l));
+      linkLayer.key = key;
+    }
+
+function drawLinkSet(c, tms, take) {
       for (const state of DRAW_ORDER) {
         for (const l of DATA.links) {
-          if (!isLinkVisible(l)) continue;
+          if (!take(l)) continue;
           if (linkVisualState(l) !== state) continue;
           const w = linkDrawWidth(l, state);
           c.globalAlpha = linkDrawAlpha(l, state, tms);
@@ -90,11 +146,50 @@ function renderScene(c, opts) {
           }
         }
       }
+    }
+
+const LABEL_SHADOW_PASSES = 3;
+
+function renderScene(c, opts) {
+      opts = opts || {};
+      const tms = performance.now();
+      c.lineCap = "round";
+      c.lineJoin = "round";
+
+      // §6.3 / В1: приглушённые снизу, путь сверху — подсветка больше не
+      // перекрывается соседними рёбрами (осознанное отступление от Ц2).
+      // Порядок сохранён: слой рисуется тем же двойным циклом, живые связи
+      // ложатся поверх — а все они и так принадлежат верхним состояниям.
+      //
+      // Слой применяется ТОЛЬКО к экранному холсту: этим же кодом идут
+      // выгрузка в PNG и холст хит-теста, у них свой контекст и свой размер.
+      const useLayer = (c === ctx) && !opts.noLayer;
+      if (useLayer) {
+        const key = linksLayerKey(c);
+        const ready = sameLayerKey(key, linkLayer.key)
+                   || sameLayerKey(key, lastLayerKey);   // движение прекратилось
+        lastLayerKey = key;
+        if (ready) {
+          if (!sameLayerKey(key, linkLayer.key)) paintLinkLayer(c, key);
+          c.save();
+          c.setTransform(1, 0, 0, 1, 0, 0);
+          c.globalAlpha = 1;
+          c.drawImage(linkLayer.canvas, 0, 0);
+          c.restore();
+          drawLinkSet(c, tms, l => isLinkVisible(l) && linkDrawnLive(l));
+        } else {
+          // Картинка ещё движется — рисуем прямо, как прежде.
+          linkLayer.key = null;
+          drawLinkSet(c, tms, isLinkVisible);
+        }
+      } else {
+        drawLinkSet(c, tms, isLinkVisible);
+      }
 
       // Р3: дуги к ближайшим — заведомо иным стилем, чем настоящие связи:
       // пунктир, единый цвет, без стрелки. Рисуются под узлами.
       if (S.similarityOverlay && S.similarityOverlay.nearest.length) {
-        const src = DATA.nodes.find(n => n.id === S.similarityOverlay.sourceId);
+        const src = conceptById.get(S.similarityOverlay.sourceId);
         if (src && src.x !== undefined) {
           c.setLineDash([6, 5]);
           c.lineDashOffset = 0;
@@ -102,7 +197,7 @@ function renderScene(c, opts) {
           c.strokeStyle = "#ffd700";
           c.lineWidth = 1.8;
           for (const id of S.similarityOverlay.nearest) {
-            const t = DATA.nodes.find(n => n.id === id);
+            const t = conceptById.get(id);
             if (!t || t.x === undefined || !isNodeVisible(t)) continue;
             const p = arcParams(src, t);
             if (!p) continue;
@@ -186,7 +281,7 @@ function renderScene(c, opts) {
           const x = d.x, y = d.y + nodeLabelDy(d);
           // text-shadow: 0 0 4px black трижды
           c.shadowColor = "#000"; c.shadowBlur = 4;
-          for (let i = 0; i < 3; i++) c.fillText(d.label, x, y);
+          for (let i = 0; i < LABEL_SHADOW_PASSES; i++) c.fillText(d.label, x, y);
           c.shadowBlur = 0;
           c.fillText(d.label, x, y);
         }
@@ -236,8 +331,9 @@ function updateGraphData() {
 
       rebuildQuadtree();   // хит-тест узлов
       S.pickDirty = true;    // хит-тест связей (карта выбора)
+      linkLayer.key = null;  // слой застывших связей
       requestDraw();
       S.simulation.alpha(0.3).restart();
     }
 
-export { DRAW_ORDER, animLoopRunning, draw, ensureAnimLoop, graphIsCovered, needsContinuousAnimation, renderScene, startRadiusAnimation, stepRadiusAnimation, updateGraphData };
+export { DRAW_ORDER, draw, ensureAnimLoop, needsContinuousAnimation, renderScene, startRadiusAnimation, updateGraphData };

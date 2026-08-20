@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
+import { philosopherByName } from '../core/graph-index.js';
 import { WEIGHT_WORDS } from '../core/relation-types.js';
 
 import { analyzePathTraditions } from './analysis.js';
@@ -11,9 +12,13 @@ import { getContrastColor } from '../util/color.js';
 function showPathDescriptionsModal() {
       if (!S.currentPathData) return;
       
-      const { path, pathNodes, respectDirection } = S.currentPathData;
+      // SEAMLESS-PATCH: режим берётся из записи о пути. Старые записи (если
+      // окно откроют по пути, найденному до этой правки) режима не несут —
+      // тогда, как и прежде, действует текущий.
+      const { path, pathNodes, respectDirection, chronologyMode } = S.currentPathData;
       // Б9: тот же единый источник
-      const pathLinkList = resolvePathLinkList(path, respectDirection);
+      const pathLinkList = resolvePathLinkList(path, respectDirection,
+                                               chronologyMode || S.currentChronologyMode);
       const modal = document.getElementById('pathDescriptionsModal');
       const overlay = document.getElementById('modalOverlay');
       const content = document.getElementById('pathDescriptionsContent');
@@ -48,7 +53,7 @@ function showPathDescriptionsModal() {
       const nodeBlock = (node, i, role) => {
         const color = DATA.philosopherConcepts[node.concept]
           ? DATA.philosopherConcepts[node.concept].color : '#6c5ce7';
-        const phil = DATA.philosophers.find(x => x.nameRu === node.concept);
+        const phil = philosopherByName.get(node.concept);
         return `
         <div class="path-node-full-description" id="node-desc-${i}">
           <h4 class="path-open" data-act-click="open-concept-by-id-2" data-a1="${node.id}"
@@ -170,4 +175,4 @@ function togglePathNodesDescriptions() {
         'Показать описания узлов';
     }
 
-export { closePathDescriptionsModal, nodesDescriptionsVisible, showPathDescriptionsModal, togglePathNodesDescriptions };
+export { closePathDescriptionsModal, showPathDescriptionsModal, togglePathNodesDescriptions };

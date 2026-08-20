@@ -56,4 +56,4 @@ function installHintOnClick() {
 document.addEventListener('click', hideHint, true);
 }
 
-export { hideHint, hintBox, installHintOnClick, installHintOnScroll, installHintOut, installHintOver, showHint };
+export { installHintOnClick, installHintOnScroll, installHintOut, installHintOver };

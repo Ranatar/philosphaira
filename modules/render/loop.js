@@ -16,4 +16,4 @@ function requestDraw() {
       });
     }
 
-export { drawScheduled, painter, requestDraw, setPainter };
+export { requestDraw, setPainter };

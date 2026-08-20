@@ -112,4 +112,4 @@ function invalidateDeductiveIndexCache() {
       deductiveIndexCache = new Map();
     }
 
-export { abstractionIndexCache, deductiveIndexCache, instrumentalIndexCache, invalidateAbstractionIndexCache, invalidateDeductiveIndexCache, invalidateInstrumentalIndexCache };
+export { invalidateAbstractionIndexCache, invalidateDeductiveIndexCache, invalidateInstrumentalIndexCache };

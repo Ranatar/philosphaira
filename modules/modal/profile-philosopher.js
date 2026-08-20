@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
 import { DATA, MET, S } from '../core/ns.js';
 import '../core/graph-index.js';
+import { nodesByPhilosopher, philosopherByName, rubricById } from '../core/graph-index.js';
 import { initializePhilosophyMetrics } from '../metrics/link-indexes.js';
 
 import { PROFILE_METRICS } from './profile-concept.js';
@@ -13,11 +14,11 @@ function showPhilosopherProfileModal(philosopherName) {
       const modal = document.getElementById('philosopherProfileModal');
       const overlay = document.getElementById('modalOverlay');
       const content = document.getElementById('philosopherProfileContent');
-      const philData = DATA.philosophers.find(x => x.nameRu === philosopherName);
+      const philData = philosopherByName.get(philosopherName);
       if (!philData) return;
       freezeSimulation();
 
-      const own = DATA.nodes.filter(n => n.concept === philosopherName);
+      const own = (nodesByPhilosopher.get(philosopherName) || []).slice();
       const color = DATA.philosopherConcepts[philosopherName]
         ? DATA.philosopherConcepts[philosopherName].color : '#6c5ce7';
 
@@ -76,7 +77,7 @@ function showPhilosopherProfileModal(philosopherName) {
       own.forEach(n => (n.rubrics || []).forEach(r => rubCount[r] = (rubCount[r] || 0) + 1));
       const rubList = Object.entries(rubCount).sort((a, b) => b[1] - a[1])
         .map(([r, c]) => {
-          const rd = DATA.rubrics.find(x => x.id === r);
+          const rd = rubricById.get(r);
           return `<span>${rd ? rd.name : r}: <strong>${c}</strong></span>`;
         }).join('');
 

@@ -14,3 +14,5 @@ S._philosopherMap = null;
 S._incomingLinks = null;
 
 S._outgoingLinks = null;
+
+S._reflexiveMap = null;

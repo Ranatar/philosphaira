@@ -81,10 +81,11 @@ function generateAbstractionContent() {
 
       // Шкала знаковая, поэтому нулевые значения отбрасывать нельзя тем же
       // фильтром: показываем и абстрактный, и конкретный полюс.
-      const all = DATA.nodes.map(n => {
+      const measured = DATA.nodes.map(n => {
         const metric = MET.abstractionIndex(n.id);
         return { node: n, value: metric.total, details: metric };
-      }).filter(r => r.value !== 0).sort((a, b) => b.value - a.value);
+      });
+      const all = measured.filter(r => r.value !== 0).sort((a, b) => b.value - a.value);
 
       return generateMetricResults(
         all.slice(0, 30),
@@ -92,7 +93,11 @@ function generateAbstractionContent() {
         'Положительные значения — общие принципы, отрицательные — иллюстрации',
         'abstraction',
         'value',
-        true
+        true,
+        // Ч1: своё число непоказанных. Этот вид отсеивает не через rankKeep,
+        // а своим условием, и общую ячейку не наполняет — прежде он печатал
+        // чужую цифру, от предыдущего вида.
+        { zeroCount: measured.length - all.length }
       );
     }
 

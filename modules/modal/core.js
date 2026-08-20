@@ -150,4 +150,4 @@ function toggleModalMode() {
                  { noPush: true });
     }
 
-export { MODAL_STACK_MAX, closeUniversalModal, modalStack, openUniversalModal, popModalState, pushModalState, toggleModalMode };
+export { closeUniversalModal, modalStack, openUniversalModal, popModalState, toggleModalMode };

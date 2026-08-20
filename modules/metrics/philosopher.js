@@ -304,4 +304,4 @@ function invalidateTemporalInfluencePatternCache() {
       temporalInfluencePatternCache = null;
     }
 
-export { CONSTRUCTIVE_TYPES, POLEMICAL_TYPES, invalidatePhilosopherHistoricalReachIndexCache, invalidatePhilosopherInterdisciplinaryIndexCache, invalidatePhilosopherProfileCache, invalidatePhilosopherSystematicIndexCache, invalidateTemporalInfluencePatternCache, philosopherHistoricalReachIndexCache, philosopherInterdisciplinaryIndexCache, philosopherProfile, philosopherProfileCache, philosopherSystematicIndexCache, temporalInfluencePatternCache };
+export { invalidatePhilosopherHistoricalReachIndexCache, invalidatePhilosopherInterdisciplinaryIndexCache, invalidatePhilosopherProfileCache, invalidatePhilosopherSystematicIndexCache, invalidateTemporalInfluencePatternCache, philosopherProfile };

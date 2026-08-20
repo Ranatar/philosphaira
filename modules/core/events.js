@@ -39,4 +39,4 @@ function emit(event, ...args) {
       }
     }
 
-export { BUS_EVENTS, busSubscribers, emit, subscribe };
+export { emit, subscribe };
