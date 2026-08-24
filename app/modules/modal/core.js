@@ -1,6 +1,6 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { S } from '../core/ns.js';
-import { canEdit } from '../core/session.js';
+import { PERM, can } from '../core/perms.js';
 import { cancelGraphSelection } from '../graph/graph-selection.js';
 import { modalContentFor, modalEntityExists } from './assembly.js';
 import { initConnectionSearchFields } from './connection-view.js';
@@ -70,7 +70,7 @@ function openUniversalModal(entityType, data, mode = 'view', opts = {}) {
       const leftButtons = [];
       const rightButtons = [];
       // ЗАСЛОН ПРАВКИ: без права кнопка не выводится вовсе.
-      if (isExistingEntity && canEdit()) {
+      if (isExistingEntity && can(PERM.CREATE_COMMIT)) {
         leftButtons.push('<button class="mode-switch-btn" data-act-click="toggle-modal-mode">'
                + (mode === 'view' ? '\u270f\ufe0f Редактировать'
                         : '\ud83d\udc41\ufe0f Просмотр')
@@ -135,7 +135,7 @@ function closeUniversalModal() {
 function toggleModalMode() {
       // ЗАСЛОН ПРАВКИ: закрыт вход в правку, но НЕ выход из неё —
       // иначе выход из учётной записи не смог бы перевести окно в просмотр.
-      if (ModalContext.currentMode === 'view' && !canEdit()) return;
+      if (ModalContext.currentMode === 'view' && !can(PERM.CREATE_COMMIT)) return;
       const newMode = ModalContext.currentMode === 'view' ? 'edit' : 'view';
 
       if (ModalContext.currentMode === 'edit' && hasUnsavedChanges()) {

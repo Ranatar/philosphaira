@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 115 модулей, 18024 строк.
+Составлено из готовой сборки: 124 модулей, 19031 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/gen_spec2.mjs`
 после каждой сборки.
@@ -41,23 +41,28 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 | Модуль | Строк | Вывозит | Ввозит из |
 |---|---|---|---|
-| `boot.js` | 228 | 1 | 57 |
-| `main.js` | 121 | 0 | 110 |
+| `boot.js` | 292 | 1 | 63 |
+| `main.js` | 130 | 0 | 119 |
 | `modules/boot-defs.js` | 62 | 2 | 8 |
+| `modules/core/api.js` | 85 | 3 | 1 |
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
-| `modules/core/events.js` | 43 | 2 | 0 |
-| `modules/core/graph-index.js` | 150 | 10 | 1 |
+| `modules/core/events.js` | 47 | 2 | 0 |
+| `modules/core/graph-index.js` | 152 | 10 | 1 |
 | `modules/core/link-facts.js` | 48 | 7 | 2 |
 | `modules/core/long-task.js` | 120 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
+| `modules/core/perms.js` | 15 | 3 | 0 |
 | `modules/core/ready.js` | 15 | 2 | 0 |
 | `modules/core/relation-types.js` | 59 | 4 | 2 |
 | `modules/core/search.js` | 68 | 4 | 3 |
-| `modules/core/session.js` | 14 | 4 | 0 |
+| `modules/core/session.js` | 23 | 4 | 1 |
 | `modules/core/time.js` | 13 | 2 | 0 |
 | `modules/core/visibility.js` | 13 | 2 | 1 |
+| `modules/data/backend.js` | 111 | 4 | 4 |
+| `modules/data/commit-draft.js` | 32 | 1 | 0 |
 | `modules/data/load.js` | 9 | 1 | 1 |
 | `modules/data/mutate.js` | 89 | 1 | 6 |
+| `modules/data/remote.js` | 138 | 5 | 5 |
 | `modules/data/save.js` | 72 | 7 | 1 |
 | `modules/dead.js` | 86 | 6 | 5 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 |
@@ -85,8 +90,10 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/metrics/tension-cache.js` | 13 | 1 | 1 |
 | `modules/metrics/tradition-bridging.js` | 89 | 3 | 2 |
 | `modules/modal/assembly.js` | 54 | 3 | 1 |
-| `modules/modal/auth.js` | 162 | 4 | 4 |
+| `modules/modal/auth.js` | 214 | 4 | 7 |
+| `modules/modal/commits.js` | 126 | 9 | 5 |
 | `modules/modal/concept-view.js` | 336 | 0 | 7 |
+| `modules/modal/conflict.js` | 85 | 5 | 7 |
 | `modules/modal/connection-edit.js` | 284 | 5 | 12 |
 | `modules/modal/connection-view.js` | 415 | 5 | 10 |
 | `modules/modal/context.js` | 11 | 1 | 0 |
@@ -94,21 +101,22 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/modal/descriptions.js` | 162 | 6 | 0 |
 | `modules/modal/dirty.js` | 112 | 1 | 5 |
 | `modules/modal/edit-forms.js` | 288 | 2 | 11 |
-| `modules/modal/edit-rights.js` | 53 | 3 | 3 |
+| `modules/modal/edit-rights.js` | 60 | 4 | 4 |
 | `modules/modal/entry.js` | 124 | 12 | 10 |
 | `modules/modal/integrity.js` | 254 | 6 | 7 |
-| `modules/modal/persist.js` | 363 | 6 | 11 |
-| `modules/modal/philosopher-view.js` | 621 | 1 | 12 |
+| `modules/modal/persist.js` | 410 | 6 | 13 |
+| `modules/modal/philosopher-view.js` | 631 | 1 | 12 |
 | `modules/modal/profile-concept.js` | 182 | 4 | 8 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
+| `modules/modal/users.js` | 93 | 7 | 3 |
 | `modules/paths/analysis.js` | 74 | 2 | 7 |
 | `modules/paths/chronology.js` | 175 | 6 | 4 |
 | `modules/paths/path-descriptions.js` | 179 | 3 | 8 |
 | `modules/paths/path-ui.js` | 416 | 5 | 9 |
 | `modules/paths/shortest-path.js` | 203 | 1 | 5 |
 | `modules/render/canvas-core.js` | 45 | 9 | 2 |
-| `modules/render/d3-layer.js` | 105 | 9 | 5 |
+| `modules/render/d3-layer.js` | 106 | 9 | 5 |
 | `modules/render/draw-link.js` | 101 | 6 | 6 |
 | `modules/render/geometry.js` | 95 | 6 | 3 |
 | `modules/render/grouping.js` | 103 | 3 | 5 |
@@ -141,12 +149,13 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/ui/about.js` | 102 | 3 | 1 |
 | `modules/ui/actions-byname.js` | 20 | 0 | 2 |
 | `modules/ui/actions-dyn.js` | 148 | 0 | 31 |
-| `modules/ui/actions-static.js` | 121 | 0 | 21 |
+| `modules/ui/actions-static.js` | 135 | 0 | 25 |
 | `modules/ui/actions.js` | 27 | 3 | 0 |
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
 | `modules/ui/export.js` | 126 | 2 | 11 |
 | `modules/ui/hint.js` | 60 | 4 | 1 |
-| `modules/ui/legend.js` | 317 | 23 | 7 |
+| `modules/ui/legend.js` | 321 | 23 | 8 |
+| `modules/ui/notifications.js` | 99 | 8 | 2 |
 | `modules/ui/panels.js` | 40 | 2 | 0 |
 | `modules/ui/search-legend.js` | 141 | 6 | 16 |
 | `modules/ui/search-link.js` | 118 | 4 | 9 |
@@ -162,7 +171,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `boot.js`
 
-Строк 228.
+Строк 292.
 
 **Вывозит:** `boot`
 
@@ -199,18 +208,23 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./modules/paths/chronology.js`: `installChronologyToggle`
 - из `./modules/paths/chronology.js`: `installChronologyMode`
 - из `./modules/paths/chronology.js`: `showChronologyModeIfOn`
-- из `./modules/core/events.js`: `subscribe`
+- из `./modules/core/api.js`: `detectServerMode`
+- из `./modules/core/events.js`: `emit`, `subscribe`
 - из `./modules/core/graph-index.js`: `rebuildIndexes`
+- из `./modules/data/remote.js`: `connectLive`, `liveSocket`, `pullGraphSince`
 - из `./modules/filters/beyond-filter.js`: `resetBeyondFilter`
 - из `./modules/filters/filters.js`: `applyFiltersImmediate`
 - из `./modules/metrics/link-indexes.js`: `initializePhilosophyMetrics`
 - из `./modules/metrics/scope-reset.js`: `invalidateEverythingForScope`
+- из `./modules/modal/commits.js`: `revertCommitFromPanel`, `reviewCommitFromPanel`
+- из `./modules/modal/conflict.js`: `showConflict`, `warnRemoteEdit`
 - из `./modules/modal/connection-edit.js`: `selectConnectionEditConcept`
 - из `./modules/modal/connection-view.js`: `selectConnectionViewConcept`
 - из `./modules/modal/core.js`: `modalStack`, `openUniversalModal`
-- из `./modules/modal/edit-rights.js`: `renderAuthControls`
+- из `./modules/modal/edit-rights.js`: `refreshEditHints`, `renderAuthControls`
 - из `./modules/modal/entry.js`: `closeDetailModal`, `openEditConceptModal`, `openEditConnectionModal`, `showDetailModal`
 - из `./modules/modal/philosopher-view.js`: `makeLegendsEditable`
+- из `./modules/modal/users.js`: `banUserFromPanel`, `changeUserRoleFromPanel`
 - из `./modules/paths/path-ui.js`: `initPathFinder`
 - из `./modules/render/canvas-core.js`: `resizeCanvas`
 - из `./modules/render/interactions.js`: `initGraphEventHandlers`
@@ -222,6 +236,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./modules/stats/modal.js`: `closeStatsModal`, `loadStatsContent`, `switchStatsView`
 - из `./modules/stats/views/comparison.js`: `renderComparison`
 - из `./modules/ui/legend.js`: `initFilters`, `markChosenInLegend`, `updateFilterStats`, `updatePhilosopherDimming`
+- из `./modules/ui/notifications.js`: `markNotificationRead`, `refreshUnread`, `renderBell`
 - из `./modules/ui/panels.js`: `restorePanelStates`
 - из `./modules/widgets/custom-select.js`: `initializeCustomSelects`
 - из `./modules/core/graph-index.js`: _ради побочного действия_
@@ -230,7 +245,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `main.js`
 
-Строк 121.
+Строк 130.
 
 **Вывозит:** _ничего_
 
@@ -239,17 +254,22 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./modules/ui/delegation.js`: `installDelegation`
 - из `./boot.js`: `boot`
 - из `./modules/boot-defs.js`: _ради побочного действия_
+- из `./modules/core/api.js`: _ради побочного действия_
 - из `./modules/core/base-cells.js`: _ради побочного действия_
 - из `./modules/core/events.js`: _ради побочного действия_
 - из `./modules/core/graph-index.js`: _ради побочного действия_
 - из `./modules/core/link-facts.js`: _ради побочного действия_
 - из `./modules/core/long-task.js`: _ради побочного действия_
+- из `./modules/core/perms.js`: _ради побочного действия_
 - из `./modules/core/relation-types.js`: _ради побочного действия_
 - из `./modules/core/search.js`: _ради побочного действия_
 - из `./modules/core/session.js`: _ради побочного действия_
 - из `./modules/core/time.js`: _ради побочного действия_
 - из `./modules/core/visibility.js`: _ради побочного действия_
+- из `./modules/data/backend.js`: _ради побочного действия_
+- из `./modules/data/commit-draft.js`: _ради побочного действия_
 - из `./modules/data/mutate.js`: _ради побочного действия_
+- из `./modules/data/remote.js`: _ради побочного действия_
 - из `./modules/data/save.js`: _ради побочного действия_
 - из `./modules/dead.js`: _ради побочного действия_
 - из `./modules/filters/beyond-filter.js`: _ради побочного действия_
@@ -278,7 +298,9 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./modules/metrics/tradition-bridging.js`: _ради побочного действия_
 - из `./modules/modal/assembly.js`: _ради побочного действия_
 - из `./modules/modal/auth.js`: _ради побочного действия_
+- из `./modules/modal/commits.js`: _ради побочного действия_
 - из `./modules/modal/concept-view.js`: _ради побочного действия_
+- из `./modules/modal/conflict.js`: _ради побочного действия_
 - из `./modules/modal/connection-edit.js`: _ради побочного действия_
 - из `./modules/modal/connection-view.js`: _ради побочного действия_
 - из `./modules/modal/context.js`: _ради побочного действия_
@@ -294,6 +316,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./modules/modal/profile-concept.js`: _ради побочного действия_
 - из `./modules/modal/profile-philosopher.js`: _ради побочного действия_
 - из `./modules/modal/search.js`: _ради побочного действия_
+- из `./modules/modal/users.js`: _ради побочного действия_
 - из `./modules/paths/analysis.js`: _ради побочного действия_
 - из `./modules/paths/chronology.js`: _ради побочного действия_
 - из `./modules/paths/path-descriptions.js`: _ради побочного действия_
@@ -334,6 +357,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./modules/ui/export.js`: _ради побочного действия_
 - из `./modules/ui/hint.js`: _ради побочного действия_
 - из `./modules/ui/legend.js`: _ради побочного действия_
+- из `./modules/ui/notifications.js`: _ради побочного действия_
 - из `./modules/ui/panels.js`: _ради побочного действия_
 - из `./modules/ui/search-legend.js`: _ради побочного действия_
 - из `./modules/ui/search-link.js`: _ради побочного действия_
@@ -368,6 +392,18 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 **Содержит:** `closeAllModals`, `installModalKeys`, `installOverlayDismiss`
 
+### `modules/core/api.js`
+
+Строк 85.
+
+**Вывозит:** `api`, `detectServerMode`, `serverMode`
+
+**Ввозит:**
+
+- из `./session.js`: `setSessionUser`
+
+**Содержит:** `api`, `detectServerMode`, `readCookie`, `serverMode`
+
 ### `modules/core/base-cells.js`
 
 Строк 19.
@@ -382,7 +418,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/core/events.js`
 
-Строк 43.
+Строк 47.
 
 **Вывозит:** `emit`, `subscribe`
 
@@ -392,7 +428,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/core/graph-index.js`
 
-Строк 150.
+Строк 152.
 
 **Вывозит:** `buildConceptToRubrics`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `conceptById`, `linksByConcept`, `nodesByPhilosopher`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
 
@@ -435,6 +471,16 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 **Содержит:** `DATA`, `FILES`, `MET`, `S`, `VIEWS`, `loaded`
 
+### `modules/core/perms.js`
+
+Строк 15.
+
+**Вывозит:** `PERM`, `can`, `setPermissions`
+
+**Ввозит:** _ничего_
+
+**Содержит:** `PERM`, `can`, `granted`, `setPermissions`
+
 ### `modules/core/ready.js`
 
 Строк 15.
@@ -474,13 +520,15 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/core/session.js`
 
-Строк 14.
+Строк 23.
 
-**Вывозит:** `AUTH_ADMIN`, `authAccounts`, `authSession`, `canEdit`
+**Вывозит:** `AUTH_ADMIN`, `authAccounts`, `authSession`, `setSessionUser`
 
-**Ввозит:** _ничего_
+**Ввозит:**
 
-**Содержит:** `AUTH_ADMIN`, `authAccounts`, `authSession`, `canEdit`
+- из `./perms.js`: `PERM`, `setPermissions`
+
+**Содержит:** `AUTH_ADMIN`, `authAccounts`, `authSession`, `setSessionUser`
 
 ### `modules/core/time.js`
 
@@ -503,6 +551,31 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./ns.js`: `S`
 
 **Содержит:** `S.visibleLinkSet`, `S.visibleNodeIds`, `isLinkVisible`, `isNodeVisible`
+
+### `modules/data/backend.js`
+
+Строк 111.
+
+**Вывозит:** `lastSubmitResult`, `lastSubmitted`, `reportSubmit`, `submitChange`
+
+**Ввозит:**
+
+- из `../core/api.js`: `api`, `serverMode`
+- из `../core/events.js`: `emit`
+- из `../core/perms.js`: `PERM`, `can`
+- из `./remote.js`: `applyFreshGraph`
+
+**Содержит:** `commitMessageFor`, `lastSubmitResult`, `lastSubmitted`, `noticeTimer`, `reportSubmit`, `sendCommit`, `submitChange`
+
+### `modules/data/commit-draft.js`
+
+Строк 32.
+
+**Вывозит:** `describeChange`
+
+**Ввозит:** _ничего_
+
+**Содержит:** `describeChange`, `sameValue`
 
 ### `modules/data/load.js`
 
@@ -532,6 +605,22 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `afterDataChange`, `rebuildDerivedIndexes`, `rebuildPhilosopherTraditions`
+
+### `modules/data/remote.js`
+
+Строк 138.
+
+**Вывозит:** `applyFreshGraph`, `connectLive`, `knownGraphVersion`, `liveSocket`, `pullGraphSince`
+
+**Ввозит:**
+
+- из `../core/ns.js`: `DATA`, `S`
+- из `../core/api.js`: `api`, `serverMode`
+- из `../core/events.js`: `emit`
+- из `./mutate.js`: `afterDataChange`
+- из `../core/graph-index.js`: _ради побочного действия_
+
+**Содержит:** `S.liveClosedOnPurpose`, `applyFreshGraph`, `applyIncrement`, `connectLive`, `knownGraphVersion`, `liveRetry`, `liveSocket`, `pullGraphSince`, `rebuildDerived`, `replaceEntity`
 
 ### `modules/data/save.js`
 
@@ -623,7 +712,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 - из `../core/ns.js`: `S`
 - из `../core/events.js`: `emit`
-- из `../core/session.js`: `canEdit`
+- из `../core/perms.js`: `PERM`, `can`
 - из `./graph-selection.js`: `handleConceptSelection`
 - из `../render/d3-layer.js`: `gfxNode`
 - из `../render/selection.js`: `highlightCombined`, `isEdgeConnectedToSelectedNodes`, `isNodeConnectedToSelectedEdges`
@@ -939,18 +1028,37 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/auth.js`
 
-Строк 162.
+Строк 214.
 
 **Вывозит:** `authLogout`, `closeAuthModal`, `openAuthModal`, `submitAuth`
 
 **Ввозит:**
 
-- из `../core/session.js`: `AUTH_ADMIN`, `authAccounts`, `authSession`
+- из `../core/api.js`: `api`, `detectServerMode`, `serverMode`
+- из `../core/events.js`: `emit`
+- из `../core/session.js`: `AUTH_ADMIN`, `authAccounts`, `setSessionUser`
+- из `../data/remote.js`: `connectLive`, `pullGraphSince`
 - из `./context.js`: `ModalContext`
 - из `./core.js`: `toggleModalMode`
 - из `./edit-rights.js`: `refreshEditHints`, `refreshOpenModalToolbar`, `renderAuthControls`
 
 **Содержит:** `authError`, `authLogout`, `authModalEl`, `authModalKind`, `authNoticeAdmin`, `authNoticeMember`, `closeAuthModal`, `openAuthModal`, `showAuthNotice`, `submitAuth`
+
+### `modules/modal/commits.js`
+
+Строк 126.
+
+**Вывозит:** `closeCommitsPanel`, `commitError`, `commitItems`, `commitTab`, `loadCommits`, `openCommitsPanel`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `switchCommitTab`
+
+**Ввозит:**
+
+- из `../core/api.js`: `api`
+- из `../core/events.js`: `emit`
+- из `../core/perms.js`: `PERM`, `can`
+- из `../data/remote.js`: `pullGraphSince`
+- из `../util/html.js`: `escapeAttr`
+
+**Содержит:** `closeCommitsPanel`, `commitError`, `commitItems`, `commitStateWords`, `commitTab`, `loadCommits`, `openCommitsPanel`, `renderCommits`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `switchCommitTab`
 
 ### `modules/modal/concept-view.js`
 
@@ -969,6 +1077,24 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `VIEWS.generateConceptViewContent`, `similarConceptsBlock`
+
+### `modules/modal/conflict.js`
+
+Строк 85.
+
+**Вывозит:** `closeConflictModal`, `lastConflict`, `rebuildOverCurrent`, `showConflict`, `warnRemoteEdit`
+
+**Ввозит:**
+
+- из `../core/api.js`: `api`
+- из `../data/backend.js`: `reportSubmit`
+- из `../data/remote.js`: `applyFreshGraph`
+- из `./context.js`: `ModalContext`
+- из `./core.js`: `closeUniversalModal`
+- из `./entry.js`: `openEditConceptModal`, `openEditPhilosopherModal`
+- из `../util/html.js`: `escapeAttr`
+
+**Содержит:** `closeConflictModal`, `lastConflict`, `rebuildOverCurrent`, `showConflict`, `warnRemoteEdit`
 
 ### `modules/modal/connection-edit.js`
 
@@ -1033,7 +1159,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 **Ввозит:**
 
 - из `../core/ns.js`: `S`
-- из `../core/session.js`: `canEdit`
+- из `../core/perms.js`: `PERM`, `can`
 - из `../graph/graph-selection.js`: `cancelGraphSelection`
 - из `./assembly.js`: `modalContentFor`, `modalEntityExists`
 - из `./connection-view.js`: `initConnectionSearchFields`
@@ -1094,17 +1220,18 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/edit-rights.js`
 
-Строк 53.
+Строк 60.
 
-**Вывозит:** `refreshEditHints`, `refreshOpenModalToolbar`, `renderAuthControls`
+**Вывозит:** `philRowTip`, `refreshEditHints`, `refreshOpenModalToolbar`, `renderAuthControls`
 
 **Ввозит:**
 
-- из `../core/session.js`: `authSession`, `canEdit`
+- из `../core/perms.js`: `PERM`, `can`
+- из `../core/session.js`: `authSession`
 - из `./context.js`: `ModalContext`
 - из `./core.js`: `openUniversalModal`
 
-**Содержит:** `refreshEditHints`, `refreshOpenModalToolbar`, `renderAuthControls`
+**Содержит:** `philRowTip`, `refreshEditHints`, `refreshOpenModalToolbar`, `renderAuthControls`
 
 ### `modules/modal/entry.js`
 
@@ -1116,7 +1243,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `rubricById`
-- из `../core/session.js`: `canEdit`
+- из `../core/perms.js`: `PERM`, `can`
 - из `../graph/graph-data.js`: `findConnection`, `getConceptConnections`
 - из `./core.js`: `closeUniversalModal`, `openUniversalModal`
 - из `../render/canvas-core.js`: `gfxSvg`
@@ -1131,7 +1258,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 Строк 254.
 
-**Вывозит:** `conceptIntegrityWarnings`, `connectionIntegrityWarnings`, `nConcepts`, `nLinks`, `philosopherIntegrityWarnings`, `relationIndexOf`
+**Вывозит:** `conceptIntegrityWarnings`, `connectionIntegrityWarnings`, `nConcepts`, `nLinks`, `philosopherIntegrityWarnings`, `relationIndexById`
 
 **Ввозит:**
 
@@ -1143,11 +1270,11 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../util/ru.js`: `pluralRu`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `GROUNDING_TYPES`, `activityOverlap`, `conceptIntegrityWarnings`, `connectionIntegrityWarnings`, `groundingCyclePath`, `labelOf`, `nConcepts`, `nLinks`, `philosopherIntegrityWarnings`, `relationIndexOf`
+**Содержит:** `GROUNDING_TYPES`, `activityOverlap`, `conceptIntegrityWarnings`, `connectionIntegrityWarnings`, `groundingCyclePath`, `labelOf`, `nConcepts`, `nLinks`, `philosopherIntegrityWarnings`, `relationIndexById`
 
 ### `modules/modal/persist.js`
 
-Строк 363.
+Строк 410.
 
 **Вывозит:** `deleteConcept`, `deleteConnection`, `deletePhilosopher`, `saveConceptData`, `saveConnectionData`, `savePhilosopherData`
 
@@ -1156,20 +1283,22 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`
 - из `../core/link-facts.js`: `isReflexiveLink`
+- из `../data/backend.js`: `submitChange`
+- из `../data/commit-draft.js`: `describeChange`
 - из `../data/mutate.js`: `afterDataChange`
 - из `../graph/graph-data.js`: `addLinkToGraph`, `addNodeToGraph`, `findConnection`, `forgetLink`, `forgetNode`, `getConceptConnections`, `updateLinkOnGraph`, `updateNodeOnGraph`
 - из `./assembly.js`: `modalEntityExists`
 - из `./context.js`: `ModalContext`
 - из `./core.js`: `closeUniversalModal`, `openUniversalModal`
 - из `./entry.js`: `getIsolatedConceptsAfterDeletion`
-- из `./integrity.js`: `conceptIntegrityWarnings`, `connectionIntegrityWarnings`, `nConcepts`, `nLinks`, `philosopherIntegrityWarnings`, `relationIndexOf`
+- из `./integrity.js`: `conceptIntegrityWarnings`, `connectionIntegrityWarnings`, `nConcepts`, `nLinks`, `philosopherIntegrityWarnings`, `relationIndexById`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `confirmWarnings`, `deleteConcept`, `deleteConnection`, `deletePhilosopher`, `generateId`, `removeConceptEverywhere`, `removeLinkEverywhere`, `saveConceptData`, `saveConnectionData`, `savePhilosopherData`
 
 ### `modules/modal/philosopher-view.js`
 
-Строк 621.
+Строк 631.
 
 **Вывозит:** `makeLegendsEditable`
 
@@ -1177,10 +1306,10 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
 - из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `rubricById`, `traditionById`
-- из `../core/session.js`: `canEdit`
+- из `../core/perms.js`: `PERM`, `can`
 - из `../metrics/similarity-philosophers.js`: `nearestPhilosophers`
 - из `./connection-view.js`: `linkArrow`
-- из `./edit-rights.js`: `refreshEditHints`
+- из `./edit-rights.js`: `philRowTip`, `refreshEditHints`
 - из `./entry.js`: `openEditPhilosopherModal`, `showPhilosopherDetailModal`
 - из `../render/selection.js`: `highlightPhilosopherOnGraph`
 - из `../util/color.js`: `getContrastColor`
@@ -1239,6 +1368,20 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../core/search.js`: `displaySearchResults`, `pickConcepts`
 
 **Содержит:** `clearModalSearch`, `handleModalSearch`, `installModalSearchDismiss`
+
+### `modules/modal/users.js`
+
+Строк 93.
+
+**Вывозит:** `banUserFromPanel`, `changeUserRoleFromPanel`, `closeUsersPanel`, `loadUsers`, `openUsersPanel`, `userItems`, `usersError`
+
+**Ввозит:**
+
+- из `../core/api.js`: `api`
+- из `../core/perms.js`: `PERM`, `can`
+- из `../util/html.js`: `escapeAttr`
+
+**Содержит:** `banUserFromPanel`, `changeUserRoleFromPanel`, `closeUsersPanel`, `loadUsers`, `openUsersPanel`, `renderUsers`, `userItems`, `usersError`
 
 ### `modules/paths/analysis.js`
 
@@ -1343,7 +1486,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/render/d3-layer.js`
 
-Строк 105.
+Строк 106.
 
 **Вывозит:** `dragended`, `dragstarted`, `gfxLink`, `gfxLinkAll`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`, `updateArrows`
 
@@ -1416,7 +1559,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../core/events.js`: `emit`
 - из `../core/graph-index.js`: `conceptById`
 - из `../core/link-facts.js`: `isReflexiveLink`, `isSymmetricLink`
-- из `../core/session.js`: `canEdit`
+- из `../core/perms.js`: `PERM`, `can`
 - из `../graph/click-actions.js`: `handleLinkClick`, `handleNodeClick`
 - из `../graph/graph-selection.js`: `cancelGraphSelection`, `handleConceptSelection`
 - из `./canvas-core.js`: `gfxCanvas`, `gfxSvg`, `renderState`
@@ -1900,7 +2043,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/ui/actions-static.js`
 
-Строк 121.
+Строк 135.
 
 **Вывозит:** _ничего_
 
@@ -1910,9 +2053,12 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../data/save.js`: `downloadData`, `saveToFolder`
 - из `../filters/beyond-filter.js`: `resetBeyondFilter`
 - из `../metrics/scope.js`: `handleMetricsScopeChange`
+- из `../modal/commits.js`: `closeCommitsPanel`, `openCommitsPanel`, `switchCommitTab`
+- из `../modal/conflict.js`: `closeConflictModal`, `rebuildOverCurrent`
 - из `../modal/core.js`: `closeUniversalModal`
 - из `../modal/profile-concept.js`: `closeConceptProfileModal`
 - из `../modal/profile-philosopher.js`: `closePhilosopherProfileModal`
+- из `../modal/users.js`: `closeUsersPanel`, `openUsersPanel`
 - из `../paths/path-descriptions.js`: `closePathDescriptionsModal`
 - из `../paths/path-ui.js`: `findAndShowPath`
 - из `../render/grouping.js`: `toggleGrouping`
@@ -1922,6 +2068,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./about.js`: `closeAboutModal`, `onAboutBackdropClick`, `openAboutModal`
 - из `./export.js`: `exportToPNG`, `exportToSVG`
 - из `./legend.js`: `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `toggleSection`, `toggleUniformLinkWidth`
+- из `./notifications.js`: `markAllNotificationsRead`, `toggleNotifyPanel`
 - из `./panels.js`: `togglePanel`
 - из `./search-legend.js`: `clearLegendSearch`, `handleLegendSearch`, `setSearchKind`, `toggleLegendSearch`
 - из `./search-link.js`: `handleLegendLinkSearch`
@@ -1988,7 +2135,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/ui/legend.js`
 
-Строк 317.
+Строк 321.
 
 **Вывозит:** `addTradition`, `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `markChosenInLegend`, `onlyTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `updateFilterStats`, `updatePhilosopherDimming`
 
@@ -1997,12 +2144,26 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/relation-types.js`: `relationHint`
 - из `../filters/filters.js`: `applyFilters`, `philosopherPassesTraditions`
+- из `../modal/edit-rights.js`: `philRowTip`
 - из `../render/canvas-core.js`: `renderState`
 - из `../render/d3-layer.js`: `updateArrows`
 - из `../state/filters.js`: `chosenPhilosophers`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `addTradition`, `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `legendDirectionToggle`, `legendWeightsToggle`, `markChosenInLegend`, `onlyTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `syncPhilosopherCheckboxes`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `traditionMembers`, `updateFilterStats`, `updatePhilosopherDimming`
+
+### `modules/ui/notifications.js`
+
+Строк 99.
+
+**Вывозит:** `loadNotifications`, `markAllNotificationsRead`, `markNotificationRead`, `notifyItems`, `refreshUnread`, `renderBell`, `toggleNotifyPanel`, `unreadCount`
+
+**Ввозит:**
+
+- из `../core/api.js`: `api`, `serverMode`
+- из `../util/html.js`: `escapeAttr`
+
+**Содержит:** `loadNotifications`, `markAllNotificationsRead`, `markNotificationRead`, `notifyItems`, `notifyWords`, `refreshUnread`, `renderBell`, `renderNotifyList`, `toggleNotifyPanel`, `unreadCount`
 
 ### `modules/ui/panels.js`
 

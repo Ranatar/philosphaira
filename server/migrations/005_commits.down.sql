@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS commits;
+DROP TYPE IF EXISTS commit_status;

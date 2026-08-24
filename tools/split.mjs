@@ -636,7 +636,7 @@ function rel(from, to) {
 }
 
 // ── сборка файлов ──────────────────────────────────────────────────
-const HEAD = '// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.\n';
+const HEAD = '// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.\n';
 
 // пространства имён
 fs.mkdirSync(path.join(OUT, 'modules/core'), { recursive: true });

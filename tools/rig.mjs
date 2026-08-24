@@ -39,72 +39,103 @@ switchStatsView toGraph toggleConnectionSearchSection toggleGrouping toggleLegen
 toggleMetricLayout toggleMetricValueMode toggleModalMode togglePhilosopher unfreezeSimulation
 DATA_SETS actionNames
 profileSimilarity structuralSimilarity profileIsMeaningful medianNodeDegree nodeDegreeOf
-isSymmetricLink similarityData
+isSymmetricLink similarityData renderState gfxCanvas lastSubmitted serverMode lastSubmitResult
+can PERM authSession authLogout openAuthModal submitAuth openEditConceptModal closeUniversalModal saveConceptData rebuildOverCurrent showConflict lastConflict pullGraphSince knownGraphVersion refreshUnread loadNotifications toggleNotifyPanel markAllNotificationsRead notifyItems unreadCount openCommitsPanel switchCommitTab loadCommits commitItems commitTab commitError closeCommitsPanel openUsersPanel loadUsers userItems usersError closeUsersPanel
+saveConceptData saveConnectionData deleteConnection
 philosopherSimilarity philosopherSimilarityData initializePhilosophyMetrics`.split(/\s+/).filter(Boolean);
 
-// где что вывозится
+// ГДЕ ЧТО ВЫВОЗИТСЯ и ЧТО ПЕРЕПРИСВАИВАЕТСЯ.
+//
+// Второе — не мелочь, а причина четырёх молчаливых поломок подряд.
+// Величина, объявленная через let, меняется со временем; положенная в
+// объект оснастки ЗНАЧЕНИЕМ, она навсегда застывает на том, чем была при
+// загрузке, и прибор читает старое, не жалуясь. Так молчали renderState,
+// lastSubmitted, serverMode и notifyItems. Правило было записано в readme,
+// но применялось по памяти — теперь его применяет программа: всякое let
+// попадает в свойства САМО.
 const exportsOf = new Map();
-(function walk(d) {
-  for (const f of fs.readdirSync(d)) {
-    const p = path.join(d, f);
-    if (fs.statSync(p).isDirectory()) { if (f !== 'vendor') walk(p); continue; }
-    if (!p.endsWith('.js') || f.startsWith('_')) continue;
-    const rel = path.relative(ROOT, p).replace(/\\/g, '/');
-    const text = fs.readFileSync(p, 'utf8');
-    for (const m of text.matchAll(/^export \{([^}]*)\};?$/gm))
-      for (const n of m[1].split(',').map(s => s.trim()).filter(Boolean))
-        exportsOf.set(n, rel);
-    for (const m of text.matchAll(/^export (?:async )?function (\w+)/gm)) exportsOf.set(m[1], rel);
-    for (const m of text.matchAll(/^export const (\w+)/gm)) exportsOf.set(m[1], rel);
+const переприсваиваемые = new Set();
+
+(function обойти(папка) {
+  for (const имя of fs.readdirSync(папка)) {
+    const путь = path.join(папка, имя);
+    if (fs.statSync(путь).isDirectory()) { if (имя !== 'vendor') обойти(путь); continue; }
+    if (!путь.endsWith('.js') || имя.startsWith('_')) continue;
+    const отн = path.relative(ROOT, путь).replace(/\\/g, '/');
+    const текст = fs.readFileSync(путь, 'utf8');
+    for (const m of текст.matchAll(/^export \{([^}]*)\};?$/gm))
+      for (const n of m[1].split(',').map(x => x.trim()).filter(Boolean))
+        exportsOf.set(n, отн);
+    for (const m of текст.matchAll(/^export (?:async )?function (\w+)/gm)) exportsOf.set(m[1], отн);
+    for (const m of текст.matchAll(/^export const (\w+)/gm)) exportsOf.set(m[1], отн);
+    for (const m of текст.matchAll(/^let (\w+)/gm)) переприсваиваемые.add(m[1]);
   }
 })(ROOT);
 
-const need = new Map();
+// Кого откуда ввозить.
+const нужно = new Map();
 const нет = [];
-for (const n of ИМЕНА) {
-  const home = exportsOf.get(n);
-  if (!home) { нет.push(n); continue; }
-  if (!need.has(home)) need.set(home, new Set());
-  need.get(home).add(n);
+for (const имя of ИМЕНА) {
+  const дом = exportsOf.get(имя);
+  if (!дом) { нет.push(имя); continue; }
+  if (!нужно.has(дом)) нужно.set(дом, new Set());
+  нужно.get(дом).add(имя);
 }
 
-let out = `// Оснастка приборов приёмки. НЕ ЧАСТЬ ПРИЛОЖЕНИЯ: подключается
-// только измерительными программами, отдельным модульным тегом.
-// Сгенерировано tools/rig.mjs.
-import { DATA, S, MET, VIEWS } from './modules/core/ns.js';
-`;
-for (const m of [...need.keys()].sort())
-  out += `import { ${[...need.get(m)].sort().join(', ')} } from './${m.startsWith('modules/') ? m : 'modules/' + m}';\n`;
-out += `
-const A = { DATA, S, MET, VIEWS, ${[...need.values()].flatMap(s => [...s]).sort().join(', ')} };
-const FROM_MODULES = { get selectedNodes() { return typeof selectedNodes !== 'undefined' ? selectedNodes : undefined; },
-                    get selectedEdges() { return typeof selectedEdges !== 'undefined' ? selectedEdges : undefined; } };
+const все = [...new Set([...нужно.values()].flatMap(с => [...с]))].sort();
+const живые = все.filter(имя => переприсваиваемые.has(имя));   // let — свойством
+const мёртвые = все.filter(имя => !переприсваиваемые.has(имя)); // прочее — значением
 
-// Приборы обращаются к данным и состоянию через свойства, чтобы видеть
-// СВЕЖИЕ значения, а не снимок на миг подключения.
+// Имена, которые живут ТО в общем состоянии, ТО переменной своего модуля.
+// Раскладка со временем меняется, поэтому смотрим в оба места: сперва S,
+// потом вывоз. Иначе прибор врёт при каждой такой перестановке.
+const ИЗ_ОБОИХ = ['selectedNodes', 'selectedEdges', 'renderState', 'gfxCanvas'];
+
+// Имена, которые берутся прямо из пространств. Их в ИМЕНА нет — они не
+// вывозятся модулями, а лежат в DATA и S.
+const ИЗ_ПРОСТРАНСТВ = {
+  nodes: 'DATA.nodes', links: 'DATA.links', concepts: 'DATA.concepts',
+  relations: 'DATA.relations', philosophers: 'DATA.philosophers',
+  isStatsModalOpen: 'S.isStatsModalOpen', simulation: 'S.simulation',
+  tickCount: 'S.tickCount',
+};
+
+const ввозы = [...нужно.keys()].sort().map(м =>
+  `import { ${[...нужно.get(м)].sort().join(', ')} } from './${
+    м.startsWith('modules/') ? м : 'modules/' + м}';`).join('\n');
+
+const свойство = имя => ИЗ_ОБОИХ.includes(имя)
+  ? `  ${имя}: { get: () => (S.${имя} !== undefined ? S.${имя} : ЖИВЫЕ.${имя}) },`
+  : `  ${имя}: { get: () => ЖИВЫЕ.${имя} },`;
+
+const out = `// Оснастка приборов приёмки. НЕ ЧАСТЬ ПРИЛОЖЕНИЯ: подключается
+// только измерительными программами, отдельным модульным тегом.
+// СГЕНЕРИРОВАНО tools/rig.mjs — правки вносить ТУДА, не сюда.
 //
-// Часть имён живёт то в общем состоянии, то обычной переменной своего
-// модуля — это зависит от того, пишут ли в них извне, а раскладка со
-// временем меняется. Поэтому смотрим В ОБА МЕСТА: сперва S, потом вывоз.
-// Иначе прибор врёт при каждой такой перестановке.
+// Имена, объявленные через let, отданы СВОЙСТВАМИ, а не значениями:
+// значение застывает на миге подключения, и прибор читает старое молча.
+// Список порождён обходом дерева, а не памятью человека.
+import { DATA, S, MET, VIEWS } from './modules/core/ns.js';
+${ввозы}
+
+const A = { DATA, S, MET, VIEWS${мёртвые.length ? ', ' + мёртвые.join(', ') : ''} };
+
+// Живые величины — через посредника: обращение к нему читает переменную
+// модуля в тот миг, когда спросили.
+const ЖИВЫЕ = {
+${живые.map(n => `  get ${n}() { return typeof ${n} !== 'undefined' ? ${n} : undefined; },`).join('\n')}
+};
+
 Object.defineProperties(A, {
-  nodes: { get: () => DATA.nodes },
-  links: { get: () => DATA.links },
-  concepts: { get: () => DATA.concepts },
-  relations: { get: () => DATA.relations },
-  philosophers: { get: () => DATA.philosophers },
-  selectedNodes: { get: () => (S.selectedNodes !== undefined ? S.selectedNodes : FROM_MODULES.selectedNodes) },
-  selectedEdges: { get: () => (S.selectedEdges !== undefined ? S.selectedEdges : FROM_MODULES.selectedEdges) },
-  isStatsModalOpen: { get: () => S.isStatsModalOpen },
-  simulation: { get: () => S.simulation },
-  renderState: { get: () => S.renderState },
-  gfxCanvas: { get: () => S.gfxCanvas },
-  tickCount: { get: () => S.tickCount },
+${Object.entries(ИЗ_ПРОСТРАНСТВ).map(([n, п]) => `  ${n}: { get: () => ${п} },`).join('\n')}
+${живые.map(свойство).join('\n')}
 });
 
 window.__app = A;
 window.__appReady = true;
 `;
+
 fs.writeFileSync(path.join(ROOT, '_probe-rig.js'), out);
-console.log(`оснастка: имён ${ИМЕНА.length - нет.length} из ${ИМЕНА.length}` +
-  (нет.length ? `; не вывозятся: ${нет.join(', ')}` : ''));
+console.log(`оснастка: имён ${ИМЕНА.length - нет.length} из ${ИМЕНА.length}`
+  + `; свойствами ${живые.length}, значениями ${мёртвые.length}`
+  + (нет.length ? `; не вывозятся: ${нет.join(', ')}` : ''));

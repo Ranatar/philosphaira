@@ -3,9 +3,12 @@ import { registerActions } from './actions.js';
 import { downloadData, saveToFolder } from '../data/save.js';
 import { resetBeyondFilter } from '../filters/beyond-filter.js';
 import { handleMetricsScopeChange } from '../metrics/scope.js';
+import { closeCommitsPanel, openCommitsPanel, switchCommitTab } from '../modal/commits.js';
+import { closeConflictModal, rebuildOverCurrent } from '../modal/conflict.js';
 import { closeUniversalModal } from '../modal/core.js';
 import { closeConceptProfileModal } from '../modal/profile-concept.js';
 import { closePhilosopherProfileModal } from '../modal/profile-philosopher.js';
+import { closeUsersPanel, openUsersPanel } from '../modal/users.js';
 import { closePathDescriptionsModal } from '../paths/path-descriptions.js';
 import { findAndShowPath } from '../paths/path-ui.js';
 import { toggleGrouping } from '../render/grouping.js';
@@ -15,6 +18,7 @@ import { closeStatsModal, handleStatsParameterChange, openStatsModal, switchStat
 import { closeAboutModal, onAboutBackdropClick, openAboutModal } from './about.js';
 import { exportToPNG, exportToSVG } from './export.js';
 import { changeFilterMode, deselectAllPhilosophers, deselectAllRelations, deselectAllRubrics, deselectAllTraditions, selectAllPhilosophers, selectAllRelations, selectAllRubrics, selectAllTraditions, toggleSection, toggleUniformLinkWidth } from './legend.js';
+import { markAllNotificationsRead, toggleNotifyPanel } from './notifications.js';
 import { togglePanel } from './panels.js';
 import { clearLegendSearch, handleLegendSearch, setSearchKind, toggleLegendSearch } from './search-legend.js';
 import { handleLegendLinkSearch } from './search-link.js';
@@ -74,6 +78,16 @@ registerActions({
   "open-about-modal": (el, ev) => { openAboutModal(); },
   "on-about-backdrop-click": (el, ev) => { onAboutBackdropClick(ev); },
   "close-about-modal": (el, ev) => { closeAboutModal(); },
+  "close-users-panel": (el, ev) => { closeUsersPanel(); },
+  "switch-commit-tab": (el, ev) => { switchCommitTab('mine'); },
+  "switch-commit-tab-2": (el, ev) => { switchCommitTab('pending'); },
+  "close-commits-panel": (el, ev) => { closeCommitsPanel(); },
+  "open-commits-panel": (el, ev) => { openCommitsPanel(); },
+  "open-users-panel": (el, ev) => { openUsersPanel(); },
+  "toggle-notify-panel": (el, ev) => { toggleNotifyPanel(); },
+  "mark-all-notifications-read": (el, ev) => { markAllNotificationsRead(); },
+  "rebuild-over-current": (el, ev) => { rebuildOverCurrent(); },
+  "close-conflict-modal": (el, ev) => { closeConflictModal(); },
   "handle-stats-parameter-change-change": (el, ev) => { handleStatsParameterChange(); },
   "handle-stats-parameter-change-change-2": (el, ev) => { handleStatsParameterChange(); },
   "handle-metrics-scope-change-change": (el, ev) => { handleMetricsScopeChange(); },

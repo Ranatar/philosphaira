@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { applyFiltersImmediate } from './filters.js';
 import { pinnedDespiteFilter, pinnedVisibleNodes } from '../state/filters.js';
 

@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { MET, S } from '../core/ns.js';
 import '../metrics/by-link-type.js';
 import '../metrics/concept-dynamics.js';

@@ -1,0 +1,21 @@
+{
+  "name": "philosphaira-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Серверная часть ΦilosΦaira. РЕШЕНИЕ, а не производное: пересборкой не восстанавливается (readme §12).",
+  "scripts": {
+    "migrate": "node scripts/migrate.mjs up",
+    "migrate:down": "node scripts/migrate.mjs down",
+    "migrate:status": "node scripts/migrate.mjs status",
+    "bootstrap-admin": "node scripts/bootstrap-admin.mjs",
+    "accept": "bash accept.sh"
+  },
+  "dependencies": {
+    "argon2": "^0.45.1",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1",
+    "pg": "8.13.1",
+    "ws": "^8.21.3"
+  }
+}

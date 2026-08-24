@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, MET, S } from '../core/ns.js';
 import '../core/graph-index.js';
 import { emit } from '../core/events.js';

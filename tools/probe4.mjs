@@ -25,8 +25,8 @@ const A = window.__app;
 window.__rig = { S: A.S, DATA: A.DATA, freezeSimulation: A.freezeSimulation,
   pickNode: A.pickNode, toGraph: A.toGraph, exportToSVG: A.exportToSVG, exportToPNG: A.exportToPNG,
   nodes: function () { return A.DATA.nodes; },
-  transform: function () { return A.S.renderState.transform; },
-  canvas: function () { return A.S.gfxCanvas; },
+  transform: function () { return A.renderState.transform; },
+  canvas: function () { return A.gfxCanvas; },
   simulation: function () { return A.S.simulation; },
   tickCount: function () { return A.S.tickCount; } };
 window.__rigReady = true;`;

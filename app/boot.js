@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from './modules/core/ns.js';
 import { loadData } from './modules/data/load.js';
 import './modules/core/graph-index.js';
@@ -31,18 +31,23 @@ import { syncLegendDirectionToggle } from './modules/ui/legend.js';
 import { installChronologyToggle } from './modules/paths/chronology.js';
 import { installChronologyMode } from './modules/paths/chronology.js';
 import { showChronologyModeIfOn } from './modules/paths/chronology.js';
-import { subscribe } from './modules/core/events.js';
+import { detectServerMode } from './modules/core/api.js';
+import { emit, subscribe } from './modules/core/events.js';
 import { rebuildIndexes } from './modules/core/graph-index.js';
+import { connectLive, liveSocket, pullGraphSince } from './modules/data/remote.js';
 import { resetBeyondFilter } from './modules/filters/beyond-filter.js';
 import { applyFiltersImmediate } from './modules/filters/filters.js';
 import { initializePhilosophyMetrics } from './modules/metrics/link-indexes.js';
 import { invalidateEverythingForScope } from './modules/metrics/scope-reset.js';
+import { revertCommitFromPanel, reviewCommitFromPanel } from './modules/modal/commits.js';
+import { showConflict, warnRemoteEdit } from './modules/modal/conflict.js';
 import { selectConnectionEditConcept } from './modules/modal/connection-edit.js';
 import { selectConnectionViewConcept } from './modules/modal/connection-view.js';
 import { modalStack, openUniversalModal } from './modules/modal/core.js';
-import { renderAuthControls } from './modules/modal/edit-rights.js';
+import { refreshEditHints, renderAuthControls } from './modules/modal/edit-rights.js';
 import { closeDetailModal, openEditConceptModal, openEditConnectionModal, showDetailModal } from './modules/modal/entry.js';
 import { makeLegendsEditable } from './modules/modal/philosopher-view.js';
+import { banUserFromPanel, changeUserRoleFromPanel } from './modules/modal/users.js';
 import { initPathFinder } from './modules/paths/path-ui.js';
 import { resizeCanvas } from './modules/render/canvas-core.js';
 import { initGraphEventHandlers } from './modules/render/interactions.js';
@@ -54,6 +59,7 @@ import { pinnedDespiteFilter } from './modules/state/filters.js';
 import { closeStatsModal, loadStatsContent, switchStatsView } from './modules/stats/modal.js';
 import { renderComparison } from './modules/stats/views/comparison.js';
 import { initFilters, markChosenInLegend, updateFilterStats, updatePhilosopherDimming } from './modules/ui/legend.js';
+import { markNotificationRead, refreshUnread, renderBell } from './modules/ui/notifications.js';
 import { restorePanelStates } from './modules/ui/panels.js';
 import { initializeCustomSelects } from './modules/widgets/custom-select.js';
 
@@ -104,11 +110,69 @@ export async function boot() {
   
   installUnsavedGuard();
   
+  subscribe('commit-conflicted', ({ описание, столкновения }) =>
+        showConflict(описание, столкновения));
+  
+  document.addEventListener('click', событие => {
+        const цель = событие.target;
+        if (!цель || !цель.closest) return;
+        const роль = цель.closest('.user-role');
+        const забанить = цель.closest('.user-ban');
+        const снять = цель.closest('.user-unban');
+        if (роль) changeUserRoleFromPanel(роль.getAttribute('data-id'),
+                                          роль.getAttribute('data-role'));
+        else if (забанить) banUserFromPanel(забанить.getAttribute('data-id'), false);
+        else if (снять) banUserFromPanel(снять.getAttribute('data-id'), true);
+      });
+  
+  document.addEventListener('click', событие => {
+        const цель = событие.target;
+        if (!цель || !цель.closest) return;
+        const одобрить = цель.closest('.commit-approve');
+        const отклонить = цель.closest('.commit-reject');
+        const откатить = цель.closest('.commit-revert');
+        if (одобрить) reviewCommitFromPanel(одобрить.getAttribute('data-id'), 'approve');
+        else if (отклонить) reviewCommitFromPanel(отклонить.getAttribute('data-id'), 'reject');
+        else if (откатить) revertCommitFromPanel(откатить.getAttribute('data-id'));
+      });
+  
+  subscribe('notification-arrived', () => { refreshUnread(); });
+  
+  subscribe('session-changed', () => { renderBell(); refreshUnread(); });
+  
+  document.addEventListener('click', событие => {
+        const кнопка = событие.target && событие.target.closest
+                     && событие.target.closest('.notify-mark');
+        if (!кнопка) return;
+        событие.stopPropagation();
+        markNotificationRead(кнопка.getAttribute('data-id'));
+      });
+  
+  subscribe('graph-updated-remotely', warnRemoteEdit);
+  
+  window.addEventListener('pagehide', () => {
+        S.liveClosedOnPurpose = true;
+        if (liveSocket) { try { liveSocket.close(); } catch (e) { /* уже мертво */ } }
+      });
+  
   installModalSearchDismiss();
   
   setTimeout(makeLegendsEditable, 100);
   
   renderAuthControls();
+  
+  detectServerMode().then(async нашёлся => {
+        if (!нашёлся) return;
+        renderAuthControls();
+        refreshEditHints();
+        // Граф берётся у сервера ЦЕЛИКОМ один раз — дальше только приращения.
+        await pullGraphSince();
+        connectLive();
+        // Через шину: запуск живёт ниже колокола, и ввозить снизу вверх
+        // дерево не даёт. Прибор строения показал это ребро, как только оно
+        // появилось, — и показал бы снова, попробуй я позвать напрямую.
+        emit('session-changed');
+      });
   
   installOverlayDismiss();
   

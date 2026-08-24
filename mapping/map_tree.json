@@ -1,28 +1,28 @@
 {
  "меры": {
-  "модулей": 115,
-  "строк": 18024,
-  "объявлений": 683,
-  "вывозов": 484,
-  "рёбер": 697,
+  "модулей": 124,
+  "строк": 19031,
+  "объявлений": 744,
+  "вывозов": 530,
+  "рёбер": 751,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
-  "вывозовДляПриборов": 2,
+  "вывозовДляПриборов": 16,
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-08-20 18:24:06"
+  "составлено": "2026-08-24 03:51:20"
  },
  "модули": [
   {
    "путь": "boot.js",
-   "строк": 228,
+   "строк": 292,
    "объявлений": 0,
    "вывозит": 1,
-   "ввозитИз": 57,
+   "ввозитИз": 63,
    "вНС": {
     "DATA": 2,
-    "S": 5
+    "S": 6
    },
    "вывоз": [
     "boot"
@@ -221,8 +221,15 @@
      ]
     },
     {
+     "откуда": "modules/core/api.js",
+     "имена": [
+      "detectServerMode"
+     ]
+    },
+    {
      "откуда": "modules/core/events.js",
      "имена": [
+      "emit",
       "subscribe"
      ]
     },
@@ -230,6 +237,14 @@
      "откуда": "modules/core/graph-index.js",
      "имена": [
       "rebuildIndexes"
+     ]
+    },
+    {
+     "откуда": "modules/data/remote.js",
+     "имена": [
+      "connectLive",
+      "liveSocket",
+      "pullGraphSince"
      ]
     },
     {
@@ -257,6 +272,20 @@
      ]
     },
     {
+     "откуда": "modules/modal/commits.js",
+     "имена": [
+      "revertCommitFromPanel",
+      "reviewCommitFromPanel"
+     ]
+    },
+    {
+     "откуда": "modules/modal/conflict.js",
+     "имена": [
+      "showConflict",
+      "warnRemoteEdit"
+     ]
+    },
+    {
      "откуда": "modules/modal/connection-edit.js",
      "имена": [
       "selectConnectionEditConcept"
@@ -278,6 +307,7 @@
     {
      "откуда": "modules/modal/edit-rights.js",
      "имена": [
+      "refreshEditHints",
       "renderAuthControls"
      ]
     },
@@ -294,6 +324,13 @@
      "откуда": "modules/modal/philosopher-view.js",
      "имена": [
       "makeLegendsEditable"
+     ]
+    },
+    {
+     "откуда": "modules/modal/users.js",
+     "имена": [
+      "banUserFromPanel",
+      "changeUserRoleFromPanel"
      ]
     },
     {
@@ -369,6 +406,14 @@
      ]
     },
     {
+     "откуда": "modules/ui/notifications.js",
+     "имена": [
+      "markNotificationRead",
+      "refreshUnread",
+      "renderBell"
+     ]
+    },
+    {
      "откуда": "modules/ui/panels.js",
      "имена": [
       "restorePanelStates"
@@ -385,12 +430,12 @@
    "чащеВсего": [
     {
      "имя": "subscribe",
-     "раз": 22,
+     "раз": 26,
      "откуда": "modules/core/events.js"
     },
     {
      "имя": "S",
-     "раз": 10,
+     "раз": 11,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -404,23 +449,27 @@
      "откуда": "modules/render/metric-visualization.js"
     },
     {
-     "имя": "makeLegendsEditable",
+     "имя": "banUserFromPanel",
      "раз": 2,
-     "откуда": "modules/modal/philosopher-view.js"
+     "откуда": "modules/modal/users.js"
     }
    ]
   },
   {
    "путь": "main.js",
-   "строк": 121,
+   "строк": 130,
    "объявлений": 0,
    "вывозит": 0,
-   "ввозитИз": 110,
+   "ввозитИз": 119,
    "вНС": {},
    "вывоз": [],
    "ввоз": [
     {
      "откуда": "modules/boot-defs.js",
+     "имена": []
+    },
+    {
+     "откуда": "modules/core/api.js",
      "имена": []
     },
     {
@@ -444,6 +493,10 @@
      "имена": []
     },
     {
+     "откуда": "modules/core/perms.js",
+     "имена": []
+    },
+    {
      "откуда": "modules/core/relation-types.js",
      "имена": []
     },
@@ -464,7 +517,19 @@
      "имена": []
     },
     {
+     "откуда": "modules/data/backend.js",
+     "имена": []
+    },
+    {
+     "откуда": "modules/data/commit-draft.js",
+     "имена": []
+    },
+    {
      "откуда": "modules/data/mutate.js",
+     "имена": []
+    },
+    {
+     "откуда": "modules/data/remote.js",
      "имена": []
     },
     {
@@ -580,7 +645,15 @@
      "имена": []
     },
     {
+     "откуда": "modules/modal/commits.js",
+     "имена": []
+    },
+    {
      "откуда": "modules/modal/concept-view.js",
+     "имена": []
+    },
+    {
+     "откуда": "modules/modal/conflict.js",
      "имена": []
     },
     {
@@ -641,6 +714,10 @@
     },
     {
      "откуда": "modules/modal/search.js",
+     "имена": []
+    },
+    {
+     "откуда": "modules/modal/users.js",
      "имена": []
     },
     {
@@ -801,6 +878,10 @@
     },
     {
      "откуда": "modules/ui/legend.js",
+     "имена": []
+    },
+    {
+     "откуда": "modules/ui/notifications.js",
      "имена": []
     },
     {
@@ -990,6 +1071,56 @@
    ]
   },
   {
+   "путь": "modules/core/api.js",
+   "строк": 85,
+   "объявлений": 4,
+   "вывозит": 3,
+   "ввозитИз": 1,
+   "вНС": {},
+   "вывоз": [
+    "api",
+    "detectServerMode",
+    "serverMode"
+   ],
+   "ввоз": [
+    {
+     "откуда": "modules/core/session.js",
+     "имена": [
+      "setSessionUser"
+     ]
+    }
+   ],
+   "свои": [
+    {
+     "имя": "serverMode",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "readCookie",
+     "вид": "function",
+     "строк": 10
+    },
+    {
+     "имя": "api",
+     "вид": "async function",
+     "строк": 29
+    },
+    {
+     "имя": "detectServerMode",
+     "вид": "async function",
+     "строк": 36
+    }
+   ],
+   "чащеВсего": [
+    {
+     "имя": "setSessionUser",
+     "раз": 1,
+     "откуда": "modules/core/session.js"
+    }
+   ]
+  },
+  {
    "путь": "modules/core/base-cells.js",
    "строк": 19,
    "объявлений": 0,
@@ -1018,7 +1149,7 @@
   },
   {
    "путь": "modules/core/events.js",
-   "строк": 43,
+   "строк": 47,
    "объявлений": 4,
    "вывозит": 2,
    "ввозитИз": 0,
@@ -1054,7 +1185,7 @@
   },
   {
    "путь": "modules/core/graph-index.js",
-   "строк": 150,
+   "строк": 152,
    "объявлений": 11,
    "вывозит": 10,
    "ввозитИз": 2,
@@ -1139,7 +1270,7 @@
     {
      "имя": "buildIndexes",
      "вид": "function",
-     "строк": 65
+     "строк": 67
     }
    ],
    "чащеВсего": [
@@ -1287,6 +1418,43 @@
     {
      "имя": "loaded",
      "вид": "const",
+     "строк": 1
+    }
+   ],
+   "чащеВсего": []
+  },
+  {
+   "путь": "modules/core/perms.js",
+   "строк": 15,
+   "объявлений": 4,
+   "вывозит": 3,
+   "ввозитИз": 0,
+   "вНС": {},
+   "вывоз": [
+    "PERM",
+    "can",
+    "setPermissions"
+   ],
+   "ввоз": [],
+   "свои": [
+    {
+     "имя": "PERM",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "granted",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "setPermissions",
+     "вид": "function",
+     "строк": 1
+    },
+    {
+     "имя": "can",
+     "вид": "function",
      "строк": 1
     }
    ],
@@ -1444,18 +1612,26 @@
   },
   {
    "путь": "modules/core/session.js",
-   "строк": 14,
+   "строк": 23,
    "объявлений": 4,
    "вывозит": 4,
-   "ввозитИз": 0,
+   "ввозитИз": 1,
    "вНС": {},
    "вывоз": [
     "AUTH_ADMIN",
     "authAccounts",
     "authSession",
-    "canEdit"
+    "setSessionUser"
    ],
-   "ввоз": [],
+   "ввоз": [
+    {
+     "откуда": "modules/core/perms.js",
+     "имена": [
+      "PERM",
+      "setPermissions"
+     ]
+    }
+   ],
    "свои": [
     {
      "имя": "AUTH_ADMIN",
@@ -1473,12 +1649,23 @@
      "строк": 1
     },
     {
-     "имя": "canEdit",
+     "имя": "setSessionUser",
      "вид": "function",
-     "строк": 3
+     "строк": 11
     }
    ],
-   "чащеВсего": []
+   "чащеВсего": [
+    {
+     "имя": "PERM",
+     "раз": 2,
+     "откуда": "modules/core/perms.js"
+    },
+    {
+     "имя": "setPermissions",
+     "раз": 1,
+     "откуда": "modules/core/perms.js"
+    }
+   ]
   },
   {
    "путь": "modules/core/time.js",
@@ -1546,6 +1733,137 @@
      "откуда": "modules/core/ns.js"
     }
    ]
+  },
+  {
+   "путь": "modules/data/backend.js",
+   "строк": 111,
+   "объявлений": 7,
+   "вывозит": 4,
+   "ввозитИз": 4,
+   "вНС": {},
+   "вывоз": [
+    "lastSubmitResult",
+    "lastSubmitted",
+    "reportSubmit",
+    "submitChange"
+   ],
+   "ввоз": [
+    {
+     "откуда": "modules/core/api.js",
+     "имена": [
+      "api",
+      "serverMode"
+     ]
+    },
+    {
+     "откуда": "modules/core/events.js",
+     "имена": [
+      "emit"
+     ]
+    },
+    {
+     "откуда": "modules/core/perms.js",
+     "имена": [
+      "PERM",
+      "can"
+     ]
+    },
+    {
+     "откуда": "modules/data/remote.js",
+     "имена": [
+      "applyFreshGraph"
+     ]
+    }
+   ],
+   "свои": [
+    {
+     "имя": "lastSubmitted",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "submitChange",
+     "вид": "function",
+     "строк": 17
+    },
+    {
+     "имя": "sendCommit",
+     "вид": "async function",
+     "строк": 51
+    },
+    {
+     "имя": "commitMessageFor",
+     "вид": "function",
+     "строк": 9
+    },
+    {
+     "имя": "reportSubmit",
+     "вид": "function",
+     "строк": 16
+    },
+    {
+     "имя": "noticeTimer",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "lastSubmitResult",
+     "вид": "let",
+     "строк": 1
+    }
+   ],
+   "чащеВсего": [
+    {
+     "имя": "api",
+     "раз": 2,
+     "откуда": "modules/core/api.js"
+    },
+    {
+     "имя": "serverMode",
+     "раз": 1,
+     "откуда": "modules/core/api.js"
+    },
+    {
+     "имя": "can",
+     "раз": 1,
+     "откуда": "modules/core/perms.js"
+    },
+    {
+     "имя": "PERM",
+     "раз": 1,
+     "откуда": "modules/core/perms.js"
+    },
+    {
+     "имя": "applyFreshGraph",
+     "раз": 1,
+     "откуда": "modules/data/remote.js"
+    }
+   ]
+  },
+  {
+   "путь": "modules/data/commit-draft.js",
+   "строк": 32,
+   "объявлений": 2,
+   "вывозит": 1,
+   "ввозитИз": 0,
+   "вНС": {},
+   "вывоз": [
+    "describeChange"
+   ],
+   "ввоз": [],
+   "свои": [
+    {
+     "имя": "sameValue",
+     "вид": "function",
+     "строк": 14
+    },
+    {
+     "имя": "describeChange",
+     "вид": "function",
+     "строк": 12
+    }
+   ],
+   "чащеВсего": []
   },
   {
    "путь": "modules/data/load.js",
@@ -1666,6 +1984,130 @@
      "имя": "linkLayer",
      "раз": 1,
      "откуда": "modules/state/render.js"
+    }
+   ]
+  },
+  {
+   "путь": "modules/data/remote.js",
+   "строк": 138,
+   "объявлений": 9,
+   "вывозит": 5,
+   "ввозитИз": 5,
+   "вНС": {
+    "DATA": 8,
+    "S": 1
+   },
+   "вывоз": [
+    "applyFreshGraph",
+    "connectLive",
+    "knownGraphVersion",
+    "liveSocket",
+    "pullGraphSince"
+   ],
+   "ввоз": [
+    {
+     "откуда": "modules/core/ns.js",
+     "имена": [
+      "DATA",
+      "S"
+     ]
+    },
+    {
+     "откуда": "modules/core/graph-index.js",
+     "имена": []
+    },
+    {
+     "откуда": "modules/core/api.js",
+     "имена": [
+      "api",
+      "serverMode"
+     ]
+    },
+    {
+     "откуда": "modules/core/events.js",
+     "имена": [
+      "emit"
+     ]
+    },
+    {
+     "откуда": "modules/data/mutate.js",
+     "имена": [
+      "afterDataChange"
+     ]
+    }
+   ],
+   "свои": [
+    {
+     "имя": "knownGraphVersion",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "replaceEntity",
+     "вид": "function",
+     "строк": 9
+    },
+    {
+     "имя": "applyIncrement",
+     "вид": "function",
+     "строк": 18
+    },
+    {
+     "имя": "pullGraphSince",
+     "вид": "async function",
+     "строк": 25
+    },
+    {
+     "имя": "connectLive",
+     "вид": "function",
+     "строк": 33
+    },
+    {
+     "имя": "liveSocket",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "liveRetry",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "rebuildDerived",
+     "вид": "function",
+     "строк": 16
+    },
+    {
+     "имя": "applyFreshGraph",
+     "вид": "function",
+     "строк": 14
+    }
+   ],
+   "чащеВсего": [
+    {
+     "имя": "DATA",
+     "раз": 25,
+     "откуда": "modules/core/ns.js"
+    },
+    {
+     "имя": "serverMode",
+     "раз": 3,
+     "откуда": "modules/core/api.js"
+    },
+    {
+     "имя": "afterDataChange",
+     "раз": 2,
+     "откуда": "modules/data/mutate.js"
+    },
+    {
+     "имя": "api",
+     "раз": 2,
+     "откуда": "modules/core/api.js"
+    },
+    {
+     "имя": "emit",
+     "раз": 2,
+     "откуда": "modules/core/events.js"
     }
    ]
   },
@@ -2246,9 +2688,10 @@
      ]
     },
     {
-     "откуда": "modules/core/session.js",
+     "откуда": "modules/core/perms.js",
      "имена": [
-      "canEdit"
+      "PERM",
+      "can"
      ]
     },
     {
@@ -4555,10 +4998,10 @@
   },
   {
    "путь": "modules/modal/auth.js",
-   "строк": 162,
+   "строк": 214,
    "объявлений": 10,
    "вывозит": 4,
-   "ввозитИз": 4,
+   "ввозитИз": 7,
    "вНС": {},
    "вывоз": [
     "authLogout",
@@ -4568,11 +5011,32 @@
    ],
    "ввоз": [
     {
+     "откуда": "modules/core/api.js",
+     "имена": [
+      "api",
+      "detectServerMode",
+      "serverMode"
+     ]
+    },
+    {
+     "откуда": "modules/core/events.js",
+     "имена": [
+      "emit"
+     ]
+    },
+    {
      "откуда": "modules/core/session.js",
      "имена": [
       "AUTH_ADMIN",
       "authAccounts",
-      "authSession"
+      "setSessionUser"
+     ]
+    },
+    {
+     "откуда": "modules/data/remote.js",
+     "имена": [
+      "connectLive",
+      "pullGraphSince"
      ]
     },
     {
@@ -4639,8 +5103,8 @@
     },
     {
      "имя": "submitAuth",
-     "вид": "function",
-     "строк": 42
+     "вид": "async function",
+     "строк": 91
     },
     {
      "имя": "authLogout",
@@ -4650,29 +5114,165 @@
    ],
    "чащеВсего": [
     {
+     "имя": "renderAuthControls",
+     "раз": 6,
+     "откуда": "modules/modal/edit-rights.js"
+    },
+    {
+     "имя": "refreshEditHints",
+     "раз": 6,
+     "откуда": "modules/modal/edit-rights.js"
+    },
+    {
+     "имя": "refreshOpenModalToolbar",
+     "раз": 4,
+     "откуда": "modules/modal/edit-rights.js"
+    },
+    {
      "имя": "authAccounts",
      "раз": 4,
      "откуда": "modules/core/session.js"
     },
     {
-     "имя": "authSession",
+     "имя": "setSessionUser",
      "раз": 4,
      "откуда": "modules/core/session.js"
+    }
+   ]
+  },
+  {
+   "путь": "modules/modal/commits.js",
+   "строк": 126,
+   "объявлений": 11,
+   "вывозит": 9,
+   "ввозитИз": 5,
+   "вНС": {},
+   "вывоз": [
+    "closeCommitsPanel",
+    "commitError",
+    "commitItems",
+    "commitTab",
+    "loadCommits",
+    "openCommitsPanel",
+    "revertCommitFromPanel",
+    "reviewCommitFromPanel",
+    "switchCommitTab"
+   ],
+   "ввоз": [
+    {
+     "откуда": "modules/core/api.js",
+     "имена": [
+      "api"
+     ]
     },
     {
-     "имя": "renderAuthControls",
+     "откуда": "modules/core/events.js",
+     "имена": [
+      "emit"
+     ]
+    },
+    {
+     "откуда": "modules/core/perms.js",
+     "имена": [
+      "PERM",
+      "can"
+     ]
+    },
+    {
+     "откуда": "modules/data/remote.js",
+     "имена": [
+      "pullGraphSince"
+     ]
+    },
+    {
+     "откуда": "modules/util/html.js",
+     "имена": [
+      "escapeAttr"
+     ]
+    }
+   ],
+   "свои": [
+    {
+     "имя": "commitTab",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "commitItems",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "commitError",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "openCommitsPanel",
+     "вид": "function",
+     "строк": 6
+    },
+    {
+     "имя": "closeCommitsPanel",
+     "вид": "function",
+     "строк": 4
+    },
+    {
+     "имя": "switchCommitTab",
+     "вид": "function",
+     "строк": 4
+    },
+    {
+     "имя": "loadCommits",
+     "вид": "async function",
+     "строк": 15
+    },
+    {
+     "имя": "commitStateWords",
+     "вид": "function",
+     "строк": 8
+    },
+    {
+     "имя": "renderCommits",
+     "вид": "function",
+     "строк": 35
+    },
+    {
+     "имя": "reviewCommitFromPanel",
+     "вид": "async function",
+     "строк": 17
+    },
+    {
+     "имя": "revertCommitFromPanel",
+     "вид": "async function",
+     "строк": 14
+    }
+   ],
+   "чащеВсего": [
+    {
+     "имя": "escapeAttr",
+     "раз": 7,
+     "откуда": "modules/util/html.js"
+    },
+    {
+     "имя": "can",
      "раз": 4,
-     "откуда": "modules/modal/edit-rights.js"
+     "откуда": "modules/core/perms.js"
     },
     {
-     "имя": "refreshEditHints",
+     "имя": "PERM",
      "раз": 4,
-     "откуда": "modules/modal/edit-rights.js"
+     "откуда": "modules/core/perms.js"
     },
     {
-     "имя": "AUTH_ADMIN",
+     "имя": "api",
      "раз": 3,
-     "откуда": "modules/core/session.js"
+     "откуда": "modules/core/api.js"
+    },
+    {
+     "имя": "pullGraphSince",
+     "раз": 2,
+     "откуда": "modules/data/remote.js"
     }
    ]
   },
@@ -4764,6 +5364,120 @@
      "имя": "nodeDegreeOf",
      "раз": 1,
      "откуда": "modules/metrics/network.js"
+    }
+   ]
+  },
+  {
+   "путь": "modules/modal/conflict.js",
+   "строк": 85,
+   "объявлений": 5,
+   "вывозит": 5,
+   "ввозитИз": 7,
+   "вНС": {},
+   "вывоз": [
+    "closeConflictModal",
+    "lastConflict",
+    "rebuildOverCurrent",
+    "showConflict",
+    "warnRemoteEdit"
+   ],
+   "ввоз": [
+    {
+     "откуда": "modules/core/api.js",
+     "имена": [
+      "api"
+     ]
+    },
+    {
+     "откуда": "modules/data/backend.js",
+     "имена": [
+      "reportSubmit"
+     ]
+    },
+    {
+     "откуда": "modules/data/remote.js",
+     "имена": [
+      "applyFreshGraph"
+     ]
+    },
+    {
+     "откуда": "modules/modal/context.js",
+     "имена": [
+      "ModalContext"
+     ]
+    },
+    {
+     "откуда": "modules/modal/core.js",
+     "имена": [
+      "closeUniversalModal"
+     ]
+    },
+    {
+     "откуда": "modules/modal/entry.js",
+     "имена": [
+      "openEditConceptModal",
+      "openEditPhilosopherModal"
+     ]
+    },
+    {
+     "откуда": "modules/util/html.js",
+     "имена": [
+      "escapeAttr"
+     ]
+    }
+   ],
+   "свои": [
+    {
+     "имя": "warnRemoteEdit",
+     "вид": "function",
+     "строк": 14
+    },
+    {
+     "имя": "showConflict",
+     "вид": "function",
+     "строк": 28
+    },
+    {
+     "имя": "rebuildOverCurrent",
+     "вид": "async function",
+     "строк": 22
+    },
+    {
+     "имя": "closeConflictModal",
+     "вид": "function",
+     "строк": 4
+    },
+    {
+     "имя": "lastConflict",
+     "вид": "let",
+     "строк": 1
+    }
+   ],
+   "чащеВсего": [
+    {
+     "имя": "reportSubmit",
+     "раз": 5,
+     "откуда": "modules/data/backend.js"
+    },
+    {
+     "имя": "escapeAttr",
+     "раз": 5,
+     "откуда": "modules/util/html.js"
+    },
+    {
+     "имя": "ModalContext",
+     "раз": 2,
+     "откуда": "modules/modal/context.js"
+    },
+    {
+     "имя": "api",
+     "раз": 1,
+     "откуда": "modules/core/api.js"
+    },
+    {
+     "имя": "applyFreshGraph",
+     "раз": 1,
+     "откуда": "modules/data/remote.js"
     }
    ]
   },
@@ -5148,9 +5862,10 @@
      ]
     },
     {
-     "откуда": "modules/core/session.js",
+     "откуда": "modules/core/perms.js",
      "имена": [
-      "canEdit"
+      "PERM",
+      "can"
      ]
     },
     {
@@ -5247,19 +5962,19 @@
      "откуда": "modules/modal/dirty.js"
     },
     {
-     "имя": "canEdit",
+     "имя": "can",
      "раз": 2,
-     "откуда": "modules/core/session.js"
+     "откуда": "modules/core/perms.js"
+    },
+    {
+     "имя": "PERM",
+     "раз": 2,
+     "откуда": "modules/core/perms.js"
     },
     {
      "имя": "initConnectionSearchFields",
      "раз": 2,
      "откуда": "modules/modal/connection-view.js"
-    },
-    {
-     "имя": "clearModalSearch",
-     "раз": 2,
-     "откуда": "modules/modal/search.js"
     }
    ]
   },
@@ -5551,22 +6266,29 @@
   },
   {
    "путь": "modules/modal/edit-rights.js",
-   "строк": 53,
-   "объявлений": 3,
-   "вывозит": 3,
-   "ввозитИз": 3,
+   "строк": 60,
+   "объявлений": 4,
+   "вывозит": 4,
+   "ввозитИз": 4,
    "вНС": {},
    "вывоз": [
+    "philRowTip",
     "refreshEditHints",
     "refreshOpenModalToolbar",
     "renderAuthControls"
    ],
    "ввоз": [
     {
+     "откуда": "modules/core/perms.js",
+     "имена": [
+      "PERM",
+      "can"
+     ]
+    },
+    {
      "откуда": "modules/core/session.js",
      "имена": [
-      "authSession",
-      "canEdit"
+      "authSession"
      ]
     },
     {
@@ -5594,6 +6316,11 @@
      "строк": 18
     },
     {
+     "имя": "philRowTip",
+     "вид": "function",
+     "строк": 5
+    },
+    {
      "имя": "refreshEditHints",
      "вид": "function",
      "строк": 15
@@ -5606,17 +6333,22 @@
      "откуда": "modules/modal/context.js"
     },
     {
+     "имя": "can",
+     "раз": 2,
+     "откуда": "modules/core/perms.js"
+    },
+    {
+     "имя": "PERM",
+     "раз": 2,
+     "откуда": "modules/core/perms.js"
+    },
+    {
      "имя": "openUniversalModal",
      "раз": 1,
      "откуда": "modules/modal/core.js"
     },
     {
      "имя": "authSession",
-     "раз": 1,
-     "откуда": "modules/core/session.js"
-    },
-    {
-     "имя": "canEdit",
      "раз": 1,
      "откуда": "modules/core/session.js"
     }
@@ -5671,9 +6403,10 @@
      ]
     },
     {
-     "откуда": "modules/core/session.js",
+     "откуда": "modules/core/perms.js",
      "имена": [
-      "canEdit"
+      "PERM",
+      "can"
      ]
     },
     {
@@ -5790,19 +6523,19 @@
      "откуда": "modules/core/graph-index.js"
     },
     {
-     "имя": "canEdit",
+     "имя": "can",
      "раз": 3,
-     "откуда": "modules/core/session.js"
+     "откуда": "modules/core/perms.js"
+    },
+    {
+     "имя": "PERM",
+     "раз": 3,
+     "откуда": "modules/core/perms.js"
     },
     {
      "имя": "DATA",
      "раз": 3,
      "откуда": "modules/core/ns.js"
-    },
-    {
-     "имя": "getConceptConnections",
-     "раз": 2,
-     "откуда": "modules/graph/graph-data.js"
     }
    ]
   },
@@ -5821,7 +6554,7 @@
     "nConcepts",
     "nLinks",
     "philosopherIntegrityWarnings",
-    "relationIndexOf"
+    "relationIndexById"
    ],
    "ввоз": [
     {
@@ -5870,7 +6603,7 @@
    ],
    "свои": [
     {
-     "имя": "relationIndexOf",
+     "имя": "relationIndexById",
      "вид": "function",
      "строк": 4
     },
@@ -5950,10 +6683,10 @@
   },
   {
    "путь": "modules/modal/persist.js",
-   "строк": 363,
+   "строк": 410,
    "объявлений": 10,
    "вывозит": 6,
-   "ввозитИз": 11,
+   "ввозитИз": 13,
    "вНС": {
     "DATA": 9,
     "S": 1
@@ -5990,6 +6723,18 @@
      "откуда": "modules/core/link-facts.js",
      "имена": [
       "isReflexiveLink"
+     ]
+    },
+    {
+     "откуда": "modules/data/backend.js",
+     "имена": [
+      "submitChange"
+     ]
+    },
+    {
+     "откуда": "modules/data/commit-draft.js",
+     "имена": [
+      "describeChange"
      ]
     },
     {
@@ -6044,7 +6789,7 @@
       "nConcepts",
       "nLinks",
       "philosopherIntegrityWarnings",
-      "relationIndexOf"
+      "relationIndexById"
      ]
     }
    ],
@@ -6062,12 +6807,12 @@
     {
      "имя": "savePhilosopherData",
      "вид": "function",
-     "строк": 84
+     "строк": 92
     },
     {
      "имя": "deletePhilosopher",
      "вид": "function",
-     "строк": 37
+     "строк": 41
     },
     {
      "имя": "removeConceptEverywhere",
@@ -6077,33 +6822,33 @@
     {
      "имя": "removeLinkEverywhere",
      "вид": "function",
-     "строк": 9
+     "строк": 7
     },
     {
      "имя": "saveConceptData",
      "вид": "function",
-     "строк": 57
+     "строк": 67
     },
     {
      "имя": "deleteConcept",
      "вид": "function",
-     "строк": 19
+     "строк": 22
     },
     {
      "имя": "saveConnectionData",
      "вид": "function",
-     "строк": 71
+     "строк": 89
     },
     {
      "имя": "deleteConnection",
      "вид": "function",
-     "строк": 45
+     "строк": 49
     }
    ],
    "чащеВсего": [
     {
      "имя": "DATA",
-     "раз": 40,
+     "раз": 44,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -6112,25 +6857,25 @@
      "откуда": "modules/modal/context.js"
     },
     {
+     "имя": "submitChange",
+     "раз": 8,
+     "откуда": "modules/data/backend.js"
+    },
+    {
+     "имя": "describeChange",
+     "раз": 8,
+     "откуда": "modules/data/commit-draft.js"
+    },
+    {
      "имя": "afterDataChange",
      "раз": 8,
      "откуда": "modules/data/mutate.js"
-    },
-    {
-     "имя": "openUniversalModal",
-     "раз": 6,
-     "откуда": "modules/modal/core.js"
-    },
-    {
-     "имя": "conceptById",
-     "раз": 6,
-     "откуда": "modules/core/graph-index.js"
     }
    ]
   },
   {
    "путь": "modules/modal/philosopher-view.js",
-   "строк": 621,
+   "строк": 631,
    "объявлений": 4,
    "вывозит": 1,
    "ввозитИз": 12,
@@ -6164,9 +6909,10 @@
      ]
     },
     {
-     "откуда": "modules/core/session.js",
+     "откуда": "modules/core/perms.js",
      "имена": [
-      "canEdit"
+      "PERM",
+      "can"
      ]
     },
     {
@@ -6184,6 +6930,7 @@
     {
      "откуда": "modules/modal/edit-rights.js",
      "имена": [
+      "philRowTip",
       "refreshEditHints"
      ]
     },
@@ -6242,7 +6989,7 @@
     {
      "имя": "makeLegendsEditable",
      "вид": "function",
-     "строк": 71
+     "строк": 81
     }
    ],
    "чащеВсего": [
@@ -6569,6 +7316,108 @@
      "имя": "pickConcepts",
      "раз": 1,
      "откуда": "modules/core/search.js"
+    }
+   ]
+  },
+  {
+   "путь": "modules/modal/users.js",
+   "строк": 93,
+   "объявлений": 8,
+   "вывозит": 7,
+   "ввозитИз": 3,
+   "вНС": {},
+   "вывоз": [
+    "banUserFromPanel",
+    "changeUserRoleFromPanel",
+    "closeUsersPanel",
+    "loadUsers",
+    "openUsersPanel",
+    "userItems",
+    "usersError"
+   ],
+   "ввоз": [
+    {
+     "откуда": "modules/core/api.js",
+     "имена": [
+      "api"
+     ]
+    },
+    {
+     "откуда": "modules/core/perms.js",
+     "имена": [
+      "PERM",
+      "can"
+     ]
+    },
+    {
+     "откуда": "modules/util/html.js",
+     "имена": [
+      "escapeAttr"
+     ]
+    }
+   ],
+   "свои": [
+    {
+     "имя": "userItems",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "usersError",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "openUsersPanel",
+     "вид": "function",
+     "строк": 6
+    },
+    {
+     "имя": "closeUsersPanel",
+     "вид": "function",
+     "строк": 4
+    },
+    {
+     "имя": "loadUsers",
+     "вид": "async function",
+     "строк": 13
+    },
+    {
+     "имя": "renderUsers",
+     "вид": "function",
+     "строк": 26
+    },
+    {
+     "имя": "changeUserRoleFromPanel",
+     "вид": "async function",
+     "строк": 13
+    },
+    {
+     "имя": "banUserFromPanel",
+     "вид": "async function",
+     "строк": 14
+    }
+   ],
+   "чащеВсего": [
+    {
+     "имя": "escapeAttr",
+     "раз": 8,
+     "откуда": "modules/util/html.js"
+    },
+    {
+     "имя": "api",
+     "раз": 3,
+     "откуда": "modules/core/api.js"
+    },
+    {
+     "имя": "can",
+     "раз": 1,
+     "откуда": "modules/core/perms.js"
+    },
+    {
+     "имя": "PERM",
+     "раз": 1,
+     "откуда": "modules/core/perms.js"
     }
    ]
   },
@@ -7251,7 +8100,7 @@
   },
   {
    "путь": "modules/render/d3-layer.js",
-   "строк": 105,
+   "строк": 106,
    "объявлений": 11,
    "вывозит": 9,
    "ввозитИз": 6,
@@ -7758,9 +8607,10 @@
      ]
     },
     {
-     "откуда": "modules/core/session.js",
+     "откуда": "modules/core/perms.js",
      "имена": [
-      "canEdit"
+      "PERM",
+      "can"
      ]
     },
     {
@@ -10950,10 +11800,10 @@
   },
   {
    "путь": "modules/ui/actions-static.js",
-   "строк": 121,
+   "строк": 135,
    "объявлений": 0,
    "вывозит": 0,
-   "ввозитИз": 21,
+   "ввозитИз": 25,
    "вНС": {},
    "вывоз": [],
    "ввоз": [
@@ -10983,6 +11833,21 @@
      ]
     },
     {
+     "откуда": "modules/modal/commits.js",
+     "имена": [
+      "closeCommitsPanel",
+      "openCommitsPanel",
+      "switchCommitTab"
+     ]
+    },
+    {
+     "откуда": "modules/modal/conflict.js",
+     "имена": [
+      "closeConflictModal",
+      "rebuildOverCurrent"
+     ]
+    },
+    {
      "откуда": "modules/modal/core.js",
      "имена": [
       "closeUniversalModal"
@@ -10998,6 +11863,13 @@
      "откуда": "modules/modal/profile-philosopher.js",
      "имена": [
       "closePhilosopherProfileModal"
+     ]
+    },
+    {
+     "откуда": "modules/modal/users.js",
+     "имена": [
+      "closeUsersPanel",
+      "openUsersPanel"
      ]
     },
     {
@@ -11070,6 +11942,13 @@
       "selectAllTraditions",
       "toggleSection",
       "toggleUniformLinkWidth"
+     ]
+    },
+    {
+     "откуда": "modules/ui/notifications.js",
+     "имена": [
+      "markAllNotificationsRead",
+      "toggleNotifyPanel"
      ]
     },
     {
@@ -11401,10 +12280,10 @@
   },
   {
    "путь": "modules/ui/legend.js",
-   "строк": 317,
+   "строк": 321,
    "объявлений": 27,
    "вывозит": 23,
-   "ввозитИз": 7,
+   "ввозитИз": 8,
    "вНС": {
     "DATA": 7,
     "S": 10
@@ -11457,6 +12336,12 @@
      "имена": [
       "applyFilters",
       "philosopherPassesTraditions"
+     ]
+    },
+    {
+     "откуда": "modules/modal/edit-rights.js",
+     "имена": [
+      "philRowTip"
      ]
     },
     {
@@ -11587,7 +12472,7 @@
     {
      "имя": "updatePhilosopherDimming",
      "вид": "function",
-     "строк": 12
+     "строк": 15
     },
     {
      "имя": "updateFilterStats",
@@ -11640,6 +12525,108 @@
      "имя": "relationHint",
      "раз": 1,
      "откуда": "modules/core/relation-types.js"
+    }
+   ]
+  },
+  {
+   "путь": "modules/ui/notifications.js",
+   "строк": 99,
+   "объявлений": 10,
+   "вывозит": 8,
+   "ввозитИз": 2,
+   "вНС": {},
+   "вывоз": [
+    "loadNotifications",
+    "markAllNotificationsRead",
+    "markNotificationRead",
+    "notifyItems",
+    "refreshUnread",
+    "renderBell",
+    "toggleNotifyPanel",
+    "unreadCount"
+   ],
+   "ввоз": [
+    {
+     "откуда": "modules/core/api.js",
+     "имена": [
+      "api",
+      "serverMode"
+     ]
+    },
+    {
+     "откуда": "modules/util/html.js",
+     "имена": [
+      "escapeAttr"
+     ]
+    }
+   ],
+   "свои": [
+    {
+     "имя": "unreadCount",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "notifyItems",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "refreshUnread",
+     "вид": "async function",
+     "строк": 8
+    },
+    {
+     "имя": "loadNotifications",
+     "вид": "async function",
+     "строк": 7
+    },
+    {
+     "имя": "renderBell",
+     "вид": "function",
+     "строк": 9
+    },
+    {
+     "имя": "renderNotifyList",
+     "вид": "function",
+     "строк": 18
+    },
+    {
+     "имя": "notifyWords",
+     "вид": "function",
+     "строк": 16
+    },
+    {
+     "имя": "toggleNotifyPanel",
+     "вид": "function",
+     "строк": 7
+    },
+    {
+     "имя": "markNotificationRead",
+     "вид": "async function",
+     "строк": 9
+    },
+    {
+     "имя": "markAllNotificationsRead",
+     "вид": "async function",
+     "строк": 7
+    }
+   ],
+   "чащеВсего": [
+    {
+     "имя": "serverMode",
+     "раз": 5,
+     "откуда": "modules/core/api.js"
+    },
+    {
+     "имя": "api",
+     "раз": 4,
+     "откуда": "modules/core/api.js"
+    },
+    {
+     "имя": "escapeAttr",
+     "раз": 3,
+     "откуда": "modules/util/html.js"
     }
    ]
   },
@@ -12358,11 +13345,11 @@
  "самыеВостребованные": [
   {
    "имя": "S",
-   "ввозятМодулей": 71
+   "ввозятМодулей": 72
   },
   {
    "имя": "DATA",
-   "ввозятМодулей": 59
+   "ввозятМодулей": 60
   },
   {
    "имя": "conceptById",
@@ -12374,7 +13361,7 @@
   },
   {
    "имя": "emit",
-   "ввозятМодулей": 15
+   "ввозятМодулей": 20
   },
   {
    "имя": "initializePhilosophyMetrics",
@@ -12385,8 +13372,16 @@
    "ввозятМодулей": 11
   },
   {
+   "имя": "PERM",
+   "ввозятМодулей": 10
+  },
+  {
    "имя": "renderState",
    "ввозятМодулей": 10
+  },
+  {
+   "имя": "can",
+   "ввозятМодулей": 9
   },
   {
    "имя": "isSymmetricLink",
@@ -12409,7 +13404,15 @@
    "ввозятМодулей": 8
   },
   {
+   "имя": "ModalContext",
+   "ввозятМодулей": 8
+  },
+  {
    "имя": "openUniversalModal",
+   "ввозятМодулей": 7
+  },
+  {
+   "имя": "api",
    "ввозятМодулей": 7
   },
   {
@@ -12425,46 +13428,34 @@
    "ввозятМодулей": 7
   },
   {
-   "имя": "ModalContext",
+   "имя": "getContrastColor",
    "ввозятМодулей": 7
   },
   {
-   "имя": "getContrastColor",
-   "ввозятМодулей": 7
+   "имя": "closeUniversalModal",
+   "ввозятМодулей": 6
   },
   {
    "имя": "showTemporaryMessage",
    "ввозятМодулей": 6
   },
   {
-   "имя": "canEdit",
-   "ввозятМодулей": 6
-  },
-  {
    "имя": "VIEWS",
-   "ввозятМодулей": 6
-  },
-  {
-   "имя": "nodesByPhilosopher",
-   "ввозятМодулей": 6
-  },
-  {
-   "имя": "gfxSvg",
-   "ввозятМодулей": 6
-  },
-  {
-   "имя": "gfxZoom",
    "ввозятМодулей": 6
   }
  ],
  "держатДом": [
   {
    "модуль": "modules/core/ns.js",
-   "ввозятИзНего": 90
+   "ввозятИзНего": 91
   },
   {
    "модуль": "modules/core/graph-index.js",
-   "ввозятИзНего": 55
+   "ввозятИзНего": 56
+  },
+  {
+   "модуль": "modules/core/events.js",
+   "ввозятИзНего": 21
   },
   {
    "модуль": "modules/core/link-facts.js",
@@ -12473,10 +13464,6 @@
   {
    "модуль": "modules/render/canvas-core.js",
    "ввозятИзНего": 19
-  },
-  {
-   "модуль": "modules/core/events.js",
-   "ввозятИзНего": 17
   },
   {
    "модуль": "modules/state/render.js",
@@ -12491,11 +13478,15 @@
    "ввозятИзНего": 13
   },
   {
+   "модуль": "modules/modal/core.js",
+   "ввозятИзНего": 12
+  },
+  {
    "модуль": "modules/render/d3-layer.js",
    "ввозятИзНего": 12
   },
   {
-   "модуль": "modules/modal/core.js",
+   "модуль": "modules/core/perms.js",
    "ввозятИзНего": 11
   },
   {
@@ -12507,21 +13498,32 @@
    "ввозятИзНего": 10
   },
   {
+   "модуль": "modules/core/api.js",
+   "ввозятИзНего": 9
+  },
+  {
    "модуль": "modules/core/long-task.js",
-   "ввозятИзНего": 9
-  },
-  {
-   "модуль": "modules/core/search.js",
-   "ввозятИзНего": 9
-  },
-  {
-   "модуль": "modules/core/visibility.js",
    "ввозятИзНего": 9
   }
  ],
  "круги": [],
  "лишниеВывозы": [],
  "вывозДляПриборов": [
+  {
+   "имя": "lastSubmitResult",
+   "модуль": "modules/data/backend.js",
+   "внутри": 1
+  },
+  {
+   "имя": "lastSubmitted",
+   "модуль": "modules/data/backend.js",
+   "внутри": 1
+  },
+  {
+   "имя": "knownGraphVersion",
+   "модуль": "modules/data/remote.js",
+   "внутри": 4
+  },
   {
    "имя": "DATA_SETS",
    "модуль": "modules/data/save.js",
@@ -12531,6 +13533,61 @@
    "имя": "collectData",
    "модуль": "modules/data/save.js",
    "внутри": 2
+  },
+  {
+   "имя": "commitError",
+   "модуль": "modules/modal/commits.js",
+   "внутри": 6
+  },
+  {
+   "имя": "commitItems",
+   "модуль": "modules/modal/commits.js",
+   "внутри": 5
+  },
+  {
+   "имя": "commitTab",
+   "модуль": "modules/modal/commits.js",
+   "внутри": 3
+  },
+  {
+   "имя": "loadCommits",
+   "модуль": "modules/modal/commits.js",
+   "внутри": 4
+  },
+  {
+   "имя": "lastConflict",
+   "модуль": "modules/modal/conflict.js",
+   "внутри": 2
+  },
+  {
+   "имя": "loadUsers",
+   "модуль": "modules/modal/users.js",
+   "внутри": 3
+  },
+  {
+   "имя": "userItems",
+   "модуль": "modules/modal/users.js",
+   "внутри": 5
+  },
+  {
+   "имя": "usersError",
+   "модуль": "modules/modal/users.js",
+   "внутри": 6
+  },
+  {
+   "имя": "loadNotifications",
+   "модуль": "modules/ui/notifications.js",
+   "внутри": 1
+  },
+  {
+   "имя": "notifyItems",
+   "модуль": "modules/ui/notifications.js",
+   "внутри": 6
+  },
+  {
+   "имя": "unreadCount",
+   "модуль": "modules/ui/notifications.js",
+   "внутри": 6
   }
  ],
  "мёртвыеСущности": [],
@@ -12584,13 +13641,13 @@
    "самые": [
     {
      "поле": "nodes",
-     "раз": 125,
-     "модулей": 34
+     "раз": 127,
+     "модулей": 35
     },
     {
      "поле": "links",
-     "раз": 66,
-     "модулей": 31
+     "раз": 68,
+     "модулей": 32
     },
     {
      "поле": "relationTypesObj",
@@ -12604,13 +13661,13 @@
     },
     {
      "поле": "concepts",
-     "раз": 51,
-     "модулей": 16
+     "раз": 56,
+     "модулей": 17
     },
     {
      "поле": "relations",
-     "раз": 44,
-     "модулей": 15
+     "раз": 49,
+     "модулей": 16
     },
     {
      "поле": "conceptToRubrics",
@@ -12619,23 +13676,23 @@
     },
     {
      "поле": "philosophers",
-     "раз": 23,
-     "модулей": 9
+     "раз": 29,
+     "модулей": 10
+    },
+    {
+     "поле": "rubrics",
+     "раз": 14,
+     "модулей": 8
     },
     {
      "поле": "philosopherTraditions",
      "раз": 17,
      "модулей": 8
-    },
-    {
-     "поле": "rubrics",
-     "раз": 11,
-     "модулей": 7
     }
    ]
   },
   "S": {
-   "полей": 67,
+   "полей": 68,
    "самые": [
     {
      "поле": "_concepts",

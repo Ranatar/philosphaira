@@ -17,7 +17,8 @@ fetch URL Blob FileReader Image Error TypeError RangeError isNaN parseInt parseF
 Uint8Array Uint16Array Uint32Array Float32Array Float64Array Int32Array navigator location
 getComputedStyle DOMParser XMLSerializer btoa atob structuredClone globalThis Symbol Intl
 event CustomEvent Event MouseEvent KeyboardEvent HTMLElement Node NodeList encodeURIComponent
-decodeURIComponent RegExp Function Reflect Proxy WeakMap WeakSet ResizeObserver queueMicrotask`
+decodeURIComponent RegExp Function Reflect Proxy WeakMap WeakSet ResizeObserver queueMicrotask
+WebSocket`
   .split(/\s+/).filter(Boolean));
 
 const files = [];

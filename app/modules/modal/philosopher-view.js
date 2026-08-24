@@ -1,13 +1,13 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
 import { conceptById, nodesByPhilosopher, philosopherByName, rubricById, traditionById } from '../core/graph-index.js';
 
-import { canEdit } from '../core/session.js';
+import { PERM, can } from '../core/perms.js';
 import { nearestPhilosophers } from '../metrics/similarity-philosophers.js';
 import { linkArrow } from './connection-view.js';
 
-import { refreshEditHints } from './edit-rights.js';
+import { philRowTip, refreshEditHints } from './edit-rights.js';
 import { openEditPhilosopherModal, showPhilosopherDetailModal } from './entry.js';
 
 import { highlightPhilosopherOnGraph } from '../render/selection.js';
@@ -561,7 +561,7 @@ function makeLegendsEditable() {
         philHeader.addEventListener('click', function(event) {
           // ЗАСЛОН ПРАВКИ. Право спрашивается в миг нажатия, а не при
           // навешивании: обработчик переживает вход и выход.
-          if (event.shiftKey && canEdit()) {
+          if (event.shiftKey && can(PERM.CREATE_COMMIT)) {
             event.preventDefault();
             event.stopPropagation();
             openEditPhilosopherModal();
@@ -591,7 +591,7 @@ function makeLegendsEditable() {
           item.addEventListener('click', function(event) {
             if (event.target.matches('input[type="checkbox"]')) return;  // галочка сама по себе
             if (event.shiftKey) {
-              if (canEdit()) {     // ЗАСЛОН ПРАВКИ
+              if (can(PERM.CREATE_COMMIT)) {     // ЗАСЛОН ПРАВКИ
                 event.preventDefault();
                 event.stopPropagation();
                 openEditPhilosopherModal(philosopherName);
@@ -610,9 +610,19 @@ function makeLegendsEditable() {
           });
           
           // Обновляем подсказку. Про shift — только правщику.
-          item.setAttribute('data-tip', canEdit()
-            ? 'Щелчок — выбрать на графе, Ctrl+щелчок — добавить к выбору, двойной — окно философа, Shift+щелчок — правка'
-            : 'Щелчок — выбрать на графе, Ctrl+щелчок — добавить к выбору, двойной — окно философа');
+          //
+          // ДЕФЕКТ: у атрибута data-tip оказалось ДВА хозяина. Здесь ставится
+          // подсказка строки, а updatePhilosopherDimming ставит свою («Отсечён
+          // отбором по традициям») и в противном случае СНИМАЛА атрибут вовсе.
+          // Она зовётся на каждое «filters-applied», то есть первый же отбор
+          // стирал подсказки у всех 57 строк — и до следующего входа или
+          // выхода они не возвращались. Замер: 57 из 57 подсказок пропадали
+          // после «снять всех», 5415 знаков разметки.
+          //
+          // Лечение: подсказка запоминается на самом узле, и затемнение
+          // ВОЗВРАЩАЕТ её, а не удаляет. Текст по-прежнему написан в одном
+          // месте — здесь.
+          item.setAttribute('data-tip', philRowTip());
         }
       });
     }

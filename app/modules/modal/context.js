@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 
 const ModalContext = {
       currentEntity: null,    // 'philosopher' | 'concept' | 'connection'

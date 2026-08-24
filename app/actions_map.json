@@ -363,6 +363,76 @@
   "аргументов": 0,
   "откуда": "index.html"
  },
+ "close-users-panel": {
+  "код": "closeUsersPanel()",
+  "attr": "onclick",
+  "тело": "closeUsersPanel()",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "switch-commit-tab": {
+  "код": "switchCommitTab('mine')",
+  "attr": "onclick",
+  "тело": "switchCommitTab('mine')",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "switch-commit-tab-2": {
+  "код": "switchCommitTab('pending')",
+  "attr": "onclick",
+  "тело": "switchCommitTab('pending')",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "close-commits-panel": {
+  "код": "closeCommitsPanel()",
+  "attr": "onclick",
+  "тело": "closeCommitsPanel()",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "open-commits-panel": {
+  "код": "openCommitsPanel()",
+  "attr": "onclick",
+  "тело": "openCommitsPanel()",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "open-users-panel": {
+  "код": "openUsersPanel()",
+  "attr": "onclick",
+  "тело": "openUsersPanel()",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "toggle-notify-panel": {
+  "код": "toggleNotifyPanel()",
+  "attr": "onclick",
+  "тело": "toggleNotifyPanel()",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "mark-all-notifications-read": {
+  "код": "markAllNotificationsRead()",
+  "attr": "onclick",
+  "тело": "markAllNotificationsRead()",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "rebuild-over-current": {
+  "код": "rebuildOverCurrent()",
+  "attr": "onclick",
+  "тело": "rebuildOverCurrent()",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "close-conflict-modal": {
+  "код": "closeConflictModal()",
+  "attr": "onclick",
+  "тело": "closeConflictModal()",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
  "handle-stats-parameter-change-change": {
   "код": "handleStatsParameterChange()",
   "attr": "onchange",

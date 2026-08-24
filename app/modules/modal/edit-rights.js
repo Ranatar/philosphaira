@@ -1,5 +1,6 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
-import { authSession, canEdit } from '../core/session.js';
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
+import { PERM, can } from '../core/perms.js';
+import { authSession } from '../core/session.js';
 
 import { ModalContext } from './context.js';
 import { openUniversalModal } from './core.js';
@@ -33,8 +34,14 @@ function renderAuthControls() {
       }
     }
 
+function philRowTip() {
+      return can(PERM.CREATE_COMMIT)
+        ? 'Щелчок — выбрать на графе, Ctrl+щелчок — добавить к выбору, двойной — окно философа, Shift+щелчок — правка'
+        : 'Щелчок — выбрать на графе, Ctrl+щелчок — добавить к выбору, двойной — окно философа';
+    }
+
 function refreshEditHints() {
-      const may = canEdit();
+      const may = can(PERM.CREATE_COMMIT);
       const philHeader = Array.from(document.querySelectorAll('.legend-section h4'))
         .find(h => h.textContent.includes('Философ'));
       if (philHeader) {
@@ -49,4 +56,4 @@ function refreshEditHints() {
       });
     }
 
-export { refreshEditHints, refreshOpenModalToolbar, renderAuthControls };
+export { philRowTip, refreshEditHints, refreshOpenModalToolbar, renderAuthControls };

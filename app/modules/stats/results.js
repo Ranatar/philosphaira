@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { S } from '../core/ns.js';
 import { getMetricDescription } from '../metrics/descriptions.js';
 import { applyMetricMode } from '../metrics/format.js';

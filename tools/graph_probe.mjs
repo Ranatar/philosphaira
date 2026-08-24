@@ -36,7 +36,7 @@ window.__rig = { S: A.S, DATA: A.DATA, MET: A.MET, VIEWS: A.VIEWS,
   closeUniversalModal: A.closeUniversalModal, openUniversalModal: A.openUniversalModal,
   openAuthModal: A.openAuthModal, submitAuth: A.submitAuth, closeAuthModal: A.closeAuthModal,
   nodes: () => A.DATA.nodes, links: () => A.DATA.links,
-  transform: () => A.S.renderState.transform, canvas: () => A.S.gfxCanvas,
+  transform: () => A.renderState.transform, canvas: () => A.gfxCanvas,
   simulation: () => A.S.simulation,
   selectedNodes: () => A.selectedNodes,
   tickCount: () => A.S.tickCount };
