@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
 import { conceptById, nodesByPhilosopher, philosopherByName } from '../core/graph-index.js';
@@ -7,9 +7,9 @@ import { isConceptIsolated } from './entry.js';
 import { philosopherBirth, philosopherYears } from '../util/philosopher-label.js';
 import { pluralRu } from '../util/ru.js';
 
-function relationIndexOf(srcId, tgtId, type) {
-      return DATA.relations.findIndex(r => r.source === srcId && r.target === tgtId
-                     && (type === undefined || r.type === type));
+function relationIndexById(id) {
+      if (id == null) return -1;
+      return DATA.relations.findIndex(r => r.id === id);
     }
 
 function activityOverlap(nameA, nameB) {
@@ -250,4 +250,4 @@ function philosopherIntegrityWarnings(name, birth, death, original) {
       return w;
     }
 
-export { conceptIntegrityWarnings, connectionIntegrityWarnings, nConcepts, nLinks, philosopherIntegrityWarnings, relationIndexOf };
+export { conceptIntegrityWarnings, connectionIntegrityWarnings, nConcepts, nLinks, philosopherIntegrityWarnings, relationIndexById };

@@ -1,5 +1,8 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
-import { AUTH_ADMIN, authAccounts, authSession } from '../core/session.js';
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
+import { api, detectServerMode, serverMode } from '../core/api.js';
+import { emit } from '../core/events.js';
+import { AUTH_ADMIN, authAccounts, setSessionUser } from '../core/session.js';
+import { connectLive, pullGraphSince } from '../data/remote.js';
 import { ModalContext } from './context.js';
 import { toggleModalMode } from './core.js';
 import { refreshEditHints, refreshOpenModalToolbar, renderAuthControls } from './edit-rights.js';
@@ -90,11 +93,24 @@ function authNoticeAdmin() {
       + '</ul>');
     }
 
-function submitAuth() {
+async function submitAuth() {
       const login = (document.getElementById('authLogin') || {}).value || '';
       const pass  = (document.getElementById('authPassword') || {}).value || '';
       if (!login.trim() || !pass) { authError('Заполните логин и пароль'); return; }
       const l = login.trim();
+
+      if (serverMode && authModalKind === 'mfa') {
+        const ответ = await api('/api/auth/mfa', { метод: 'POST', тело: { code: pass } });
+        if (!ответ.годно) { authError('Код не сошёлся'); return; }
+        await detectServerMode();
+        await pullGraphSince();
+        connectLive();
+        renderAuthControls();
+        refreshEditHints();
+        refreshOpenModalToolbar();
+        closeAuthModal();
+        return;
+      }
 
       if (authModalKind === 'register') {
         // Логин admin занят: он сверяется отдельно и регистрации не требует.
@@ -102,10 +118,46 @@ function submitAuth() {
           authError('Такой логин уже зарегистрирован'); return;
         }
         authAccounts.set(l, pass);
-        authSession.user = { login: l, role: 'member' };
+        setSessionUser({ login: l, role: 'member' });
         renderAuthControls();
         refreshEditHints();
         authNoticeMember(l);
+        return;
+      }
+
+      // СЕРВЕРНЫЙ РЕЖИМ. Пароли, их требования и права — забота сервера;
+      // страница только спрашивает и показывает. Местная ветка ниже
+      // остаётся нетронутой: без сервера всё как прежде.
+      if (serverMode) {
+        const ответ = await api('/api/auth/login',
+          { метод: 'POST', тело: { email: l, password: pass } });
+        if (!ответ.годно) {
+          authError((ответ.тело && ответ.тело.error && ответ.тело.error.message)
+            || 'Не удалось войти');
+          return;
+        }
+        if (ответ.тело.data && ответ.тело.data.ждётКода) {
+          // Второй шаг: сессия пока частичная и прав не даёт.
+          authError('Введите одноразовый код в поле пароля и нажмите «Войти» ещё раз');
+          authModalKind = 'mfa';
+          return;
+        }
+        await detectServerMode();          // права берём у сервера, а не гадаем
+        // ЖИВОЕ СОЕДИНЕНИЕ ПЕРЕОТКРЫВАЕТСЯ. При запуске страница ещё гость,
+        // а гостю сокета не дают — рукопожатие требует сеанса. Первый
+        // набросок открывал соединение только на запуске, и оно НИКОГДА не
+        // появлялось у тех, кто вошёл после загрузки, то есть у всех.
+        // Проба показала это тем, что чужая правка не доходила.
+        await pullGraphSince();
+        connectLive();
+        // Через ШИНУ: колокол живёт на шестом этаже, вход — на пятом, и
+        // ввозить снизу вверх дерево не даёт. Прибор строения показал это
+        // ребро сразу, как только оно появилось.
+        emit('session-changed');
+        renderAuthControls();
+        refreshEditHints();
+        refreshOpenModalToolbar();
+        closeAuthModal();
         return;
       }
 
@@ -118,7 +170,7 @@ function submitAuth() {
       // раздельное сообщение вдвое понятнее.
       if (l === AUTH_ADMIN.login) {
         if (pass !== AUTH_ADMIN.password) { authError('Неверный пароль'); return; }
-        authSession.user = { login: l, role: 'admin' };
+        setSessionUser({ login: l, role: 'admin' });
         renderAuthControls();
         refreshEditHints();
         refreshOpenModalToolbar();
@@ -127,7 +179,7 @@ function submitAuth() {
       }
       if (!authAccounts.has(l)) { authError('Такой логин не зарегистрирован'); return; }
       if (authAccounts.get(l) !== pass) { authError('Неверный пароль'); return; }
-      authSession.user = { login: l, role: 'member' };
+      setSessionUser({ login: l, role: 'member' });
       renderAuthControls();
       refreshEditHints();
       authNoticeMember(l);
@@ -140,7 +192,7 @@ function authLogout() {
 
       // Право уходит ПЕРВЫМ делом: что бы дальше ни случилось с открытой
       // формой, кнопка правки в перерисованном окне уже не появится.
-      authSession.user = null;
+      setSessionUser(null);
       renderAuthControls();
       refreshEditHints();
 

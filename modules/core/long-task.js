@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 
 const LoadingIndicator = {
       create(title, subtitle, color = '#3498db') {

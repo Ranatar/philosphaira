@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { MET, S } from '../core/ns.js';
 import { calculateBetweennessAsync } from '../metrics/network.js';
 import { openStatsModal, switchStatsView, updateActiveNavItem } from './modal.js';

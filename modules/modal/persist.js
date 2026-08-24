@@ -1,15 +1,17 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
 import { conceptById, nodesByPhilosopher, philosopherByName } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
+import { submitChange } from '../data/backend.js';
+import { describeChange } from '../data/commit-draft.js';
 import { afterDataChange } from '../data/mutate.js';
 import { addLinkToGraph, addNodeToGraph, findConnection, forgetLink, forgetNode, getConceptConnections, updateLinkOnGraph, updateNodeOnGraph } from '../graph/graph-data.js';
 import { modalEntityExists } from './assembly.js';
 import { ModalContext } from './context.js';
 import { closeUniversalModal, openUniversalModal } from './core.js';
 import { getIsolatedConceptsAfterDeletion } from './entry.js';
-import { conceptIntegrityWarnings, connectionIntegrityWarnings, nConcepts, nLinks, philosopherIntegrityWarnings, relationIndexOf } from './integrity.js';
+import { conceptIntegrityWarnings, connectionIntegrityWarnings, nConcepts, nLinks, philosopherIntegrityWarnings, relationIndexById } from './integrity.js';
 
 function generateId(prefix = 'item') {
       return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
@@ -74,35 +76,43 @@ function savePhilosopherData() {
       if (birth != null && death != null) years = yr(birth) + '-' + yr(death);
       else if (birth != null)       years = yr(birth) + '-?';
 
-      if (isNew) {
-        const id = name.toLowerCase().replace(/\s+/g, '_')
-                 .replace(/[^a-z0-9_а-яё]/gi, '') || generateId('phil');
-        // Поле traditions обязано попасть и в НОВУЮ запись: без него
-        // у созданного философа не будет ни традиции, ни раздела в окне.
-        DATA.philosophers.push({ id, name, nameRu: name, color,
-                  birth, death, years, traditions: traditionIds, description });
-      } else {
-        const i = DATA.philosophers.findIndex(p => p.nameRu === originalName);
-        if (i === -1) { alert('Философ не найден'); return; }
-        const oldName = originalName;
-        const oldId   = DATA.philosophers[i].id;
-        DATA.philosophers[i] = { ...DATA.philosophers[i], name, nameRu: name, color,
-                  birth, death, years, traditions: traditionIds, description };
+      const i = isNew ? -1 : DATA.philosophers.findIndex(p => p.nameRu === originalName);
+      if (!isNew && i === -1) { alert('Философ не найден'); return; }
 
-        if (name !== oldName) {
-          // Переименование тянет за собой больше, чем в unimod:
-          // ссылку в узлах, множество фильтров и все кэши, ключами
-          // которых служит имя (их сбросит afterDataChange).
-          DATA.nodes.forEach(n => { if (n.concept === oldName) n.concept = name; });
-          DATA.concepts.forEach(c => { if (c.philosopher === oldId) c.philosopher = DATA.philosophers[i].id; });
-          if (S.selectedPhilosophers.has(oldName)) {
-            S.selectedPhilosophers.delete(oldName);
-            S.selectedPhilosophers.add(name);
+      // Поле traditions обязано попасть и в НОВУЮ запись: без него
+      // у созданного философа не будет ни традиции, ни раздела в окне.
+      const стало = { name, nameRu: name, color,
+                birth, death, years, traditions: traditionIds, description };
+      const philId = isNew
+        ? (name.toLowerCase().replace(/\s+/g, '_')
+             .replace(/[^a-z0-9_а-яё]/gi, '') || generateId('phil'))
+        : DATA.philosophers[i].id;
+
+      submitChange(
+        describeChange(isNew ? 'add' : 'edit', 'philosopher', philId,
+                 isNew ? null : DATA.philosophers[i], стало),
+        () => {
+          if (isNew) {
+            DATA.philosophers.push({ id: philId, ...стало });
+          } else {
+            const oldName = originalName;
+            const oldId   = DATA.philosophers[i].id;
+            DATA.philosophers[i] = { ...DATA.philosophers[i], ...стало };
+
+            if (name !== oldName) {
+              // Переименование тянет за собой больше, чем в unimod:
+              // ссылку в узлах, множество фильтров и все кэши, ключами
+              // которых служит имя (их сбросит afterDataChange).
+              DATA.nodes.forEach(n => { if (n.concept === oldName) n.concept = name; });
+              DATA.concepts.forEach(c => { if (c.philosopher === oldId) c.philosopher = DATA.philosophers[i].id; });
+              if (S.selectedPhilosophers.has(oldName)) {
+                S.selectedPhilosophers.delete(oldName);
+                S.selectedPhilosophers.add(name);
+              }
+            }
           }
-        }
-      }
-
-      afterDataChange({ philosophers: true, nodes: true, links: true });
+          afterDataChange({ philosophers: true, nodes: true, links: true });
+        });
       openUniversalModal('philosopher', name, 'view', { noPush: true });
     }
 
@@ -124,23 +134,27 @@ function deletePhilosopher(philosopherName) {
       }
       if (!confirm(msg)) return;
 
-      // Сперва связи всех его концепций, потом сами концепции.
-      // Переменная названа conceptLinks, а не connections: в unimod
-      // одноимённая локальная затеняла глобальный массив, и удаление
-      // из него не работало ни разу (дефект U-4).
-      own.forEach(concept => {
-        const conceptLinks = getConceptConnections(concept.id);
-        conceptLinks.forEach(l => removeLinkEverywhere(l));
-      });
-      own.forEach(concept => removeConceptEverywhere(concept.id));
+      submitChange(
+        describeChange('delete', 'philosopher', data.id, data, null),
+        () => {
+          // Сперва связи всех его концепций, потом сами концепции.
+          // Переменная названа conceptLinks, а не connections: в unimod
+          // одноимённая локальная затеняла глобальный массив, и удаление
+          // из него не работало ни разу (дефект U-4).
+          own.forEach(concept => {
+            const conceptLinks = getConceptConnections(concept.id);
+            conceptLinks.forEach(l => removeLinkEverywhere(l));
+          });
+          own.forEach(concept => removeConceptEverywhere(concept.id));
 
-      const pi = DATA.philosophers.findIndex(p => p.nameRu === name);
-      if (pi !== -1) DATA.philosophers.splice(pi, 1);
-      delete DATA.philosopherConcepts[name];
-      delete DATA.philosopherOrder[name];
-      S.selectedPhilosophers.delete(name);
+          const pi = DATA.philosophers.findIndex(p => p.nameRu === name);
+          if (pi !== -1) DATA.philosophers.splice(pi, 1);
+          delete DATA.philosopherConcepts[name];
+          delete DATA.philosopherOrder[name];
+          S.selectedPhilosophers.delete(name);
 
-      afterDataChange({ philosophers: true, nodes: true, links: true });
+          afterDataChange({ philosophers: true, nodes: true, links: true });
+        });
       closeUniversalModal();
     }
 
@@ -156,9 +170,7 @@ function removeConceptEverywhere(conceptId) {
 function removeLinkEverywhere(link) {
       const li = DATA.links.indexOf(link);
       if (li !== -1) DATA.links.splice(li, 1);
-      const srcId = link.source.id || link.source;
-      const tgtId = link.target.id || link.target;
-      const ri = relationIndexOf(srcId, tgtId, link.type);
+      const ri = relationIndexById(link.id);
       if (ri !== -1) DATA.relations.splice(ri, 1);
       forgetLink(link);
     }
@@ -190,18 +202,25 @@ function saveConceptData() {
       if (!confirmWarnings('Сохранение концепции',
           conceptIntegrityWarnings(label, philosopher, isNew ? null : original))) return;
 
+      // Схемы разные: в concepts философ хранится ИДЕНТИФИКАТОРОМ,
+      // в nodes — ИМЕНЕМ. Их нельзя перепутать местами. Описание идёт по
+      // хранимой схеме — по concepts.
+      const стало = { label, philosopher: philData.id,
+              rubrics: selectedRubricIds, description, extendedDescription };
+
       if (isNew) {
         const id = generateId('concept');
-        // Схемы разные: в concepts философ хранится ИДЕНТИФИКАТОРОМ,
-        // в nodes — ИМЕНЕМ. Их нельзя перепутать местами.
-        DATA.concepts.push({ id, label, philosopher: philData.id,
-                rubrics: selectedRubricIds, description, extendedDescription });
         const newNode = { id, label, concept: philosopher,
                   rubrics: selectedRubricIds, description, extendedDescription };
-        DATA.nodes.push(newNode);
-        DATA.conceptToRubrics[id] = selectedRubricIds;
-        addNodeToGraph(newNode);
-        afterDataChange({ nodes: true, links: true });
+        submitChange(
+          describeChange('add', 'concept', id, null, стало),
+          () => {
+            DATA.concepts.push({ id, ...стало });
+            DATA.nodes.push(newNode);
+            DATA.conceptToRubrics[id] = selectedRubricIds;
+            addNodeToGraph(newNode);
+            afterDataChange({ nodes: true, links: true });
+          });
         openUniversalModal('concept', newNode, 'view', { noPush: true });
         return;
       }
@@ -210,14 +229,17 @@ function saveConceptData() {
       const ni = DATA.nodes.findIndex(n => n.id === original.id);
       if (ci === -1 || ni === -1) { alert('Концепция не найдена'); return; }
 
-      DATA.concepts[ci] = { ...DATA.concepts[ci], label, philosopher: philData.id,
-               rubrics: selectedRubricIds, description, extendedDescription };
-      DATA.nodes[ni] = Object.assign(DATA.nodes[ni], { label, concept: philosopher,
-               rubrics: selectedRubricIds, description, extendedDescription });
-      DATA.conceptToRubrics[original.id] = selectedRubricIds;
+      submitChange(
+        describeChange('edit', 'concept', original.id, DATA.concepts[ci], стало),
+        () => {
+          DATA.concepts[ci] = { ...DATA.concepts[ci], ...стало };
+          DATA.nodes[ni] = Object.assign(DATA.nodes[ni], { label, concept: philosopher,
+                   rubrics: selectedRubricIds, description, extendedDescription });
+          DATA.conceptToRubrics[original.id] = selectedRubricIds;
 
-      updateNodeOnGraph();
-      afterDataChange({ nodes: true, links: true });
+          updateNodeOnGraph();
+          afterDataChange({ nodes: true, links: true });
+        });
       openUniversalModal('concept', DATA.nodes[ni], 'view', { noPush: true });
     }
 
@@ -234,10 +256,13 @@ function deleteConcept(conceptId) {
         : 'Концепция «' + node.label + '» не имеет связей. Удалить?';
       if (!confirm(msg)) return;
 
-      own.forEach(l => removeLinkEverywhere(l));
-      removeConceptEverywhere(id);
-
-      afterDataChange({ nodes: true, links: true });
+      submitChange(
+        describeChange('delete', 'concept', id, node, null),
+        () => {
+          own.forEach(l => removeLinkEverywhere(l));
+          removeConceptEverywhere(id);
+          afterDataChange({ nodes: true, links: true });
+        });
       closeUniversalModal();
     }
 
@@ -280,36 +305,54 @@ function saveConnectionData() {
           connectionIntegrityWarnings(source, target, type, weight,
                         bidirectional, originalLink))) return;
 
+      // Описание идёт по ХРАНИМОЙ схеме — по relations, где концы лежат
+      // идентификаторами. В links те же концы — объектами узлов, и путать
+      // их нельзя: сервер примет только первое.
+      const стало = { source, target, type, weight, bidirectional, description };
+
       if (isNew) {
-        const newLink = { source, target, type, weight, bidirectional, description };
-        DATA.relations.push({ source, target, type, weight, bidirectional, description });
-        DATA.links.push(newLink);
-        addLinkToGraph(newLink);
-        afterDataChange({ nodes: true, links: true });
+        const id = generateId('rel');
+        const newLink = { id, ...стало };
+        submitChange(
+          describeChange('add', 'relation', id, null, стало),
+          () => {
+            DATA.relations.push({ id, ...стало });
+            DATA.links.push(newLink);
+            addLinkToGraph(newLink);
+            afterDataChange({ nodes: true, links: true });
+          });
         openUniversalModal('connection', newLink, 'view', { noPush: true });
         return;
       }
 
       if (!originalLink) { alert('Связь не найдена'); return; }
-      const oldSrc = originalLink.source.id || originalLink.source;
-      const oldTgt = originalLink.target.id || originalLink.target;
-      const ri = relationIndexOf(oldSrc, oldTgt, originalLink.type);
+      // По ИМЕНИ, а не по прежней тройке: правка может менять и концы, и тип,
+      // а адрес обязан пережить это неизменным.
+      const ri = relationIndexById(originalLink.id);
 
       const srcNode = conceptById.get(source);
       const tgtNode = conceptById.get(target);
       if (!srcNode || !tgtNode) { alert('Концепции связи не найдены'); return; }
 
-      Object.assign(originalLink, { source: srcNode, target: tgtNode,
-                      type, weight, bidirectional, description });
-      if (ri !== -1) {
-        DATA.relations[ri] = { ...DATA.relations[ri], source, target,
-                  type, weight, bidirectional, description };
-      } else {
-        DATA.relations.push({ source, target, type, weight, bidirectional, description });
-      }
+      submitChange(
+        describeChange('edit', 'relation', originalLink.id,
+                 ri !== -1 ? DATA.relations[ri] : null, стало),
+        () => {
+          Object.assign(originalLink, { source: srcNode, target: tgtNode,
+                          type, weight, bidirectional, description });
+          if (ri !== -1) {
+            DATA.relations[ri] = { ...DATA.relations[ri], ...стало };
+          } else {
+            // Запасная ветка: связь есть в links, но не в relations. Имя берём
+            // прежнее, чтобы адрес не сменился на ровном месте.
+            const id = originalLink.id || generateId('rel');
+            originalLink.id = id;
+            DATA.relations.push({ id, ...стало });
+          }
 
-      updateLinkOnGraph();
-      afterDataChange({ nodes: true, links: true });
+          updateLinkOnGraph();
+          afterDataChange({ nodes: true, links: true });
+        });
       openUniversalModal('connection', originalLink, 'view', { noPush: true });
     }
 
@@ -345,8 +388,12 @@ function deleteConnection(sourceId = null, targetId = null) {
       }
       if (!confirm(msg)) return;
 
-      removeLinkEverywhere(link);
-      afterDataChange({ nodes: true, links: true });
+      submitChange(
+        describeChange('delete', 'relation', link.id, link, null),
+        () => {
+          removeLinkEverywhere(link);
+          afterDataChange({ nodes: true, links: true });
+        });
 
       // Если окно открыто на этой связи — закрываем; если на концепции,
       // перерисовываем, чтобы список связей не врал.

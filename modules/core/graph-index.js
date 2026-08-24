@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA } from './ns.js';
 import d3 from '../../vendor/d3.js';
 
@@ -125,6 +125,8 @@ function buildIndexes() {
       }));
   
   DATA.links = DATA.relations.map(r => ({
+        id: r.id,          // устойчивое имя связи: адрес правки, переживающий
+                           // смену типа и концов (заход 0.1)
         source: r.source,
         target: r.target,
         type: r.type,

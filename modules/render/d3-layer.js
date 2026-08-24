@@ -1,7 +1,8 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
+
 import { renderState } from './canvas-core.js';
 import { requestDraw } from './loop.js';
 import { startRadiusAnimation } from './scene.js';

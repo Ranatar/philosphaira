@@ -1,7 +1,7 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { S } from '../core/ns.js';
 import { emit } from '../core/events.js';
-import { canEdit } from '../core/session.js';
+import { PERM, can } from '../core/perms.js';
 import { handleConceptSelection } from './graph-selection.js';
 import { gfxNode } from '../render/d3-layer.js';
 import { highlightCombined, isEdgeConnectedToSelectedNodes, isNodeConnectedToSelectedEdges } from '../render/selection.js';
@@ -19,7 +19,7 @@ function handleNodeClick(event, d) {
       
       // Обработка shift+клик для редактирования узла
       // ЗАСЛОН ПРАВКИ: без права shift не отличается от обычного клика.
-      if (event.shiftKey && canEdit()) {
+      if (event.shiftKey && can(PERM.CREATE_COMMIT)) {
         clickCount++;
         
         if (clickTimer) {
@@ -139,7 +139,7 @@ function handleLinkClick(event, d) {
       event.stopPropagation();
       
       // Shift+клик - редактирование связи
-      if (event.shiftKey && canEdit()) {           // ЗАСЛОН ПРАВКИ
+      if (event.shiftKey && can(PERM.CREATE_COMMIT)) {           // ЗАСЛОН ПРАВКИ
         emit('edit-link', d.source.id || d.source, d.target.id || d.target);
         return;
       }

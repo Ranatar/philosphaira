@@ -1,9 +1,9 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
 import { conceptById, nodesByPhilosopher, rubricById } from '../core/graph-index.js';
-import { canEdit } from '../core/session.js';
+import { PERM, can } from '../core/perms.js';
 import { findConnection, getConceptConnections } from '../graph/graph-data.js';
 import { closeUniversalModal, openUniversalModal } from './core.js';
 import { gfxSvg } from '../render/canvas-core.js';
@@ -49,19 +49,19 @@ function closeDetailModal()      { closeUniversalModal(); }
 function closePhilosopherDetailModal() { closeUniversalModal(); }
 
 function openEditPhilosopherModal(philosopherName = null) {
-      if (!canEdit()) return;                       // ЗАСЛОН ПРАВКИ
+      if (!can(PERM.CREATE_COMMIT)) return;                       // ЗАСЛОН ПРАВКИ
       openUniversalModal('philosopher', philosopherName, 'edit');
     }
 
 function openEditConceptModal(concept = null) {
-      if (!canEdit()) return;                       // ЗАСЛОН ПРАВКИ
+      if (!can(PERM.CREATE_COMMIT)) return;                       // ЗАСЛОН ПРАВКИ
       const data = (typeof concept === 'string')
         ? conceptById.get(concept) : concept;
       openUniversalModal('concept', data, 'edit');
     }
 
 function openEditConnectionModal(a = null, b = null) {
-      if (!canEdit()) return;                       // ЗАСЛОН ПРАВКИ
+      if (!can(PERM.CREATE_COMMIT)) return;                       // ЗАСЛОН ПРАВКИ
       const data = (typeof a === 'string' && typeof b === 'string')
         ? findConnection(a, b, true) : a;
       openUniversalModal('connection', data, 'edit');

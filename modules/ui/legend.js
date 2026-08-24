@@ -1,8 +1,9 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
 import { relationHint } from '../core/relation-types.js';
 import { applyFilters, philosopherPassesTraditions } from '../filters/filters.js';
+import { philRowTip } from '../modal/edit-rights.js';
 import { renderState } from '../render/canvas-core.js';
 import { updateArrows } from '../render/d3-layer.js';
 import { chosenPhilosophers } from '../state/filters.js';
@@ -283,7 +284,10 @@ function updatePhilosopherDimming() {
         const dim = cb.checked && !philosopherPassesTraditions(name);
         row.style.opacity = dim ? '0.35' : '';
         if (dim) row.setAttribute('data-tip', 'Отсечён отбором по традициям');
-        else row.removeAttribute('data-tip');
+        // Не removeAttribute: подсказку строки ставит и makeLegendsEditable, и
+        // снимать чужое здесь значило бы стирать её на каждом отборе — что и
+        // происходило. Возвращаем ту же, из общего места.
+        else row.setAttribute('data-tip', philRowTip());
       });
     }
 

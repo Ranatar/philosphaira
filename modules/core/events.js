@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 
 const BUS_EVENTS = [
       'filters-applied',      // отбор пересчитан; вид пора обновить
@@ -15,6 +15,10 @@ const BUS_EVENTS = [
       'switch-stats-view',        // вид статистики просит показать другой вид
       'philosophers-chosen',       // набор выбранных философов изменился
       'selection-cleared',        // на графе не осталось ничего выбранного
+      'commit-conflicted',        // правка столкнулась с чужой; окно разбора
+      'graph-updated-remotely',   // граф изменил кто-то другой; правка пришла извне
+      'notification-arrived',     // пришло уведомление; колокол обновляет счёт
+      'session-changed',          // вошли или вышли; кому надо — перерисуется
     ];
 
 const busSubscribers = new Map();

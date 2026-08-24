@@ -1,4 +1,4 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { S } from '../core/ns.js';
 import { invalidateAbstractionIndexCache, invalidateDeductiveIndexCache, invalidateInstrumentalIndexCache } from './by-link-type.js';
 import { invalidateConceptualComplexityIndexCache, invalidateConceptualContinuityIndexCache, invalidateConceptualFertilityIndexCache, invalidateTransformationIndexCache } from './concept-dynamics.js';

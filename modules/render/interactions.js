@@ -1,11 +1,11 @@
-// Сгенерировано из philosophy_graph.html — правки вносить сюда, не в исходник.
+// Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
 import { emit } from '../core/events.js';
 import { conceptById } from '../core/graph-index.js';
 import { isReflexiveLink, isSymmetricLink } from '../core/link-facts.js';
-import { canEdit } from '../core/session.js';
+import { PERM, can } from '../core/perms.js';
 import { handleLinkClick, handleNodeClick } from '../graph/click-actions.js';
 import { cancelGraphSelection, handleConceptSelection } from '../graph/graph-selection.js';
 import { gfxCanvas, gfxSvg, renderState } from './canvas-core.js';
@@ -113,7 +113,7 @@ function dispatchClick(event) {
       const l = pickLink(event.clientX, event.clientY);
       if (l) { if (linkHandlers.click) linkHandlers.click(event, l); return; }
       // фон
-      if (event.shiftKey && canEdit()) {           // ЗАСЛОН ПРАВКИ
+      if (event.shiftKey && can(PERM.CREATE_COMMIT)) {           // ЗАСЛОН ПРАВКИ
         emit('edit-concept');
       } else {
         resetHighlight();
