@@ -8,6 +8,7 @@
   "CHAIN_SEARCH": "core/long-task.js",
   "CHAIN_WARN_THRESHOLD": "filters/chains.js",
   "CHRONOLOGY_MODES": "core/time.js",
+  "COMMIT_STATES": "modal/commits.js",
   "CONN_WEIGHT_WORDS": "core/relation-types.js",
   "CONSTRUCTIVE_TYPES": "metrics/philosopher.js",
   "DATA_SETS": "data/save.js",
@@ -177,6 +178,8 @@
   "commitError": "modal/commits.js",
   "commitItems": "modal/commits.js",
   "commitMessageFor": "data/backend.js",
+  "commitReasonField": "modal/forms.js",
+  "commitStateKind": "modal/commits.js",
   "commitStateWords": "modal/commits.js",
   "commitTab": "modal/commits.js",
   "conceptById": "core/graph-index.js",
@@ -825,7 +828,8 @@
   "visibleNodeIds": "core/visibility.js",
   "visualizeMetricBySize": "render/metric-visualization.js",
   "warnRemoteEdit": "modal/conflict.js",
-  "weightedClusteringCache": "metrics/network.js"
+  "weightedClusteringCache": "metrics/network.js",
+  "обновитьСчётПравок": "modal/commits.js"
  },
  "новые": [
   "DATA_SETS",

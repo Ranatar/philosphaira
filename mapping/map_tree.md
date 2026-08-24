@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-124 модулей, 19031 строк, 744 объявлений,
-530 вывозов, 751 рёбер ввоза. Составлено 2026-08-24 03:51:20.
+125 модулей, 19090 строк, 748 объявлений,
+531 вывозов, 754 рёбер ввоза. Составлено 2026-08-24 09:03:50.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -86,7 +86,7 @@
 | Модуль | Строк | Объявлений | Вывозит | Ввозит из | Пространства |
 |---|---|---|---|---|---|
 | `boot.js` | 292 | 0 | 1 | 63 | DATA:2, S:6 |
-| `main.js` | 130 | 0 | 0 | 119 | — |
+| `main.js` | 131 | 0 | 0 | 120 | — |
 | `modules/boot-defs.js` | 62 | 3 | 2 | 8 | S:1 |
 | `modules/core/api.js` | 85 | 4 | 3 | 1 | — |
 | `modules/core/base-cells.js` | 19 | 0 | 0 | 1 | S:8 |
@@ -102,7 +102,7 @@
 | `modules/core/session.js` | 23 | 4 | 4 | 1 | — |
 | `modules/core/time.js` | 13 | 2 | 2 | 0 | — |
 | `modules/core/visibility.js` | 13 | 2 | 2 | 1 | S:2 |
-| `modules/data/backend.js` | 111 | 7 | 4 | 4 | — |
+| `modules/data/backend.js` | 118 | 7 | 4 | 4 | — |
 | `modules/data/commit-draft.js` | 32 | 2 | 1 | 0 | — |
 | `modules/data/load.js` | 9 | 0 | 1 | 1 | — |
 | `modules/data/mutate.js` | 89 | 3 | 1 | 6 | DATA:11, S:1 |
@@ -133,9 +133,9 @@
 | `modules/metrics/similarity-philosophers.js` | 166 | 11 | 7 | 2 | S:3, MET:3 |
 | `modules/metrics/tension-cache.js` | 13 | 1 | 1 | 1 | S:2 |
 | `modules/metrics/tradition-bridging.js` | 89 | 4 | 3 | 2 | S:4, MET:1 |
-| `modules/modal/assembly.js` | 54 | 3 | 3 | 1 | — |
+| `modules/modal/assembly.js` | 56 | 3 | 3 | 2 | — |
 | `modules/modal/auth.js` | 214 | 10 | 4 | 7 | — |
-| `modules/modal/commits.js` | 126 | 11 | 9 | 5 | — |
+| `modules/modal/commits.js` | 160 | 14 | 9 | 5 | — |
 | `modules/modal/concept-view.js` | 336 | 1 | 0 | 7 | DATA:5, VIEWS:1 |
 | `modules/modal/conflict.js` | 85 | 5 | 5 | 7 | — |
 | `modules/modal/connection-edit.js` | 284 | 9 | 5 | 12 | DATA:2, VIEWS:1 |
@@ -147,6 +147,7 @@
 | `modules/modal/edit-forms.js` | 288 | 2 | 2 | 11 | DATA:5, VIEWS:2 |
 | `modules/modal/edit-rights.js` | 60 | 4 | 4 | 4 | — |
 | `modules/modal/entry.js` | 124 | 12 | 12 | 11 | DATA:3, S:2 |
+| `modules/modal/forms.js` | 15 | 1 | 1 | 1 | — |
 | `modules/modal/integrity.js` | 254 | 10 | 6 | 7 | DATA:4 |
 | `modules/modal/persist.js` | 410 | 10 | 6 | 13 | DATA:9, S:1 |
 | `modules/modal/philosopher-view.js` | 631 | 4 | 1 | 12 | DATA:6, VIEWS:1 |
@@ -338,11 +339,11 @@
 | `isNodeVisible` | function | 1 | да |
 | `isLinkVisible` | function | 1 | да |
 
-### `modules/data/backend.js` — 111 строк, объявлений 7
+### `modules/data/backend.js` — 118 строк, объявлений 7
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `sendCommit` | async function | 51 | — |
+| `sendCommit` | async function | 58 | — |
 | `submitChange` | function | 17 | да |
 | `reportSubmit` | function | 16 | да |
 | `commitMessageFor` | function | 9 | — |
@@ -716,7 +717,7 @@
 | `BRIDGING_WEIGHT_REF` | const | 1 | да |
 | `traditionBridgingCache` | let | 1 | — |
 
-### `modules/modal/assembly.js` — 54 строк, объявлений 3
+### `modules/modal/assembly.js` — 56 строк, объявлений 3
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -739,21 +740,24 @@
 | `authModalKind` | let | 1 | — |
 | `authModalEl` | function | 1 | — |
 
-### `modules/modal/commits.js` — 126 строк, объявлений 11
+### `modules/modal/commits.js` — 160 строк, объявлений 14
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `renderCommits` | function | 35 | — |
+| `renderCommits` | function | 53 | — |
 | `reviewCommitFromPanel` | async function | 17 | да |
 | `loadCommits` | async function | 15 | да |
 | `revertCommitFromPanel` | async function | 14 | да |
-| `commitStateWords` | function | 8 | — |
+| `обновитьСчётПравок` | function | 7 | — |
 | `openCommitsPanel` | function | 6 | да |
 | `closeCommitsPanel` | function | 4 | да |
 | `switchCommitTab` | function | 4 | да |
+| `commitStateWords` | function | 3 | — |
+| `commitStateKind` | function | 3 | — |
 | `commitTab` | let | 1 | да |
 | `commitItems` | let | 1 | да |
 | `commitError` | let | 1 | да |
+| `COMMIT_STATES` | const | 1 | — |
 
 ### `modules/modal/concept-view.js` — 336 строк, объявлений 1
 
@@ -876,6 +880,12 @@
 | `showPhilosopherDetailModal` | function | 3 | да |
 | `closeDetailModal` | function | 1 | да |
 | `closePhilosopherDetailModal` | function | 1 | да |
+
+### `modules/modal/forms.js` — 15 строк, объявлений 1
+
+| Имя | Вид | Строк | Вывозится |
+|---|---|---|---|
+| `commitReasonField` | function | 9 | да |
 
 ### `modules/modal/integrity.js` — 254 строк, объявлений 10
 
@@ -1661,6 +1671,7 @@
 - из `modules/modal/edit-forms.js`: _ради побочного действия_
 - из `modules/modal/edit-rights.js`: _ради побочного действия_
 - из `modules/modal/entry.js`: _ради побочного действия_
+- из `modules/modal/forms.js`: _ради побочного действия_
 - из `modules/modal/integrity.js`: _ради побочного действия_
 - из `modules/modal/persist.js`: _ради побочного действия_
 - из `modules/modal/philosopher-view.js`: _ради побочного действия_
@@ -2068,8 +2079,9 @@
 ### `modules/modal/assembly.js`
 
 - из `modules/core/ns.js`: `VIEWS`
+- из `modules/modal/forms.js`: `commitReasonField`
 
-Чаще всего поминает: `VIEWS`×2
+Чаще всего поминает: `VIEWS`×2, `commitReasonField`×1
 
 ### `modules/modal/auth.js`
 
@@ -2091,7 +2103,7 @@
 - из `modules/data/remote.js`: `pullGraphSince`
 - из `modules/util/html.js`: `escapeAttr`
 
-Чаще всего поминает: `escapeAttr`×7, `can`×4, `PERM`×4, `api`×3, `pullGraphSince`×2
+Чаще всего поминает: `escapeAttr`×10, `can`×4, `PERM`×4, `api`×3, `pullGraphSince`×2
 
 ### `modules/modal/concept-view.js`
 
@@ -2213,6 +2225,12 @@
 - из `modules/state/render.js`: `selectedNodes`
 
 Чаще всего поминает: `openUniversalModal`×5, `conceptById`×3, `can`×3, `PERM`×3, `DATA`×3
+
+### `modules/modal/forms.js`
+
+- из `modules/core/api.js`: `serverMode`
+
+Чаще всего поминает: `serverMode`×1
 
 ### `modules/modal/integrity.js`
 

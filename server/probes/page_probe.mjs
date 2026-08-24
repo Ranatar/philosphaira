@@ -416,6 +416,31 @@ try {
     await страница.evaluate(`window.__app.unreadCount`) === 0, 0,
     await страница.evaluate(`window.__app.unreadCount`));
 
+  // ── 8-бис. ПОЛЕ «ЗАЧЕМ» ────────────────────────────────────────────────
+  // Заголовок коммита машинный — это АДРЕС правки. Причину пишет человек,
+  // и она должна дойти до сервера отдельным полем, а не вместо адреса.
+  const адрес8 = await страница.evaluate('window.__app.DATA.concepts[2].id');
+  await страница.evaluate(`window.__app.openEditConceptModal(${JSON.stringify(адрес8)})`);
+  await ждать(900);
+  проверить('в серверном ладу поле «зачем» есть',
+    await страница.evaluate(`!!document.getElementById('commitReason')`), 'есть', 'нет');
+
+  await страница.evaluate(`(function(){
+    document.getElementById('conceptDescription').value = 'правка с объяснением';
+    document.getElementById('commitReason').value = 'уточнил по Диогену Лаэртскому';
+    window.__app.saveConceptData();
+  })()`);
+  await ждать(1800);
+
+  const сОбъяснением = (await pool.query(
+    `SELECT message, author_comment FROM commits ORDER BY created_at DESC LIMIT 1`)).rows[0];
+  проверить('ПРИЧИНА ДОШЛА ДО СЕРВЕРА',
+    сОбъяснением.author_comment === 'уточнил по Диогену Лаэртскому',
+    'уточнил по Диогену Лаэртскому', сОбъяснением.author_comment);
+  проверить('и заголовок остался МАШИННЫМ адресом правки',
+    /^Изменено: концепция /.test(сОбъяснением.message),
+    'Изменено: концепция …', сОбъяснением.message);
+
   // ── 9. ПАНЕЛЬ ПРАВОК ───────────────────────────────────────────────────
   await страница.evaluate(`window.__app.openCommitsPanel()`);
   await ждать(1200);
@@ -426,6 +451,15 @@ try {
   проверить('свои правки показаны',
     (await страница.evaluate(`window.__app.commitItems.length`)) > 0, '>0',
     await страница.evaluate(`window.__app.commitItems.length`));
+  проверить('в панели крупно ПРИЧИНА, а адрес под ней',
+    await страница.evaluate(`(function(){
+      const т = document.getElementById('commitsBody');
+      if (!т) return false;
+      const шапка = т.querySelector('.commit-msg');
+      const адрес = т.querySelector('.commit-what');
+      return !!шапка && !!адрес
+        && /Диоген/.test(шапка.textContent) && /Изменено/.test(адрес.textContent);
+    })()`), 'причина сверху', 'нет');
   проверить('состояние коммита показано словами',
     await страница.evaluate(
       `!/pending|applied|conflicted/.test(document.getElementById('commitsBody').textContent)`),

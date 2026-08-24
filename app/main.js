@@ -57,6 +57,7 @@ import './modules/modal/dirty.js';
 import './modules/modal/edit-forms.js';
 import './modules/modal/edit-rights.js';
 import './modules/modal/entry.js';
+import './modules/modal/forms.js';
 import './modules/modal/integrity.js';
 import './modules/modal/persist.js';
 import './modules/modal/philosopher-view.js';

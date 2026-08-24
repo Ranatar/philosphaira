@@ -44,13 +44,21 @@ async function loadCommits() {
       return commitItems;
     }
 
+const COMMIT_STATES = Object.freeze({
+      pending:    { слово: 'ждёт рассмотрения',  вид: 'ждёт' },
+      applied:    { слово: 'применён',           вид: 'применён' },
+      coincided:  { слово: 'то же уже внесли',   вид: 'совпал' },
+      rejected:   { слово: 'отклонён',           вид: 'отклонён' },
+      conflicted: { слово: 'столкнулся с чужим', вид: 'столкнулся' },
+      reverted:   { слово: 'отменён',            вид: 'отменён' },
+    });
+
 function commitStateWords(состояние) {
-      const словарь = {
-        pending: 'ждёт рассмотрения', applied: 'применён',
-        coincided: 'то же уже внесли', rejected: 'отклонён',
-        conflicted: 'столкнулся с чужим', reverted: 'отменён',
-      };
-      return словарь[состояние] || состояние;
+      return (COMMIT_STATES[состояние] || {}).слово || состояние;
+    }
+
+function commitStateKind(состояние) {
+      return (COMMIT_STATES[состояние] || {}).вид || 'прочее';
     }
 
 function renderCommits() {
@@ -70,8 +78,10 @@ function renderCommits() {
       }
       if (!commitItems.length) {
         место.innerHTML = '<div class="commits-empty">Пусто</div>';
+        обновитьСчётПравок(0);
         return;
       }
+      обновитьСчётПравок(commitItems.length);
 
       место.innerHTML = commitItems.map(к => {
         const рассмотреть = (commitTab === 'pending' && can(PERM.REVIEW_COMMIT))
@@ -81,12 +91,36 @@ function renderCommits() {
         const откат = (к.status === 'applied' && can(PERM.REVERT_COMMIT))
           ? `<button class="commit-revert" data-id="${escapeAttr(к.commitId)}">Откатить</button>`
           : '';
+        // ПРИЧИНА ОТКАЗА ПОКАЗЫВАЕТСЯ АВТОРУ. Она хранилась (review_comment),
+        // но наружу не выходила: рецензент писал в пустоту.
+        const причина = (к.status === 'rejected' && к.reviewComment)
+          ? `<div class="commit-why">Причина отказа: ${escapeAttr(к.reviewComment)}</div>`
+          : '';
+        const разбор = (к.status === 'conflicted')
+          ? '<div class="commit-why">Пересоберите правку поверх нынешнего состояния.</div>'
+          : '';
+        // Если автор объяснил — крупно идёт ЗАЧЕМ, а машинный адрес мелко
+        // под ним. Не объяснил — заголовком служит адрес: он всегда есть.
+        const зачем = к.authorComment ? String(к.authorComment).trim() : '';
+        const голова = зачем
+          ? `<div class="commit-msg">${escapeAttr(зачем)}</div>`
+            + `<div class="commit-what">${escapeAttr(к.message || '')}</div>`
+          : `<div class="commit-msg">${escapeAttr(к.message || '')}</div>`;
         return '<div class="commit-item">'
-          + `<div class="commit-msg">${escapeAttr(к.message || '')}</div>`
+          + голова
           + `<div class="commit-meta">${escapeAttr(к.authorName || '')} · `
-          + `${escapeAttr(commitStateWords(к.status))}</div>`
-          + рассмотреть + откат + '</div>';
+          + `<span class="commit-state state-${commitStateKind(к.status)}">`
+          + `${escapeAttr(commitStateWords(к.status))}</span></div>`
+          + причина + разбор + рассмотреть + откат + '</div>';
       }).join('');
+    }
+
+function обновитьСчётПравок(сколько) {
+      const место = document.getElementById('commitsCount');
+      if (!место) return;
+      место.textContent = сколько
+        ? `${сколько} ${сколько === 1 ? 'правка' : (сколько < 5 ? 'правки' : 'правок')}`
+        : '';
     }
 
 async function reviewCommitFromPanel(id, решение) {

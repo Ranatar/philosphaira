@@ -25,9 +25,16 @@ function submitChange(описание, применить) {
     }
 
 async function sendCommit(описание, прямо) {
+      // Причина уходит ОТДЕЛЬНЫМ полем, а не вместо заголовка: заголовок —
+      // адрес правки, по нему её ищут и разбирают столкновения, и терять
+      // его ради вольного слова нельзя.
+      const поле = document.getElementById('commitReason');
+      const зачем = поле && поле.value ? поле.value.trim() : '';
+
       const ответ = await api('/api/commits', {
         метод: 'POST',
-        тело: { message: commitMessageFor(описание), changes: [описание] },
+        тело: { message: commitMessageFor(описание), authorComment: зачем || null,
+                changes: [описание] },
       });
 
       if (!ответ.годно) {

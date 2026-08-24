@@ -4565,6 +4565,56 @@
     .user-ban       { border-color: var(--danger);  color: var(--danger); }
     .commit-revert  { border-color: var(--warning); color: var(--warning); }
 
+    /* Состояние правки видно цветом, а не только словом. */
+    .commit-state { font-weight: 600; }
+    .commit-state.state-ждёт        { color: var(--accent-text); }
+    .commit-state.state-применён    { color: var(--success); }
+    .commit-state.state-совпал      { color: var(--fg-muted); }
+    .commit-state.state-отклонён    { color: var(--danger); }
+    .commit-state.state-столкнулся  { color: var(--warning); }
+    .commit-state.state-отменён     { color: var(--warning); }
+
+    /* Причина отказа и подсказка при столкновении: рецензент писал в
+       пустоту, автор не видел ни слова. */
+    .commit-why {
+      margin: 6px 0 10px;
+      padding: 8px 10px;
+      border-left: 2px solid var(--border-color);
+      background: var(--surface-sunken);
+      border-radius: var(--radius-field);
+      color: var(--fg-muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    /* Машинный адрес правки под вольным объяснением: он нужен, но не он
+       главный для читающего. */
+    .commit-what {
+      color: var(--fg-muted);
+      font-size: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      margin-bottom: 4px;
+    }
+
+    .commit-reason label .необязательно {
+      color: var(--fg-muted);
+      font-weight: 400;
+    }
+
+    .commits-count {
+      color: var(--fg-muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    /* Список прокручивается — и это должно быть ВИДНО: снизу лёгкая тень,
+       чтобы обрезанная строка читалась как «есть ещё», а не как конец. */
+    .commits-body,
+    .users-body {
+      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 18px), transparent);
+              mask-image: linear-gradient(to bottom, #000 calc(100% - 18px), transparent);
+    }
+
     .commits-tabs {
       display: flex;
       gap: 8px;
@@ -5068,6 +5118,7 @@
         <button data-tab="mine" onclick="switchCommitTab('mine')">Мои</button>
         <button data-tab="pending" onclick="switchCommitTab('pending')">Очередь</button>
       </div>
+      <div id="commitsCount" class="commits-count"></div>
       <div id="commitsBody" class="commits-body"></div>
       <div class="modal-actions">
         <button onclick="closeCommitsPanel()">Закрыть</button>
@@ -28876,9 +28927,16 @@
      * рапортовала об успехе на отказ сервера.
      */
     async function sendCommit(описание, прямо) {
+      // Причина уходит ОТДЕЛЬНЫМ полем, а не вместо заголовка: заголовок —
+      // адрес правки, по нему её ищут и разбирают столкновения, и терять
+      // его ради вольного слова нельзя.
+      const поле = document.getElementById('commitReason');
+      const зачем = поле && поле.value ? поле.value.trim() : '';
+
       const ответ = await api('/api/commits', {
         метод: 'POST',
-        тело: { message: commitMessageFor(описание), changes: [описание] },
+        тело: { message: commitMessageFor(описание), authorComment: зачем || null,
+                changes: [описание] },
       });
 
       if (!ответ.годно) {
@@ -29108,14 +29166,27 @@
       return commitItems;
     }
 
-    /** Состояние коммита словами: рецензенту и автору читать, а не гадать. */
+    /**
+     * Состояние коммита словами И ЦВЕТОМ: снимки показали, что шесть
+     * состояний, набранные одинаково приглушённо, приходится ЧИТАТЬ, тогда
+     * как судьбу правки надо видеть сразу. Цвета взяты те же, что у кнопок,
+     * — своих для этого заводить не нужно.
+     */
+    const COMMIT_STATES = Object.freeze({
+      pending:    { слово: 'ждёт рассмотрения',  вид: 'ждёт' },
+      applied:    { слово: 'применён',           вид: 'применён' },
+      coincided:  { слово: 'то же уже внесли',   вид: 'совпал' },
+      rejected:   { слово: 'отклонён',           вид: 'отклонён' },
+      conflicted: { слово: 'столкнулся с чужим', вид: 'столкнулся' },
+      reverted:   { слово: 'отменён',            вид: 'отменён' },
+    });
+
     function commitStateWords(состояние) {
-      const словарь = {
-        pending: 'ждёт рассмотрения', applied: 'применён',
-        coincided: 'то же уже внесли', rejected: 'отклонён',
-        conflicted: 'столкнулся с чужим', reverted: 'отменён',
-      };
-      return словарь[состояние] || состояние;
+      return (COMMIT_STATES[состояние] || {}).слово || состояние;
+    }
+
+    function commitStateKind(состояние) {
+      return (COMMIT_STATES[состояние] || {}).вид || 'прочее';
     }
 
     function renderCommits() {
@@ -29135,8 +29206,10 @@
       }
       if (!commitItems.length) {
         место.innerHTML = '<div class="commits-empty">Пусто</div>';
+        обновитьСчётПравок(0);
         return;
       }
+      обновитьСчётПравок(commitItems.length);
 
       место.innerHTML = commitItems.map(к => {
         const рассмотреть = (commitTab === 'pending' && can(PERM.REVIEW_COMMIT))
@@ -29146,12 +29219,42 @@
         const откат = (к.status === 'applied' && can(PERM.REVERT_COMMIT))
           ? `<button class="commit-revert" data-id="${escapeAttr(к.commitId)}">Откатить</button>`
           : '';
+        // ПРИЧИНА ОТКАЗА ПОКАЗЫВАЕТСЯ АВТОРУ. Она хранилась (review_comment),
+        // но наружу не выходила: рецензент писал в пустоту.
+        const причина = (к.status === 'rejected' && к.reviewComment)
+          ? `<div class="commit-why">Причина отказа: ${escapeAttr(к.reviewComment)}</div>`
+          : '';
+        const разбор = (к.status === 'conflicted')
+          ? '<div class="commit-why">Пересоберите правку поверх нынешнего состояния.</div>'
+          : '';
+        // Если автор объяснил — крупно идёт ЗАЧЕМ, а машинный адрес мелко
+        // под ним. Не объяснил — заголовком служит адрес: он всегда есть.
+        const зачем = к.authorComment ? String(к.authorComment).trim() : '';
+        const голова = зачем
+          ? `<div class="commit-msg">${escapeAttr(зачем)}</div>`
+            + `<div class="commit-what">${escapeAttr(к.message || '')}</div>`
+          : `<div class="commit-msg">${escapeAttr(к.message || '')}</div>`;
         return '<div class="commit-item">'
-          + `<div class="commit-msg">${escapeAttr(к.message || '')}</div>`
+          + голова
           + `<div class="commit-meta">${escapeAttr(к.authorName || '')} · `
-          + `${escapeAttr(commitStateWords(к.status))}</div>`
-          + рассмотреть + откат + '</div>';
+          + `<span class="commit-state state-${commitStateKind(к.status)}">`
+          + `${escapeAttr(commitStateWords(к.status))}</span></div>`
+          + причина + разбор + рассмотреть + откат + '</div>';
       }).join('');
+    }
+
+    /**
+     * Сколько правок в списке. Снимки показали, что список обрезается нижним
+     * краем БЕЗ ВСЯКОГО ПРИЗНАКА: прокрутка есть, но её не видно, и человек
+     * решит, что очередь кончилась. Число говорит правду прежде, чем он
+     * успеет ошибиться.
+     */
+    function обновитьСчётПравок(сколько) {
+      const место = document.getElementById('commitsCount');
+      if (!место) return;
+      место.textContent = сколько
+        ? `${сколько} ${сколько === 1 ? 'правка' : (сколько < 5 ? 'правки' : 'правок')}`
+        : '';
     }
 
     async function reviewCommitFromPanel(id, решение) {
@@ -30404,8 +30507,29 @@
 
 
     // ---- общие куски формы -----------------------------------------------
-    function modalActions(saveFn, deleteFn, deleteArg, isNew) {
+
+    /**
+     * ЗАЧЕМ правка. Машинный заголовок («Изменено: концепция X (description)»)
+     * точен и незаменим как адрес, но рецензенту он говорит ЧТО, а не ЗАЧЕМ.
+     * Поле необязательное: правки бывают частыми и мелкими, и обязательный
+     * вопрос на каждую превратится в «фикс» и точку. Отказ рецензента —
+     * дело редкое, и там причина обязательна на уровне схемы.
+     *
+     * Показывается ТОЛЬКО в серверном ладу: без сервера правка никуда не
+     * уходит и объяснять её некому.
+     */
+    function commitReasonField() {
+      if (!serverMode) return '';
       return `
+        <div class="modal-form-group commit-reason">
+          <label for="commitReason">Зачем эта правка <span class="необязательно">(необязательно, но рецензенту помогает)</span></label>
+          <input type="text" id="commitReason" maxlength="160"
+                 placeholder="Например: уточнил формулировку по Диогену Лаэртскому">
+        </div>`;
+    }
+
+    function modalActions(saveFn, deleteFn, deleteArg, isNew) {
+      return commitReasonField() + `
         <div class="modal-actions">
           <button class="modal-btn modal-btn-primary" onclick="${saveFn}()">
             💾 Сохранить

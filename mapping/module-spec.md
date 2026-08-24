@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 124 модулей, 19031 строк.
+Составлено из готовой сборки: 125 модулей, 19090 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/gen_spec2.mjs`
 после каждой сборки.
@@ -42,7 +42,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | Модуль | Строк | Вывозит | Ввозит из |
 |---|---|---|---|
 | `boot.js` | 292 | 1 | 63 |
-| `main.js` | 130 | 0 | 119 |
+| `main.js` | 131 | 0 | 120 |
 | `modules/boot-defs.js` | 62 | 2 | 8 |
 | `modules/core/api.js` | 85 | 3 | 1 |
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
@@ -58,7 +58,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/core/session.js` | 23 | 4 | 1 |
 | `modules/core/time.js` | 13 | 2 | 0 |
 | `modules/core/visibility.js` | 13 | 2 | 1 |
-| `modules/data/backend.js` | 111 | 4 | 4 |
+| `modules/data/backend.js` | 118 | 4 | 4 |
 | `modules/data/commit-draft.js` | 32 | 1 | 0 |
 | `modules/data/load.js` | 9 | 1 | 1 |
 | `modules/data/mutate.js` | 89 | 1 | 6 |
@@ -89,9 +89,9 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/metrics/similarity-philosophers.js` | 166 | 7 | 2 |
 | `modules/metrics/tension-cache.js` | 13 | 1 | 1 |
 | `modules/metrics/tradition-bridging.js` | 89 | 3 | 2 |
-| `modules/modal/assembly.js` | 54 | 3 | 1 |
+| `modules/modal/assembly.js` | 56 | 3 | 2 |
 | `modules/modal/auth.js` | 214 | 4 | 7 |
-| `modules/modal/commits.js` | 126 | 9 | 5 |
+| `modules/modal/commits.js` | 160 | 9 | 5 |
 | `modules/modal/concept-view.js` | 336 | 0 | 7 |
 | `modules/modal/conflict.js` | 85 | 5 | 7 |
 | `modules/modal/connection-edit.js` | 284 | 5 | 12 |
@@ -103,6 +103,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/modal/edit-forms.js` | 288 | 2 | 11 |
 | `modules/modal/edit-rights.js` | 60 | 4 | 4 |
 | `modules/modal/entry.js` | 124 | 12 | 10 |
+| `modules/modal/forms.js` | 15 | 1 | 1 |
 | `modules/modal/integrity.js` | 254 | 6 | 7 |
 | `modules/modal/persist.js` | 410 | 6 | 13 |
 | `modules/modal/philosopher-view.js` | 631 | 1 | 12 |
@@ -245,7 +246,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `main.js`
 
-Строк 130.
+Строк 131.
 
 **Вывозит:** _ничего_
 
@@ -310,6 +311,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./modules/modal/edit-forms.js`: _ради побочного действия_
 - из `./modules/modal/edit-rights.js`: _ради побочного действия_
 - из `./modules/modal/entry.js`: _ради побочного действия_
+- из `./modules/modal/forms.js`: _ради побочного действия_
 - из `./modules/modal/integrity.js`: _ради побочного действия_
 - из `./modules/modal/persist.js`: _ради побочного действия_
 - из `./modules/modal/philosopher-view.js`: _ради побочного действия_
@@ -554,7 +556,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/data/backend.js`
 
-Строк 111.
+Строк 118.
 
 **Вывозит:** `lastSubmitResult`, `lastSubmitted`, `reportSubmit`, `submitChange`
 
@@ -1016,13 +1018,14 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/assembly.js`
 
-Строк 54.
+Строк 56.
 
 **Вывозит:** `modalActions`, `modalContentFor`, `modalEntityExists`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `VIEWS`
+- из `./forms.js`: `commitReasonField`
 
 **Содержит:** `modalActions`, `modalContentFor`, `modalEntityExists`
 
@@ -1046,7 +1049,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/commits.js`
 
-Строк 126.
+Строк 160.
 
 **Вывозит:** `closeCommitsPanel`, `commitError`, `commitItems`, `commitTab`, `loadCommits`, `openCommitsPanel`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `switchCommitTab`
 
@@ -1058,7 +1061,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../data/remote.js`: `pullGraphSince`
 - из `../util/html.js`: `escapeAttr`
 
-**Содержит:** `closeCommitsPanel`, `commitError`, `commitItems`, `commitStateWords`, `commitTab`, `loadCommits`, `openCommitsPanel`, `renderCommits`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `switchCommitTab`
+**Содержит:** `COMMIT_STATES`, `closeCommitsPanel`, `commitError`, `commitItems`, `commitStateKind`, `commitStateWords`, `commitTab`, `loadCommits`, `openCommitsPanel`, `renderCommits`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `switchCommitTab`
 
 ### `modules/modal/concept-view.js`
 
@@ -1253,6 +1256,18 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `closeDetailModal`, `closePhilosopherDetailModal`, `getIsolatedConceptsAfterDeletion`, `gotoNodeFromModal`, `isConceptIsolated`, `openConceptById`, `openEditConceptModal`, `openEditConnectionModal`, `openEditPhilosopherModal`, `showAllConcepts`, `showDetailModal`, `showPhilosopherDetailModal`
+
+### `modules/modal/forms.js`
+
+Строк 15.
+
+**Вывозит:** `commitReasonField`
+
+**Ввозит:**
+
+- из `../core/api.js`: `serverMode`
+
+**Содержит:** `commitReasonField`
 
 ### `modules/modal/integrity.js`
 
