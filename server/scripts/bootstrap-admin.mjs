@@ -1,61 +1,80 @@
 #!/usr/bin/env node
-// Первый администратор заводится ЗДЕСЬ, а не через API.
+// ПЕРВЫЙ АДМИНИСТРАТОР. Только из командной строки и только на пустой базе.
 //
 // Открытая ветка «первый зарегистрировавшийся становится администратором» —
-// известный способ потерять систему в первые же сутки. Поэтому: только при
-// ПУСТОЙ таблице, только из командной строки, и с временным паролем, который
-// нельзя предъявить, пока не заведён настоящий (беседа 1.3 добавит хеширование
-// и смену пароля).
+// известный способ потерять систему в первые же сутки.
+//
+// ПАРОЛЬ НАСТОЯЩИЙ. Прежняя version клала заглушку, которой не соответствует
+// ни один пароль: она осталась с беседы 1.1, когда argon2 в проекте ещё не
+// было, и прямо сообщала «войти нельзя до 1.3». В 1.3 пароли появились, а
+// сюда никто не вернулся — первый администратор так и не мог войти.
+//
+// ПОЧЕМУ ПОЧТА СЧИТАЕТСЯ ПОДТВЕРЖДЁННОЙ. Обычный человек доказывает владение
+// адресом письмом. Оператор, запускающий эту команду, уже держит в руках
+// DATABASE_URL и ключ MFA — канал доверия сильнее письма. Заодно снимается
+// круг «чтобы настроить систему, нужен администратор, а чтобы он получил
+// права, должна работать почта».
+//
+// MFA НЕ ЗАВОДИТСЯ САМ: секрет должен увидеть человек, который вносит его в
+// приложение, а включённый без подтверждения второй шаг запер бы вход.
 
-import crypto from 'node:crypto';
 import { создатьПул } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
-import { userFromRow } from '../src/db/mapper.js';
+import { beginBootstrapAdmin, insertUser, setEmailVerified,
+         writeRoleHistory, audit } from '../src/db/users.js';
+import { assertPasswordPolicy, hashPassword } from '../src/auth/password.js';
 
 const login = process.env.BOOTSTRAP_ADMIN_LOGIN || 'admin';
 const email = process.env.BOOTSTRAP_ADMIN_EMAIL || 'admin@example.invalid';
+const password = process.env.BOOTSTRAP_ADMIN_PASSWORD;
+
+if (!password) {
+  console.error(
+    'BOOTSTRAP_ADMIN_PASSWORD не задан. У первого администратора должен быть\n' +
+    'настоящий пароль; небезопасного умолчания здесь нет.\n' +
+    'Задавайте переменной окружения, а не доводом командной строки: довод\n' +
+    'виден в списке процессов и остаётся в истории оболочки.');
+  process.exit(1);
+}
+
+// Требования — те же, что для всякой регистрации: второго свода правил нет.
+assertPasswordPolicy(password);
+
+// argon2 считается ДО сделки: он дорог, и держать на нём соединение и
+// замок незачем.
+const passwordHash = await hashPassword(password);
 
 const pool = создатьПул();
 try {
   const итог = await withTransaction(pool, async client => {
-    // Считаем ВНУТРИ транзакции и с блокировкой: два одновременных запуска
-    // иначе оба увидят пустую таблицу и заведут двух администраторов.
-    const { rowCount } = await client.query(
-      `SELECT user_id FROM users WHERE deleted_at IS NULL FOR UPDATE`);
-    if (rowCount) return { уже: rowCount };
+    const живых = await beginBootstrapAdmin(client);
+    if (живых) return { уже: живых };
 
-    // Хеш, которому не соответствует НИ ОДИН пароль: настоящее хеширование
-    // приходит в 1.3, а до тех пор запись не должна пускать никого.
-    const заглушка = '!нельзя-войти:' + crypto.randomBytes(16).toString('hex');
-    const { rows: [строка] } = await client.query(`
-      INSERT INTO users (username, email, password_hash, role, display_name)
-      VALUES ($1, $2, $3, 'administrator', $1) RETURNING *`,
-      [login, email, заглушка]);
-
-    // Строка становится объектом СРАЗУ, и дальше живёт только объект:
-    // читать строку.user_id тут же — значит начать ту самую двойную
-    // жизнь, из которой выросла половина дефектов первой редакции.
-    // Проба строения ловит это и поймала при первом же прогоне.
-    const заведён = userFromRow(строка);
-
-    await client.query(`
-      INSERT INTO role_history (user_id, old_role, new_role, changed_by, reason)
-      VALUES ($1, NULL, 'administrator', NULL, $2)`,
-      [заведён.userId, 'первый администратор, заведён bootstrap-admin']);
-
-    await client.query(`
-      INSERT INTO audit_log (actor_id, action, subject_type, subject_id, payload)
-      VALUES (NULL, 'user.bootstrap', 'user', $1, '{}'::jsonb)`, [заведён.userId]);
-
-    return { заведён };
+    const user = await insertUser(client, {
+      username: login, email, passwordHash,
+      displayName: login, role: 'administrator',
+    });
+    await setEmailVerified(client, user.userId);
+    await writeRoleHistory(client, {
+      userId: user.userId, oldRole: null, newRole: 'administrator',
+      actorId: null, reason: 'первый администратор, заведён bootstrap-admin',
+    });
+    await audit(client, {
+      actorId: null, action: 'user.bootstrap', subjectType: 'user',
+      subjectId: user.userId,
+      payload: { username: user.username, почтаПодтвержденаВнеСети: true },
+    });
+    return { user };
   });
 
   if (итог.уже) {
-    console.log(`в базе уже ${итог.уже} пользовател(я/ей) — ничего не делаю`);
+    console.error(`в базе уже ${итог.уже} живых пользовател(я/ей) — ничего не сделано`);
     process.exitCode = 1;
   } else {
-    console.log(`заведён администратор ${итог.заведён.username} (${итог.заведён.userId})`);
-    console.log('пароля у него ПОКА НЕТ: войти нельзя до беседы 1.3');
+    console.log(`заведён администратор ${итог.user.username} (${итог.user.userId})`);
+    console.log('почта помечена подтверждённой как часть доверенного запуска');
+    console.log('СЛЕДУЮЩИЙ ШАГ: войти и завести второй шаг — без него опасные');
+    console.log('права срезаны, и назначить второго администратора нельзя');
   }
 } finally {
   await pool.end();

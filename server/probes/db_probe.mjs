@@ -75,8 +75,10 @@ try {
     'ожидалась строка базы', await отказ(() => userFromRow(null)));
 
   // ── 3. первый администратор ─────────────────────────────────────────────
+  const ПАРОЛЬ_АДМИНА = 'вполне-длинный-пароль-для-пробы';
+  const окружение = { ...process.env, BOOTSTRAP_ADMIN_PASSWORD: ПАРОЛЬ_АДМИНА };
   execFileSync('node', [path.join(КОРЕНЬ, 'scripts', 'bootstrap-admin.mjs')],
-    { encoding: 'utf8', env: process.env });
+    { encoding: 'utf8', env: окружение });
   const { rows: [строка] } = await pool.query(
     `SELECT * FROM users WHERE role = 'administrator'`);
   проверить('bootstrap завёл администратора', !!строка, 'есть', строка ? 'есть' : 'нет');
@@ -93,12 +95,37 @@ try {
   let второй = 'не упал';
   try {
     execFileSync('node', [path.join(КОРЕНЬ, 'scripts', 'bootstrap-admin.mjs')],
-      { encoding: 'utf8', env: process.env, stdio: 'pipe' });
+      { encoding: 'utf8', env: окружение, stdio: 'pipe' });
   } catch { второй = 'отказал'; }
   const { rows: [{ n: администраторов }] } = await pool.query(
     `SELECT count(*)::int AS n FROM users WHERE role = 'administrator'`);
   проверить('второй запуск не заводит второго', администраторов === 1, 1, администраторов);
   проверить('второй запуск сообщает об отказе', второй === 'отказал', 'отказал', второй);
+
+  // Первый администратор ДОЛЖЕН ВХОДИТЬ. Прежняя версия клала заглушку,
+  // которой не соответствует ни один пароль, и это никем не проверялось.
+  const { verifyPassword } = await import('../src/auth/password.js');
+  проверить('у первого администратора НАСТОЯЩИЙ пароль',
+    await verifyPassword(строка.password_hash, ПАРОЛЬ_АДМИНА), true, 'нет');
+  проверить('чужой пароль ему не подходит',
+    !(await verifyPassword(строка.password_hash, 'не тот пароль вовсе')), true, 'нет');
+  проверить('почта подтверждена как часть доверенного запуска',
+    админ.emailVerified === true, true, админ.emailVerified);
+  проверить('второй шаг САМ НЕ заводится', админ.mfaReady === false, false, админ.mfaReady);
+  // И следствие, которое стоит знать: без второго шага он не назначит
+  // второго администратора — курица и яйцо сдвинута, а не снята.
+  проверить('без второго шага права на роли срезаны',
+    !админ.permissions.includes('manage_admins'), false, 'есть');
+
+  const безПароля = (() => {
+    try {
+      execFileSync('node', [path.join(КОРЕНЬ, 'scripts', 'bootstrap-admin.mjs')],
+        { encoding: 'utf8', env: { ...process.env, BOOTSTRAP_ADMIN_PASSWORD: '' },
+          stdio: 'pipe' });
+      return 'ПРОШЛО';
+    } catch { return 'отказал'; }
+  })();
+  проверить('без пароля запуск отказывает', безПароля === 'отказал', 'отказал', безПароля);
 
   // ── 4. почта видна не всем ──────────────────────────────────────────────
   const гостю = userFromRow(строка, { кому: null });

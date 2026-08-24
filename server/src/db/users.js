@@ -125,3 +125,23 @@ export const auditEntries = async (db, { actorId = null, action = null,
 };
 
 export { себе as userForSelf };
+
+/**
+ * Сериализовать заведение первого администратора МЕЖДУ ПРОЦЕССАМИ и
+ * вернуть число живых пользователей.
+ *
+ * `SELECT ... FOR UPDATE` по ПУСТОЙ таблице не блокирует НИЧЕГО: строк
+ * нет, запирать нечего. Два одновременных запуска увидят ноль и заведут
+ * двух администраторов. Ровно эту ошибку разбирали в беседе 1.5 для
+ * заслона последнего администратора — и не заметили, что здесь она же.
+ *
+ * Замок на уровне СДЕЛКИ снимается сам при COMMIT или ROLLBACK, и его
+ * не надо помнить.
+ */
+export async function beginBootstrapAdmin(client) {
+  await client.query(
+    `SELECT pg_advisory_xact_lock(hashtext('philosphaira.bootstrap-admin'))`);
+  const { rowCount } = await client.query(
+    `SELECT 1 FROM users WHERE deleted_at IS NULL`);
+  return rowCount;
+}

@@ -5,10 +5,14 @@
   "type": "module",
   "description": "Серверная часть ΦilosΦaira. РЕШЕНИЕ, а не производное: пересборкой не восстанавливается (readme §12).",
   "scripts": {
+    "start": "node scripts/serve.mjs",
     "migrate": "node scripts/migrate.mjs up",
     "migrate:down": "node scripts/migrate.mjs down",
     "migrate:status": "node scripts/migrate.mjs status",
+    "graph:import": "node scripts/import-graph.mjs ../app/data",
+    "graph:export": "node scripts/export-graph.mjs",
     "bootstrap-admin": "node scripts/bootstrap-admin.mjs",
+    "notify-worker": "node scripts/notify-worker.mjs",
     "accept": "bash accept.sh"
   },
   "dependencies": {

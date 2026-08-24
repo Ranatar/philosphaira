@@ -51,6 +51,7 @@ if [ "$WHAT" != "--только-сервер" ]; then
   node tools/layers.mjs ввозы 2>/dev/null | grep -q "СНИЗУ ВВЕРХ: 0"; verdict "рёбер снизу вверх нет" $?
   node tools/maps_fresh.mjs 2>/dev/null | grep -q "все карты свежие"; verdict "карты свежие" $?
   python3 tools/bridge_debt.py 2>/dev/null | grep -q "ОСТАТОК ДОЛГА                    0"; verdict "долг закрыт" $?
+  node tools/doc_numbers.mjs > /dev/null 2>&1; verdict "числа в документации сходятся" $?
 
   python3 tools/make_ref.py > /dev/null 2>&1
   serve_up
