@@ -1,6 +1,8 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { VIEWS } from '../core/ns.js';
 
+import { commitReasonField } from './forms.js';
+
 function modalEntityExists(entityType, data) {
       switch (entityType) {
         case 'philosopher':
@@ -35,7 +37,7 @@ function modalContentFor(entityType, data, mode) {
     }
 
 function modalActions(saveFn, deleteFn, deleteArg, isNew) {
-      return `
+      return commitReasonField() + `
         <div class="modal-actions">
           <button class="modal-btn modal-btn-primary" data-act-click="сохранить-сущность" data-a1="${saveFn}">
             💾 Сохранить

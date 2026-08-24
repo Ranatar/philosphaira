@@ -123,6 +123,56 @@
     .user-ban       { border-color: var(--danger);  color: var(--danger); }
     .commit-revert  { border-color: var(--warning); color: var(--warning); }
 
+    /* Состояние правки видно цветом, а не только словом. */
+    .commit-state { font-weight: 600; }
+    .commit-state.state-ждёт        { color: var(--accent-text); }
+    .commit-state.state-применён    { color: var(--success); }
+    .commit-state.state-совпал      { color: var(--fg-muted); }
+    .commit-state.state-отклонён    { color: var(--danger); }
+    .commit-state.state-столкнулся  { color: var(--warning); }
+    .commit-state.state-отменён     { color: var(--warning); }
+
+    /* Причина отказа и подсказка при столкновении: рецензент писал в
+       пустоту, автор не видел ни слова. */
+    .commit-why {
+      margin: 6px 0 10px;
+      padding: 8px 10px;
+      border-left: 2px solid var(--border-color);
+      background: var(--surface-sunken);
+      border-radius: var(--radius-field);
+      color: var(--fg-muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    /* Машинный адрес правки под вольным объяснением: он нужен, но не он
+       главный для читающего. */
+    .commit-what {
+      color: var(--fg-muted);
+      font-size: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      margin-bottom: 4px;
+    }
+
+    .commit-reason label .необязательно {
+      color: var(--fg-muted);
+      font-weight: 400;
+    }
+
+    .commits-count {
+      color: var(--fg-muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    /* Список прокручивается — и это должно быть ВИДНО: снизу лёгкая тень,
+       чтобы обрезанная строка читалась как «есть ещё», а не как конец. */
+    .commits-body,
+    .users-body {
+      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 18px), transparent);
+              mask-image: linear-gradient(to bottom, #000 calc(100% - 18px), transparent);
+    }
+
     .commits-tabs {
       display: flex;
       gap: 8px;
