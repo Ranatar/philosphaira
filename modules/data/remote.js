@@ -1,9 +1,12 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
+import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
 import { api, serverMode } from '../core/api.js';
 import { emit } from '../core/events.js';
 import { afterDataChange } from './mutate.js';
+import { renderState } from '../render/canvas-core.js';
+import { updateGraphData } from '../render/scene.js';
 
 let knownGraphVersion = 0;
 
@@ -105,6 +108,13 @@ S.liveClosedOnPurpose = false;
 function rebuildDerived() {
       const поИмени = {};
       for (const ф of DATA.philosophers) поИмени[ф.id] = ф.nameRu || ф.name;
+      // Координаты снимаются ДО замены: узлы пересоздаются целиком, и без
+      // этого граф стирается с экрана, а при чужом коммите — прыгает.
+      const былиМеста = new Map();
+      for (const у of DATA.nodes) {
+        if (у && у.x !== undefined) былиМеста.set(у.id,
+          { x: у.x, y: у.y, vx: у.vx || 0, vy: у.vy || 0, fx: у.fx, fy: у.fy });
+      }
       DATA.nodes.length = 0;
       DATA.nodes.push(...DATA.concepts.map(c => ({
         id: c.id, label: c.label, concept: поИмени[c.philosopher],
@@ -117,6 +127,28 @@ function rebuildDerived() {
         weight: r.weight, bidirectional: r.bidirectional || false,
         description: r.description,
       })));
+
+      // Места возвращаются уцелевшим по идентификатору; новым — середина
+      // видимой области, как в addNodeToGraph. Без координат d3 ставит узел
+      // в (0,0) и выбрасывает рывком через весь экран.
+      let середина = null;
+      for (const у of DATA.nodes) {
+        const было = былиМеста.get(у.id);
+        if (было) { Object.assign(у, было); continue; }
+        if (!середина) {
+          try { середина = renderState.transform.invert(
+            [S.viewWidth / 2, S.viewHeight / 2]); }
+          catch (e) { середина = [S.viewWidth / 2, S.viewHeight / 2]; }
+        }
+        у.x = середина[0] + (Math.random() - 0.5) * 60;
+        у.y = середина[1] + (Math.random() - 0.5) * 60;
+        у.vx = 0; у.vy = 0;
+      }
+
+      // Массивы передаются симуляции заново: d3 держит свои индексы и
+      // подменяет концы связей объектами узлов — после замены содержимого
+      // и то и другое устарело.
+      updateGraphData();
     }
 
 function applyFreshGraph(состояние) {
