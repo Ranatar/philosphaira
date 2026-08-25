@@ -29644,6 +29644,13 @@
     function rebuildDerived() {
       const поИмени = {};
       for (const ф of philosophers) поИмени[ф.id] = ф.nameRu || ф.name;
+      // Координаты снимаются ДО замены: узлы пересоздаются целиком, и без
+      // этого граф стирается с экрана, а при чужом коммите — прыгает.
+      const былиМеста = new Map();
+      for (const у of nodes) {
+        if (у && у.x !== undefined) былиМеста.set(у.id,
+          { x: у.x, y: у.y, vx: у.vx || 0, vy: у.vy || 0, fx: у.fx, fy: у.fy });
+      }
       nodes.length = 0;
       nodes.push(...concepts.map(c => ({
         id: c.id, label: c.label, concept: поИмени[c.philosopher],
@@ -29656,6 +29663,28 @@
         weight: r.weight, bidirectional: r.bidirectional || false,
         description: r.description,
       })));
+
+      // Места возвращаются уцелевшим по идентификатору; новым — середина
+      // видимой области, как в addNodeToGraph. Без координат d3 ставит узел
+      // в (0,0) и выбрасывает рывком через весь экран.
+      let середина = null;
+      for (const у of nodes) {
+        const было = былиМеста.get(у.id);
+        if (было) { Object.assign(у, было); continue; }
+        if (!середина) {
+          try { середина = renderState.transform.invert(
+            [viewWidth / 2, viewHeight / 2]); }
+          catch (e) { середина = [viewWidth / 2, viewHeight / 2]; }
+        }
+        у.x = середина[0] + (Math.random() - 0.5) * 60;
+        у.y = середина[1] + (Math.random() - 0.5) * 60;
+        у.vx = 0; у.vy = 0;
+      }
+
+      // Массивы передаются симуляции заново: d3 держит свои индексы и
+      // подменяет концы связей объектами узлов — после замены содержимого
+      // и то и другое устарело.
+      updateGraphData();
     }
 
     function applyFreshGraph(состояние) {

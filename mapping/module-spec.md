@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 125 модулей, 19090 строк.
+Составлено из готовой сборки: 125 модулей, 19122 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/gen_spec2.mjs`
 после каждой сборки.
@@ -62,7 +62,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/data/commit-draft.js` | 32 | 1 | 0 |
 | `modules/data/load.js` | 9 | 1 | 1 |
 | `modules/data/mutate.js` | 89 | 1 | 6 |
-| `modules/data/remote.js` | 138 | 5 | 5 |
+| `modules/data/remote.js` | 170 | 5 | 7 |
 | `modules/data/save.js` | 72 | 7 | 1 |
 | `modules/dead.js` | 86 | 6 | 5 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 |
@@ -610,7 +610,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/data/remote.js`
 
-Строк 138.
+Строк 170.
 
 **Вывозит:** `applyFreshGraph`, `connectLive`, `knownGraphVersion`, `liveSocket`, `pullGraphSince`
 
@@ -620,6 +620,8 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../core/api.js`: `api`, `serverMode`
 - из `../core/events.js`: `emit`
 - из `./mutate.js`: `afterDataChange`
+- из `../render/canvas-core.js`: `renderState`
+- из `../render/scene.js`: `updateGraphData`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `S.liveClosedOnPurpose`, `applyFreshGraph`, `applyIncrement`, `connectLive`, `knownGraphVersion`, `liveRetry`, `liveSocket`, `pullGraphSince`, `rebuildDerived`, `replaceEntity`
