@@ -15,12 +15,14 @@ import { deleteConnection } from '../modal/persist.js';
 import { closeConceptProfileModal, showConceptProfileModal, toggleProfileOrder } from '../modal/profile-concept.js';
 import { closePhilosopherProfileModal, showPhilosopherProfileModal } from '../modal/profile-philosopher.js';
 import { clearModalSearch, handleModalSearch } from '../modal/search.js';
+import { confirmMfaEnroll, openSecurityModal, refreshSecurityDone, startMfaEnroll } from '../modal/security.js';
 import { showPathDescriptionsModal, togglePathNodesDescriptions } from '../paths/path-descriptions.js';
 import { clearPathHighlight, handlePathArrowHover } from '../paths/path-ui.js';
 import { toggleMetricVisualization } from '../render/metric-visualization.js';
 import { highlightNodeById } from '../render/selection.js';
 import { clearSimilarityOverlay, setSimilarityLinks, showSimilarityOverlay } from '../render/similarity-overlay.js';
 import { openStatsModal, switchStatsView } from '../stats/modal.js';
+import { pickObservation, saveObservation } from '../stats/observations.js';
 import { toggleMetricDetails, toggleMetricLayout } from '../stats/results.js';
 import { calculateMetricFromModal } from '../stats/run.js';
 import { openPairInComparison, openPhilosopherPair, renderClosestPairs, renderPhilosopherComparison, renderPhilosopherPairs } from '../stats/views/comparison.js';
@@ -74,6 +76,7 @@ registerActions({
   "create-new-connection-for-concept": (el, ev) => { createNewConnectionForConcept(el.dataset.a1); },
   "open-auth-modal": (el, ev) => { openAuthModal('login'); },
   "open-auth-modal-2": (el, ev) => { openAuthModal('register'); },
+  "open-security-modal": (el, ev) => { openSecurityModal(); },
   "auth-logout": (el, ev) => { authLogout(); },
   "open-universal-modal-9": (el, ev) => { openUniversalModal('philosopher', el.dataset.a1, 'view'); },
   "show-philosopher-detail-modal": (el, ev) => { showPhilosopherDetailModal(el.dataset.a1); },
@@ -96,6 +99,9 @@ registerActions({
   "close-concept-profile-modal-4": (el, ev) => { closeConceptProfileModal(); setTimeout(() => openUniversalModal('concept', DATA.nodes.find(n => n.id === el.dataset.a1), 'view'), 100); },
   "stop-propagation-5": (el, ev) => { ev.stopPropagation(); toggleProfileOrder(el.dataset.a1); },
   "close-philosopher-profile-modal-2": (el, ev) => { closePhilosopherProfileModal(); setTimeout(() => openUniversalModal('philosopher', el.dataset.a1, 'view'), 100); },
+  "start-mfa-enroll": (el, ev) => { startMfaEnroll(); },
+  "confirm-mfa-enroll": (el, ev) => { confirmMfaEnroll(); },
+  "refresh-security-done-change": (el, ev) => { refreshSecurityDone(); },
   "toggle-path-nodes-descriptions": (el, ev) => { togglePathNodesDescriptions(); },
   "open-concept-by-id-2": (el, ev) => { openConceptById(el.dataset.a1); },
   "open-universal-modal-13": (el, ev) => { openUniversalModal('philosopher', el.dataset.a1, 'view'); },
@@ -108,6 +114,8 @@ registerActions({
   "show-similarity-overlay-2": (el, ev) => { showSimilarityOverlay(el.dataset.a1,el.dataset.a2); },
   "set-similarity-links": (el, ev) => { setSimilarityLinks(el.dataset.a1); },
   "clear-similarity-overlay": (el, ev) => { clearSimilarityOverlay(); },
+  "save-observation": (el, ev) => { saveObservation(el.dataset.a1); },
+  "pick-observation": (el, ev) => { pickObservation(el.dataset.a1); },
   "calculate-metric-from-modal": (el, ev) => { calculateMetricFromModal(el.dataset.a1); },
   "toggle-metric-visualization": (el, ev) => { toggleMetricVisualization(el.dataset.a1); },
   "toggle-metric-layout": (el, ev) => { toggleMetricLayout(); },

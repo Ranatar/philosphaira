@@ -7,16 +7,16 @@
 //
 //   DATABASE_URL=… node probes/auth_probe.mjs
 
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { userFromRow } from '../src/db/mapper.js';
 import { register, login, logout, logoutAll, verifyEmail } from '../src/auth/service.js';
 import { sessionByToken, revokeAllSessions, createSession } from '../src/db/sessions.js';
-import { hashPassword, verifyPassword, assertPasswordPolicy, ХОЛОСТОЙ_ХЕШ }
+import { hashPassword, verifyPassword, assertPasswordPolicy, DUMMY_HASH }
   from '../src/auth/password.js';
-import { отметитьНеудачу, перебор, сброситьСчёт, очистить, ПРЕДЕЛ }
+import { noteFailure, isBruteForce, resetCounter, clearCounters, LIMIT }
   from '../src/auth/throttle.js';
-import { checkCsrf, новыйПризнакCsrf } from '../src/http/cookies.js';
+import { checkCsrf, newCsrfToken } from '../src/http/cookies.js';
 import { can } from '../src/access/access.js';
 import { P } from '../src/access/roles.js';
 import { execFileSync } from 'node:child_process';
@@ -29,8 +29,8 @@ const мигр = (...д) => execFileSync('node',
   { encoding: 'utf8', env: process.env });
 
 const проверки = [];
-const проверить = (имя, годно, ждали, вышло) =>
-  проверки.push({ имя, годно: !!годно, ждали, вышло });
+const проверить = (setName, finite, ждали, вышло) =>
+  проверки.push({ имя: setName, годно: !!finite, ждали, вышло });
 const отказ = async fn => {
   try { await fn(); return 'ПРОШЛО'; } catch (e) { return e.message; }
 };
@@ -41,7 +41,7 @@ const отказ = async fn => {
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
+const pool = createPool();
 const ПАРОЛЬ = 'вполне-длинный-пароль';
 
 try {
@@ -57,14 +57,14 @@ try {
     'частый', 'иное');
 
   // ── 2. хеш пароля ───────────────────────────────────────────────────────
-  const хеш = await hashPassword(ПАРОЛЬ);
-  проверить('хеш argon2id', хеш.startsWith('$argon2id$'), '$argon2id$', хеш.slice(0, 10));
-  проверить('верный пароль сходится', await verifyPassword(хеш, ПАРОЛЬ), true, 'да');
-  проверить('неверный не сходится', !(await verifyPassword(хеш, ПАРОЛЬ + 'x')), true, 'да');
+  const passwordHash = await hashPassword(ПАРОЛЬ);
+  проверить('хеш argon2id', passwordHash.startsWith('$argon2id$'), '$argon2id$', passwordHash.slice(0, 10));
+  проверить('верный пароль сходится', await verifyPassword(passwordHash, ПАРОЛЬ), true, 'да');
+  проверить('неверный не сходится', !(await verifyPassword(passwordHash, ПАРОЛЬ + 'x')), true, 'да');
   проверить('битый хеш не роняет, а не сходится',
     (await verifyPassword('не хеш вовсе', ПАРОЛЬ)) === false, false, 'да');
   проверить('холостой хеш не подходит ни к чему',
-    (await verifyPassword(ХОЛОСТОЙ_ХЕШ, ПАРОЛЬ)) === false, false, 'да');
+    (await verifyPassword(DUMMY_HASH, ПАРОЛЬ)) === false, false, 'да');
 
   // ── 3. регистрация ──────────────────────────────────────────────────────
   const первый = await register(pool, {
@@ -191,27 +191,27 @@ try {
     'недействительна', чужая.slice(0, 30));
 
   // ── 11. счёт неудач по учётной записи ───────────────────────────────────
-  очистить();
-  for (let i = 0; i < ПРЕДЕЛ - 1; i++) отметитьНеудачу('login:ivan');
-  проверить('до предела перебора нет', !перебор('login:ivan'), false, 'нет');
-  отметитьНеудачу('login:ivan');
-  проверить('на пределе — перебор', перебор('login:ivan'), true, 'да');
-  сброситьСчёт('login:ivan');
-  проверить('удачный вход сбрасывает счёт', !перебор('login:ivan'), false, 'нет');
+  clearCounters();
+  for (let i = 0; i < LIMIT - 1; i++) noteFailure('login:ivan');
+  проверить('до предела перебора нет', !isBruteForce('login:ivan'), false, 'нет');
+  noteFailure('login:ivan');
+  проверить('на пределе — перебор', isBruteForce('login:ivan'), true, 'да');
+  resetCounter('login:ivan');
+  проверить('удачный вход сбрасывает счёт', !isBruteForce('login:ivan'), false, 'нет');
 
   // ── 12. CSRF ────────────────────────────────────────────────────────────
-  const признак = новыйПризнакCsrf();
+  const csrfToken = newCsrfToken();
   const прогнать = (метод, cookie, заголовок) => new Promise(готово => {
     checkCsrf({ method: метод, cookies: cookie ? { csrf: cookie } : {},
                 get: () => заголовок }, {}, e => готово(e ? 'отказ' : 'прошло'));
   });
   проверить('GET без признака проходит', await прогнать('GET') === 'прошло', 'прошло', '—');
   проверить('POST с совпавшим признаком проходит',
-    await прогнать('POST', признак, признак) === 'прошло', 'прошло', '—');
+    await прогнать('POST', csrfToken, csrfToken) === 'прошло', 'прошло', '—');
   проверить('POST без заголовка не проходит',
-    await прогнать('POST', признак, undefined) === 'отказ', 'отказ', '—');
+    await прогнать('POST', csrfToken, undefined) === 'отказ', 'отказ', '—');
   проверить('POST с чужим признаком не проходит',
-    await прогнать('POST', признак, новыйПризнакCsrf()) === 'отказ', 'отказ', '—');
+    await прогнать('POST', csrfToken, newCsrfToken()) === 'отказ', 'отказ', '—');
 
 } catch (e) {
   // Падение посреди пробы — тоже итог, и молчать о нём нельзя: список

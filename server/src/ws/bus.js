@@ -13,11 +13,11 @@
 
 import pg from 'pg';
 
-export const КАНАЛ = 'philos_ws';
+export const CHANNEL = 'philos_ws';
 
 export async function publish(client, извещение) {
   await client.query(`SELECT pg_notify($1, $2)`,
-    [КАНАЛ, JSON.stringify(извещение)]);
+    [CHANNEL, JSON.stringify(извещение)]);
 }
 
 /**
@@ -27,17 +27,17 @@ export async function publish(client, извещение) {
 export async function subscribe(строкаПодключения, наИзвещение) {
   const client = new pg.Client({ connectionString: строкаПодключения });
   await client.connect();
-  await client.query(`LISTEN ${КАНАЛ}`);
+  await client.query(`LISTEN ${CHANNEL}`);
   client.on('notification', с => {
-    let и;
+    let result;
     // Кривое извещение не роняет узел: шина — вход извне, пусть и свой.
-    try { и = JSON.parse(с.payload); } catch { return; }
-    try { наИзвещение(и); } catch { /* обработчик сам себе судья */ }
+    try { result = JSON.parse(с.payload); } catch { return; }
+    try { наИзвещение(result); } catch { /* обработчик сам себе судья */ }
   });
   return {
     client,
     async close() {
-      try { await client.query(`UNLISTEN ${КАНАЛ}`); } catch { /* уже мертво */ }
+      try { await client.query(`UNLISTEN ${CHANNEL}`); } catch { /* уже мертво */ }
       await client.end().catch(() => {});
     },
   };

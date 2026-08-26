@@ -6,11 +6,11 @@
 //
 //   DATABASE_URL=… MFA_SECRET_KEY=… node probes/bootstrap_probe.mjs
 
-import { execFile, execFileSync } from 'node:child_process';
+import { execFile, execFileSync, spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { findByEmailWithSecret } from '../src/db/users.js';
 import { counts } from '../src/db/graph.js';
 import { beginBootstrapAdmin } from '../src/db/users.js';
@@ -21,8 +21,8 @@ const ПРИЛОЖЕНИЕ = path.join(КОРЕНЬ, '..', 'app');
 const ПАРОЛЬ = 'вполне-длинный-пароль-запуска';
 
 const проверки = [];
-const проверить = (имя, годно, ждали, вышло) =>
-  проверки.push({ имя, годно: !!годно, ждали, вышло });
+const проверить = (setName, finite, ждали, вышло) =>
+  проверки.push({ имя: setName, годно: !!finite, ждали, вышло });
 const ждать = мс => new Promise(r => setTimeout(r, мс));
 
 /** Запустить команду и вернуть исход, не роняя пробу. */
@@ -43,7 +43,7 @@ const мигр = (...д) => execFileSync('node',
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
+const pool = createPool();
 
 try {
   // ── 1. ПЕРЕНОС ГРАФА ────────────────────────────────────────────────────
@@ -142,17 +142,17 @@ try {
   проверить('запуск не накатывает миграций и не сеет граф',
     !/migrate|import|bootstrap/.test(ходы.start), 'только запуск', ходы.start);
 
-  const сервер = fs.readFileSync(path.join(КОРЕНЬ, 'scripts', 'serve.mjs'), 'utf8');
-  проверить('запуск отдаёт и страницу', /папкаПриложения/.test(сервер), 'отдаёт', 'нет');
+  const httpServer = fs.readFileSync(path.join(КОРЕНЬ, 'scripts', 'serve.mjs'), 'utf8');
+  проверить('запуск отдаёт и страницу', /папкаПриложения/.test(httpServer), 'отдаёт', 'нет');
   проверить('останов ловится по сигналу',
-    /SIGINT/.test(сервер) && /SIGTERM/.test(сервер), 'оба', 'нет');
+    /SIGINT/.test(httpServer) && /SIGTERM/.test(httpServer), 'оба', 'нет');
 
   // Поднимаем настоящим ходом и стучимся.
   const процесс = (await import('node:child_process')).spawn('node',
     [path.join(КОРЕНЬ, 'scripts', 'serve.mjs')],
     { env: { ...process.env, PORT: '8831' }, stdio: 'pipe' });
   let сказал = '';
-  процесс.stdout.on('data', б => { сказал += String(б); });
+  процесс.stdout.on('data', second => { сказал += String(second); });
   await ждать(4000);
   let ответ = null;
   try {
@@ -163,13 +163,38 @@ try {
   проверить('и называет, где он', /http:\/\/127\.0\.0\.1:8831/.test(сказал),
     'называет', сказал.slice(0, 60));
 
-  const страница = await fetch('http://127.0.0.1:8831/index.html')
+  const pageHtml = await fetch('http://127.0.0.1:8831/index.html')
     .then(о => о.text()).catch(() => '');
   проверить('он же отдаёт страницу С МЕТКОЙ',
-    страница.includes('name="philos-api"'), 'с меткой', страница.slice(0, 40));
+    pageHtml.includes('name="philos-api"'), 'с меткой', pageHtml.slice(0, 40));
 
   процесс.kill('SIGTERM');
   await ждать(2500);
+  // ── КОНТРАКТ ЗАПУСКА: обязательное проверяется ДО подъёма (D-1, §13) ──
+  const ТОЧКА = path.join(КОРЕНЬ, 'scripts', 'serve.mjs');
+  const безКлюча = { ...process.env };
+  delete безКлюча.MFA_SECRET_KEY;
+  const попыткаБезКлюча = spawnSync('node', [ТОЧКА], {
+    env: безКлюча, encoding: 'utf8', timeout: 10000 });
+  проверить('БЕЗ MFA_SECRET_KEY ЗАПУСК ОТКАЗЫВАЕТ, а не поднимается молча',
+    попыткаБезКлюча.status !== 0
+      && /MFA_SECRET_KEY/.test(попыткаБезКлюча.stderr + попыткаБезКлюча.stdout),
+    'отказ с именем переменной',
+    `код ${попыткаБезКлюча.status}: ${(попыткаБезКлюча.stderr || '').slice(0, 60)}`);
+
+  const кривойКлюч = spawnSync('node', [ТОЧКА], {
+    env: { ...process.env, MFA_SECRET_KEY: 'слишкомкороткий' },
+    encoding: 'utf8', timeout: 10000 });
+  проверить('негодный ключ отвергается с указанием длины',
+    кривойКлюч.status !== 0 && /32 байта/.test(кривойКлюч.stderr + кривойКлюч.stdout),
+    '32 байта', (кривойКлюч.stderr || '').slice(0, 60));
+
+  const кривойПорт = spawnSync('node', [ТОЧКА], {
+    env: { ...process.env, PORT: 'восемь' }, encoding: 'utf8', timeout: 10000 });
+  проверить('негодный PORT отвергается', кривойПорт.status !== 0
+    && /PORT/.test(кривойПорт.stderr + кривойПорт.stdout), 'отказ',
+    `код ${кривойПорт.status}`);
+
   проверить('по SIGTERM останавливается', процесс.exitCode !== null || процесс.killed,
     'остановился', процесс.exitCode);
 

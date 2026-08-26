@@ -7,7 +7,7 @@
 //
 //   DATABASE_URL=… node probes/notify_probe.mjs
 
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { register } from '../src/auth/service.js';
 import { findById } from '../src/db/users.js';
@@ -41,7 +41,7 @@ const отказ = async fn => {
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
+const pool = createPool();
 const ПАРОЛЬ = 'вполне-длинный-пароль';
 
 async function завести(имя, роль) {
@@ -62,14 +62,17 @@ try {
   const безТипа  = Object.keys(CATALOG).filter(т => !Object.values(N).includes(т));
   проверить('типов без описи', безОписи.length === 0, 0, безОписи.join(',') || 0);
   проверить('описей без типа', безТипа.length === 0, 0, безТипа.join(',') || 0);
-  const безКатегории = Object.values(CATALOG).filter(о => !CATEGORIES[о.category]);
+  const безКатегории = Object.values(CATALOG).filter(observation => !CATEGORIES[observation.category]);
   проверить('у каждого типа есть категория из списка',
     безКатегории.length === 0, 0, безКатегории.length);
 
   // МЁРТВЫХ ТИПОВ НЕТ: у каждого есть тот, кто его создаёт. В первой
   // редакции четыре типа из тринадцати не создавались никогда.
+  // Список мест, где уведомления РОЖДАЮТСЯ. Пополняется вместе с ними:
+  // auth/service.js добавился, когда регистрация начала класть письмо с
+  // подтверждением адреса.
   const исходники = ['src/commits/service.js', 'src/commits/review.js',
-                     'src/users/service.js']
+                     'src/users/service.js', 'src/auth/service.js']
     .map(ф => fs.readFileSync(path.join(КОРЕНЬ, ф), 'utf8')).join('\n');
   const мёртвые = Object.entries(N)
     .filter(([имя]) => !исходники.includes(`N.${имя}`)).map(([, т]) => т);
@@ -82,32 +85,32 @@ try {
   const редактор  = await завести('редактор', 'editor');
   const зритель   = await завести('зритель', 'viewer');
 
-  const кому = (тип, data) => withTransaction(pool, async client => {
-    const р = await recipientsFor(client, тип, data);
-    return р.broadcast ? 'всем' : р.userIds.slice().sort().join(',');
+  const recipients = (тип, data) => withTransaction(pool, async client => {
+    const decipher = await recipientsFor(client, тип, data);
+    return decipher.broadcast ? 'всем' : decipher.userIds.slice().sort().join(',');
   });
-  const имена = кто => кто.map(к => к.userId).sort().join(',');
+  const names = кто => кто.map(commitRow => commitRow.userId).sort().join(',');
 
   проверить('о смене роли узнаёт ТОЛЬКО тот, кого сменили',
-    await кому(N.ROLE_CHANGED, { userId: зритель.userId }) === зритель.userId,
+    await recipients(N.ROLE_CHANGED, { userId: зритель.userId }) === зритель.userId,
     'зритель', 'иначе');
   проверить('АДМИНИСТРАТОР узнаёт о смене СВОЕЙ роли',
-    await кому(N.ROLE_CHANGED, { userId: админ.userId }) === админ.userId,
+    await recipients(N.ROLE_CHANGED, { userId: админ.userId }) === админ.userId,
     'админ', 'иначе');
   проверить('о коммите на модерации — сотрудникам, БЕЗ автора',
-    await кому(N.NEW_COMMIT_PENDING, { authorId: модератор.userId })
+    await recipients(N.NEW_COMMIT_PENDING, { authorId: модератор.userId })
       === админ.userId, 'только админ', 'иначе');
   проверить('о повышении до модератора знают только администраторы',
-    await кому(N.USER_PROMOTED, { userId: редактор.userId,
+    await recipients(N.USER_PROMOTED, { userId: редактор.userId,
       oldRole: 'editor', newRole: 'moderator' }) === админ.userId, 'админ', 'иначе');
   проверить('о повышении до редактора знают модераторы и выше',
-    await кому(N.USER_PROMOTED, { userId: зритель.userId,
-      oldRole: 'viewer', newRole: 'editor' }) === имена([админ, модератор]),
+    await recipients(N.USER_PROMOTED, { userId: зритель.userId,
+      oldRole: 'viewer', newRole: 'editor' }) === names([админ, модератор]),
     'админ+модератор', 'иначе');
   проверить('изменение графа идёт ШИРОКОВЕЩАНИЕМ',
-    await кому(N.GRAPH_CHANGED, {}) === 'всем', 'всем', 'иначе');
+    await recipients(N.GRAPH_CHANGED, {}) === 'всем', 'всем', 'иначе');
   проверить('неизвестный тип ругается вслух',
-    (await отказ(() => кому('нет_такого', {}))).includes('неизвестный тип'),
+    (await отказ(() => recipients('нет_такого', {}))).includes('неизвестный тип'),
     'неизвестный тип', 'иное');
 
   // ── 3. одна дорога складывания ──────────────────────────────────────────
@@ -220,32 +223,32 @@ try {
     await мои(модератор, N.USER_PROMOTED));
 
   // ── 7. непрочитанное ────────────────────────────────────────────────────
-  const счёт = await unread(pool, редактор);
-  проверить('счётчик непрочитанного считает и вещание', счёт >= 3, '≥3', счёт);
-  const список = await list(pool, редактор);
+  const counters = await unread(pool, редактор);
+  проверить('счётчик непрочитанного считает и вещание', counters >= 3, '≥3', counters);
+  const sorted = await list(pool, редактор);
   проверить('список содержит оба вида',
-    список.some(з => з.вид === 'адресное') && список.some(з => з.вид === 'широковещательное'),
-    'оба', список.map(з => з.вид).join(','));
+    sorted.some(з => з.вид === 'адресное') && sorted.some(з => з.вид === 'широковещательное'),
+    'оба', sorted.map(з => з.вид).join(','));
   проверить('список идёт от новых к старым',
-    список.every((з, i) => i === 0 || +new Date(з.createdAt) <= +new Date(список[i - 1].createdAt)),
+    sorted.every((з, i) => i === 0 || +new Date(з.createdAt) <= +new Date(sorted[i - 1].createdAt)),
     'по убыванию', 'иначе');
 
-  const адресное = список.find(з => з.вид === 'адресное' && !з.прочитано);
+  const адресное = sorted.find(з => з.вид === 'адресное' && !з.прочитано);
   await read(pool, редактор, адресное.id);
   проверить('отметка о прочтении уменьшает счётчик',
-    (await unread(pool, редактор)) === счёт - 1, счёт - 1, await unread(pool, редактор));
+    (await unread(pool, редактор)) === counters - 1, counters - 1, await unread(pool, редактор));
 
   await readAll(pool, редактор);
   проверить('«прочитать всё» обнуляет счётчик ЦЕЛИКОМ (и курсор вещания)',
     (await unread(pool, редактор)) === 0, 0, await unread(pool, редактор));
 
-  const чужое = await pool.query(
+  const theirs = await pool.query(
     `SELECT notification_id AS id FROM notifications WHERE user_id=$1 LIMIT 1`,
     [модератор.userId]);
-  await read(pool, редактор, чужое.rows[0].id);
+  await read(pool, редактор, theirs.rows[0].id);
   проверить('ЧУЖОЕ уведомление прочитанным не пометить',
     (await pool.query(`SELECT is_read FROM notifications WHERE notification_id=$1`,
-      [чужое.rows[0].id])).rows[0].is_read === false, false, 'пометилось');
+      [theirs.rows[0].id])).rows[0].is_read === false, false, 'пометилось');
 
   // ── 8. срок жизни — в одном месте ───────────────────────────────────────
   проверить('срок жизни задан одним числом', NOTIFICATION_TTL_DAYS === 30, 30,

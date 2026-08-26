@@ -17,27 +17,27 @@ import { insertAddressed, insertBroadcast, enqueue, enqueueMany, keepSubscribed 
 export const NOTIFICATION_TTL_DAYS = 30;
 
 export async function notify(client, type, data) {
-  const опись = CATALOG[type];
-  if (!опись) throw new Error(`уведомления: неизвестный тип «${type}»`);
+  const spec = CATALOG[type];
+  if (!spec) throw new Error(`уведомления: неизвестный тип «${type}»`);
 
-  const кому = await recipientsFor(client, type, data);
+  const recipients = await recipientsFor(client, type, data);
 
-  if (кому.broadcast) {
+  if (recipients.broadcast) {
     const id = await insertBroadcast(client, {
-      type, category: опись.category, data, дней: NOTIFICATION_TTL_DAYS });
+      type, category: spec.category, data, дней: NOTIFICATION_TTL_DAYS });
     await enqueue(client, 'broadcast', { broadcastId: id, type });
     return { broadcastId: id, создано: 1 };
   }
 
-  const кто = CATEGORIES[опись.category].mandatory
-    ? кому.userIds
-    : await keepSubscribed(client, кому.userIds, опись.category);
-  if (!кто.length) return { создано: 0 };
+  const audience = CATEGORIES[spec.category].mandatory
+    ? recipients.userIds
+    : await keepSubscribed(client, recipients.userIds, spec.category);
+  if (!audience.length) return { создано: 0 };
 
-  const имена = await insertAddressed(client, {
-    userIds: кто, type, category: опись.category,
-    priority: опись.priority, data, дней: NOTIFICATION_TTL_DAYS });
+  const names = await insertAddressed(client, {
+    userIds: audience, type, category: spec.category,
+    priority: spec.priority, data, дней: NOTIFICATION_TTL_DAYS });
   await enqueueMany(client, 'notification',
-    имена.map(id => ({ notificationId: id, type })));
-  return { создано: имена.length };
+    names.map(id => ({ notificationId: id, type })));
+  return { создано: names.length };
 }

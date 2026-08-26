@@ -18,12 +18,12 @@ export async function list(pool, user, { onlyUnread = false, limit = 50 } = {}) 
     listAddressed(pool, { userId: user.userId, onlyUnread, limit }),
     listBroadcasts(pool, { userId: user.userId, limit }),
   ]);
-  const все = [
+  const allItems = [
     ...адресные.map(з => ({ ...з, вид: 'адресное' })),
     ...вещание.filter(з => !onlyUnread || !з.прочитано)
               .map(з => ({ ...з, вид: 'широковещательное' })),
-  ].sort((а, б) => +new Date(б.createdAt) - +new Date(а.createdAt));
-  return все.slice(0, limit);
+  ].sort((first, second) => +new Date(second.createdAt) - +new Date(first.createdAt));
+  return allItems.slice(0, limit);
 }
 
 export const read = (pool, user, notificationId) =>
@@ -35,11 +35,11 @@ export const readAll = (pool, user) =>
 export const preferences = (pool, user) => getPreferences(pool, user.userId);
 
 export function updatePreferences(pool, user, изменения) {
-  for (const имя of Object.keys(изменения.categories ?? {})) {
-    if (!CATEGORIES[имя]) throw new Forbidden(`Нет такой категории: «${имя}»`);
-    if (CATEGORIES[имя].mandatory && изменения.categories[имя] === false) {
+  for (const categoryName of Object.keys(изменения.categories ?? {})) {
+    if (!CATEGORIES[categoryName]) throw new Forbidden(`Нет такой категории: «${categoryName}»`);
+    if (CATEGORIES[categoryName].mandatory && изменения.categories[categoryName] === false) {
       throw new Forbidden(
-        `Категорию «${CATEGORIES[имя].title}» отключить нельзя: ` +
+        `Категорию «${CATEGORIES[categoryName].title}» отключить нельзя: ` +
         'о собственном положении сообщают всегда');
     }
   }

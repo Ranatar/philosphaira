@@ -10,6 +10,7 @@ import { modalActions } from './assembly.js';
 import { initConnectionSearchFields } from './connection-view.js';
 import { ModalContext } from './context.js';
 import { openUniversalModal } from './core.js';
+import { provenanceField } from './forms.js';
 
 import { escapeAttr } from '../util/html.js';
 
@@ -171,6 +172,7 @@ VIEWS.generateConnectionEditContent = function generateConnectionEditContent(con
             Описания в базе — 190–270 знаков, две фразы.
           </div>
         </div>
+        ${provenanceField(connectionData)}
       `;
 
       html += modalActions('saveConnectionData', 'deleteConnection',

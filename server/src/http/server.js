@@ -6,23 +6,23 @@
 // а не в каждой пробе заново.
 
 import http from 'node:http';
-import { создатьПриложение } from './app.js';
-import { поднятьУзел } from '../ws/node.js';
+import { createApp } from './app.js';
+import { startNode } from '../ws/node.js';
 
-export async function создатьСервер({ pool, строкаПодключения,
+export async function createServer({ pool, строкаПодключения,
                                       папкаПриложения = null,
                                       безопасныеCookie = true, origins = null }) {
-  const app = создатьПриложение({ pool, безопасныеCookie, папкаПриложения });
-  const узел = await поднятьУзел({ db: pool, строкаПодключения, origins });
-  const сервер = http.createServer(app);
-  сервер.on('upgrade', (req, socket, head) => узел.handleUpgrade(req, socket, head));
+  const app = createApp({ pool, безопасныеCookie, папкаПриложения });
+  const wsNode = await startNode({ db: pool, строкаПодключения, origins });
+  const httpServer = http.createServer(app);
+  httpServer.on('upgrade', (req, socket, head) => wsNode.handleUpgrade(req, socket, head));
 
   return {
-    сервер, узел, app,
-    слушать: порт => new Promise(готово => сервер.listen(порт, готово)),
+    сервер: httpServer, узел: wsNode, app,
+    слушать: порт => new Promise(готово => httpServer.listen(порт, готово)),
     async close() {
-      await узел.close();
-      await new Promise(готово => сервер.close(готово));
+      await wsNode.close();
+      await new Promise(готово => httpServer.close(готово));
     },
   };
 }

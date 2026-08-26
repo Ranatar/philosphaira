@@ -1,0 +1,137 @@
+{
+ "учреждено": "2026-08-25",
+ "формулы": {
+  "calculateWeightedDegree": {
+   "версия": 1,
+   "отпечаток": "aeb141fdf19ecfe0"
+  },
+  "calculatePageRank": {
+   "версия": 1,
+   "отпечаток": "29b56ef8a5bc26b3"
+  },
+  "calculateBetweenness": {
+   "версия": 1,
+   "отпечаток": "b93658e984fbf9ec"
+  },
+  "calculateClosenessCentrality": {
+   "версия": 1,
+   "отпечаток": "8e6e2aa41a05a7a4"
+  },
+  "calculateEigenvectorCentrality": {
+   "версия": 1,
+   "отпечаток": "53c59cc406d83fd5"
+  },
+  "calculateClusteringCoefficient": {
+   "версия": 1,
+   "отпечаток": "13eafb08a10681e3"
+  },
+  "calculateWeightedClustering": {
+   "версия": 1,
+   "отпечаток": "eef0464004eda31a"
+  },
+  "calculateRichClubCoefficient": {
+   "версия": 1,
+   "отпечаток": "5270a89158d0815a"
+  },
+  "calculateLocalCohesion": {
+   "версия": 1,
+   "отпечаток": "fcd0f857a7ba6659"
+  },
+  "influenceIndex": {
+   "версия": 1,
+   "отпечаток": "a44f2f703eca76fa"
+  },
+  "conceptualFertilityIndex": {
+   "версия": 1,
+   "отпечаток": "1f22d76c3e6165d1"
+  },
+  "conceptualContinuityIndex": {
+   "версия": 1,
+   "отпечаток": "7c09dd5283a9862f"
+  },
+  "deductiveIndex": {
+   "версия": 1,
+   "отпечаток": "6dde3e6d5ddab15f"
+  },
+  "generativeIndex": {
+   "версия": 1,
+   "отпечаток": "38954ac9a505a5ed"
+  },
+  "instrumentalIndex": {
+   "версия": 1,
+   "отпечаток": "f670eb21a9099405"
+  },
+  "traditionBridgingIndex": {
+   "версия": 1,
+   "отпечаток": "4373496644dca405"
+  },
+  "abstractionIndex": {
+   "версия": 1,
+   "отпечаток": "3712844f30aa8d4e"
+  },
+  "criticalPowerIndex": {
+   "версия": 1,
+   "отпечаток": "04ff8f94a0996fd6"
+  },
+  "dialogicalIndex": {
+   "версия": 1,
+   "отпечаток": "2755609bcdd2573a"
+  },
+  "internalCoherenceIndex": {
+   "версия": 1,
+   "отпечаток": "da8b4f887f6b2a29"
+  },
+  "paradigmShiftIndex": {
+   "версия": 1,
+   "отпечаток": "654cf137b758df59"
+  },
+  "problemGenerationIndex": {
+   "версия": 1,
+   "отпечаток": "6568acf8a773302a"
+  },
+  "revolutionaryIndex": {
+   "версия": 1,
+   "отпечаток": "d046af181854299d"
+  },
+  "syntheticIndex": {
+   "версия": 1,
+   "отпечаток": "4bb3561049ecb930"
+  },
+  "transformationIndex": {
+   "версия": 1,
+   "отпечаток": "ab3b96a100085295"
+  },
+  "conceptualComplexityIndex": {
+   "версия": 1,
+   "отпечаток": "984bd45eb216154b"
+  },
+  "foundationalIndex": {
+   "версия": 1,
+   "отпечаток": "108d1d053687c3d7"
+  },
+  "tensionIndex": {
+   "версия": 1,
+   "отпечаток": "ccd90e27dfdedf81"
+  },
+  "temporalInfluencePattern": {
+   "версия": 1,
+   "отпечаток": "e4289d53246f3585"
+  },
+  "deductiveDepth": {
+   "версия": 1,
+   "отпечаток": "5660d84490ab7fd6"
+  },
+  "philosopherHistoricalReachIndex": {
+   "версия": 1,
+   "отпечаток": "a9bb96224f705833"
+  },
+  "philosopherInterdisciplinaryIndex": {
+   "версия": 1,
+   "отпечаток": "bd33adc718e8c8ac"
+  },
+  "philosopherSystematicIndex": {
+   "версия": 1,
+   "отпечаток": "232a4972d84ca5ba"
+  }
+ }
+}

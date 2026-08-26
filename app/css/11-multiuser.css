@@ -97,6 +97,7 @@
     /* ---- кнопки в строках ---- */
     /* Общая кожа мелкой кнопки: та же, что у .modal-btn, но по содержимому,
        а не во всю ширину — их в строке несколько. */
+    .commit-impact-btn,
     .commit-approve, .commit-reject, .commit-revert,
     .user-role, .user-ban, .user-unban,
     .notify-mark, .commits-tabs button {
@@ -111,6 +112,7 @@
       transition: background 0.15s, border-color 0.15s;
     }
 
+    .commit-impact-btn:hover,
     .commit-approve:hover, .commit-reject:hover, .commit-revert:hover,
     .user-role:hover, .user-ban:hover, .user-unban:hover,
     .notify-mark:hover, .commits-tabs button:hover {

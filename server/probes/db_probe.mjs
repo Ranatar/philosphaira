@@ -4,7 +4,7 @@
 //
 //   DATABASE_URL=… node probes/db_probe.mjs
 
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { userFromRow, userToApi } from '../src/db/mapper.js';
 import { paginate } from '../src/db/paginate.js';
@@ -19,13 +19,13 @@ const мигр = (...дов) => execFileSync('node',
   { encoding: 'utf8', env: process.env });
 
 const проверки = [];
-const проверить = (имя, годно, ждали, вышло) =>
-  проверки.push({ имя, годно: !!годно, ждали, вышло });
+const проверить = (categoryName, finite, ждали, вышло) =>
+  проверки.push({ имя: categoryName, годно: !!finite, ждали, вышло });
 const отказ = async fn => {
   try { await fn(); return 'ПРОШЛО'; } catch (e) { return e.message; }
 };
 
-const pool = создатьПул();
+const pool = createPool();
 
 try {
   // ── 1. откат до чистого места и накат ───────────────────────────────────
@@ -44,22 +44,25 @@ try {
   // Число таблиц НЕ вписано числом: миграций прибавится, и утверждение,
   // которое надо править при каждой новой, — это не утверждение, а помеха.
   // Спрашиваем поимённо: все ли, что накат обещает, на месте.
-  const { rows: имена } = await pool.query(
+  const { rows: names } = await pool.query(
     `SELECT table_name FROM information_schema.tables
       WHERE table_schema = 'public' AND table_name <> 'schema_migrations'
       ORDER BY table_name`);
-  const есть = имена.map(r => r.table_name);
+  const stored = names.map(r => r.table_name);
   // Список пополняется вместе с миграциями — и это НЕ помеха, а смысл:
   // таблица, появившаяся мимо намерения, должна ронять приёмку, а не
   // проходить молча.
-  const ждём = ['audit_log', 'broadcasts', 'commits', 'email_verifications',
+  const expected = ['audit_log', 'broadcasts', 'commits', 'email_verifications',
+    // metric_observations — замеры метрик (E-2): наблюдение с условиями,
+    // при которых оно снято.
+    'metric_observations',
                 'graph_entities', 'graph_state', 'mfa_recovery_codes',
                 'notification_preferences', 'notifications', 'outbox',
                 'role_history', 'user_sessions', 'users'];
   проверить('накат создаёт все обещанные таблицы',
-    ждём.every(т => есть.includes(т)), ждём.join(','), есть.join(','));
+    expected.every(т => stored.includes(т)), expected.join(','), stored.join(','));
   проверить('лишних таблиц накат не создаёт',
-    есть.every(т => ждём.includes(т)), 'только обещанные', есть.join(','));
+    stored.every(т => expected.includes(т)), 'только обещанные', stored.join(','));
 
   // Повторный накат ничего не делает: журнал помнит применённое.
   const снова = мигр('up');
@@ -79,11 +82,11 @@ try {
   const окружение = { ...process.env, BOOTSTRAP_ADMIN_PASSWORD: ПАРОЛЬ_АДМИНА };
   execFileSync('node', [path.join(КОРЕНЬ, 'scripts', 'bootstrap-admin.mjs')],
     { encoding: 'utf8', env: окружение });
-  const { rows: [строка] } = await pool.query(
+  const { rows: [row] } = await pool.query(
     `SELECT * FROM users WHERE role = 'administrator'`);
-  проверить('bootstrap завёл администратора', !!строка, 'есть', строка ? 'есть' : 'нет');
+  проверить('bootstrap завёл администратора', !!row, 'есть', row ? 'есть' : 'нет');
 
-  const админ = userFromRow(строка);
+  const админ = userFromRow(row);
   проверить('преобразователь дал доменный объект',
     админ.isActive === true && админ.isBanned === false && админ.isDeleted === false,
     'active, не забанен, не удалён',
@@ -106,9 +109,9 @@ try {
   // которой не соответствует ни один пароль, и это никем не проверялось.
   const { verifyPassword } = await import('../src/auth/password.js');
   проверить('у первого администратора НАСТОЯЩИЙ пароль',
-    await verifyPassword(строка.password_hash, ПАРОЛЬ_АДМИНА), true, 'нет');
+    await verifyPassword(row.password_hash, ПАРОЛЬ_АДМИНА), true, 'нет');
   проверить('чужой пароль ему не подходит',
-    !(await verifyPassword(строка.password_hash, 'не тот пароль вовсе')), true, 'нет');
+    !(await verifyPassword(row.password_hash, 'не тот пароль вовсе')), true, 'нет');
   проверить('почта подтверждена как часть доверенного запуска',
     админ.emailVerified === true, true, админ.emailVerified);
   проверить('второй шаг САМ НЕ заводится', админ.mfaReady === false, false, админ.mfaReady);
@@ -128,14 +131,14 @@ try {
   проверить('без пароля запуск отказывает', безПароля === 'отказал', 'отказал', безПароля);
 
   // ── 4. почта видна не всем ──────────────────────────────────────────────
-  const гостю = userFromRow(строка, { кому: null });
-  const себе  = userFromRow(строка, { кому: { userId: строка.user_id } });
+  const гостю = userFromRow(row, { кому: null });
+  const toSelf  = userFromRow(row, { кому: { userId: row.user_id } });
   проверить('гость почты не видит', гостю.email === undefined, 'нет', гостю.email);
-  проверить('себе почта видна', себе.email === строка.email, строка.email, себе.email);
+  проверить('себе почта видна', toSelf.email === row.email, row.email, toSelf.email);
   проверить('в ответ API почта гостя не попадает',
     !('email' in userToApi(гостю)), 'нет ключа', Object.keys(userToApi(гостю)).join(','));
   проверить('хеш пароля не попадает в ответ API',
-    !JSON.stringify(userToApi(себе)).includes('password'), 'нет', 'есть');
+    !JSON.stringify(userToApi(toSelf)).includes('password'), 'нет', 'есть');
 
   // ── 5. транзакция откатывается целиком ──────────────────────────────────
   await отказ(() => withTransaction(pool, async client => {
@@ -169,31 +172,31 @@ try {
 
   const пустаяПричина = await отказ(() => pool.query(`
     INSERT INTO role_history (user_id, new_role, reason)
-    VALUES ($1, 'editor', '   ')`, [строка.user_id]));
+    VALUES ($1, 'editor', '   ')`, [row.user_id]));
   проверить('пустая причина смены роли не проходит',
     пустаяПричина.includes('reason'), 'отказ по reason', пустаяПричина.slice(0, 40));
 
   // ── 8. триггер updated_at ───────────────────────────────────────────────
   const { rows: [до] } = await pool.query(
-    `SELECT updated_at FROM users WHERE user_id = $1`, [строка.user_id]);
+    `SELECT updated_at FROM users WHERE user_id = $1`, [row.user_id]);
   await new Promise(r => setTimeout(r, 30));
-  await pool.query(`UPDATE users SET bio = 'проба' WHERE user_id = $1`, [строка.user_id]);
+  await pool.query(`UPDATE users SET bio = 'проба' WHERE user_id = $1`, [row.user_id]);
   const { rows: [после] } = await pool.query(
-    `SELECT updated_at FROM users WHERE user_id = $1`, [строка.user_id]);
+    `SELECT updated_at FROM users WHERE user_id = $1`, [row.user_id]);
   проверить('updated_at ведёт триггер, а не код',
     +new Date(после.updated_at) > +new Date(до.updated_at), 'выросло',
     `${до.updated_at} → ${после.updated_at}`);
 
   // ── 9. пагинация ────────────────────────────────────────────────────────
-  const стр = await paginate(pool, {
+  const page = await paginate(pool, {
     from: 'users', select: '*', where: ['deleted_at IS NULL'], params: [],
     order: 'registered_at DESC', page: 1, limit: 1,
     map: r => userFromRow(r),
   });
   проверить('пагинация отдаёт items и pagination',
-    Array.isArray(стр.items) && !!стр.pagination, 'оба', Object.keys(стр).join(','));
-  проверить('limit соблюдается', стр.items.length === 1, 1, стр.items.length);
-  проверить('total считает всех живых', стр.pagination.total >= 2, '≥2', стр.pagination.total);
+    Array.isArray(page.items) && !!page.pagination, 'оба', Object.keys(page).join(','));
+  проверить('limit соблюдается', page.items.length === 1, 1, page.items.length);
+  проверить('total считает всех живых', page.pagination.total >= 2, '≥2', page.pagination.total);
   const огромный = await paginate(pool, {
     from: 'users', select: '*', params: [], order: 'registered_at DESC',
     page: 1, limit: 1000000, map: r => r.user_id,
@@ -209,12 +212,12 @@ try {
   проверить('администратор в базе один', адм === 1, 1, адм);
 
   const последний = await отказ(() => withTransaction(pool, async client =>
-    assertNotLastAdministrator(client, { userId: строка.user_id, newRole: 'viewer' })));
+    assertNotLastAdministrator(client, { userId: row.user_id, newRole: 'viewer' })));
   проверить('последнего администратора понизить нельзя',
     последний.includes('последний действующий'), 'отказ', последний.slice(0, 46));
 
   const вАдмины = await отказ(() => withTransaction(pool, async client =>
-    assertNotLastAdministrator(client, { userId: строка.user_id, newRole: 'administrator' })));
+    assertNotLastAdministrator(client, { userId: row.user_id, newRole: 'administrator' })));
   проверить('назначение администратором заслона не требует',
     вАдмины === 'ПРОШЛО', 'ПРОШЛО', вАдмины.slice(0, 46));
 
@@ -222,7 +225,7 @@ try {
     INSERT INTO users (username, email, password_hash, role)
     VALUES ('второй','vt@e.рф','x','administrator')`);
   const теперьМожно = await отказ(() => withTransaction(pool, async client =>
-    assertNotLastAdministrator(client, { userId: строка.user_id, newRole: 'viewer' })));
+    assertNotLastAdministrator(client, { userId: row.user_id, newRole: 'viewer' })));
   проверить('когда администраторов двое, понижение проходит',
     теперьМожно === 'ПРОШЛО', 'ПРОШЛО', теперьМожно.slice(0, 46));
 
@@ -230,7 +233,7 @@ try {
   await pool.query(`
     UPDATE users SET is_banned = TRUE, ban_reason = 'проба' WHERE username = 'второй'`);
   const сноваНельзя = await отказ(() => withTransaction(pool, async client =>
-    assertNotLastAdministrator(client, { userId: строка.user_id, newRole: 'viewer' })));
+    assertNotLastAdministrator(client, { userId: row.user_id, newRole: 'viewer' })));
   проверить('забаненный администратор в счёт не идёт',
     сноваНельзя.includes('последний действующий'), 'отказ', сноваНельзя.slice(0, 46));
 

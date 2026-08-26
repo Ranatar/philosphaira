@@ -13,6 +13,7 @@ import { openEditPhilosopherModal, showPhilosopherDetailModal } from './entry.js
 import { highlightPhilosopherOnGraph } from '../render/selection.js';
 
 import { getContrastColor } from '../util/color.js';
+import { provenanceBlock } from '../util/html.js';
 import { formatBirthYear, philosopherBirth, philosopherYears, sortPhilosophersByBirth } from '../util/philosopher-label.js';
 import { conjugateVerb, declinePhilosopher } from '../util/ru.js';
 
@@ -124,6 +125,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
           ${philosopherData.years}
         </div>
         <div class="description">${formattedDescription}</div>
+        ${provenanceBlock(philosopherData.provenance)}
         <button class="goto-node-btn" data-act-click="close-universal-modal-3" data-a1="${philosopherName}">
           📊 Статистический профиль
         </button>

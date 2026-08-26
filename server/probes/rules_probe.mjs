@@ -18,9 +18,9 @@ import { userFromRow } from '../src/db/mapper.js';
 
 const КОРЕНЬ = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
-const итог = [];
+const merged = [];
 const п = (имя, ждали, вышло) =>
-  итог.push([String(ждали) === String(вышло) ? '  ' : '✗ ', имя, `ждали ${ждали}, вышло ${вышло}`]);
+  merged.push([String(ждали) === String(вышло) ? '  ' : '✗ ', имя, `ждали ${ждали}, вышло ${вышло}`]);
 const отказ = fn => {
   try { fn(); return 'ПРОШЛО'; }
   catch (e) {
@@ -30,20 +30,20 @@ const отказ = fn => {
 };
 
 // Строка базы РОВНО в том виде, в каком её отдаёт SELECT *.
-const строка = (over = {}) => ({
+const row = (over = {}) => ({
   user_id: 'u1', username: 'ivan', email: 'i@e.ru', role: 'editor',
   is_active: true, is_banned: false, deleted_at: null,
   email_verified_at: '2026-01-02T00:00:00Z', mfa_enabled: true,
   display_name: null, avatar_url: null, bio: null,
   registered_at: '2026-01-01T00:00:00Z', language: 'ru', theme: 'dark', ...over });
 
-const редактор  = userFromRow(строка());
-const баненый   = userFromRow(строка({ user_id: 'u2', is_banned: true, ban_reason: 'спам' }));
-const админ     = userFromRow(строка({ user_id: 'a1', role: 'administrator' }));
-const баненАдм  = userFromRow(строка({ user_id: 'a2', role: 'administrator',
+const редактор  = userFromRow(row());
+const баненый   = userFromRow(row({ user_id: 'u2', is_banned: true, ban_reason: 'спам' }));
+const админ     = userFromRow(row({ user_id: 'a1', role: 'administrator' }));
+const баненАдм  = userFromRow(row({ user_id: 'a2', role: 'administrator',
                                        is_banned: true, ban_reason: '—' }));
-const модератор = userFromRow(строка({ user_id: 'm1', role: 'moderator' }));
-const зритель   = userFromRow(строка({ user_id: 'v1', role: 'viewer' }));
+const модератор = userFromRow(row({ user_id: 'm1', role: 'moderator' }));
+const зритель   = userFromRow(row({ user_id: 'v1', role: 'viewer' }));
 
 // ── слой преобразования ──────────────────────────────────────────────────
 п('строка базы проходит преобразователь и даёт право', true, can(редактор, P.CREATE_COMMIT));
@@ -55,7 +55,7 @@ const зритель   = userFromRow(строка({ user_id: 'v1', role: 'viewer
   (() => { try { userFromRow({ user_id: 'x' }); return 'ПРОШЛО'; }
            catch (e) { return e.message.includes('нет полей') ? 'отказ' : 'ДРУГОЕ: ' + e.message; } })());
 п('деактивированный непригоден', false,
-  isUsable(userFromRow(строка({ is_active: false }))));
+  isUsable(userFromRow(row({ is_active: false }))));
 
 // ── действие над собой ───────────────────────────────────────────────────
 п('администратор не управляет сам собой', false, canActOn(админ, админ));
@@ -87,10 +87,10 @@ const зритель   = userFromRow(строка({ user_id: 'v1', role: 'viewer
   отказ(() => assertNotSelfReview(модератор, { authorId: 'u1' })));
 
 // ── срезание прав помимо роли ────────────────────────────────────────────
-const неподтв = userFromRow(строка({ user_id: 'u9', email_verified_at: null }));
+const неподтв = userFromRow(row({ user_id: 'u9', email_verified_at: null }));
 п('неподтверждённый адрес — коммитов нет', false, can(неподтв, P.CREATE_COMMIT));
 п('неподтверждённый адрес — смотреть можно', true, can(неподтв, P.VIEW_GRAPH));
-const безШага = userFromRow(строка({ user_id: 'a3', role: 'administrator', mfa_enabled: false }));
+const безШага = userFromRow(row({ user_id: 'a3', role: 'administrator', mfa_enabled: false }));
 п('без двухшагового входа — не банит', false, can(безШага, P.BAN_USER));
 п('без двухшагового входа — список пользователей видит', true, can(безШага, P.VIEW_USERS));
 п('без двухшагового входа не назначает администратора', 'отказ',
@@ -119,9 +119,9 @@ let расхождений = 0;
 for (const строкаТ of строкиТаблицы) {
   const части = строкаТ.split('|').map(x => x.trim()).filter(Boolean);
   const право = части[0].replace(/`/g, '');
-  ['guest', 'viewer', 'editor', 'moderator', 'administrator'].forEach((р, i) => {
-    if ((части[1 + i] === '✅') !== ROLES[р].permissions.includes(право)) {
-      расхождений++; console.log('  расходится:', право, р);
+  ['guest', 'viewer', 'editor', 'moderator', 'administrator'].forEach((decipher, i) => {
+    if ((части[1 + i] === '✅') !== ROLES[decipher].permissions.includes(право)) {
+      расхождений++; console.log('  расходится:', право, decipher);
     }
   });
 }
@@ -130,7 +130,7 @@ for (const строкаТ of строкиТаблицы) {
 п('permissionMatrix даёт строку на каждое право', Object.values(P).length,
   permissionMatrix().length);
 
-for (const [з, и, к] of итог) console.log(з, и.padEnd(58, '.'), з === '  ' ? '' : к);
-const плохо = итог.filter(x => x[0] === '✗ ').length;
-console.log(`\nутверждений ${итог.length}, не сошлось ${плохо}`);
+for (const [з, и, к] of merged) console.log(з, и.padEnd(58, '.'), з === '  ' ? '' : к);
+const плохо = merged.filter(x => x[0] === '✗ ').length;
+console.log(`\nутверждений ${merged.length}, не сошлось ${плохо}`);
 process.exit(плохо ? 1 : 0);

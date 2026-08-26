@@ -6,51 +6,51 @@
 // завершающего перевода строки нет. Всё это воспроизводится здесь и
 // проверяется побайтовым сравнением, а не на глаз.
 
-import { НАБОРЫ, НАБОР_ПО_РОДУ, ИМЕНА } from '../graph/schema.js';
+import { SETS, SET_BY_KIND, SET_NAMES } from '../graph/schema.js';
 
 /** Ровно то, что делает приложение при сохранении. */
-export const какПишетПриложение = данные => JSON.stringify(данные, null, 1);
+export const asAppWrites = payload => JSON.stringify(payload, null, 1);
 
 /**
  * Разложить запись на адрес и тело. Ключ id в тело НЕ кладётся: он и так
  * лежит в entity_id, а два места для одного знания расходятся.
  */
-function разобрать(имяНабора, запись) {
-  const опись = НАБОРЫ[имяНабора];
-  const чужие = Object.keys(запись).filter(к => !опись.keys.includes(к));
-  if (чужие.length) {
+function parseRecord(имяНабора, record) {
+  const spec = SETS[имяНабора];
+  const unknownKeys = Object.keys(record).filter(commitRow => !spec.keys.includes(commitRow));
+  if (unknownKeys.length) {
     throw new Error(
-      `перенос ${имяНабора}: в записи ${запись.id} посторонние поля ` +
-      `${чужие.join(', ')}. Молча выкинуть их нельзя — допишите опись ` +
+      `перенос ${имяНабора}: в записи ${record.id} посторонние поля ` +
+      `${unknownKeys.join(', ')}. Молча выкинуть их нельзя — допишите опись ` +
       'в src/graph/schema.js или разберитесь, откуда они взялись.');
   }
-  if (запись.id == null) {
+  if (record.id == null) {
     throw new Error(`перенос ${имяНабора}: запись без id`);
   }
-  const тело = {};
-  for (const к of опись.keys) {
-    if (к === 'id') continue;
-    if (к in запись) тело[к] = запись[к];
+  const payloadBuf = {};
+  for (const commitRow of spec.keys) {
+    if (commitRow === 'id') continue;
+    if (commitRow in record) payloadBuf[commitRow] = record[commitRow];
   }
-  return { entityId: String(запись.id), тело };
+  return { entityId: String(record.id), тело: payloadBuf };
 }
 
 /** Собрать запись обратно: id первым, остальные — по описи. */
-function собрать(имяНабора, entityId, тело) {
-  const запись = {};
-  for (const к of НАБОРЫ[имяНабора].keys) {
-    if (к === 'id') запись.id = entityId;
-    else if (к in тело) запись[к] = тело[к];
+function assemble(имяНабора, entityId, payloadBuf) {
+  const record = {};
+  for (const commitRow of SETS[имяНабора].keys) {
+    if (commitRow === 'id') record.id = entityId;
+    else if (commitRow in payloadBuf) record[commitRow] = payloadBuf[commitRow];
   }
-  return запись;
+  return record;
 }
 
 /** Перенос одного набора. Идемпотентен: повтор даёт то же состояние. */
 export async function importSet(client, имяНабора, записи) {
-  const { kind } = НАБОРЫ[имяНабора];
+  const { kind } = SETS[имяНабора];
   let n = 0;
-  for (const [ord, запись] of записи.entries()) {
-    const { entityId, тело } = разобрать(имяНабора, запись);
+  for (const [ord, record] of записи.entries()) {
+    const { entityId, тело: payloadBuf } = parseRecord(имяНабора, record);
     await client.query(`
       INSERT INTO graph_entities (kind, entity_id, ord, data, changed_at_version)
       VALUES ($1, $2, $3, $4, 0)
@@ -58,7 +58,7 @@ export async function importSet(client, имяНабора, записи) {
         SET ord = EXCLUDED.ord, data = EXCLUDED.data,
             version = graph_entities.version + 1,
             deleted_at = NULL, updated_at = NOW()`,
-      [kind, entityId, ord, тело]);
+      [kind, entityId, ord, payloadBuf]);
     n++;
   }
   return n;
@@ -66,19 +66,19 @@ export async function importSet(client, имяНабора, записи) {
 
 /** Выгрузка одного набора в том же виде, в каком его пишет приложение. */
 export async function exportSet(db, имяНабора) {
-  const { kind } = НАБОРЫ[имяНабора];
+  const { kind } = SETS[имяНабора];
   const { rows } = await db.query(`
     SELECT entity_id AS "entityId", data AS "тело"
       FROM graph_entities
      WHERE kind = $1 AND deleted_at IS NULL
      ORDER BY ord`, [kind]);
-  return rows.map(с => собрать(имяНабора, с.entityId, с.тело));
+  return rows.map(since => assemble(имяНабора, since.entityId, since.тело));
 }
 
 export async function exportAll(db) {
-  const всё = {};
-  for (const имя of ИМЕНА) всё[имя] = await exportSet(db, имя);
-  return всё;
+  const allSets = {};
+  for (const categoryName of SET_NAMES) allSets[categoryName] = await exportSet(db, categoryName);
+  return allSets;
 }
 
 /** Текущее состояние графа: по нему клиент понимает, что отстал. */
@@ -101,7 +101,7 @@ export async function counts(db) {
     SELECT kind::text AS "род", count(*)::int AS "сколько"
       FROM graph_entities WHERE deleted_at IS NULL
      GROUP BY kind`);
-  return Object.fromEntries(rows.map(с => [НАБОР_ПО_РОДУ[с.род], с.сколько]));
+  return Object.fromEntries(rows.map(since => [SET_BY_KIND[since.род], since.сколько]));
 }
 
 // ── применение коммитов (беседа 2.3) ────────────────────────────────────
@@ -114,9 +114,9 @@ export async function lockEntity(client, kind, entityId) {
     SELECT data AS "тело", ord AS "порядок", (deleted_at IS NOT NULL) AS "удалена"
       FROM graph_entities WHERE kind = $1 AND entity_id = $2 FOR UPDATE`,
     [kind, entityId]);
-  const с = rows[0];
-  if (!с) return { есть: false, живая: null, порядок: null };
-  return { есть: true, живая: с.удалена ? null : с.тело, порядок: с.порядок };
+  const since = rows[0];
+  if (!since) return { есть: false, живая: null, порядок: null };
+  return { есть: true, живая: since.удалена ? null : since.тело, порядок: since.порядок };
 }
 
 export async function nextOrd(client, kind) {
@@ -132,7 +132,7 @@ export const markEntityDeleted = (client, kind, entityId, actorId) => client.que
    WHERE kind = $1 AND entity_id = $2`, [kind, entityId, actorId]);
 
 /** Заводит или ВОСКРЕШАЕТ по тому же адресу: адрес занят навсегда. */
-export const upsertEntity = (client, { kind, entityId, ord, тело, actorId }) =>
+export const upsertEntity = (client, { kind, entityId, ord, тело: payloadBuf, actorId }) =>
   client.query(`
     INSERT INTO graph_entities (kind, entity_id, ord, data, updated_by)
     VALUES ($1, $2, $3, $4, $5)
@@ -140,15 +140,15 @@ export const upsertEntity = (client, { kind, entityId, ord, тело, actorId })
       SET data = EXCLUDED.data, deleted_at = NULL,
           version = graph_entities.version + 1,
           updated_at = NOW(), updated_by = EXCLUDED.updated_by`,
-    [kind, entityId, ord, тело, actorId]);
+    [kind, entityId, ord, payloadBuf, actorId]);
 
 /** Пишет ТОЛЬКО чистые поля: совпавшие уже в базе, версию впустую не поднимаем. */
-export const patchEntity = (client, { kind, entityId, поля, actorId }) =>
+export const patchEntity = (client, { kind, entityId, поля: fieldNames, actorId }) =>
   client.query(`
     UPDATE graph_entities SET data = data || $3::jsonb, version = version + 1,
            updated_at = NOW(), updated_by = $4
      WHERE kind = $1 AND entity_id = $2`,
-    [kind, entityId, JSON.stringify(поля ?? {}), actorId]);
+    [kind, entityId, JSON.stringify(fieldNames ?? {}), actorId]);
 
 // ── откат и приращение (беседа 2.4) ─────────────────────────────────────
 
@@ -165,9 +165,9 @@ export async function entityBody(client, kind, entityId) {
   return rows[0] ?? null;
 }
 
-export const stampVersion = (client, { kind, entityId, версия }) => client.query(
+export const stampVersion = (client, { kind, entityId, версия: version }) => client.query(
   `UPDATE graph_entities SET changed_at_version = $3
-    WHERE kind = $1 AND entity_id = $2`, [kind, entityId, версия]);
+    WHERE kind = $1 AND entity_id = $2`, [kind, entityId, version]);
 
 /**
  * Приращение: что изменилось ПОСЛЕ версии since. Удалённые приходят с

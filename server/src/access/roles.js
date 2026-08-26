@@ -94,9 +94,9 @@ export function rolesAtLeast(level) {
 
 /** Матрица прав ПОРОЖДАЕТСЯ. Руками её больше не пишут: разойдётся. */
 export function permissionMatrix() {
-  const роли = Object.keys(ROLES);
+  const roleNames = Object.keys(ROLES);
   return Object.values(P).map(право => ({
     permission: право,
-    ...Object.fromEntries(роли.map(р => [р, ROLES[р].permissions.includes(право)])),
+    ...Object.fromEntries(roleNames.map(decipher => [decipher, ROLES[decipher].permissions.includes(право)])),
   }));
 }

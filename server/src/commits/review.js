@@ -37,12 +37,12 @@ export async function reviewCommit(pool, { actor, commitId, action, comment = nu
   }
 
   return withTransaction(pool, async client => {
-    const коммит = await lockCommit(client, commitId);
-    if (!коммит) throw new NotFound('Коммит не найден');
-    if (коммит.status !== 'pending') {
-      throw new Conflict(`Коммит уже рассмотрен: ${коммит.status}`);
+    const commit = await lockCommit(client, commitId);
+    if (!commit) throw new NotFound('Коммит не найден');
+    if (commit.status !== 'pending') {
+      throw new Conflict(`Коммит уже рассмотрен: ${commit.status}`);
     }
-    assertNotSelfReview(actor, коммит);
+    assertNotSelfReview(actor, commit);
 
     if (action === 'reject') {
       await markRejected(client, { commitId, reviewerId: actor.userId,
@@ -50,14 +50,14 @@ export async function reviewCommit(pool, { actor, commitId, action, comment = nu
       await audit(client, { actorId: actor.userId, action: 'commit.reject',
                             subjectType: 'commit', subjectId: commitId, ip });
       await notify(client, N.COMMIT_REJECTED, {
-        authorId: коммит.authorId, commitId,
+        authorId: commit.authorId, commitId,
         reviewerName: actor.username, comment: String(comment).trim() });
       return { исход: 'rejected' };
     }
 
-    let итог;
+    let merged;
     try {
-      итог = await applyCommit(client, { changes: коммит.changes, actorId: коммит.authorId });
+      merged = await applyCommit(client, { changes: commit.changes, actorId: commit.authorId });
     } catch (e) {
       if (!(e instanceof Conflict)) throw e;
       // Столкновение — не отказ рецензента и не ошибка автора: это
@@ -69,25 +69,25 @@ export async function reviewCommit(pool, { actor, commitId, action, comment = nu
                             subjectType: 'commit', subjectId: commitId,
                             payload: { столкновений: e.details?.столкновения?.length ?? 0 }, ip });
       await notify(client, N.COMMIT_CONFLICTED, {
-        authorId: коммит.authorId, commitId,
+        authorId: commit.authorId, commitId,
         столкновения: e.details?.столкновения ?? [] });
       return { исход: 'conflicted', столкновения: e.details?.столкновения ?? [] };
     }
 
-    await markApplied(client, { commitId, статус: итог.исход,
-                                reviewerId: actor.userId, comment, версия: итог.версия });
+    await markApplied(client, { commitId, статус: merged.исход,
+                                reviewerId: actor.userId, comment, версия: merged.версия });
     await audit(client, { actorId: actor.userId,
-                          action: итог.исход === 'coincided' ? 'commit.coincided' : 'commit.approve',
+                          action: merged.исход === 'coincided' ? 'commit.coincided' : 'commit.approve',
                           subjectType: 'commit', subjectId: commitId,
-                          payload: { применено: итог.применено, версия: итог.версия }, ip });
+                          payload: { применено: merged.применено, версия: merged.версия }, ip });
     await notify(client,
-      итог.исход === 'coincided' ? N.COMMIT_COINCIDED : N.COMMIT_APPROVED,
-      { authorId: коммит.authorId, commitId, reviewerName: actor.username });
-    if (итог.исход === 'applied') {
+      merged.исход === 'coincided' ? N.COMMIT_COINCIDED : N.COMMIT_APPROVED,
+      { authorId: commit.authorId, commitId, reviewerName: actor.username });
+    if (merged.исход === 'applied') {
       await notify(client, N.GRAPH_CHANGED,
-        { commitId, версия: итог.версия, применено: итог.применено });
+        { commitId, версия: merged.версия, применено: merged.применено });
     }
-    return итог;
+    return merged;
   });
 }
 
@@ -100,30 +100,30 @@ export async function directCommit(pool, { actor, message, authorComment = null,
                                            changes, ip = null }) {
   assertCan(actor, P.REVIEW_COMMIT);
   // наРассмотрение: false — очереди не будет, извещать о ней некого.
-  const { коммит, пересечения } = await createCommit(pool,
+  const { коммит: commit, пересечения: overlaps } = await createCommit(pool,
     { actor, message, authorComment, changes, ip, наРассмотрение: false });
 
   return withTransaction(pool, async client => {
-    let итог;
+    let merged;
     try {
-      итог = await applyCommit(client, { changes, actorId: actor.userId });
+      merged = await applyCommit(client, { changes, actorId: actor.userId });
     } catch (e) {
       if (!(e instanceof Conflict)) throw e;
-      await markConflicted(client, { commitId: коммит.commitId,
+      await markConflicted(client, { commitId: commit.commitId,
                                      столкновения: e.details?.столкновения ?? [] });
-      return { исход: 'conflicted', commitId: коммит.commitId,
-               столкновения: e.details?.столкновения ?? [], пересечения };
+      return { исход: 'conflicted', commitId: commit.commitId,
+               столкновения: e.details?.столкновения ?? [], пересечения: overlaps };
     }
-    await markApplied(client, { commitId: коммит.commitId, статус: итог.исход,
-                                версия: итог.версия });
+    await markApplied(client, { commitId: commit.commitId, статус: merged.исход,
+                                версия: merged.версия });
     await audit(client, { actorId: actor.userId, action: 'commit.direct',
-                          subjectType: 'commit', subjectId: коммит.commitId,
-                          payload: { применено: итог.применено }, ip });
-    if (итог.исход === 'applied') {
+                          subjectType: 'commit', subjectId: commit.commitId,
+                          payload: { применено: merged.применено }, ip });
+    if (merged.исход === 'applied') {
       await notify(client, N.GRAPH_CHANGED,
-        { commitId: коммит.commitId, версия: итог.версия, применено: итог.применено });
+        { commitId: commit.commitId, версия: merged.версия, применено: merged.применено });
     }
-    return { ...итог, commitId: коммит.commitId, пересечения };
+    return { ...merged, commitId: commit.commitId, пересечения: overlaps };
   });
 }
 

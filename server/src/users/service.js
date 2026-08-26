@@ -30,14 +30,14 @@ import { notify } from '../notify/notify.js';
 import { N } from '../notify/catalog.js';
 import { Forbidden, Conflict, NotFound } from '../http/errors.js';
 
-const требоватьПричину = (причина, чего) => {
+const requireReason = (причина, чего) => {
   if (!причина || !String(причина).trim()) {
     throw new Forbidden(`Причина ${чего} обязательна`);
   }
 };
 
 export async function changeUserRole(pool, { actor, targetUserId, newRole, reason, ip = null }) {
-  требоватьПричину(reason, 'изменения роли');
+  requireReason(reason, 'изменения роли');
 
   return withTransaction(pool, async client => {
     const target = await findByIdForUpdate(client, targetUserId);
@@ -63,19 +63,19 @@ export async function changeUserRole(pool, { actor, targetUserId, newRole, reaso
                           subjectType: 'user', subjectId: targetUserId,
                           payload: { oldRole, newRole, reason }, ip });
 
-    const данные = { userId: targetUserId, username: target.username,
+    const payload = { userId: targetUserId, username: target.username,
                      oldRole, newRole, changedByName: actor.username, reason };
-    await notify(client, N.ROLE_CHANGED, данные);
+    await notify(client, N.ROLE_CHANGED, payload);
     await notify(client,
       ROLES[newRole].level > ROLES[oldRole].level ? N.USER_PROMOTED : N.USER_DEMOTED,
-      данные);
+      payload);
 
     return findByIdForUpdate(client, targetUserId);   // свежее, а не правленое
   });
 }
 
 export async function banUser(pool, { actor, targetUserId, reason, ip = null }) {
-  требоватьПричину(reason, 'бана');
+  requireReason(reason, 'бана');
 
   return withTransaction(pool, async client => {
     const target = await findByIdForUpdate(client, targetUserId);
@@ -145,12 +145,12 @@ export async function listUsers(pool, { actor, role, isBanned, query,
 
   const where = ['u.deleted_at IS NULL'];
   const params = [];
-  const добавить = (сборка, значение) => {
+  const push = (сборка, значение) => {
     params.push(значение); where.push(сборка(params.length));
   };
-  if (role !== undefined)     добавить(i => `u.role = $${i}::user_role`, role);
-  if (isBanned !== undefined) добавить(i => `u.is_banned = $${i}`, isBanned);
-  if (query) добавить(i => `(u.username ILIKE $${i} OR u.email ILIKE $${i})`, `%${query}%`);
+  if (role !== undefined)     push(i => `u.role = $${i}::user_role`, role);
+  if (isBanned !== undefined) push(i => `u.is_banned = $${i}`, isBanned);
+  if (query) push(i => `(u.username ILIKE $${i} OR u.email ILIKE $${i})`, `%${query}%`);
 
   return paginate(pool, {
     from: 'users u', select: 'u.*', where, params,

@@ -1,42 +1,39 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
-import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
 import { api, serverMode } from '../core/api.js';
 import { emit } from '../core/events.js';
 import { afterDataChange } from './mutate.js';
-import { renderState } from '../render/canvas-core.js';
-import { updateGraphData } from '../render/scene.js';
 
 let knownGraphVersion = 0;
 
-function replaceEntity(набор, id, запись) {
-      const i = набор.findIndex(з => з.id === id);
+function replaceEntity(set, id, запись) {
+      const at = set.findIndex(z => z.id === id);
       if (запись === null) {
-        if (i === -1) return false;
-        набор.splice(i, 1); return true;
+        if (at === -1) return false;
+        set.splice(at, 1); return true;
       }
-      if (i === -1) { набор.push(запись); return true; }
-      набор[i] = запись; return true;
+      if (at === -1) { set.push(запись); return true; }
+      set[at] = запись; return true;
     }
 
 function applyIncrement(приращение) {
-      const наборы = { concepts: DATA.concepts, relations: DATA.relations, philosophers: DATA.philosophers,
+      const sets = { concepts: DATA.concepts, relations: DATA.relations, philosophers: DATA.philosophers,
                        traditions: DATA.traditions, rubrics: DATA.rubrics, relationTypes: DATA.relationTypes };
-      const тронуто = [];
-      for (const и of приращение.изменения || []) {
-        const набор = наборы[и.набор];
-        if (!набор) continue;
-        if (replaceEntity(набор, и.entityId, и.удалена ? null : и.запись)) {
-          тронуто.push({ kind: и.kind, entityId: и.entityId });
+      const touched = [];
+      for (const i of приращение.изменения || []) {
+        const set = sets[i.набор];
+        if (!set) continue;
+        if (replaceEntity(set, i.entityId, i.удалена ? null : i.запись)) {
+          touched.push({ kind: i.kind, entityId: i.entityId });
         }
       }
-      if (тронуто.length) {
+      if (touched.length) {
         rebuildDerived();
         afterDataChange({ philosophers: true, nodes: true, links: true });
       }
       knownGraphVersion = приращение.версия;
-      return тронуто;
+      return touched;
     }
 
 async function pullGraphSince() {
@@ -51,18 +48,18 @@ async function pullGraphSince() {
       // с версией ноль и чужих правок не видела вовсе. Проба показала это
       // сразу тремя утверждениями.
       if (!knownGraphVersion) {
-        const всё = await api('/api/graph');
-        if (!всё.годно || !всё.тело || !всё.тело.data) return [];
-        applyFreshGraph(всё.тело.data);
-        knownGraphVersion = всё.тело.data.версия || 0;
+        const all = await api('/api/graph');
+        if (!all.годно || !all.тело || !all.тело.data) return [];
+        applyFreshGraph(all.тело.data);
+        knownGraphVersion = all.тело.data.версия || 0;
         return [];
       }
 
-      const ответ = await api('/api/graph?since=' + encodeURIComponent(knownGraphVersion));
-      if (!ответ.годно || !ответ.тело || !ответ.тело.data) return [];
-      const тронуто = applyIncrement(ответ.тело.data);
-      if (тронуто.length) emit('graph-updated-remotely', тронуто);
-      return тронуто;
+      const reply = await api('/api/graph?since=' + encodeURIComponent(knownGraphVersion));
+      if (!reply.годно || !reply.тело || !reply.тело.data) return [];
+      const touched = applyIncrement(reply.тело.data);
+      if (touched.length) emit('graph-updated-remotely', touched);
+      return touched;
     }
 
 function connectLive() {
@@ -70,33 +67,33 @@ function connectLive() {
       // Прежнее соединение закрываем: иначе после входа их станет два, и
       // каждое приращение возьмётся дважды.
       if (liveSocket) { try { liveSocket.close(); } catch (e) { /* уже мертво */ } }
-      const адрес = (location.protocol === 'https:' ? 'wss://' : 'ws://')
+      const address = (location.protocol === 'https:' ? 'wss://' : 'ws://')
                   + location.host + '/ws';
-      let сокет;
-      try { сокет = new WebSocket(адрес); } catch (e) { return null; }
-      сокет.addEventListener('message', событие => {
-        let сообщение;
-        try { сообщение = JSON.parse(событие.data); } catch (e) { return; }
-        if (сообщение.type === 'broadcast' || сообщение.type === 'notification') {
+      let socket;
+      try { socket = new WebSocket(address); } catch (e) { return null; }
+      socket.addEventListener('message', событие => {
+        let message;
+        try { message = JSON.parse(событие.data); } catch (e) { return; }
+        if (message.type === 'broadcast' || message.type === 'notification') {
           pullGraphSince();
         }
-        if (сообщение.type === 'notification' || сообщение.type === 'broadcast') {
-          emit('notification-arrived', сообщение);
+        if (message.type === 'notification' || message.type === 'broadcast') {
+          emit('notification-arrived', message);
         }
       });
-      сокет.addEventListener('open', () => { liveRetry = 0; });
+      socket.addEventListener('open', () => { liveRetry = 0; });
       // Разрыв — не беда: страница работает и без живого соединения. Но
       // соединение ВОССТАНАВЛИВАЕТСЯ с растущей задержкой: сеть моргает
       // чаще, чем кажется, а бить в дверь без передышки — верный способ
       // получить отказ и от исправного сервера.
-      сокет.addEventListener('close', () => {
+      socket.addEventListener('close', () => {
         liveSocket = null;
         if (!serverMode || S.liveClosedOnPurpose) return;
-        const пауза = Math.min(30000, 500 * Math.pow(2, liveRetry++));
-        setTimeout(() => { if (!liveSocket) connectLive(); }, пауза);
+        const pause = Math.min(30000, 500 * Math.pow(2, liveRetry++));
+        setTimeout(() => { if (!liveSocket) connectLive(); }, pause);
       });
-      liveSocket = сокет;
-      return сокет;
+      liveSocket = socket;
+      return socket;
     }
 
 let liveSocket = null;
@@ -106,60 +103,57 @@ let liveRetry = 0;
 S.liveClosedOnPurpose = false;
 
 function rebuildDerived() {
-      const поИмени = {};
-      for (const ф of DATA.philosophers) поИмени[ф.id] = ф.nameRu || ф.name;
+      const byName = {};
+      for (const f of DATA.philosophers) byName[f.id] = f.nameRu || f.name;
       // Координаты снимаются ДО замены: узлы пересоздаются целиком, и без
       // этого граф стирается с экрана, а при чужом коммите — прыгает.
-      const былиМеста = new Map();
-      for (const у of DATA.nodes) {
-        if (у && у.x !== undefined) былиМеста.set(у.id,
-          { x: у.x, y: у.y, vx: у.vx || 0, vy: у.vy || 0, fx: у.fx, fy: у.fy });
+      const priorPlaces = new Map();
+      for (const node of DATA.nodes) {
+        if (node && node.x !== undefined) priorPlaces.set(node.id,
+          { x: node.x, y: node.y, vx: node.vx || 0, vy: node.vy || 0, fx: node.fx, fy: node.fy });
       }
       DATA.nodes.length = 0;
       DATA.nodes.push(...DATA.concepts.map(c => ({
-        id: c.id, label: c.label, concept: поИмени[c.philosopher],
+        id: c.id, label: c.label, concept: byName[c.philosopher],
         rubrics: c.rubrics || [], description: c.description,
         extendedDescription: c.extendedDescription,
+        provenance: c.provenance,
       })));
       DATA.links.length = 0;
       DATA.links.push(...DATA.relations.map(r => ({
         id: r.id, source: r.source, target: r.target, type: r.type,
         weight: r.weight, bidirectional: r.bidirectional || false,
-        description: r.description,
+        description: r.description, provenance: r.provenance,
       })));
 
       // Места возвращаются уцелевшим по идентификатору; новым — середина
-      // видимой области, как в addNodeToGraph. Без координат d3 ставит узел
-      // в (0,0) и выбрасывает рывком через весь экран.
-      let середина = null;
-      for (const у of DATA.nodes) {
-        const было = былиМеста.get(у.id);
-        if (было) { Object.assign(у, было); continue; }
-        if (!середина) {
-          try { середина = renderState.transform.invert(
-            [S.viewWidth / 2, S.viewHeight / 2]); }
-          catch (e) { середина = [S.viewWidth / 2, S.viewHeight / 2]; }
-        }
-        у.x = середина[0] + (Math.random() - 0.5) * 60;
-        у.y = середина[1] + (Math.random() - 0.5) * 60;
-        у.vx = 0; у.vy = 0;
+      // области. БЕЗ renderState: слой данных не смеет спрашивать слой
+      // отрисовки — прибор слоёв показал ребро ввоза снизу вверх, как
+      // только оно появилось. Разница видна лишь при сильном увеличении,
+      // а укладка всё равно тут же двинет новый узел к его месту.
+      const viewCenter = [S.viewWidth / 2, S.viewHeight / 2];
+      for (const u of DATA.nodes) {
+        const prior = priorPlaces.get(u.id);
+        if (prior) { Object.assign(u, prior); continue; }
+        u.x = viewCenter[0] + (Math.random() - 0.5) * 60;
+        u.y = viewCenter[1] + (Math.random() - 0.5) * 60;
+        u.vx = 0; u.vy = 0;
       }
 
-      // Массивы передаются симуляции заново: d3 держит свои индексы и
-      // подменяет концы связей объектами узлов — после замены содержимого
-      // и то и другое устарело.
-      updateGraphData();
+      // МАССИВЫ СИМУЛЯЦИИ ПЕРЕДАЮТСЯ НЕ ОТСЮДА: слой данных не смеет звать
+      // слой отрисовки. Это делает подписчик `data-changed`, стоящий ПЕРВЫМ
+      // среди подписок запуска, — см. пояснение там же о том, почему первым.
     }
 
 function applyFreshGraph(состояние) {
-      const н = состояние && состояние.наборы;
-      if (!н) return false;
-      if (Array.isArray(н.concepts))      { DATA.concepts.length = 0;      DATA.concepts.push(...н.concepts); }
-      if (Array.isArray(н.relations))     { DATA.relations.length = 0;     DATA.relations.push(...н.relations); }
-      if (Array.isArray(н.philosophers))  { DATA.philosophers.length = 0;  DATA.philosophers.push(...н.philosophers); }
-      if (Array.isArray(н.traditions))    { DATA.traditions.length = 0;    DATA.traditions.push(...н.traditions); }
-      if (Array.isArray(н.rubrics))       { DATA.rubrics.length = 0;       DATA.rubrics.push(...н.rubrics); }
-      if (Array.isArray(н.relationTypes)) { DATA.relationTypes.length = 0; DATA.relationTypes.push(...н.relationTypes); }
+      const sets = состояние && состояние.наборы;
+      if (!sets) return false;
+      if (Array.isArray(sets.concepts))      { DATA.concepts.length = 0;      DATA.concepts.push(...sets.concepts); }
+      if (Array.isArray(sets.relations))     { DATA.relations.length = 0;     DATA.relations.push(...sets.relations); }
+      if (Array.isArray(sets.philosophers))  { DATA.philosophers.length = 0;  DATA.philosophers.push(...sets.philosophers); }
+      if (Array.isArray(sets.traditions))    { DATA.traditions.length = 0;    DATA.traditions.push(...sets.traditions); }
+      if (Array.isArray(sets.rubrics))       { DATA.rubrics.length = 0;       DATA.rubrics.push(...sets.rubrics); }
+      if (Array.isArray(sets.relationTypes)) { DATA.relationTypes.length = 0; DATA.relationTypes.push(...sets.relationTypes); }
 
       rebuildDerived();
       afterDataChange({ philosophers: true, nodes: true, links: true });

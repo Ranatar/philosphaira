@@ -216,9 +216,9 @@ export const stampDigest = (client, userId) => client.query(`
 
 /** Уборка просроченного. Индекс на expires_at заведён миграцией 008. */
 export async function sweepExpired(client) {
-  const у = await client.query(`DELETE FROM notifications WHERE expires_at < NOW()`);
-  const в = await client.query(`DELETE FROM broadcasts    WHERE expires_at < NOW()`);
-  const и = await client.query(
+  const updatedUser = await client.query(`DELETE FROM notifications WHERE expires_at < NOW()`);
+  const deleted = await client.query(`DELETE FROM broadcasts    WHERE expires_at < NOW()`);
+  const result = await client.query(
     `DELETE FROM outbox WHERE delivered_at < NOW() - INTERVAL '7 days'`);
-  return { уведомлений: у.rowCount, вещаний: в.rowCount, исходящих: и.rowCount };
+  return { уведомлений: updatedUser.rowCount, вещаний: deleted.rowCount, исходящих: result.rowCount };
 }

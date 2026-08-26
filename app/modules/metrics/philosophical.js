@@ -4,6 +4,42 @@ import '../core/graph-index.js';
 import { isSymmetricLink, otherPhilosopher, reflexiveLinkOf, sumWeight } from '../core/link-facts.js';
 import { generativity, linkInInfluenceScope } from './generativity.js';
 
+const FORMULA_VERSIONS = Object.freeze({
+      abstractionIndex: 1,
+      calculateBetweenness: 1,
+      calculateClosenessCentrality: 1,
+      calculateClusteringCoefficient: 1,
+      calculateEigenvectorCentrality: 1,
+      calculateLocalCohesion: 1,
+      calculatePageRank: 1,
+      calculateRichClubCoefficient: 1,
+      calculateWeightedClustering: 1,
+      calculateWeightedDegree: 1,
+      conceptualComplexityIndex: 1,
+      conceptualContinuityIndex: 1,
+      conceptualFertilityIndex: 1,
+      criticalPowerIndex: 1,
+      deductiveDepth: 1,
+      deductiveIndex: 1,
+      dialogicalIndex: 1,
+      foundationalIndex: 1,
+      generativeIndex: 1,
+      influenceIndex: 1,
+      instrumentalIndex: 1,
+      internalCoherenceIndex: 1,
+      paradigmShiftIndex: 1,
+      philosopherHistoricalReachIndex: 1,
+      philosopherInterdisciplinaryIndex: 1,
+      philosopherSystematicIndex: 1,
+      problemGenerationIndex: 1,
+      revolutionaryIndex: 1,
+      syntheticIndex: 1,
+      temporalInfluencePattern: 1,
+      tensionIndex: 1,
+      traditionBridgingIndex: 1,
+      transformationIndex: 1
+    });
+
 let problemGenerationIndexCache = null;
 
 MET.problemGenerationIndex = function problemGenerationIndex(conceptId) {
@@ -1035,4 +1071,4 @@ const INFLUENCE_SCOPE_LABELS = {
       within_ext: 'внутри традиций, без внутренних связей'
     };
 
-export { DISRUPTIVE_TYPES, INFLUENCE_SCOPE_LABELS, SYSTEMATIC_TYPES, invalidateCriticalPowerIndexCache, invalidateDialogicalIndexCache, invalidateFoundationalIndexCache, invalidateInfluenceIndexCache, invalidateInternalCoherenceIndexCache, invalidateParadigmShiftIndexCache, invalidateProblemGenerationIndexCache, invalidateRevolutionaryIndexCache, invalidateSyntheticIndexCache, invalidateTensionIndexCache };
+export { DISRUPTIVE_TYPES, FORMULA_VERSIONS, INFLUENCE_SCOPE_LABELS, SYSTEMATIC_TYPES, invalidateCriticalPowerIndexCache, invalidateDialogicalIndexCache, invalidateFoundationalIndexCache, invalidateInfluenceIndexCache, invalidateInternalCoherenceIndexCache, invalidateParadigmShiftIndexCache, invalidateProblemGenerationIndexCache, invalidateRevolutionaryIndexCache, invalidateSyntheticIndexCache, invalidateTensionIndexCache };

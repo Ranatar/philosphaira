@@ -14,9 +14,9 @@ export async function withTransaction(pool, fn) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const результат = await fn(client);
+    const outcome = await fn(client);
     await client.query('COMMIT');
-    return результат;
+    return outcome;
   } catch (e) {
     // Соединение может быть уже мертво — тогда откатывать нечего и незачем
     // ронять поверх настоящей ошибки вторую, о неудавшемся откате.

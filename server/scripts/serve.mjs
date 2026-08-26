@@ -11,8 +11,9 @@
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { создатьПул } from '../src/db/pool.js';
-import { создатьСервер } from '../src/http/server.js';
+import { createPool } from '../src/db/pool.js';
+import { createServer } from '../src/http/server.js';
+import { assertKey } from '../src/auth/secretbox.js';
 
 const КОРЕНЬ = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const порт = Number(process.env.PORT || 8814);
@@ -21,26 +22,37 @@ if (!Number.isInteger(порт) || порт < 1 || порт > 65535) {
   process.exit(1);
 }
 
+// ОБЯЗАТЕЛЬНОЕ ПРОВЕРЯЕТСЯ ДО ПОДЪЁМА, а не при первом обращении. Прежде
+// сервер без MFA_SECRET_KEY поднимался МОЛЧА и падал на первом входе со
+// вторым шагом — то есть у первого попавшегося человека, а не у того, кто
+// запускал и может починить. Отказ должен случаться там, где его увидят.
+try {
+  assertKey();
+} catch (e) {
+  console.error('Запуск невозможен: ' + e.message);
+  process.exit(1);
+}
+
 const строкаПодключения = process.env.DATABASE_URL;
-const pool = создатьПул(строкаПодключения);
-let узел = null;
+const pool = createPool(строкаПодключения);
+let wsNode = null;
 let закрываемся = false;
 
-async function завершить(почему, код = 0) {
+async function завершить(почему, totpCode = 0) {
   if (закрываемся) return;
   закрываемся = true;
   console.log(`\n${почему}: останавливаюсь…`);
-  try { if (узел) await узел.close(); }
-  catch (e) { console.error('соединения не закрылись:', e.message); код = 1; }
+  try { if (wsNode) await wsNode.close(); }
+  catch (e) { console.error('соединения не закрылись:', e.message); totpCode = 1; }
   try { await pool.end(); }
-  catch (e) { console.error('пул не закрылся:', e.message); код = 1; }
-  process.exitCode = код;
+  catch (e) { console.error('пул не закрылся:', e.message); totpCode = 1; }
+  process.exitCode = totpCode;
 }
 process.once('SIGINT',  () => void завершить('SIGINT'));
 process.once('SIGTERM', () => void завершить('SIGTERM'));
 
 try {
-  узел = await создатьСервер({
+  wsNode = await createServer({
     pool, строкаПодключения,
     // Страница отдаётся ЭТИМ ЖЕ узлом: только так в неё попадает метка
     // philos-api, по которой клиент узнаёт, что сервер есть.
@@ -50,7 +62,7 @@ try {
       ? process.env.WS_ORIGINS.split(',').map(с => с.trim()).filter(Boolean)
       : null,
   });
-  await узел.слушать(порт);
+  await wsNode.слушать(порт);
   console.log(`ΦilosΦaira поднята: http://127.0.0.1:${порт}/`);
   console.log(process.env.NODE_ENV === 'production'
     ? 'лад: production, cookie только по HTTPS'

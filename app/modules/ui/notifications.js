@@ -8,52 +8,52 @@ let notifyItems = [];
 
 async function refreshUnread() {
       if (!serverMode) return 0;
-      const ответ = await api('/api/notifications/unread-count');
-      if (!ответ.годно || !ответ.тело) return unreadCount;
-      unreadCount = (ответ.тело.data && ответ.тело.data.count) || 0;
+      const reply = await api('/api/notifications/unread-count');
+      if (!reply.годно || !reply.тело) return unreadCount;
+      unreadCount = (reply.тело.data && reply.тело.data.count) || 0;
       renderBell();
       return unreadCount;
     }
 
 async function loadNotifications() {
       if (!serverMode) return [];
-      const ответ = await api('/api/notifications?limit=50');
-      notifyItems = (ответ.годно && ответ.тело && ответ.тело.data) || [];
+      const reply = await api('/api/notifications?limit=50');
+      notifyItems = (reply.годно && reply.тело && reply.тело.data) || [];
       renderNotifyList();
       return notifyItems;
     }
 
 function renderBell() {
-      const колокол = document.getElementById('notifyBell');
-      if (!колокол) return;
-      колокол.style.display = serverMode ? 'inline-block' : 'none';
-      const значок = document.getElementById('notifyBadge');
-      if (!значок) return;
-      значок.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
-      значок.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+      const bell = document.getElementById('notifyBell');
+      if (!bell) return;
+      bell.style.display = serverMode ? 'inline-block' : 'none';
+      const badge = document.getElementById('notifyBadge');
+      if (!badge) return;
+      badge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+      badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
     }
 
 function renderNotifyList() {
-      const место = document.getElementById('notifyList');
-      if (!место) return;
+      const slot = document.getElementById('notifyList');
+      if (!slot) return;
       if (!notifyItems.length) {
-        место.innerHTML = '<div class="notify-empty">Пока ничего</div>';
+        slot.innerHTML = '<div class="notify-empty">Пока ничего</div>';
         return;
       }
-      место.innerHTML = notifyItems.map(з => {
-        const прочитано = з.прочитано ? ' notify-read' : '';
-        const кнопка = (з.вид === 'адресное' && !з.прочитано)
-          ? `<button class="notify-mark" data-id="${escapeAttr(з.id)}">прочитано</button>`
+      slot.innerHTML = notifyItems.map(z => {
+        const readMark = z.прочитано ? ' notify-read' : '';
+        const button = (z.вид === 'адресное' && !z.прочитано)
+          ? `<button class="notify-mark" data-id="${escapeAttr(z.id)}">прочитано</button>`
           : '';
-        return `<div class="notify-item${прочитано}">`
-             + `<div class="notify-type">${escapeAttr(notifyWords(з.type))}</div>`
-             + `<div class="notify-when">${escapeAttr(String(з.createdAt).slice(0, 16).replace('T', ' '))}</div>`
-             + кнопка + '</div>';
+        return `<div class="notify-item${readMark}">`
+             + `<div class="notify-type">${escapeAttr(notifyWords(z.type))}</div>`
+             + `<div class="notify-when">${escapeAttr(String(z.createdAt).slice(0, 16).replace('T', ' '))}</div>`
+             + button + '</div>';
       }).join('');
     }
 
-function notifyWords(тип) {
-      const словарь = {
+function notifyWords(kind) {
+      const dict = {
         graph_changed: 'Граф изменён',
         commit_approved: 'Ваше изменение одобрено',
         commit_rejected: 'Ваше изменение отклонено',
@@ -66,23 +66,23 @@ function notifyWords(тип) {
         user_banned: 'Учётная запись заблокирована',
         user_unbanned: 'Блокировка снята',
       };
-      return словарь[тип] || 'Уведомление';
+      return dict[kind] || 'Уведомление';
     }
 
 function toggleNotifyPanel() {
-      const панель = document.getElementById('notifyPanel');
-      if (!панель) return;
-      const открыть = getComputedStyle(панель).display === 'none';
-      панель.style.display = открыть ? 'block' : 'none';
-      if (открыть) loadNotifications();
+      const panel = document.getElementById('notifyPanel');
+      if (!panel) return;
+      const openBtn = getComputedStyle(panel).display === 'none';
+      panel.style.display = openBtn ? 'block' : 'none';
+      if (openBtn) loadNotifications();
     }
 
 async function markNotificationRead(id) {
       if (!serverMode || !id) return;
       await api('/api/notifications/' + encodeURIComponent(id) + '/read',
         { метод: 'POST' });
-      const з = notifyItems.find(з => String(з.id) === String(id));
-      if (з) з.прочитано = true;
+      const found = notifyItems.find(z2 => String(z2.id) === String(id));
+      if (found) found.прочитано = true;
       renderNotifyList();
       await refreshUnread();
     }
@@ -90,7 +90,7 @@ async function markNotificationRead(id) {
 async function markAllNotificationsRead() {
       if (!serverMode) return;
       await api('/api/notifications/read-all', { метод: 'POST' });
-      notifyItems.forEach(з => { з.прочитано = true; });
+      notifyItems.forEach(z => { z.прочитано = true; });
       renderNotifyList();
       await refreshUnread();
     }

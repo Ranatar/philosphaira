@@ -17,13 +17,13 @@ import { insertCommit, findCommit, findOwnPendingForUpdate, updateOwnCommit,
 import { audit } from '../db/users.js';
 import { assertCan } from '../access/access.js';
 import { P } from '../access/roles.js';
-import { НАБОР_ПО_РОДУ } from '../graph/schema.js';
+import { SET_BY_KIND } from '../graph/schema.js';
 import { notify } from '../notify/notify.js';
 import { N } from '../notify/catalog.js';
 import { Forbidden, Conflict, NotFound } from '../http/errors.js';
 
-const ДЕЙСТВИЯ = ['add', 'edit', 'delete'];
-const РОДЫ = Object.keys(НАБОР_ПО_РОДУ);
+const ACTIONS = ['add', 'edit', 'delete'];
+const KINDS = Object.keys(SET_BY_KIND);
 
 /**
  * Проверка описания. Отказ ГРОМКИЙ и поимённый: «неверный коммит» не
@@ -33,40 +33,40 @@ export function assertChanges(changes) {
   if (!Array.isArray(changes) || changes.length === 0) {
     throw new Forbidden('Коммит без изменений: описывать нечего');
   }
-  const адреса = new Set();
+  const entityKeys = new Set();
   changes.forEach((и, i) => {
-    const где = `изменение ${i + 1}`;
-    if (!ДЕЙСТВИЯ.includes(и?.action)) {
-      throw new Forbidden(`${где}: неизвестное действие «${и?.action}»`);
+    const where = `изменение ${i + 1}`;
+    if (!ACTIONS.includes(и?.action)) {
+      throw new Forbidden(`${where}: неизвестное действие «${и?.action}»`);
     }
-    if (!РОДЫ.includes(и?.kind)) {
-      throw new Forbidden(`${где}: неизвестный род сущности «${и?.kind}»`);
+    if (!KINDS.includes(и?.kind)) {
+      throw new Forbidden(`${where}: неизвестный род сущности «${и?.kind}»`);
     }
     if (typeof и.entityId !== 'string' || !и.entityId.trim()) {
-      throw new Forbidden(`${где}: пустой адрес сущности`);
+      throw new Forbidden(`${where}: пустой адрес сущности`);
     }
-    const адрес = `${и.kind}\u0000${и.entityId}`;
-    if (адреса.has(адрес)) {
+    const entityKey = `${и.kind}\u0000${и.entityId}`;
+    if (entityKeys.has(entityKey)) {
       // Два изменения одной сущности в одном коммите — это спор с самим
       // собой: какое из них верно, не знает никто, включая автора.
-      throw new Forbidden(`${где}: сущность ${и.entityId} правится дважды в одном коммите`);
+      throw new Forbidden(`${where}: сущность ${и.entityId} правится дважды в одном коммите`);
     }
-    адреса.add(адрес);
+    entityKeys.add(entityKey);
 
-    const поля = и.fields ?? {};
+    const fieldNames = и.fields ?? {};
     if (и.action === 'delete') {
-      if (Object.keys(поля).length) {
-        throw new Forbidden(`${где}: у удаления не бывает полей`);
+      if (Object.keys(fieldNames).length) {
+        throw new Forbidden(`${where}: у удаления не бывает полей`);
       }
       return;
     }
-    if (!Object.keys(поля).length) {
-      throw new Forbidden(`${где}: нет ни одного изменённого поля`);
+    if (!Object.keys(fieldNames).length) {
+      throw new Forbidden(`${where}: нет ни одного изменённого поля`);
     }
-    for (const [имя, з] of Object.entries(поля)) {
+    for (const [имя, з] of Object.entries(fieldNames)) {
       if (!з || typeof з !== 'object' || !('base' in з) || !('next' in з)) {
         throw new Forbidden(
-          `${где}, поле ${имя}: нужны ОБА значения — base и next. ` +
+          `${where}, поле ${имя}: нужны ОБА значения — base и next. ` +
           'Без «было» нельзя отличить одинаковую правку от разной.');
       }
     }
@@ -75,23 +75,39 @@ export function assertChanges(changes) {
 }
 
 export async function createCommit(pool, { actor, message, authorComment = null,
-                                           changes, ip = null, наРассмотрение = true }) {
+                                           changes, supersedes = null,
+                                           ip = null, наРассмотрение = true }) {
   assertCan(actor, P.CREATE_COMMIT);
   if (!message || !String(message).trim()) {
     throw new Forbidden('Коммит без сообщения: рецензенту нечего читать');
   }
   assertChanges(changes);
 
+  // РОДСТВО ПРОВЕРЯЕТСЯ, А НЕ ПРИНИМАЕТСЯ НА ВЕРУ. Заменять можно только
+  // СВОЙ и только УЖЕ РАССМОТРЕННЫЙ коммит: ссылка на чужой выдала бы его
+  // существование, а ссылка на ожидающий значила бы, что автор подал два
+  // захода разом вместо того, чтобы поправить первый.
+  if (supersedes != null) {
+    const previous = await findCommit(pool, supersedes);
+    if (!previous || previous.authorId !== actor.userId) {
+      throw new Forbidden('Заменять можно только свой коммит');
+    }
+    if (previous.status === 'pending') {
+      throw new Forbidden(
+        'Этот коммит ещё ждёт рассмотрения — поправьте его, а не заводите второй');
+    }
+  }
+
   // Предупреждение, а НЕ отказ: чужая правка того же поля — повод узнать о
   // ней, а не запрет отправлять. Решать столкновение будет применение.
-  const пересечения = await overlappingPending(pool, { authorId: actor.userId, changes });
+  const overlaps = await overlappingPending(pool, { authorId: actor.userId, changes });
 
   return withTransaction(pool, async client => {
-    const коммит = await insertCommit(client,
+    const commit = await insertCommit(client,
       { authorId: actor.userId, message: String(message).trim(),
-        authorComment, changes });
+        authorComment, changes, supersedes });
     await audit(client, { actorId: actor.userId, action: 'commit.create',
-                          subjectType: 'commit', subjectId: коммит.commitId,
+                          subjectType: 'commit', subjectId: commit.commitId,
                           payload: { изменений: changes.length }, ip });
     // Уведомление складывается ТОЙ ЖЕ транзакцией и никуда не отправляется.
     //
@@ -102,9 +118,9 @@ export async function createCommit(pool, { actor, message, authorComment = null,
     if (наРассмотрение) {
       await notify(client, N.NEW_COMMIT_PENDING, {
         authorId: actor.userId, authorName: actor.username,
-        commitId: коммит.commitId, message: коммит.message });
+        commitId: commit.commitId, message: commit.message });
     }
-    return { коммит, пересечения };
+    return { коммит: commit, пересечения: overlaps };
   });
 }
 
@@ -114,30 +130,30 @@ export async function editOwnCommit(pool, { actor, commitId, message,
   if (changes !== undefined) assertChanges(changes);
 
   return withTransaction(pool, async client => {
-    const был = await findOwnPendingForUpdate(client,
+    const ownPending = await findOwnPendingForUpdate(client,
       { commitId, authorId: actor.userId });
     // Один ответ на два случая нарочно: «чужой» и «уже рассмотрен» не должны
     // различаться снаружи — иначе по ответу узнаётся, что чужой коммит есть.
-    if (!был) throw new NotFound('Нет такого коммита среди ваших ожидающих');
+    if (!ownPending) throw new NotFound('Нет такого коммита среди ваших ожидающих');
 
-    const стал = await updateOwnCommit(client, {
+    const updated = await updateOwnCommit(client, {
       commitId,
-      message: message === undefined ? был.message : String(message).trim(),
-      authorComment: authorComment === undefined ? был.authorComment : authorComment,
-      changes: changes === undefined ? был.changes : changes,
+      message: message === undefined ? ownPending.message : String(message).trim(),
+      authorComment: authorComment === undefined ? ownPending.authorComment : authorComment,
+      changes: changes === undefined ? ownPending.changes : changes,
     });
     await audit(client, { actorId: actor.userId, action: 'commit.edit',
                           subjectType: 'commit', subjectId: commitId, ip });
-    return стал;
+    return updated;
   });
 }
 
 export async function deleteOwnCommit(pool, { actor, commitId, ip = null }) {
   assertCan(actor, P.DELETE_OWN_PENDING_COMMIT);
   return withTransaction(pool, async client => {
-    const был = await findOwnPendingForUpdate(client,
+    const ownPending = await findOwnPendingForUpdate(client,
       { commitId, authorId: actor.userId });
-    if (!был) throw new NotFound('Нет такого коммита среди ваших ожидающих');
+    if (!ownPending) throw new NotFound('Нет такого коммита среди ваших ожидающих');
     await deleteCommit(client, commitId);
     await audit(client, { actorId: actor.userId, action: 'commit.delete',
                           subjectType: 'commit', subjectId: commitId, ip });
@@ -171,14 +187,14 @@ export function listPending(pool, { actor, page = 1, limit = 20 }) {
 }
 
 export async function getCommit(pool, { actor, commitId }) {
-  const коммит = await findCommit(pool, commitId);
-  if (!коммит) throw new NotFound('Коммит не найден');
-  const свой = коммит.authorId === actor?.userId;
-  const мойЧужой = коммит.status === 'pending' && !свой;
+  const commit = await findCommit(pool, commitId);
+  if (!commit) throw new NotFound('Коммит не найден');
+  const isOwn = commit.authorId === actor?.userId;
+  const othersPending = commit.status === 'pending' && !isOwn;
   // Чужой ожидающий виден только тому, кто вправе его рассматривать.
-  if (мойЧужой) assertCan(actor, P.VIEW_PENDING_COMMITS);
+  if (othersPending) assertCan(actor, P.VIEW_PENDING_COMMITS);
   else assertCan(actor, P.VIEW_COMMIT_HISTORY);
-  return коммит;
+  return commit;
 }
 
 export { overlappingPending, Conflict };

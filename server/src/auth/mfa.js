@@ -25,11 +25,11 @@ import { putSecret, getSecret, enableMfa, disableMfa, issueRecoveryCodes,
   from '../db/mfa.js';
 import { audit } from '../db/users.js';
 import { revokeAllSessions } from '../db/sessions.js';
-import { зашифровать, расшифровать } from './secretbox.js';
-import { создатьСекрет, сверить, otpauth } from './totp.js';
+import { encrypt, decrypt } from './secretbox.js';
+import { createSecret, verifyCode, otpauth } from './totp.js';
 import { Conflict, Forbidden, Unauthorized } from '../http/errors.js';
 
-export const СВЕЖЕСТЬ_МИНУТ = 15;
+export const FRESH_MINUTES = 15;
 
 /**
  * Шаг первый заведения: выдать секрет и показать его человеку.
@@ -37,27 +37,27 @@ export const СВЕЖЕСТЬ_МИНУТ = 15;
  * можно запереть себя, сохранив секрет, который никуда не записал.
  */
 export async function beginEnroll(pool, user) {
-  const секрет = создатьСекрет();
+  const secret = createSecret();
   await withTransaction(pool, client =>
-    putSecret(client, user.userId, зашифровать(секрет)));
-  return { секрет, ссылка: otpauth({ секрет, логин: user.username }) };
+    putSecret(client, user.userId, encrypt(secret)));
+  return { секрет: secret, ссылка: otpauth({ секрет: secret, логин: user.username }) };
 }
 
 /** Шаг второй: код сошёлся — включаем и выдаём коды восстановления. */
 export async function confirmEnroll(pool, user, код) {
-  const есть = await getSecret(pool, user.userId);
-  if (!есть?.шифр) throw new Conflict('Секрет не выдан: начните заведение заново');
-  if (есть.включён) throw new Conflict('Второй шаг уже заведён');
+  const stored = await getSecret(pool, user.userId);
+  if (!stored?.шифр) throw new Conflict('Секрет не выдан: начните заведение заново');
+  if (stored.включён) throw new Conflict('Второй шаг уже заведён');
 
-  const секрет = расшифровать(есть.шифр);
-  if (!сверить(секрет, код)) throw new Unauthorized('Код не сошёлся');
+  const secret = decrypt(stored.шифр);
+  if (!verifyCode(secret, код)) throw new Unauthorized('Код не сошёлся');
 
   return withTransaction(pool, async client => {
     await enableMfa(client, user.userId);
-    const коды = await issueRecoveryCodes(client, user.userId);
+    const recoveryCodes = await issueRecoveryCodes(client, user.userId);
     await audit(client, { actorId: user.userId, action: 'mfa.enabled',
                           subjectType: 'user', subjectId: user.userId });
-    return { коды };
+    return { коды: recoveryCodes };
   });
 }
 
@@ -67,27 +67,27 @@ export async function confirmEnroll(pool, user, код) {
  * потерял телефон, вводит то, что у него есть.
  */
 export async function submitCode(pool, sessionId, код) {
-  const состояние = await sessionMfaState(pool, sessionId);
-  if (!состояние) throw new Unauthorized('Сессия недействительна');
+  const mfaState = await sessionMfaState(pool, sessionId);
+  if (!mfaState) throw new Unauthorized('Сессия недействительна');
 
-  const есть = await getSecret(pool, состояние.userId);
-  if (!есть?.включён) throw new Conflict('Второй шаг не заведён');
+  const stored = await getSecret(pool, mfaState.userId);
+  if (!stored?.включён) throw new Conflict('Второй шаг не заведён');
 
-  const поПриложению = сверить(расшифровать(есть.шифр), код);
+  const byAuthenticator = verifyCode(decrypt(stored.шифр), код);
 
   return withTransaction(pool, async client => {
-    const поВосстановлению = поПриложению
-      ? false : await spendRecoveryCode(client, состояние.userId, код);
-    if (!поПриложению && !поВосстановлению) {
+    const byRecoveryCode = byAuthenticator
+      ? false : await spendRecoveryCode(client, mfaState.userId, код);
+    if (!byAuthenticator && !byRecoveryCode) {
       throw new Unauthorized('Код не сошёлся');
     }
     await passSessionMfa(client, sessionId);
-    await audit(client, { actorId: состояние.userId,
-                          action: поВосстановлению ? 'mfa.recovery_used' : 'mfa.passed',
-                          subjectType: 'user', subjectId: состояние.userId });
+    await audit(client, { actorId: mfaState.userId,
+                          action: byRecoveryCode ? 'mfa.recovery_used' : 'mfa.passed',
+                          subjectType: 'user', subjectId: mfaState.userId });
     return {
-      способ: поВосстановлению ? 'восстановление' : 'приложение',
-      осталосьКодов: await countRecoveryCodes(client, состояние.userId),
+      способ: byRecoveryCode ? 'восстановление' : 'приложение',
+      осталосьКодов: await countRecoveryCodes(client, mfaState.userId),
     };
   });
 }
@@ -97,9 +97,9 @@ export async function submitCode(pool, sessionId, код) {
  * одним запросом. Все сессии гасятся — включая ту, из которой отзывали.
  */
 export async function disable(pool, user, код) {
-  const есть = await getSecret(pool, user.userId);
-  if (!есть?.включён) throw new Conflict('Второй шаг не заведён');
-  if (!сверить(расшифровать(есть.шифр), код)) {
+  const stored = await getSecret(pool, user.userId);
+  if (!stored?.включён) throw new Conflict('Второй шаг не заведён');
+  if (!verifyCode(decrypt(stored.шифр), код)) {
     throw new Unauthorized('Код не сошёлся');
   }
   return withTransaction(pool, async client => {
@@ -113,17 +113,17 @@ export async function disable(pool, user, код) {
 }
 
 /** Свежо ли подтверждение. Отсутствие отметки — не свежо. */
-export function свежийШаг(пройденВ, минут = СВЕЖЕСТЬ_МИНУТ, сейчас = Date.now()) {
+export function isFreshMfa(пройденВ, минут = FRESH_MINUTES, сейчас = Date.now()) {
   if (!пройденВ) return false;
   return сейчас - +new Date(пройденВ) <= минут * 60_000;
 }
 
 /** Застава для опасных действий. */
-export const requireFreshMfa = (минут = СВЕЖЕСТЬ_МИНУТ) => async (req, _res, next) => {
+export const requireFreshMfa = (минут = FRESH_MINUTES) => async (req, _res, next) => {
   try {
     if (!req.user) throw new Unauthorized();
-    const состояние = await sessionMfaState(req.db, req.sessionId);
-    if (!свежийШаг(состояние?.пройденВ, минут)) {
+    const mfaState = await sessionMfaState(req.db, req.sessionId);
+    if (!isFreshMfa(mfaState?.пройденВ, минут)) {
       throw Object.assign(new Forbidden('Подтвердите вход одноразовым кодом'),
                           { status: 401, code: 'mfa_required' });
     }

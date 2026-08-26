@@ -3,7 +3,7 @@
 //
 //   DATABASE_URL=… node probes/commits_probe.mjs
 
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { register } from '../src/auth/service.js';
 import { findById } from '../src/db/users.js';
 import { createCommit, editOwnCommit, deleteOwnCommit, listMine, listPending,
@@ -18,8 +18,8 @@ const мигр = (...д) => execFileSync('node',
   { encoding: 'utf8', env: process.env });
 
 const проверки = [];
-const проверить = (имя, годно, ждали, вышло) =>
-  проверки.push({ имя, годно: !!годно, ждали, вышло });
+const проверить = (имя, finite, ждали, вышло) =>
+  проверки.push({ имя, годно: !!finite, ждали, вышло });
 const отказ = async fn => {
   try { await fn(); return 'ПРОШЛО'; } catch (e) { return e.message; }
 };
@@ -30,7 +30,7 @@ const отказ = async fn => {
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
+const pool = createPool();
 const ПАРОЛЬ = 'вполне-длинный-пароль';
 
 async function завести(имя, роль) {
@@ -42,9 +42,9 @@ async function завести(имя, роль) {
   return findById(pool, user.userId);
 }
 
-const правка = (поле, было, стало, id = 'harmony_spheres') => ([{
+const правка = (поле, previous, стало, id = 'harmony_spheres') => ([{
   action: 'edit', kind: 'concept', entityId: id,
-  fields: { [поле]: { base: было, next: стало } },
+  fields: { [поле]: { base: previous, next: стало } },
 }]);
 
 try {
@@ -146,9 +146,9 @@ try {
       commitId: первый.commitId, changes: [] }))) !== 'ПРОШЛО', 'отказ', 'прошло');
 
   // ── 6. видимость ────────────────────────────────────────────────────────
-  const свои = await listMine(pool, { actor: второй });
+  const ownIds = await listMine(pool, { actor: второй });
   проверить('свой список показывает только свои',
-    свои.items.every(к => к.authorId === второй.userId), 'только свои', 'нет');
+    ownIds.items.every(commitRow => commitRow.authorId === второй.userId), 'только свои', 'нет');
   проверить('редактор очереди НЕ видит',
     (await отказ(() => listPending(pool, { actor: редактор }))) !== 'ПРОШЛО',
     'отказ', 'прошло');

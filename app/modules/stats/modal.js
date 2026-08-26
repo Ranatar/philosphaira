@@ -8,6 +8,7 @@ import { applyMetricsScope, installMetricScopeWrappers, updateMetricsScopeHint, 
 import { resetNodeSizes } from '../render/metric-visualization.js';
 import { ensureAnimLoop, needsContinuousAnimation } from '../render/scene.js';
 import { freezeSimulation, unfreezeSimulation } from '../render/simulation.js';
+import { generateObservationsContent, observationBar } from './observations.js';
 import { applyMetricLayout } from './results.js';
 import { generateAbstractionContent, generateBridgingContent, generateComplexityContent, generateContinuityContent, generateDeductiveContent, generateFertilityContent, generateGenerativeContent, generateInstrumentalContent, generateTemporalInfluenceContent, generateTransformationContent } from './views/advanced.js';
 import { generateClosestPairsContent, generateComparisonContent, generatePhilosopherComparisonContent, generatePhilosopherPairsContent, renderClosestPairs, renderComparison, renderPhilosopherComparison, renderPhilosopherPairs } from './views/comparison.js';
@@ -152,6 +153,7 @@ function loadStatsContent(viewName) {
       // Определяем функцию генератора для каждой метрики
       const generators = {
         'overview': generateOverviewContent,
+        'observations': generateObservationsContent,
         'degree': generateDegreeContent,
         'pagerank': generatePageRankContent,
         'betweenness': generateBetweennessContent,
@@ -205,7 +207,7 @@ function loadStatsContent(viewName) {
         `;
       }
       
-      contentArea.innerHTML = content;
+      contentArea.innerHTML = content + observationBar(viewName);
       applyMetricLayout();
       if (typeof renderComparison === 'function' && document.getElementById('cmpBody')) renderComparison();
       if (typeof renderClosestPairs === 'function' && document.getElementById('pairsBody')) renderClosestPairs();

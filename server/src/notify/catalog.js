@@ -17,6 +17,7 @@
 import { ROLES } from '../access/roles.js';
 
 export const N = Object.freeze({
+  EMAIL_VERIFY:       'email_verify',
   GRAPH_CHANGED:      'graph_changed',
   COMMIT_APPROVED:    'commit_approved',
   COMMIT_REJECTED:    'commit_rejected',
@@ -37,6 +38,9 @@ export const CATEGORIES = Object.freeze({
   commitStatus: { title: 'Судьба моих правок', mandatory: false },
   moderation:   { title: 'Модерация',          mandatory: false },
   roleChanges:  { title: 'Моё положение',      mandatory: true  },
+  // Отключить нельзя по той же причине, что и «моё положение»: без письма
+  // с подтверждением человек не получает права на правку ВООБЩЕ.
+  account:      { title: 'Моя учётная запись', mandatory: true  },
 });
 
 /**
@@ -47,6 +51,12 @@ export const CATEGORIES = Object.freeze({
  *   everyone   — широковещание
  */
 export const CATALOG = Object.freeze({
+  // Адресовано ТОМУ, О КОМ событие: data.userId. Токен подтверждения лежит
+  // в данных уведомления — он принадлежит самому получателю и больше
+  // никому не виден, а письмо иначе собрать не из чего.
+  [N.EMAIL_VERIFY]: {
+    audience: { kind: 'subject' }, category: 'account', priority: 'high',
+  },
   [N.GRAPH_CHANGED]: {
     audience: { kind: 'everyone' },
     category: 'graphChanges', priority: 'low', broadcast: true,
@@ -97,8 +107,8 @@ export const CATALOG = Object.freeze({
 
 /** Уровень, начиная с которого сообщают о движении по ступени. */
 export function peerLevel(data) {
-  const верх = Math.max(ROLES[data?.oldRole]?.level ?? 0,
+  const topLevel = Math.max(ROLES[data?.oldRole]?.level ?? 0,
                         ROLES[data?.newRole]?.level ?? 0);
-  return верх >= ROLES.moderator.level ? ROLES.administrator.level
+  return topLevel >= ROLES.moderator.level ? ROLES.administrator.level
                                        : ROLES.moderator.level;
 }

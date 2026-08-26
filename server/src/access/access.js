@@ -69,9 +69,9 @@ export function assertCanActOn(actor, target) {
 
 /** Какое право нужно, чтобы двигать роль между двумя ступенями. */
 export function permissionForRoleChange(fromRole, toRole) {
-  const верх = Math.max(ROLES[fromRole].level, ROLES[toRole].level);
-  if (верх >= ROLES.administrator.level) return P.MANAGE_ADMINS;
-  if (верх >= ROLES.moderator.level)     return P.MANAGE_MODERATORS;
+  const topLevel = Math.max(ROLES[fromRole].level, ROLES[toRole].level);
+  if (topLevel >= ROLES.administrator.level) return P.MANAGE_ADMINS;
+  if (topLevel >= ROLES.moderator.level)     return P.MANAGE_MODERATORS;
   return P.MANAGE_EDITORS;
 }
 

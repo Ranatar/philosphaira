@@ -9,13 +9,13 @@ import { CATALOG, peerLevel } from './catalog.js';
 import { staffIds } from '../db/notifications.js';
 
 export async function recipientsFor(client, type, data) {
-  const опись = CATALOG[type];
-  if (!опись) {
+  const spec = CATALOG[type];
+  if (!spec) {
     throw new Error(`уведомления: неизвестный тип «${type}» — ` +
       'у типа либо есть опись, либо его нет');
   }
 
-  switch (опись.audience.kind) {
+  switch (spec.audience.kind) {
     case 'everyone':
       return { broadcast: true };
 
@@ -26,17 +26,17 @@ export async function recipientsFor(client, type, data) {
       return { userIds: data?.userId ? [data.userId] : [] };
 
     case 'staff': {
-      const уровень = опись.audience.minLevelFrom === 'peerLevel'
-        ? peerLevel(data) : опись.audience.minLevel;
-      const все = await staffIds(client, уровень);
+      const level = spec.audience.minLevelFrom === 'peerLevel'
+        ? peerLevel(data) : spec.audience.minLevel;
+      const allItems = await staffIds(client, level);
       // Ни тот, о ком событие, ни автор коммита не получают служебной копии
       // о самих себе: первому уже пришло адресное уведомление, второй и так
       // знает, что отправил коммит.
-      const свои = new Set([data?.userId, data?.authorId].filter(Boolean));
-      return { userIds: все.filter(id => !свои.has(id)) };
+      const ownIds = new Set([data?.userId, data?.authorId].filter(Boolean));
+      return { userIds: allItems.filter(id => !ownIds.has(id)) };
     }
 
     default:
-      throw new Error(`уведомления: неизвестный род адресата «${опись.audience.kind}»`);
+      throw new Error(`уведомления: неизвестный род адресата «${spec.audience.kind}»`);
   }
 }

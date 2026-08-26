@@ -16,9 +16,9 @@
 import crypto from 'node:crypto';
 import { userFromRow } from './mapper.js';
 
-export const СРОК_ДНЕЙ = 30;
+export const TERM_DAYS = 30;
 
-const sha256 = токен => crypto.createHash('sha256').update(токен).digest();
+const sha256 = token => crypto.createHash('sha256').update(token).digest();
 
 /**
  * Выдать сессию. Возвращает ОТКРЫТЫЙ токен — единственный раз, когда он
@@ -26,14 +26,14 @@ const sha256 = токен => crypto.createHash('sha256').update(токен).dige
  */
 export async function createSession(client, { userId, ip = null, userAgent = null,
                                               mfaPending = false }) {
-  const токен = crypto.randomBytes(32).toString('base64url');
+  const token = crypto.randomBytes(32).toString('base64url');
   const { rows } = await client.query(`
     INSERT INTO user_sessions (user_id, token_sha256, ip_address, user_agent,
                                mfa_pending, expires_at)
-    VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '${СРОК_ДНЕЙ} days')
+    VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '${TERM_DAYS} days')
     RETURNING session_id AS "sessionId"`,
-    [userId, sha256(токен), ip, userAgent, mfaPending]);
-  return { токен, sessionId: rows[0].sessionId };
+    [userId, sha256(token), ip, userAgent, mfaPending]);
+  return { токен: token, sessionId: rows[0].sessionId };
 }
 
 /**
@@ -42,20 +42,20 @@ export async function createSession(client, { userId, ip = null, userAgent = nul
  * змеиные поля — а это ровно то, из чего выросла половина дефектов первой
  * редакции. Проба строения на этом и поймала первый набросок.
  */
-export async function sessionByToken(db, токен) {
-  if (!токен) return null;
+export async function sessionByToken(db, token) {
+  if (!token) return null;
   const { rows } = await db.query(`
     SELECT u.*, s.session_id, s.mfa_pending, s.mfa_passed_at
       FROM user_sessions s JOIN users u USING (user_id)
      WHERE s.token_sha256 = $1
-       AND s.revoked_at IS NULL AND s.expires_at > NOW()`, [sha256(токен)]);
-  const строка = rows[0];
-  if (!строка) return null;
+       AND s.revoked_at IS NULL AND s.expires_at > NOW()`, [sha256(token)]);
+  const row = rows[0];
+  if (!row) return null;
   return {
-    user: userFromRow(строка, { кому: { userId: строка.user_id, level: 4 } }),
-    sessionId:   строка.session_id,
-    mfaPending:  строка.mfa_pending === true,
-    mfaPassedAt: строка.mfa_passed_at,
+    user: userFromRow(row, { кому: { userId: row.user_id, level: 4 } }),
+    sessionId:   row.session_id,
+    mfaPending:  row.mfa_pending === true,
+    mfaPassedAt: row.mfa_passed_at,
   };
 }
 

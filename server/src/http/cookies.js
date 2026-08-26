@@ -9,8 +9,8 @@
 import crypto from 'node:crypto';
 import { Forbidden } from './errors.js';
 
-export const ИМЯ_СЕАНСА = 'session';
-export const ИМЯ_CSRF   = 'csrf';
+export const SESSION_COOKIE = 'session';
+export const CSRF_COOKIE   = 'csrf';
 
 export const cookieСеанса = (безопасно = true) => ({
   httpOnly: true,
@@ -28,16 +28,16 @@ export const cookieCsrf = (безопасно = true) => ({
   maxAge: 30 * 24 * 3600 * 1000,
 });
 
-export const новыйПризнакCsrf = () => crypto.randomBytes(24).toString('base64url');
+export const newCsrfToken = () => crypto.randomBytes(24).toString('base64url');
 
 export function checkCsrf(req, _res, next) {
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
-  const изCookie = req.cookies?.[ИМЯ_CSRF];
-  const изЗаголовка = req.get?.('X-CSRF-Token');
+  const fromCookie = req.cookies?.[CSRF_COOKIE];
+  const fromHeader = req.get?.('X-CSRF-Token');
   // Сравнение постоянного времени: обычное === выдаёт длину общего начала.
-  const сошлось = изCookie && изЗаголовка
-    && изCookie.length === изЗаголовка.length
-    && crypto.timingSafeEqual(Buffer.from(изCookie), Buffer.from(изЗаголовка));
-  if (!сошлось) return next(new Forbidden('Не сошёлся признак CSRF'));
+  const matched = fromCookie && fromHeader
+    && fromCookie.length === fromHeader.length
+    && crypto.timingSafeEqual(Buffer.from(fromCookie), Buffer.from(fromHeader));
+  if (!matched) return next(new Forbidden('Не сошёлся признак CSRF'));
   next();
 }

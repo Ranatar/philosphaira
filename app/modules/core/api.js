@@ -4,17 +4,17 @@ import { setSessionUser } from './session.js';
 let serverMode = false;
 
 function readCookie(имя) {
-      const пары = String(document.cookie || '').split(';');
-      for (const пара of пары) {
-        const i = пара.indexOf('=');
-        if (i !== -1 && пара.slice(0, i).trim() === имя) {
-          return decodeURIComponent(пара.slice(i + 1));
+      const pairs = String(document.cookie || '').split(';');
+      for (const pair of pairs) {
+        const i = pair.indexOf('=');
+        if (i !== -1 && pair.slice(0, i).trim() === имя) {
+          return decodeURIComponent(pair.slice(i + 1));
         }
       }
       return null;
     }
 
-async function api(путь, { метод = 'GET', тело } = {}) {
+async function api(path, { метод = 'GET', тело: body } = {}) {
       // БЕЗ СЕРВЕРА НЕ ХОДИМ ВОВСЕ. Обход жмёт все обработчики подряд,
       // включая кнопки панелей, — и на статическом сервере каждый такой
       // зов давал 404, который браузер печатает в консоль. Прибор счёл это
@@ -24,19 +24,19 @@ async function api(путь, { метод = 'GET', тело } = {}) {
       // там лечилось меткой, здесь — одной заставой в единственной двери.
       if (!serverMode) return { есть: false, код: 0, годно: false, тело: null };
 
-      const заголовки = {};
-      if (тело) заголовки['Content-Type'] = 'application/json';
+      const headers = {};
+      if (body) headers['Content-Type'] = 'application/json';
       if (метод !== 'GET') {
-        const признак = readCookie('csrf');
-        if (признак) заголовки['X-CSRF-Token'] = признак;
+        const token = readCookie('csrf');
+        if (token) headers['X-CSRF-Token'] = token;
       }
       try {
-        const ответ = await fetch(путь, {
-          method: метод, credentials: 'same-origin', headers: заголовки,
-          body: тело ? JSON.stringify(тело) : undefined,
+        const reply = await fetch(path, {
+          method: метод, credentials: 'same-origin', headers: headers,
+          body: body ? JSON.stringify(body) : undefined,
         });
-        const разобрано = await ответ.json().catch(() => null);
-        return { есть: true, код: ответ.status, годно: ответ.ok, тело: разобрано };
+        const parsed = await reply.json().catch(() => null);
+        return { есть: true, код: reply.status, годно: reply.ok, тело: parsed };
       } catch (e) {
         // Сети нет вовсе (file:// или сервер лежит) — это не ошибка, это
         // местный режим.
@@ -60,17 +60,17 @@ async function detectServerMode() {
       // Застава в api() смотрит на serverMode, а он ещё false: поднимаем
       // его здесь, до первого зова, и опускаем обратно, если ответа нет.
       serverMode = true;
-      const ответ = await api('/api/users/me');
-      if (!ответ.есть || !ответ.годно || !ответ.тело || !ответ.тело.data) {
+      const reply = await api('/api/users/me');
+      if (!reply.есть || !reply.годно || !reply.тело || !reply.тело.data) {
         serverMode = false;
         return false;
       }
-      const я = ответ.тело.data;
+      const me = reply.тело.data;
       // Права приходят СНАРУЖИ. Роль сервер тоже присылает, но заслоны
       // спрашивают право, а не роль, — и потому одна строка здесь заменяет
       // тринадцать заслонов по странице.
-      if (!я.гость) {
-        setSessionUser({ login: я.username, role: я.role }, я.permissions);
+      if (!me.гость) {
+        setSessionUser({ login: me.username, role: me.role }, me.permissions);
       }
       // И ВСЁ. Взять граф и открыть живое соединение — работа ЭТАЖА ВЫШЕ,
       // и зовёт её запуск, а не эта функция. Первый набросок делал всё

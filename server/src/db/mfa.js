@@ -31,24 +31,24 @@ export async function issueRecoveryCodes(client, userId, сколько = 10) {
   await client.query(
     `UPDATE mfa_recovery_codes SET used_at = NOW()
       WHERE user_id = $1 AND used_at IS NULL`, [userId]);
-  const коды = [];
+  const recoveryCodes = [];
   for (let i = 0; i < сколько; i++) {
     // Читаемая группировка: код переписывают с экрана на бумагу.
-    const код = crypto.randomBytes(5).toString('hex').match(/.{5}/g).join('-');
-    коды.push(код);
+    const recoveryCode = crypto.randomBytes(5).toString('hex').match(/.{5}/g).join('-');
+    recoveryCodes.push(recoveryCode);
     await client.query(
       `INSERT INTO mfa_recovery_codes (user_id, code_sha256) VALUES ($1, $2)`,
-      [userId, sha256(код)]);
+      [userId, sha256(recoveryCode)]);
   }
-  return коды;
+  return recoveryCodes;
 }
 
 /** Погасить код восстановления. Отдаёт true, если код был и был живым. */
-export async function spendRecoveryCode(client, userId, код) {
+export async function spendRecoveryCode(client, userId, recoveryCode) {
   const { rowCount } = await client.query(`
     UPDATE mfa_recovery_codes SET used_at = NOW()
      WHERE user_id = $1 AND code_sha256 = $2 AND used_at IS NULL`,
-    [userId, sha256(String(код ?? '').trim())]);
+    [userId, sha256(String(recoveryCode ?? '').trim())]);
   return rowCount === 1;
 }
 

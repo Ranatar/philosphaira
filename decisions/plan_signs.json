@@ -1,0 +1,372 @@
+{
+ "зачем": "Признак на каждый пункт плана, отмеченный сделанным. Отметка в doc/plan-next.md — намерение; признак — то, что можно спросить у дерева. Дыра между ними уже случалась: E-1 был отмечен сделанным, а заслон согласованности стоял только у концепции.",
+ "как_читать": "«есть» — файл существует; «внутри» — файл|подстрока; «нет-внутри» — подстроки быть НЕ должно.",
+ "признаки": [
+  [
+   "A-1",
+   "live_graph_probe заведён",
+   "есть",
+   "server/probes/live_graph_probe.mjs"
+  ],
+  [
+   "A-1",
+   "и стоит в приёмке сервера",
+   "внутри",
+   "server/accept.sh|live_graph_probe"
+  ],
+  [
+   "A-2",
+   "product_flow_probe заведён",
+   "есть",
+   "server/probes/product_flow_probe.mjs"
+  ],
+  [
+   "A-2",
+   "и стоит в приёмке сервера",
+   "внутри",
+   "server/accept.sh|product_flow_probe"
+  ],
+  [
+   "A-3",
+   "инвариант сборки заведён",
+   "есть",
+   "tools/build_invariant.mjs"
+  ],
+  [
+   "A-3",
+   "и стоит в приёмке приложения",
+   "внутри",
+   "tools/accept.sh|build_invariant"
+  ],
+  [
+   "B-1",
+   "ход заведения второго шага",
+   "внутри",
+   "server/src/http/app.js|'/api/auth/mfa/enroll'"
+  ],
+  [
+   "B-1",
+   "ход подтверждения кода",
+   "внутри",
+   "server/src/http/app.js|'/api/auth/mfa/enroll/confirm'"
+  ],
+  [
+   "B-1",
+   "проверяется пробой",
+   "внутри",
+   "server/probes/product_flow_probe.mjs|mfa/enroll"
+  ],
+  [
+   "B-2",
+   "окно безопасности в дереве",
+   "есть",
+   "app/modules/modal/security.js"
+  ],
+  [
+   "B-2",
+   "кнопка щита в панели",
+   "внутри",
+   "source/philosophy_graph_v3.html|openSecurityModal()"
+  ],
+  [
+   "B-2",
+   "проверяется браузером",
+   "внутри",
+   "server/probes/live_graph_probe.mjs|openSecurityModal"
+  ],
+  [
+   "C-1",
+   "рассмотренный коммит неизменяем",
+   "внутри",
+   "server/probes/product_flow_probe.mjs|РАССМОТРЕННЫЙ коммит НЕИЗМЕНЯЕМ"
+  ],
+  [
+   "C-1",
+   "два комментария раздельны",
+   "внутри",
+   "server/probes/product_flow_probe.mjs|ДВА КОММЕНТАРИЯ ХРАНЯТСЯ РАЗДЕЛЬНО"
+  ],
+  [
+   "C-1",
+   "прямая правка названа прямой",
+   "внутри",
+   "server/src/http/app.js|прямая: true"
+  ],
+  [
+   "C-2",
+   "столкновения отдаются наружу",
+   "внутри",
+   "server/src/db/commits.js|conflicts:"
+  ],
+  [
+   "C-2",
+   "видны все три значения",
+   "внутри",
+   "server/probes/product_flow_probe.mjs|ВИДНЫ ВСЕ ТРИ ЗНАЧЕНИЯ"
+  ],
+  [
+   "C-2",
+   "совпавшая правка даёт coincided",
+   "внутри",
+   "server/probes/product_flow_probe.mjs|coincided"
+  ],
+  [
+   "C-3",
+   "повторный прогон работника не двоит",
+   "внутри",
+   "server/probes/product_flow_probe.mjs|НЕ ДВОИТ"
+  ],
+  [
+   "C-3",
+   "обязательную категорию не отключить",
+   "внутри",
+   "server/probes/product_flow_probe.mjs|ОБЯЗАТЕЛЬНУЮ категорию"
+  ],
+  [
+   "C-4",
+   "разрыв и догон проверяются",
+   "внутри",
+   "server/probes/live_graph_probe.mjs|РАЗРЫВ И ДОГОН"
+  ],
+  [
+   "D-1",
+   "ключ проверяется до подъёма",
+   "внутри",
+   "server/scripts/serve.mjs|assertKey"
+  ],
+  [
+   "D-1",
+   "проверяется пробой запуска",
+   "внутри",
+   "server/probes/bootstrap_probe.mjs|БЕЗ MFA_SECRET_KEY"
+  ],
+  [
+   "D-2",
+   "версии сервера закреплены точно",
+   "нет-внутри",
+   "server/package.json|\"^"
+  ],
+  [
+   "D-2",
+   "и стережёт прибор строения",
+   "внутри",
+   "server/probes/structure_probe.mjs|закреплены ТОЧНО"
+  ],
+  [
+   "D-3",
+   "журнал вынесен в историю",
+   "внутри",
+   "doc/history.md|перенесено из readme"
+  ],
+  [
+   "E-1",
+   "provenance в описи наборов",
+   "внутри",
+   "server/src/graph/schema.js|provenance"
+  ],
+  [
+   "E-1",
+   "раздел в окне концепции",
+   "внутри",
+   "source/philosophy_graph_v3.html|provenanceBlock(conceptData.provenance)"
+  ],
+  [
+   "E-1",
+   "раздел в окне философа",
+   "внутри",
+   "source/philosophy_graph_v3.html|provenanceBlock(philosopherData.provenance)"
+  ],
+  [
+   "E-1",
+   "раздел в окне связи",
+   "внутри",
+   "source/philosophy_graph_v3.html|provenanceBlock(conn.provenance)"
+  ],
+  [
+   "E-1",
+   "поле правки: концепция",
+   "внутри",
+   "source/philosophy_graph_v3.html|provenanceField(conceptData)"
+  ],
+  [
+   "E-1",
+   "поле правки: философ",
+   "внутри",
+   "source/philosophy_graph_v3.html|provenanceField(philosopherData)"
+  ],
+  [
+   "E-1",
+   "поле правки: связь",
+   "внутри",
+   "source/philosophy_graph_v3.html|provenanceField(connectionData)"
+  ],
+  [
+   "E-1",
+   "ЗАСЛОН: концепция",
+   "внутри",
+   "source/philosophy_graph_v3.html|provenanceDriftWarning(isNew ? null : original,"
+  ],
+  [
+   "E-1",
+   "ЗАСЛОН: философ",
+   "внутри",
+   "source/philosophy_graph_v3.html|philosopherByName.get(originalName)"
+  ],
+  [
+   "E-1",
+   "ЗАСЛОН: связь",
+   "внутри",
+   "source/philosophy_graph_v3.html|provenanceDriftWarning(originalLink"
+  ],
+  [
+   "E-1",
+   "покрытие источниками видно",
+   "внутри",
+   "source/philosophy_graph_v3.html|updateProvenanceCoverage"
+  ],
+  [
+   "E-2",
+   "версии формул учреждены",
+   "есть",
+   "baseline/formulas.json"
+  ],
+  [
+   "E-2",
+   "прибор версий в приёмке",
+   "внутри",
+   "tools/accept.sh|formula_probe"
+  ],
+  [
+   "E-3",
+   "служба последствий",
+   "есть",
+   "server/src/graph/impact.js"
+  ],
+  [
+   "E-3",
+   "ход последствий",
+   "внутри",
+   "server/src/http/app.js|/impact"
+  ],
+  [
+   "E-3",
+   "кнопка последствий в панели",
+   "внутри",
+   "source/philosophy_graph_v3.html|commit-impact-btn"
+  ],
+  [
+   "E-4",
+   "миграция родства",
+   "есть",
+   "server/migrations/010_supersedes.up.sql"
+  ],
+  [
+   "E-4",
+   "родство отдаётся наружу",
+   "внутри",
+   "server/src/db/commits.js|supersedes:"
+  ],
+  [
+   "E-4",
+   "родство видно в панели",
+   "внутри",
+   "source/philosophy_graph_v3.html|supersedesLine"
+  ],
+  [
+   "E-2",
+   "таблица замеров заведена",
+   "есть",
+   "server/migrations/011_metric_observations.up.sql"
+  ],
+  [
+   "E-2",
+   "слой базы для замеров",
+   "есть",
+   "server/src/db/observations.js"
+  ],
+  [
+   "E-2",
+   "служба замеров",
+   "есть",
+   "server/src/metrics/observations.js"
+  ],
+  [
+   "E-2",
+   "ход записи замера",
+   "внутри",
+   "server/src/http/app.js|'/api/metrics/observations'"
+  ],
+  [
+   "E-2",
+   "ход сравнения",
+   "внутри",
+   "server/src/http/app.js|'/api/metrics/compare'"
+  ],
+  [
+   "E-2",
+   "несравнимое сравнивать не дают",
+   "внутри",
+   "server/probes/product_flow_probe.mjs|ЗАМЕРЫ ИНОЙ ФОРМУЛЫ СРАВНИВАТЬ НЕ ДАЮТ"
+  ],
+  [
+   "E-2",
+   "версии формул на странице",
+   "внутри",
+   "source/philosophy_graph_v3.html|FORMULA_VERSIONS"
+  ],
+  [
+   "E-2",
+   "согласие версий со сводом стережётся",
+   "есть",
+   "tools/sync_formula_versions.mjs"
+  ],
+  [
+   "E-2",
+   "полоса «Запомнить замер»",
+   "внутри",
+   "source/philosophy_graph_v3.html|observation-bar"
+  ],
+  [
+   "E-2",
+   "раздел «Замеры» в навигации",
+   "внутри",
+   "source/philosophy_graph_v3.html|data-view=\"observations\""
+  ],
+  [
+   "E-2",
+   "сличение в разделе",
+   "внутри",
+   "source/philosophy_graph_v3.html|compareObservationsInPanel"
+  ],
+  [
+   "E-2",
+   "отказ сличать показывается целиком",
+   "внутри",
+   "source/philosophy_graph_v3.html|obs-refusal"
+  ],
+  [
+   "D-1",
+   "ход снятия второго шага",
+   "внутри",
+   "server/src/http/app.js|'/api/auth/mfa/disable'"
+  ],
+  [
+   "D-1",
+   "ход истории сущности",
+   "внутри",
+   "server/src/http/app.js|/history"
+  ],
+  [
+   "D-1",
+   "ход удаления записи",
+   "внутри",
+   "server/src/http/app.js|app.delete('/api/users/:id'"
+  ],
+  [
+   "D-1",
+   "согласие слоёв стережёт прибор",
+   "внутри",
+   "tools/accept.sh|exposure_probe"
+  ]
+ ]
+}

@@ -7,12 +7,12 @@
 // Умолчание не шлёт никуда и об этом говорит — молчаливая отправка «в никуда»
 // хуже отказа, потому что о ней узнают через неделю.
 
-import { создатьПул } from '../src/db/pool.js';
-import { deliverOnce, sendDigests, sweep, отправительВНикуда } from '../src/notify/worker.js';
+import { createPool } from '../src/db/pool.js';
+import { deliverOnce, sendDigests, sweep, nullSender } from '../src/notify/worker.js';
 
 const разово = process.argv.includes('--once');
-const pool = создатьПул();
-const отправитель = отправительВНикуда;
+const pool = createPool();
+const отправитель = nullSender;
 
 async function заход() {
   const д = await deliverOnce(pool, { отправитель });

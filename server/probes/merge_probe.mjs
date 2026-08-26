@@ -40,7 +40,7 @@ const edit = (fields, current=cur) => mergeEntityChange({ action:'edit', fields,
 п('добавляю по занятому адресу → столкновение', MERGE.CONFLICT,
   mergeEntityChange({ action:'add', current:cur }).outcome);
 
-for (const [з,и,к] of т) console.log(з, и.padEnd(54,'.'), к);
+for (const [verification,result,commitRow] of т) console.log(verification, result.padEnd(54,'.'), commitRow);
 const плохо = т.filter(x=>x[0]==='✗ ').length;
 console.log(`\nутверждений ${т.length}, не сошлось ${плохо}`);
 process.exit(плохо?1:0);

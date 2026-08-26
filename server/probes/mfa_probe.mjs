@@ -3,17 +3,17 @@
 //
 //   DATABASE_URL=… MFA_SECRET_KEY=… node probes/mfa_probe.mjs
 
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { register, login } from '../src/auth/service.js';
 import { sessionByToken } from '../src/db/sessions.js';
 import { findById } from '../src/db/users.js';
-import { beginEnroll, confirmEnroll, submitCode, disable, свежийШаг,
-         requireFreshMfa, СВЕЖЕСТЬ_МИНУТ } from '../src/auth/mfa.js';
+import { beginEnroll, confirmEnroll, submitCode, disable, isFreshMfa,
+         requireFreshMfa, FRESH_MINUTES } from '../src/auth/mfa.js';
 import { countRecoveryCodes, passSessionMfa } from '../src/db/mfa.js';
-import { код as totpКод, сверить, создатьСекрет, base32Decode, base32Encode,
-         ШАГ_СЕК } from '../src/auth/totp.js';
-import { зашифровать, расшифровать } from '../src/auth/secretbox.js';
+import { totpCode as totpКод, verifyCode, createSecret, base32Decode, base32Encode,
+         STEP_SEC } from '../src/auth/totp.js';
+import { encrypt, decrypt } from '../src/auth/secretbox.js';
 import { can } from '../src/access/access.js';
 import { P } from '../src/access/roles.js';
 import { execFileSync } from 'node:child_process';
@@ -38,31 +38,31 @@ const отказ = async fn => {
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
+const pool = createPool();
 const ПАРОЛЬ = 'вполне-длинный-пароль';
 
 try {
   // ── 1. сам TOTP ─────────────────────────────────────────────────────────
-  const секрет = создатьСекрет();
+  const secret = createSecret();
   проверить('base32 туда и обратно',
-    base32Encode(base32Decode(секрет)) === секрет, секрет.slice(0, 8),
-    base32Encode(base32Decode(секрет)).slice(0, 8));
-  проверить('свой код сходится', сверить(секрет, totpКод(секрет)), true, 'да');
-  проверить('чужой код не сходится', !сверить(секрет, '000000'), true, 'да');
-  проверить('код не из шести цифр не сходится', !сверить(секрет, 'abcdef'), true, 'да');
+    base32Encode(base32Decode(secret)) === secret, secret.slice(0, 8),
+    base32Encode(base32Decode(secret)).slice(0, 8));
+  проверить('свой код сходится', verifyCode(secret, totpКод(secret)), true, 'да');
+  проверить('чужой код не сходится', !verifyCode(secret, '000000'), true, 'да');
+  проверить('код не из шести цифр не сходится', !verifyCode(secret, 'abcdef'), true, 'да');
   проверить('код соседнего шага принимается (часы расходятся)',
-    сверить(секрет, totpКод(секрет, Date.now() - ШАГ_СЕК * 1000)), true, 'да');
+    verifyCode(secret, totpКод(secret, Date.now() - STEP_SEC * 1000)), true, 'да');
   проверить('код через два шага уже не принимается',
-    !сверить(секрет, totpКод(секрет, Date.now() - 2 * ШАГ_СЕК * 1000)), true, 'да');
+    !verifyCode(secret, totpКод(secret, Date.now() - 2 * STEP_SEC * 1000)), true, 'да');
 
   // ── 2. шифрование секрета ───────────────────────────────────────────────
-  const шифр = зашифровать(секрет);
+  const шифр = encrypt(secret);
   проверить('секрет в базе не лежит открытым',
-    !шифр.toString('utf8').includes(секрет.slice(0, 8)), 'не видно', 'видно');
-  проверить('расшифровка возвращает секрет', расшифровать(шифр) === секрет, 'да', 'нет');
+    !шифр.toString('utf8').includes(secret.slice(0, 8)), 'не видно', 'видно');
+  проверить('расшифровка возвращает секрет', decrypt(шифр) === secret, 'да', 'нет');
   const порченый = Buffer.from(шифр); порченый[порченый.length - 1] ^= 1;
   проверить('подменённый шифротекст не расшифруется молча',
-    (await отказ(() => расшифровать(порченый))) !== 'ПРОШЛО', 'отказ', 'прошло');
+    (await отказ(() => decrypt(порченый))) !== 'ПРОШЛО', 'отказ', 'прошло');
 
   // ── 3. заведение ────────────────────────────────────────────────────────
   const {  user: админ } = await register(pool, {
@@ -91,8 +91,8 @@ try {
     (await отказ(() => confirmEnroll(pool, адм, '000000'))).includes('не сошёлся'),
     'не сошёлся', 'иное');
 
-  const { коды } = await confirmEnroll(pool, адм, totpКод(начало.секрет));
-  проверить('подтверждение выдаёт коды восстановления', коды.length === 10, 10, коды.length);
+  const { коды: recoveryCodes } = await confirmEnroll(pool, адм, totpКод(начало.секрет));
+  проверить('подтверждение выдаёт коды восстановления', recoveryCodes.length === 10, 10, recoveryCodes.length);
   const включён = await findById(pool, админ.userId);
   проверить('после подтверждения второй шаг заведён', включён.mfaReady === true, true, 'да');
   проверить('и права опасных действий появляются', can(включён, P.BAN_USER), true, 'да');
@@ -103,13 +103,13 @@ try {
   // ── 4. вход становится двухшаговым ──────────────────────────────────────
   const вход = await login(pool, { email: 'a@e.рф', password: ПАРОЛЬ });
   проверить('вход сообщает, что ждёт кода', вход.ждётКода === true, true, вход.ждётКода);
-  const сеанс = await sessionByToken(pool, вход.токен);
-  проверить('сессия частичная', сеанс.mfaPending === true, true, сеанс.mfaPending);
+  const session = await sessionByToken(pool, вход.токен);
+  проверить('сессия частичная', session.mfaPending === true, true, session.mfaPending);
 
   // ГЛАВНОЕ: частичная сессия не даёт НИЧЕГО. Проверяем так же, как это
   // видит привратник: он кладёт req.user = null и запоминает sessionId.
   проверить('частичная сессия не даёт пользователя',
-    сеанс.mfaPending && !can(null, P.VIEW_USERS), 'ничего', 'что-то');
+    session.mfaPending && !can(null, P.VIEW_USERS), 'ничего', 'что-то');
 
   проверить('чужой код не проходит',
     (await отказ(() => submitCode(pool, вход.sessionId, '111111'))).includes('не сошёлся'),
@@ -123,27 +123,27 @@ try {
 
   // ── 5. коды восстановления ──────────────────────────────────────────────
   const вход2 = await login(pool, { email: 'a@e.рф', password: ПАРОЛЬ });
-  const восст = await submitCode(pool, вход2.sessionId, коды[0]);
+  const восст = await submitCode(pool, вход2.sessionId, recoveryCodes[0]);
   проверить('код восстановления проходит', восст.способ === 'восстановление',
     'восстановление', восст.способ);
   проверить('и гасится: осталось девять', восст.осталосьКодов === 9, 9, восст.осталосьКодов);
 
   const вход3 = await login(pool, { email: 'a@e.рф', password: ПАРОЛЬ });
   проверить('тот же код второй раз не проходит',
-    (await отказ(() => submitCode(pool, вход3.sessionId, коды[0]))).includes('не сошёлся'),
+    (await отказ(() => submitCode(pool, вход3.sessionId, recoveryCodes[0]))).includes('не сошёлся'),
     'не сошёлся', 'иное');
-  await submitCode(pool, вход3.sessionId, коды[1]);
+  await submitCode(pool, вход3.sessionId, recoveryCodes[1]);
   проверить('второй код проходит и гасится',
     (await countRecoveryCodes(pool, админ.userId)) === 8, 8,
     await countRecoveryCodes(pool, админ.userId));
 
   // ── 6. свежесть подтверждения ───────────────────────────────────────────
-  проверить('без отметки — не свежо', !свежийШаг(null), false, 'нет');
-  проверить('только что — свежо', свежийШаг(new Date()), true, 'да');
+  проверить('без отметки — не свежо', !isFreshMfa(null), false, 'нет');
+  проверить('только что — свежо', isFreshMfa(new Date()), true, 'да');
   проверить('шестнадцать минут назад — не свежо',
-    !свежийШаг(new Date(Date.now() - 16 * 60_000)), false, 'нет');
+    !isFreshMfa(new Date(Date.now() - 16 * 60_000)), false, 'нет');
   проверить('четырнадцать минут назад — свежо',
-    свежийШаг(new Date(Date.now() - 14 * 60_000)), true, 'да');
+    isFreshMfa(new Date(Date.now() - 14 * 60_000)), true, 'да');
 
   const застава = requireFreshMfa();
   const прогнать = req => new Promise(готово =>

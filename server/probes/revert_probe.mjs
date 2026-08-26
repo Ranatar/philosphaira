@@ -7,11 +7,11 @@
 //
 //   DATABASE_URL=… node probes/revert_probe.mjs
 
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { register } from '../src/auth/service.js';
 import { findById } from '../src/db/users.js';
-import { importSet, exportSet, exportAll, graphVersion, какПишетПриложение,
+import { importSet, exportSet, exportAll, graphVersion, asAppWrites,
          entityHistory } from '../src/db/graph.js';
 import { createCommit } from '../src/commits/service.js';
 import { reviewCommit, directCommit } from '../src/commits/review.js';
@@ -37,7 +37,7 @@ const отказ = async fn => {
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
+const pool = createPool();
 const ПАРОЛЬ = 'вполне-длинный-пароль';
 
 async function завести(имя, роль) {
@@ -49,8 +49,8 @@ async function завести(имя, роль) {
   return findById(pool, user.userId);
 }
 
-const слепок = db => exportAll(db).then(в =>
-  Object.fromEntries(Object.entries(в).map(([и, з]) => [и, какПишетПриложение(з)])));
+const слепок = db => exportAll(db).then(deleted =>
+  Object.fromEntries(Object.entries(deleted).map(([и, з]) => [и, asAppWrites(з)])));
 
 try {
   const редактор  = await завести('редактор', 'editor');
@@ -197,13 +197,13 @@ try {
   const наложено = JSON.parse(слепокНаСрезе.traditions);
   for (const и of прир.изменения) {
     if (и.набор !== 'traditions') continue;
-    const где = наложено.findIndex(з => з.id === и.entityId);
-    if (и.удалена) { if (где !== -1) наложено.splice(где, 1); }
-    else if (где === -1) наложено.push(и.запись);
-    else наложено[где] = и.запись;
+    const where = наложено.findIndex(з => з.id === и.entityId);
+    if (и.удалена) { if (where !== -1) наложено.splice(where, 1); }
+    else if (where === -1) наложено.push(и.запись);
+    else наложено[where] = и.запись;
   }
   проверить('СРЕЗ ПЛЮС ПРИРАЩЕНИЕ = ПОЛНОЕ СОСТОЯНИЕ',
-    какПишетПриложение(наложено) === (await слепок(pool)).traditions,
+    asAppWrites(наложено) === (await слепок(pool)).traditions,
     'совпало', 'разошлось');
 
   const сНуля = await readGraphSince(pool, { actor: редактор, since: 0 });

@@ -18,7 +18,7 @@
 // MFA НЕ ЗАВОДИТСЯ САМ: секрет должен увидеть человек, который вносит его в
 // приложение, а включённый без подтверждения второй шаг запер бы вход.
 
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { beginBootstrapAdmin, insertUser, setEmailVerified,
          writeRoleHistory, audit } from '../src/db/users.js';
@@ -44,9 +44,9 @@ assertPasswordPolicy(password);
 // замок незачем.
 const passwordHash = await hashPassword(password);
 
-const pool = создатьПул();
+const pool = createPool();
 try {
-  const итог = await withTransaction(pool, async client => {
+  const merged = await withTransaction(pool, async client => {
     const живых = await beginBootstrapAdmin(client);
     if (живых) return { уже: живых };
 
@@ -67,11 +67,11 @@ try {
     return { user };
   });
 
-  if (итог.уже) {
-    console.error(`в базе уже ${итог.уже} живых пользовател(я/ей) — ничего не сделано`);
+  if (merged.уже) {
+    console.error(`в базе уже ${merged.уже} живых пользовател(я/ей) — ничего не сделано`);
     process.exitCode = 1;
   } else {
-    console.log(`заведён администратор ${итог.user.username} (${итог.user.userId})`);
+    console.log(`заведён администратор ${merged.user.username} (${merged.user.userId})`);
     console.log('почта помечена подтверждённой как часть доверенного запуска');
     console.log('СЛЕДУЮЩИЙ ШАГ: войти и завести второй шаг — без него опасные');
     console.log('права срезаны, и назначить второго администратора нельзя');

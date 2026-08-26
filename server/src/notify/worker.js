@@ -21,7 +21,7 @@ import { publish } from '../ws/bus.js';
 import { CATALOG } from './catalog.js';
 
 /** Отправитель по умолчанию: никуда не шлёт и об этом говорит. */
-export const отправительВНикуда = {
+export const nullSender = {
   async send() {
     throw new Error('отправитель писем не настроен: задайте свой в работнике');
   },
@@ -31,57 +31,57 @@ export const отправительВНикуда = {
  * Один заход по исходящим.
  * Возвращает счёт: сколько доставлено, сколько отложено, сколько пропущено.
  */
-export async function deliverOnce(pool, { отправитель = отправительВНикуда,
+export async function deliverOnce(pool, { отправитель = nullSender,
                                           сколько = 50 } = {}) {
-  const порция = await withTransaction(pool, client =>
+  const batch = await withTransaction(pool, client =>
     claimOutbox(client, { сколько }));
 
-  let доставлено = 0, отложено = 0, пропущено = 0;
+  let delivered = 0, отложено = 0, пропущено = 0;
 
-  for (const запись of порция) {
+  for (const record of batch) {
     try {
-      if (запись.channel === 'broadcast') {
+      if (record.channel === 'broadcast') {
         // Широковещательное письмо в одиночку не шлётся: его место в
         // сводке. Строку закрываем — иначе она будет вечно возвращаться.
         await withTransaction(pool, client => publish(client,
-          { вид: 'вещание', broadcastId: запись.payload.broadcastId,
-            type: запись.payload.type })).catch(() => {});
-        await withTransaction(pool, client => markDelivered(client, запись.id));
+          { вид: 'вещание', broadcastId: record.payload.broadcastId,
+            type: record.payload.type })).catch(() => {});
+        await withTransaction(pool, client => markDelivered(client, record.id));
         пропущено++;
         continue;
       }
 
-      const н = await notificationForDelivery(pool, запись.payload.notificationId);
+      const notification = await notificationForDelivery(pool, record.payload.notificationId);
       // Извещение в шину идёт ДО почты и независимо от неё: живому окну
       // уведомление нужно сейчас, а не после того, как встанет почтовый
       // сервер. Падение почты отложит письмо, но не окно.
-      if (н) {
+      if (notification) {
         await withTransaction(pool, client => publish(client,
-          { вид: 'уведомление', notificationId: запись.payload.notificationId,
-            userId: н.userId })).catch(() => {});
+          { вид: 'уведомление', notificationId: record.payload.notificationId,
+            userId: notification.userId })).catch(() => {});
       }
-      if (!н) { // уведомление успели убрать по сроку
-        await withTransaction(pool, client => markDelivered(client, запись.id));
+      if (!notification) { // уведомление успели убрать по сроку
+        await withTransaction(pool, client => markDelivered(client, record.id));
         пропущено++;
         continue;
       }
-      if (!н.почтойХочет) {
-        await withTransaction(pool, client => markDelivered(client, запись.id));
+      if (!notification.почтойХочет) {
+        await withTransaction(pool, client => markDelivered(client, record.id));
         пропущено++;
         continue;
       }
 
-      const письмо = renderEmail(н.type, н.data);
-      await отправитель.send({ to: н.email, ...письмо });
-      await withTransaction(pool, client => markDelivered(client, запись.id));
-      доставлено++;
+      const letter = renderEmail(notification.type, notification.data);
+      await отправитель.send({ to: notification.email, ...letter });
+      await withTransaction(pool, client => markDelivered(client, record.id));
+      delivered++;
     } catch (e) {
       await withTransaction(pool, client => markFailed(client,
-        { id: запись.id, attempts: запись.attempts, ошибка: e.message }));
+        { id: record.id, attempts: record.attempts, ошибка: e.message }));
       отложено++;
     }
   }
-  return { взято: порция.length, доставлено, отложено, пропущено };
+  return { взято: batch.length, доставлено: delivered, отложено, пропущено };
 }
 
 /**
@@ -89,32 +89,32 @@ export async function deliverOnce(pool, { отправитель = отправ�
  * на каждое событие. Курсор broadcast_seen_id не трогаем — он про
  * прочитанность в приложении, а не про почту; для почты своя отметка.
  */
-export async function sendDigests(pool, { отправитель = отправительВНикуда,
+export async function sendDigests(pool, { отправитель = nullSender,
                                           часов = 1, категория = 'graphChanges' } = {}) {
-  const кому = await digestRecipients(pool, { категория, часов });
-  let отправлено = 0, пусто = 0, отложено = 0;
+  const recipients = await digestRecipients(pool, { категория, часов });
+  let sent = 0, пусто = 0, отложено = 0;
 
-  for (const человек of кому) {
-    const события = await broadcastsSince(pool,
-      { послеId: человек.курсор, категория });
-    if (!события.length) { пусто++; continue; }
+  for (const person of recipients) {
+    const events = await broadcastsSince(pool,
+      { послеId: person.курсор, категория });
+    if (!events.length) { пусто++; continue; }
     try {
-      await отправитель.send({ to: человек.email, ...renderDigest(события) });
-      await withTransaction(pool, client => stampDigest(client, человек.id));
-      отправлено++;
+      await отправитель.send({ to: person.email, ...renderDigest(events) });
+      await withTransaction(pool, client => stampDigest(client, person.id));
+      sent++;
     } catch {
       // Отметку НЕ ставим: не отправленная сводка должна уйти в следующий раз.
       отложено++;
     }
   }
-  return { кандидатов: кому.length, отправлено, пусто, отложено };
+  return { кандидатов: recipients.length, отправлено: sent, пусто, отложено };
 }
 
 /** Суточная уборка. Просроченное не хранится: индекс на expires_at для того и есть. */
 export const sweep = pool => withTransaction(pool, client => sweepExpired(client));
 
 /** Проверка полноты образцов: тип без образца — ошибка, а не пропажа. */
-export function типыБезОбразца() {
+export function typesWithoutTemplate() {
   return Object.keys(CATALOG).filter(тип => {
     try { renderEmail(тип, {}); return false; } catch { return true; }
   });

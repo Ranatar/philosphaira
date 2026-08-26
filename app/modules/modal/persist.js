@@ -11,7 +11,8 @@ import { modalEntityExists } from './assembly.js';
 import { ModalContext } from './context.js';
 import { closeUniversalModal, openUniversalModal } from './core.js';
 import { getIsolatedConceptsAfterDeletion } from './entry.js';
-import { conceptIntegrityWarnings, connectionIntegrityWarnings, nConcepts, nLinks, philosopherIntegrityWarnings, relationIndexById } from './integrity.js';
+import { provenanceValue } from './forms.js';
+import { conceptIntegrityWarnings, connectionIntegrityWarnings, nConcepts, nLinks, philosopherIntegrityWarnings, provenanceDriftWarning, relationIndexById } from './integrity.js';
 
 function generateId(prefix = 'item') {
       return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
@@ -60,6 +61,9 @@ function savePhilosopherData() {
       const clash = (name !== originalName) ? philosopherByName.get(name) : null;
       if (clash) { alert('Философ с именем «' + name + '» уже существует'); return; }
 
+      // Происхождение читается ДО заслона: заслон о нём и спрашивает.
+      const provenance = provenanceValue();
+
       // Полнота (у каждого хотя бы одна традиция) — договорённость, а не
       // запрет: предупреждаем и даём сохранить, как принято в этом окне.
       if (!confirmWarnings('Сохранение философа',
@@ -67,7 +71,13 @@ function savePhilosopherData() {
                          isNew ? null : originalName)
             .concat(traditionIds.length ? [] : [
               'Не выбрано ни одной традиции: раздел традиций в окне философа '
-              + 'выводиться не будет.']))) return;
+              + 'выводиться не будет.'])
+            // ПРЕЖНЕЕ СОСТОЯНИЕ берётся по ИМЕНИ: в этом окне под рукой не
+            // объект философа, а только его имя (ModalContext хранит имя,
+            // потому что философ и опознаётся по имени).
+            .concat(provenanceDriftWarning(
+              isNew ? null : philosopherByName.get(originalName),
+              { description, provenance })))) return;
 
       // years собирается по тому же правилу, что formatBirthYear:
       // отрицательный год без пояснения читается как «-515»
@@ -81,8 +91,9 @@ function savePhilosopherData() {
 
       // Поле traditions обязано попасть и в НОВУЮ запись: без него
       // у созданного философа не будет ни традиции, ни раздела в окне.
-      const стало = { name, nameRu: name, color,
-                birth, death, years, traditions: traditionIds, description };
+      const next = { name, nameRu: name, color,
+                birth, death, years, traditions: traditionIds, description,
+                ...(provenance ? { provenance } : {}) };
       const philId = isNew
         ? (name.toLowerCase().replace(/\s+/g, '_')
              .replace(/[^a-z0-9_а-яё]/gi, '') || generateId('phil'))
@@ -90,14 +101,14 @@ function savePhilosopherData() {
 
       submitChange(
         describeChange(isNew ? 'add' : 'edit', 'philosopher', philId,
-                 isNew ? null : DATA.philosophers[i], стало),
+                 isNew ? null : DATA.philosophers[i], next),
         () => {
           if (isNew) {
-            DATA.philosophers.push({ id: philId, ...стало });
+            DATA.philosophers.push({ id: philId, ...next });
           } else {
             const oldName = originalName;
             const oldId   = DATA.philosophers[i].id;
-            DATA.philosophers[i] = { ...DATA.philosophers[i], ...стало };
+            DATA.philosophers[i] = { ...DATA.philosophers[i], ...next };
 
             if (name !== oldName) {
               // Переименование тянет за собой больше, чем в unimod:
@@ -189,6 +200,7 @@ function saveConceptData() {
         ? Array.from(rubrEl.selectedOptions).map(o => o.value) : [];
       const description = descEl ? descEl.value.trim() : '';
       const extendedDescription = extEl ? extEl.value.trim() : '';
+      const provenance = provenanceValue();
 
       if (!label || !philosopher) {
         alert('Укажите название концепции и философа'); return;
@@ -200,22 +212,30 @@ function saveConceptData() {
       const isNew = !modalEntityExists('concept', original);
 
       if (!confirmWarnings('Сохранение концепции',
-          conceptIntegrityWarnings(label, philosopher, isNew ? null : original))) return;
+          conceptIntegrityWarnings(label, philosopher, isNew ? null : original)
+            .concat(provenanceDriftWarning(isNew ? null : original,
+              { description, extendedDescription, provenance })))) return;
 
       // Схемы разные: в concepts философ хранится ИДЕНТИФИКАТОРОМ,
       // в nodes — ИМЕНЕМ. Их нельзя перепутать местами. Описание идёт по
       // хранимой схеме — по concepts.
-      const стало = { label, philosopher: philData.id,
-              rubrics: selectedRubricIds, description, extendedDescription };
+      // ПУСТОЕ ПРОИСХОЖДЕНИЕ НЕ ПИШЕТСЯ ВОВСЕ. Иначе сущность без источника
+      // обрастёт полем-пустышкой, выгрузка разойдётся с файлами у всех
+      // четырёхсот с лишним разом, а «источника нет» станет неотличимо от
+      // «источник — пустая строка».
+      const next = { label, philosopher: philData.id,
+              rubrics: selectedRubricIds, description, extendedDescription,
+              ...(provenance ? { provenance } : {}) };
 
       if (isNew) {
         const id = generateId('concept');
         const newNode = { id, label, concept: philosopher,
-                  rubrics: selectedRubricIds, description, extendedDescription };
+                  rubrics: selectedRubricIds, description, extendedDescription,
+                  ...(provenance ? { provenance } : {}) };
         submitChange(
-          describeChange('add', 'concept', id, null, стало),
+          describeChange('add', 'concept', id, null, next),
           () => {
-            DATA.concepts.push({ id, ...стало });
+            DATA.concepts.push({ id, ...next });
             DATA.nodes.push(newNode);
             DATA.conceptToRubrics[id] = selectedRubricIds;
             addNodeToGraph(newNode);
@@ -230,9 +250,9 @@ function saveConceptData() {
       if (ci === -1 || ni === -1) { alert('Концепция не найдена'); return; }
 
       submitChange(
-        describeChange('edit', 'concept', original.id, DATA.concepts[ci], стало),
+        describeChange('edit', 'concept', original.id, DATA.concepts[ci], next),
         () => {
-          DATA.concepts[ci] = { ...DATA.concepts[ci], ...стало };
+          DATA.concepts[ci] = { ...DATA.concepts[ci], ...next };
           DATA.nodes[ni] = Object.assign(DATA.nodes[ni], { label, concept: philosopher,
                    rubrics: selectedRubricIds, description, extendedDescription });
           DATA.conceptToRubrics[original.id] = selectedRubricIds;
@@ -301,22 +321,26 @@ function saveConnectionData() {
           original.source.id || original.source,
           original.target.id || original.target, false);
 
+      const provenance = provenanceValue();
       if (!confirmWarnings('Сохранение связи',
           connectionIntegrityWarnings(source, target, type, weight,
-                        bidirectional, originalLink))) return;
+                        bidirectional, originalLink)
+            .concat(provenanceDriftWarning(originalLink,
+              { description, provenance })))) return;
 
       // Описание идёт по ХРАНИМОЙ схеме — по relations, где концы лежат
       // идентификаторами. В links те же концы — объектами узлов, и путать
       // их нельзя: сервер примет только первое.
-      const стало = { source, target, type, weight, bidirectional, description };
+      const next = { source, target, type, weight, bidirectional, description,
+                ...(provenance ? { provenance } : {}) };
 
       if (isNew) {
         const id = generateId('rel');
-        const newLink = { id, ...стало };
+        const newLink = { id, ...next };
         submitChange(
-          describeChange('add', 'relation', id, null, стало),
+          describeChange('add', 'relation', id, null, next),
           () => {
-            DATA.relations.push({ id, ...стало });
+            DATA.relations.push({ id, ...next });
             DATA.links.push(newLink);
             addLinkToGraph(newLink);
             afterDataChange({ nodes: true, links: true });
@@ -336,18 +360,18 @@ function saveConnectionData() {
 
       submitChange(
         describeChange('edit', 'relation', originalLink.id,
-                 ri !== -1 ? DATA.relations[ri] : null, стало),
+                 ri !== -1 ? DATA.relations[ri] : null, next),
         () => {
           Object.assign(originalLink, { source: srcNode, target: tgtNode,
                           type, weight, bidirectional, description });
           if (ri !== -1) {
-            DATA.relations[ri] = { ...DATA.relations[ri], ...стало };
+            DATA.relations[ri] = { ...DATA.relations[ri], ...next };
           } else {
             // Запасная ветка: связь есть в links, но не в relations. Имя берём
             // прежнее, чтобы адрес не сменился на ровном месте.
             const id = originalLink.id || generateId('rel');
             originalLink.id = id;
-            DATA.relations.push({ id, ...стало });
+            DATA.relations.push({ id, ...next });
           }
 
           updateLinkOnGraph();

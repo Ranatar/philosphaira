@@ -12,20 +12,27 @@
 import { userFromRow } from './mapper.js';
 
 /** Себе показываем полностью: почта своя. */
-const себе = строка => userFromRow(строка, { кому: { userId: строка.user_id, level: 4 } });
+const toSelf = строка => userFromRow(строка, { кому: { userId: строка.user_id, level: 4 } });
 
 export async function findByEmailWithSecret(db, email) {
   const { rows } = await db.query(
     `SELECT * FROM users WHERE lower(email) = lower($1) AND deleted_at IS NULL`,
     [email]);
   if (!rows[0]) return null;
-  return { user: себе(rows[0]), passwordHash: rows[0].password_hash };
+  return { user: toSelf(rows[0]), passwordHash: rows[0].password_hash };
+}
+
+export async function findByUsername(db, username) {
+  const { rows } = await db.query(
+    `SELECT * FROM users WHERE lower(username) = lower($1) AND deleted_at IS NULL`,
+    [username]);
+  return rows[0] ? toSelf(rows[0]) : null;
 }
 
 export async function findById(db, userId) {
   const { rows } = await db.query(
     `SELECT * FROM users WHERE user_id = $1 AND deleted_at IS NULL`, [userId]);
-  return rows[0] ? себе(rows[0]) : null;
+  return rows[0] ? toSelf(rows[0]) : null;
 }
 
 /**
@@ -39,7 +46,7 @@ export async function insertUser(client, { username, email, passwordHash,
     INSERT INTO users (username, email, password_hash, display_name, role)
     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
     [username, email, passwordHash, displayName, role]);
-  return себе(строка);
+  return toSelf(строка);
 }
 
 export const setLastLogin = (client, userId) => client.query(
@@ -70,7 +77,7 @@ export async function findByIdForUpdate(client, userId) {
   const { rows } = await client.query(
     `SELECT * FROM users WHERE user_id = $1 AND deleted_at IS NULL FOR UPDATE`,
     [userId]);
-  return rows[0] ? себе(rows[0]) : null;
+  return rows[0] ? toSelf(rows[0]) : null;
 }
 
 export const updateRole = (client, { userId, newRole, actorId }) => client.query(
@@ -124,7 +131,7 @@ export const auditEntries = async (db, { actorId = null, action = null,
   return rows;
 };
 
-export { себе as userForSelf };
+export { toSelf as userForSelf };
 
 /**
  * Сериализовать заведение первого администратора МЕЖДУ ПРОЦЕССАМИ и

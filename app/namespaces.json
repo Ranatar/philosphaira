@@ -113,6 +113,7 @@
  "viewWidth": "S",
  "viewHeight": "S",
  "profileOrderMode": "S",
+ "authModalKind": "S",
  "liveClosedOnPurpose": "S",
  "METRIC_COVERAGE_FN": "S",
  "simulation": "S",

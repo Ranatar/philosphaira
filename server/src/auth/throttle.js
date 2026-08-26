@@ -10,34 +10,34 @@
 // этой надписью, чем Redis в рекомендациях и Map в коде, как было в первой
 // редакции.
 
-const счёт = new Map();          // ключ → { сколько, доКогда }
+const counters = new Map();          // ключ → { сколько, доКогда }
 
-export const ОКНО_МС = 3600_000;
-export const ПРЕДЕЛ  = 10;
+export const WINDOW_MS = 3600_000;
+export const LIMIT  = 10;
 
-export function отметитьНеудачу(ключ, сейчас = Date.now()) {
-  const было = счёт.get(ключ);
-  if (!было || было.доКогда < сейчас) {
-    счёт.set(ключ, { сколько: 1, доКогда: сейчас + ОКНО_МС });
+export function noteFailure(ключ, сейчас = Date.now()) {
+  const prevCount = counters.get(ключ);
+  if (!prevCount || prevCount.доКогда < сейчас) {
+    counters.set(ключ, { сколько: 1, доКогда: сейчас + WINDOW_MS });
     return 1;
   }
-  было.сколько += 1;
-  return было.сколько;
+  prevCount.сколько += 1;
+  return prevCount.сколько;
 }
 
-export function сброситьСчёт(ключ) { счёт.delete(ключ); }
+export function resetCounter(ключ) { counters.delete(ключ); }
 
-export function перебор(ключ, сейчас = Date.now()) {
-  const было = счёт.get(ключ);
-  if (!было || было.доКогда < сейчас) return false;
-  return было.сколько >= ПРЕДЕЛ;
+export function isBruteForce(ключ, сейчас = Date.now()) {
+  const prevCount = counters.get(ключ);
+  if (!prevCount || prevCount.доКогда < сейчас) return false;
+  return prevCount.сколько >= LIMIT;
 }
 
 /** Задержка растёт: пятая неудача ждёт секунду, десятая — полминуты. */
-export function задержкаМс(ключ) {
-  const было = счёт.get(ключ);
-  if (!было || было.сколько < 4) return 0;
-  return Math.min(30_000, 2 ** (было.сколько - 4) * 250);
+export function delayMs(ключ) {
+  const prevCount = counters.get(ключ);
+  if (!prevCount || prevCount.сколько < 4) return 0;
+  return Math.min(30_000, 2 ** (prevCount.сколько - 4) * 250);
 }
 
-export function очистить() { счёт.clear(); }
+export function clearCounters() { counters.clear(); }

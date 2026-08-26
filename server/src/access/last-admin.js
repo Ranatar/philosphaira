@@ -23,7 +23,7 @@
 
 import { Conflict } from '../http/errors.js';
 
-const ДЕЙСТВУЮЩИЕ = `
+const ACTIVE_ROLES = `
   FROM users
    WHERE role = 'administrator'
      AND is_active AND NOT is_banned AND deleted_at IS NULL`;
@@ -33,7 +33,7 @@ export async function assertNotLastAdministrator(client, { userId, newRole = nul
   if (newRole === 'administrator') return;
 
   // 1. Блокируем ВЕСЬ набор. Здесь вторая сделка и ждёт первую.
-  await client.query(`SELECT 1 ${ДЕЙСТВУЮЩИЕ} FOR UPDATE`);
+  await client.query(`SELECT 1 ${ACTIVE_ROLES} FOR UPDATE`);
 
   // 2. Считаем, сколько останется. Снимок нового запроса — уже с учётом
   //    того, что первая сделка успела закрепить.
@@ -41,7 +41,7 @@ export async function assertNotLastAdministrator(client, { userId, newRole = nul
   // и проба строения это стережёт. Считаем не count(), а число строк —
   // ответ тот же, а строка наружу не выходит.
   const { rowCount: останутся } = await client.query(
-    `SELECT 1 ${ДЕЙСТВУЮЩИЕ} AND user_id <> $1`, [userId]);
+    `SELECT 1 ${ACTIVE_ROLES} AND user_id <> $1`, [userId]);
 
   if (останутся === 0) {
     throw new Conflict(

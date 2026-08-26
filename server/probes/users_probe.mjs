@@ -7,7 +7,7 @@
 //
 //   DATABASE_URL=… MFA_SECRET_KEY=… node probes/users_probe.mjs
 
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { register } from '../src/auth/service.js';
 import { findById, roleHistory, auditEntries } from '../src/db/users.js';
@@ -37,7 +37,7 @@ const отказ = async fn => {
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
+const pool = createPool();
 const ПАРОЛЬ = 'вполне-длинный-пароль';
 
 // Полноправный: подтверждённая почта и заведённый второй шаг. Иначе права
@@ -63,11 +63,11 @@ try {
       targetUserId: зритель.userId, newRole: 'editor', reason: '  ' }))).includes('Причина'),
     'Причина', 'иное');
 
-  const стал = await changeUserRole(pool, { actor: админ,
+  const updated = await changeUserRole(pool, { actor: админ,
     targetUserId: зритель.userId, newRole: 'editor', reason: 'взялся за дело' });
-  проверить('роль изменилась', стал.role === 'editor', 'editor', стал.role);
+  проверить('роль изменилась', updated.role === 'editor', 'editor', updated.role);
   проверить('возвращается СВЕЖЕЕ состояние, а не правленый объект',
-    стал.level === 2, 2, стал.level);
+    updated.level === 2, 2, updated.level);
 
   const история = await roleHistory(pool, зритель.userId);
   проверить('история роли записана', история.length === 1, 1, история.length);
@@ -97,12 +97,12 @@ try {
     username: 'временный', email: 'vr@e.рф', password: ПАРОЛЬ });
   await pool.query(`UPDATE users SET role='moderator' WHERE user_id=$1`,
     [временный.userId]);
-  const { токен } = await (await import('../src/auth/service.js'))
+  const { токен: token } = await (await import('../src/auth/service.js'))
     .login(pool, { email: 'vr@e.рф', password: ПАРОЛЬ });
-  проверить('сессия жива до понижения', !!(await sessionByToken(pool, токен)), 'жива', 'нет');
+  проверить('сессия жива до понижения', !!(await sessionByToken(pool, token)), 'жива', 'нет');
   await changeUserRole(pool, { actor: админ, targetUserId: временный.userId,
     newRole: 'viewer', reason: 'понижение' });
-  проверить('понижение гасит сессии', !(await sessionByToken(pool, токен)),
+  проверить('понижение гасит сессии', !(await sessionByToken(pool, token)),
     'погашены', 'жива');
 
   // ── 4. бан ──────────────────────────────────────────────────────────────
@@ -208,19 +208,19 @@ try {
       targetUserId: зритель.userId }))) !== 'ПРОШЛО', 'отказ', 'прошло');
 
   // ── 8. список ───────────────────────────────────────────────────────────
-  const список = await listUsers(pool, { actor: живойАдмин, page: 1, limit: 3 });
+  const sorted = await listUsers(pool, { actor: живойАдмин, page: 1, limit: 3 });
   проверить('список отдаёт items и pagination',
-    Array.isArray(список.items) && !!список.pagination, 'оба', Object.keys(список).join(','));
-  проверить('limit соблюдается', список.items.length === 3, 3, список.items.length);
+    Array.isArray(sorted.items) && !!sorted.pagination, 'оба', Object.keys(sorted).join(','));
+  проверить('limit соблюдается', sorted.items.length === 3, 3, sorted.items.length);
   проверить('удалённые в список не попадают',
-    !список.items.some(u => u.username.startsWith('deleted_')), 'нет', 'есть');
+    !sorted.items.some(u => u.username.startsWith('deleted_')), 'нет', 'есть');
   const поРоли = await listUsers(pool, { actor: живойАдмин, role: 'moderator' });
   проверить('отбор по роли работает',
     поРоли.items.every(u => u.role === 'moderator'), 'все модераторы', 'нет');
   проверить('редактор списка не видит',
     (await отказ(() => listUsers(pool, { actor: редактор }))) !== 'ПРОШЛО', 'отказ', 'прошло');
   проверить('администратор видит почту в списке',
-    список.items.every(u => u.email !== undefined), 'видит', 'нет');
+    sorted.items.every(u => u.email !== undefined), 'видит', 'нет');
 
   // ── 9. допустимые роли считает сервер ───────────────────────────────────
   // Берём СВЕЖЕГО зрителя: тот, что заведён в начале, к этому месту уже

@@ -12,11 +12,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { importSet, exportSet, exportAll, counts, graphVersion, bumpGraphVersion,
-         какПишетПриложение } from '../src/db/graph.js';
-import { НАБОРЫ, ИМЕНА } from '../src/graph/schema.js';
+         asAppWrites } from '../src/db/graph.js';
+import { SETS, SET_NAMES } from '../src/graph/schema.js';
 
 const КОРЕНЬ = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const ДАННЫЕ = process.argv[2] || path.join(КОРЕНЬ, '..', 'app', 'data');
@@ -25,8 +25,8 @@ const мигр = (...д) => execFileSync('node',
   { encoding: 'utf8', env: process.env });
 
 const проверки = [];
-const проверить = (имя, годно, ждали, вышло) =>
-  проверки.push({ имя, годно: !!годно, ждали, вышло });
+const проверить = (имя, finite, ждали, вышло) =>
+  проверки.push({ имя, годно: !!finite, ждали, вышло });
 const отказ = async fn => {
   try { await fn(); return 'ПРОШЛО'; } catch (e) { return e.message; }
 };
@@ -37,53 +37,53 @@ const отказ = async fn => {
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
+const pool = createPool();
 
 try {
-  const исходные = Object.fromEntries(ИМЕНА.map(имя =>
+  const исходные = Object.fromEntries(SET_NAMES.map(имя =>
     [имя, fs.readFileSync(path.join(ДАННЫЕ, имя + '.json'), 'utf8')]));
 
   // ── 1. перенос ──────────────────────────────────────────────────────────
   const перенесено = await withTransaction(pool, async client => {
     const по = {};
-    for (const имя of ИМЕНА) {
+    for (const имя of SET_NAMES) {
       по[имя] = await importSet(client, имя, JSON.parse(исходные[имя]));
     }
     await bumpGraphVersion(client);
     return по;
   });
-  for (const имя of ИМЕНА) {
-    const ждём = JSON.parse(исходные[имя]).length;
-    проверить(`перенесено ${имя}`, перенесено[имя] === ждём, ждём, перенесено[имя]);
+  for (const имя of SET_NAMES) {
+    const expected = JSON.parse(исходные[имя]).length;
+    проверить(`перенесено ${имя}`, перенесено[имя] === expected, expected, перенесено[имя]);
   }
 
   const сколько = await counts(pool);
   проверить('в базе столько же живых, сколько в файлах',
-    ИМЕНА.every(имя => сколько[имя] === перенесено[имя]), 'столько же',
+    SET_NAMES.every(имя => сколько[имя] === перенесено[имя]), 'столько же',
     JSON.stringify(сколько));
 
   // ── 2. ГЛАВНОЕ: выгрузка совпадает ПОБАЙТОВО ────────────────────────────
-  for (const имя of ИМЕНА) {
-    const выгружено = какПишетПриложение(await exportSet(pool, имя));
+  for (const имя of SET_NAMES) {
+    const выгружено = asAppWrites(await exportSet(pool, имя));
     const совпало = выгружено === исходные[имя];
-    let где = '';
+    let where = '';
     if (!совпало) {
       const i = [...исходные[имя]].findIndex((з, k) => з !== выгружено[k]);
-      где = `первое расхождение на знаке ${i}: `
+      where = `первое расхождение на знаке ${i}: `
           + `«${исходные[имя].slice(Math.max(0, i - 30), i + 30)}» → `
           + `«${выгружено.slice(Math.max(0, i - 30), i + 30)}»`;
     }
     проверить(`ВЫГРУЗКА ${имя} СОВПАДАЕТ ПОБАЙТОВО`, совпало,
-      `${исходные[имя].length} знаков`, совпало ? '' : где);
+      `${исходные[имя].length} знаков`, совпало ? '' : where);
   }
 
   // ── 3. повторный перенос ничего не портит ───────────────────────────────
   await withTransaction(pool, async client => {
-    for (const имя of ИМЕНА) await importSet(client, имя, JSON.parse(исходные[имя]));
+    for (const имя of SET_NAMES) await importSet(client, имя, JSON.parse(исходные[имя]));
   });
   проверить('повторный перенос идемпотентен по составу',
-    ИМЕНА.every(имя => сколько[имя] === перенесено[имя]), 'то же', 'иное');
-  const послеПовтора = какПишетПриложение(await exportSet(pool, 'concepts'));
+    SET_NAMES.every(имя => сколько[имя] === перенесено[имя]), 'то же', 'иное');
+  const послеПовтора = asAppWrites(await exportSet(pool, 'concepts'));
   проверить('и выгрузка после него та же', послеПовтора === исходные.concepts,
     'та же', 'иная');
 
@@ -94,14 +94,14 @@ try {
   await pool.query(`
     UPDATE graph_entities SET ord = ord + 1000 WHERE kind = 'tradition' AND ord = 0`);
   const переставлено = await exportSet(pool, 'traditions');
-  const было = JSON.parse(исходные.traditions);
+  const previous = JSON.parse(исходные.traditions);
   проверить('перестановка ord меняет порядок выгрузки',
-    переставлено[переставлено.length - 1].id === было[0].id,
-    было[0].id, переставлено[переставлено.length - 1].id);
+    переставлено[переставлено.length - 1].id === previous[0].id,
+    previous[0].id, переставлено[переставлено.length - 1].id);
   await pool.query(`
     UPDATE graph_entities SET ord = ord - 1000 WHERE kind = 'tradition' AND ord >= 1000`);
   проверить('порядок восстановился',
-    какПишетПриложение(await exportSet(pool, 'traditions')) === исходные.traditions,
+    asAppWrites(await exportSet(pool, 'traditions')) === исходные.traditions,
     'та же', 'иная');
 
   // ── 5. мягкое удаление ──────────────────────────────────────────────────
@@ -109,13 +109,13 @@ try {
     UPDATE graph_entities SET deleted_at = NOW()
      WHERE kind = 'tradition' AND ord = 0`);
   проверить('удалённое в выгрузку не попадает',
-    (await exportSet(pool, 'traditions')).length === было.length - 1,
-    было.length - 1, (await exportSet(pool, 'traditions')).length);
+    (await exportSet(pool, 'traditions')).length === previous.length - 1,
+    previous.length - 1, (await exportSet(pool, 'traditions')).length);
   await pool.query(`
     UPDATE graph_entities SET deleted_at = NULL WHERE kind = 'tradition' AND ord = 0`);
   проверить('и воскресает откатом', 
-    (await exportSet(pool, 'traditions')).length === было.length,
-    было.length, (await exportSet(pool, 'traditions')).length);
+    (await exportSet(pool, 'traditions')).length === previous.length,
+    previous.length, (await exportSet(pool, 'traditions')).length);
 
   // ── 6. посторонние поля роняют перенос, а не выкидываются молча ─────────
   const сЧужим = await отказ(() => withTransaction(pool, client =>
@@ -140,10 +140,10 @@ try {
     false, rows[0].естьId);
 
   // ── 9. опись покрывает всё, что есть в файлах ───────────────────────────
-  for (const имя of ИМЕНА) {
+  for (const имя of SET_NAMES) {
     const ключи = new Set();
     for (const з of JSON.parse(исходные[имя])) Object.keys(з).forEach(к => ключи.add(к));
-    const лишние = [...ключи].filter(к => !НАБОРЫ[имя].keys.includes(к));
+    const лишние = [...ключи].filter(к => !SETS[имя].keys.includes(к));
     проверить(`опись ${имя} покрывает все поля файла`, лишние.length === 0,
       0, лишние.join(',') || 0);
   }

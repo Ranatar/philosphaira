@@ -9,6 +9,8 @@ import { modalActions } from './assembly.js';
 
 import { linkArrow } from './connection-view.js';
 
+import { provenanceField } from './forms.js';
+
 import { getContrastColor } from '../util/color.js';
 import { escapeAttr } from '../util/html.js';
 import { philosopherYears, sortPhilosophersByBirth } from '../util/philosopher-label.js';
@@ -112,6 +114,7 @@ VIEWS.generatePhilosopherEditContent = function generatePhilosopherEditContent(p
           <textarea id="philDescription" rows="10"
                 placeholder="Подробное описание философа...">${philosopherData ? philosopherData.description || '' : ''}</textarea>
         </div>
+        ${provenanceField(philosopherData)}
       `;
 
       if (philosopherData) {
@@ -202,6 +205,7 @@ VIEWS.generateConceptEditContent = function generateConceptEditContent(conceptDa
           <textarea id="conceptExtendedDescription" rows="6"
                 placeholder="Подробное описание концепции">${conceptData ? conceptData.extendedDescription || '' : ''}</textarea>
         </div>
+        ${provenanceField(conceptData)}
       `;
 
       if (conceptData && conceptData.id) {

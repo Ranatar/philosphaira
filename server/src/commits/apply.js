@@ -14,7 +14,7 @@
 import { mergeEntityChange, MERGE } from './merge.js';
 import { bumpGraphVersion, lockEntity, nextOrd, markEntityDeleted,
          upsertEntity, patchEntity, stampVersion } from '../db/graph.js';
-import { НАБОРЫ, НАБОР_ПО_РОДУ } from '../graph/schema.js';
+import { SETS, SET_BY_KIND } from '../graph/schema.js';
 import { Conflict } from '../http/errors.js';
 
 /**
@@ -24,75 +24,75 @@ import { Conflict } from '../http/errors.js';
  * другим: работа не пропала, но записывать нечего.
  */
 export async function applyCommit(client, { changes, actorId = null }) {
-  const столкновения = [];
-  const записать = [];
+  const conflicts = [];
+  const toWrite = [];
 
-  for (const изм of changes) {
-    const { есть, живая, порядок } = await lockEntity(client, изм.kind, изм.entityId);
-    const итог = mergeEntityChange({
-      action: изм.action,
-      fields: изм.fields ?? {},
+  for (const change of changes) {
+    const { есть, живая, порядок } = await lockEntity(client, change.kind, change.entityId);
+    const merged = mergeEntityChange({
+      action: change.action,
+      fields: change.fields ?? {},
       current: живая,
     });
 
-    if (итог.outcome === MERGE.CONFLICT) {
-      for (const с of итог.conflicts ?? [{ field: null, reason: 'столкновение' }]) {
-        столкновения.push({
-          набор: НАБОР_ПО_РОДУ[изм.kind], kind: изм.kind, entityId: изм.entityId,
-          action: изм.action, ...с,
+    if (merged.outcome === MERGE.CONFLICT) {
+      for (const since of merged.conflicts ?? [{ field: null, reason: 'столкновение' }]) {
+        conflicts.push({
+          набор: SET_BY_KIND[change.kind], kind: change.kind, entityId: change.entityId,
+          action: change.action, ...since,
         });
       }
       continue;
     }
-    записать.push({ изм, итог, есть, порядок });
+    toWrite.push({ изм: change, итог: merged, есть, порядок });
   }
 
-  if (столкновения.length) {
-    throw new Conflict('Изменения столкнулись с чужими', { столкновения });
+  if (conflicts.length) {
+    throw new Conflict('Изменения столкнулись с чужими', { столкновения: conflicts });
   }
 
   // Сколько записей выйдет — известно ДО записи, и это важно: версию графа
   // надо поднять ПЕРЕД тем, как ставить её сущностям. Иначе приращение
   // «что изменилось с версии N» пропустит собственный коммит.
-  const кЗаписи = записать.filter(з => з.итог.outcome !== MERGE.SAME);
-  if (!кЗаписи.length) return { исход: 'coincided', версия: null, применено: 0 };
+  const toApply = toWrite.filter(з => з.итог.outcome !== MERGE.SAME);
+  if (!toApply.length) return { исход: 'coincided', версия: null, применено: 0 };
 
-  const версия = await bumpGraphVersion(client);
+  const version = await bumpGraphVersion(client);
 
-  let тронуто = 0;
-  for (const { изм, итог, есть, порядок } of кЗаписи) {
+  let touched = 0;
+  for (const { изм: change, итог: merged, есть, порядок } of toApply) {
 
-    if (изм.action === 'delete') {
-      await markEntityDeleted(client, изм.kind, изм.entityId, actorId);
-      await stampVersion(client, { kind: изм.kind, entityId: изм.entityId, версия });
-      тронуто++;
+    if (change.action === 'delete') {
+      await markEntityDeleted(client, change.kind, change.entityId, actorId);
+      await stampVersion(client, { kind: change.kind, entityId: change.entityId, версия: version });
+      touched++;
       continue;
     }
 
-    if (изм.action === 'add') {
-      const тело = {};
-      for (const [поле, з] of Object.entries(изм.fields)) тело[поле] = з.next;
+    if (change.action === 'add') {
+      const payload = {};
+      for (const [поле, з] of Object.entries(change.fields)) payload[поле] = з.next;
       // Сущность могла существовать и быть удалённой — тогда её воскрешают,
       // а не заводят рядом вторую: адрес занят навсегда.
-      const ord = есть ? порядок : await nextOrd(client, изм.kind);
-      await upsertEntity(client, { kind: изм.kind, entityId: изм.entityId,
-                                   ord, тело, actorId });
-      await stampVersion(client, { kind: изм.kind, entityId: изм.entityId, версия });
-      тронуто++;
+      const ord = есть ? порядок : await nextOrd(client, change.kind);
+      await upsertEntity(client, { kind: change.kind, entityId: change.entityId,
+                                   ord, тело: payload, actorId });
+      await stampVersion(client, { kind: change.kind, entityId: change.entityId, версия: version });
+      touched++;
       continue;
     }
 
     // edit: пишутся ТОЛЬКО чистые поля. Совпавшие уже стоят в базе, и
     // переписывать их значило бы поднимать версию впустую.
-    await patchEntity(client, { kind: изм.kind, entityId: изм.entityId,
-                                поля: итог.apply, actorId });
-    await stampVersion(client, { kind: изм.kind, entityId: изм.entityId, версия });
-    тронуто++;
+    await patchEntity(client, { kind: change.kind, entityId: change.entityId,
+                                поля: merged.apply, actorId });
+    await stampVersion(client, { kind: change.kind, entityId: change.entityId, версия: version });
+    touched++;
   }
 
-  return { исход: 'applied', версия, применено: тронуто };
+  return { исход: 'applied', версия: version, применено: touched };
 }
 
 /** Опись нужна разбору столкновений: показать поле по-человечески. */
-export const полеНабора = (kind, поле) =>
-  НАБОРЫ[НАБОР_ПО_РОДУ[kind]]?.keys.includes(поле) ? поле : `${поле} (нет в описи)`;
+export const setField = (kind, поле) =>
+  SETS[SET_BY_KIND[kind]]?.keys.includes(поле) ? поле : `${поле} (нет в описи)`;

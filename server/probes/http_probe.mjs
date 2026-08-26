@@ -8,11 +8,11 @@
 //   DATABASE_URL=… node probes/http_probe.mjs
 
 import http from 'node:http';
-import { создатьПул } from '../src/db/pool.js';
-import { создатьПриложение } from '../src/http/app.js';
+import { createPool } from '../src/db/pool.js';
+import { createApp } from '../src/http/app.js';
 import { findById } from '../src/db/users.js';
 import { beginEnroll, confirmEnroll } from '../src/auth/mfa.js';
-import { код as totpКод } from '../src/auth/totp.js';
+import { totpCode as totpКод } from '../src/auth/totp.js';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,10 +29,10 @@ const проверить = (имя, годно, ждали, вышло) =>
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
-const app = создатьПриложение({ pool, безопасныеCookie: false });
-const сервер = http.createServer(app);
-await new Promise(г => сервер.listen(8810, г));
+const pool = createPool();
+const app = createApp({ pool, безопасныеCookie: false });
+const httpServer = http.createServer(app);
+await new Promise(г => httpServer.listen(8810, г));
 
 const ПАРОЛЬ = 'вполне-длинный-пароль';
 const БАЗА = 'http://127.0.0.1:8810';
@@ -42,44 +42,44 @@ const БАЗА = 'http://127.0.0.1:8810';
 // там, где сделана, и читается как «сервер сломался».
 const чисто = з => String(з ?? '').replace(/[\r\n]+/g, '').trim();
 const строкаПеченья = м =>
-  [...м].map(([и, з]) => `${чисто(и)}=${чисто(з)}`).join('; ');
+  [...м].map(([result, з]) => `${чисто(result)}=${чисто(з)}`).join('; ');
 
 /** Клиент, помнящий cookie, — как браузер. */
 function браузер() {
   const печенья = new Map();
   return {
     печенья,
-    async зов(путь, { method = 'GET', body } = {}) {
+    async зов(filePath, { method = 'GET', body } = {}) {
       const заголовки = {};
       if (body) заголовки['Content-Type'] = 'application/json';
       if (печенья.size) заголовки.cookie = строкаПеченья(печенья);
       if (method !== 'GET' && печенья.has('csrf')) {
         заголовки['X-CSRF-Token'] = печенья.get('csrf');
       }
-      let о;
+      let observation;
       try {
-        о = await fetch(БАЗА + путь, { method, headers: заголовки,
+        observation = await fetch(БАЗА + filePath, { method, headers: заголовки,
           body: body ? JSON.stringify(body) : undefined });
       } catch (e) {
-        throw new Error(`${путь}: ${e.message} | заголовки ${JSON.stringify(заголовки)}`);
+        throw new Error(`${filePath}: ${e.message} | заголовки ${JSON.stringify(заголовки)}`);
       }
-      for (const с of о.headers.getSetCookie?.() ?? []) {
-        const [пара] = с.split(';');
+      for (const since of observation.headers.getSetCookie?.() ?? []) {
+        const [пара] = since.split(';');
         const i = пара.indexOf('=');
         // trim с обеих сторон: значение приходит без хвоста атрибутов, но
         // с пробелами и переносами по краям — и они ломают заголовок.
         печенья.set(пара.slice(0, i).trim(), пара.slice(i + 1).trim());
       }
-      return { код: о.status, тело: await о.json().catch(() => null) };
+      return { код: observation.status, тело: await observation.json().catch(() => null) };
     },
   };
 }
 
 try {
-  const б = браузер();
+  const second = браузер();
 
   // ── 1. гость ────────────────────────────────────────────────────────────
-  const гость = await б.зов('/api/users/me');
+  const гость = await second.зов('/api/users/me');
   проверить('сервер отвечает и гостю', гость.код === 200, 200, гость.код);
   проверить('и говорит, что тот ГОСТЬ, а не молчит',
     гость.тело?.data?.гость === true, true, JSON.stringify(гость.тело?.data));
@@ -88,16 +88,16 @@ try {
     гость.тело?.data?.permissions?.join(','));
 
   // ── 2. регистрация и cookie ─────────────────────────────────────────────
-  const рег = await б.зов('/api/auth/register', { method: 'POST',
+  const рег = await second.зов('/api/auth/register', { method: 'POST',
     body: { username: 'иван', email: 'ivan@e.рф', password: ПАРОЛЬ } });
   проверить('регистрация проходит', рег.код === 201, 201, рег.код);
-  проверить('сессия пришла cookie', б.печенья.has('session'), 'есть',
-    [...б.печенья.keys()].join(','));
-  проверить('и признак CSRF рядом', б.печенья.has('csrf'), 'есть', 'нет');
+  проверить('сессия пришла cookie', second.печенья.has('session'), 'есть',
+    [...second.печенья.keys()].join(','));
+  проверить('и признак CSRF рядом', second.печенья.has('csrf'), 'есть', 'нет');
   проверить('хеш пароля наружу не ушёл',
     !JSON.stringify(рег.тело).includes('password'), 'нет', 'есть');
 
-  const я = await б.зов('/api/users/me');
+  const я = await second.зов('/api/users/me');
   проверить('после регистрации «кто я» знает меня',
     я.тело?.data?.username === 'иван', 'иван', я.тело?.data?.username);
   проверить('и отдаёт НАБОР ПРАВ, а не роль',
@@ -107,7 +107,7 @@ try {
     !я.тело?.data?.permissions.includes('create_commit'), 'нет', 'есть');
 
   // ── 3. CSRF ─────────────────────────────────────────────────────────────
-  const заг1 = { cookie: строкаПеченья(б.печенья) };
+  const заг1 = { cookie: строкаПеченья(second.печенья) };
   let безПризнака;
   try {
     безПризнака = await fetch(БАЗА + '/api/auth/logout', { method: 'POST', headers: заг1 });
@@ -122,26 +122,26 @@ try {
   // слова. Я потратил на это три захода, дважды починив не то место.
   // Впредь: подставная величина в заголовке пишется латиницей.
   const чужойПризнак = await fetch(БАЗА + '/api/auth/logout', {
-    method: 'POST', headers: { cookie: строкаПеченья(б.печенья),
+    method: 'POST', headers: { cookie: строкаПеченья(second.печенья),
                                'X-CSRF-Token': 'chuzhoy-priznak-sovsem' },
   });
   проверить('и с чужим признаком тоже', чужойПризнак.status === 403, 403,
     чужойПризнак.status);
 
   // ── 4. вход и выход ─────────────────────────────────────────────────────
-  await б.зов('/api/auth/logout', { method: 'POST' });
-  const послеВыхода = await б.зов('/api/users/me');
+  await second.зов('/api/auth/logout', { method: 'POST' });
+  const послеВыхода = await second.зов('/api/users/me');
   проверить('после выхода я снова гость', послеВыхода.тело?.data?.гость === true,
     true, JSON.stringify(послеВыхода.тело?.data).slice(0, 40));
 
-  const мимо = await б.зов('/api/auth/login', { method: 'POST',
+  const мимо = await second.зов('/api/auth/login', { method: 'POST',
     body: { email: 'ivan@e.рф', password: 'не тот' } });
   проверить('неверный пароль — 401', мимо.код === 401, 401, мимо.код);
   проверить('и наружу не уходит, чего именно не сошлось',
     !/пароль неверн|нет такого/i.test(мимо.тело?.error?.message ?? ''),
     'общий ответ', мимо.тело?.error?.message);
 
-  const вход = await б.зов('/api/auth/login', { method: 'POST',
+  const вход = await second.зов('/api/auth/login', { method: 'POST',
     body: { email: 'ivan@e.рф', password: ПАРОЛЬ } });
   проверить('вход проходит', вход.код === 200, 200, вход.код);
   проверить('вход говорит, ждёт ли кода', вход.тело?.data?.ждётКода === false,
@@ -152,9 +152,9 @@ try {
   // есть ДВА предмета, и складывать их в один — то самое смешение, из-за
   // которого в первой редакции документа панель читала сразу два вида
   // ответа. Первый набросок пробы полез в data.userId и получил null.
-  const кто = await findById(pool, вход.тело.data.user.userId);
-  const начало = await beginEnroll(pool, кто);
-  await confirmEnroll(pool, кто, totpКод(начало.секрет));
+  const audience = await findById(pool, вход.тело.data.user.userId);
+  const начало = await beginEnroll(pool, audience);
+  await confirmEnroll(pool, audience, totpКод(начало.секрет));
 
   const б2 = браузер();
   const вход2 = await б2.зов('/api/auth/login', { method: 'POST',
@@ -182,9 +182,16 @@ try {
   // ── 6. вид ответа один на всё ───────────────────────────────────────────
   проверить('успех всегда в поле data', 'data' in (после.тело ?? {}), 'data',
     Object.keys(после.тело ?? {}).join(','));
+  // И СПИСКИ ТОЖЕ. Прежде утверждение выше спрашивало об этом одиночные
+  // ответы, а списки уезжали как {items, pagination}: правило держалось
+  // не везде, а прибор этого не видел, потому что не спрашивал.
+  const списки = await second.зов('/api/commits');
+  проверить('в поле data отвечают И СПИСКИ',
+    'data' in (списки.тело ?? {}) && Array.isArray(списки.тело?.data?.items),
+    'data.items', Object.keys(списки.тело ?? {}).join(','));
   проверить('отказ всегда в поле error с кодом',
     !!мимо.тело?.error?.code, 'error.code', JSON.stringify(мимо.тело).slice(0, 40));
-  const внутренняя = await б.зов('/api/auth/verify-email', { method: 'POST',
+  const внутренняя = await second.зов('/api/auth/verify-email', { method: 'POST',
     body: { token: 'нет такого' } });
   проверить('несуществующая ссылка — 404, а не 500', внутренняя.код === 404, 404,
     внутренняя.код);
@@ -192,7 +199,7 @@ try {
 } catch (e) {
   проверить('проба дошла до конца', false, 'дошла', e.message.slice(0, 90));
 } finally {
-  сервер.close();
+  httpServer.close();
   for (const п of проверки)
     console.log((п.годно ? '  ' : '✗ ') + п.имя.padEnd(56, '.') +
       (п.годно ? '' : ` ждали ${п.ждали}, вышло ${п.вышло}`));

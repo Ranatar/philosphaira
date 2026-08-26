@@ -6,15 +6,15 @@
 //
 //   DATABASE_URL=… node probes/worker_probe.mjs
 
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { register } from '../src/auth/service.js';
 import { findById } from '../src/db/users.js';
 import { importSet } from '../src/db/graph.js';
 import { createCommit } from '../src/commits/service.js';
 import { reviewCommit, directCommit } from '../src/commits/review.js';
-import { deliverOnce, sendDigests, sweep, типыБезОбразца } from '../src/notify/worker.js';
-import { renderEmail, renderDigest, esc, ОБРАЗЦЫ } from '../src/notify/email.js';
+import { deliverOnce, sendDigests, sweep, typesWithoutTemplate } from '../src/notify/worker.js';
+import { renderEmail, renderDigest, esc, TEMPLATES } from '../src/notify/email.js';
 import { updatePreferences } from '../src/notify/read.js';
 import { N, CATALOG } from '../src/notify/catalog.js';
 import { execFileSync } from 'node:child_process';
@@ -36,7 +36,7 @@ const отказ = async fn => {
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
+const pool = createPool();
 const ПАРОЛЬ = 'вполне-длинный-пароль';
 
 // Отправитель, которого можно ломать и допрашивать.
@@ -64,27 +64,27 @@ const вИсходящих = async () => (await pool.query(
 
 try {
   // ── 1. образцы ──────────────────────────────────────────────────────────
-  проверить('у каждого типа есть образец письма', типыБезОбразца().length === 0,
-    0, типыБезОбразца().join(',') || 0);
+  проверить('у каждого типа есть образец письма', typesWithoutTemplate().length === 0,
+    0, typesWithoutTemplate().join(',') || 0);
   проверить('образцов не больше, чем типов',
-    Object.keys(ОБРАЗЦЫ).every(т => !!CATALOG[т]), 'все известны',
-    Object.keys(ОБРАЗЦЫ).filter(т => !CATALOG[т]).join(','));
+    Object.keys(TEMPLATES).every(т => !!CATALOG[т]), 'все известны',
+    Object.keys(TEMPLATES).filter(т => !CATALOG[т]).join(','));
   проверить('неизвестный тип ругается вслух',
     (await отказ(() => renderEmail('нет_такого', {}))).includes('нет образца'),
     'нет образца', 'иное');
 
   // ── 2. ЭКРАНИРОВАНИЕ ────────────────────────────────────────────────────
   const злое = '<script>alert(1)</script> & "кавычки"';
-  const письмо = renderEmail(N.NEW_COMMIT_PENDING, { authorName: злое, message: злое });
+  const letter = renderEmail(N.NEW_COMMIT_PENDING, { authorName: злое, message: злое });
   проверить('угловые скобки в HTML экранированы',
-    !письмо.html.includes('<script>'), 'нет <script>', 'есть');
-  проверить('амперсанд экранирован', письмо.html.includes('&amp;'), '&amp;', 'нет');
-  проверить('кавычки экранированы', письмо.html.includes('&quot;'), '&quot;', 'нет');
+    !letter.html.includes('<script>'), 'нет <script>', 'есть');
+  проверить('амперсанд экранирован', letter.html.includes('&amp;'), '&amp;', 'нет');
+  проверить('кавычки экранированы', letter.html.includes('&quot;'), '&quot;', 'нет');
   проверить('в письме ЕСТЬ текстовая часть',
-    typeof письмо.text === 'string' && письмо.text.length > 0, 'есть', 'нет');
+    typeof letter.text === 'string' && letter.text.length > 0, 'есть', 'нет');
   проверить('в текстовой части подставлено как есть, без разметки',
-    письмо.text.includes(злое), 'как есть', 'иначе');
-  проверить('у письма есть заголовок', !!письмо.subject, 'есть', 'нет');
+    letter.text.includes(злое), 'как есть', 'иначе');
+  проверить('у письма есть заголовок', !!letter.subject, 'есть', 'нет');
   проверить('esc не портит обычный текст', esc('Кант и Гегель') === 'Кант и Гегель',
     'Кант и Гегель', esc('Кант и Гегель'));
 
@@ -107,9 +107,14 @@ try {
   проверить('и что-то доставил', и1.доставлено > 0, '>0', и1.доставлено);
   проверить('после доставки исходящих не осталось', (await вИсходящих()) === 0, 0,
     await вИсходящих());
-  проверить('письмо ушло сотрудникам, а не автору',
-    почта.письма.every(п => п.to !== 'редактор@e.рф'), 'не автору',
-    почта.письма.map(п => п.to).join(','));
+  // СМОТРИМ ПИСЬМА О КОММИТЕ, А НЕ ВСЮ ПОРЦИЮ. С тех пор как регистрация
+  // кладёт письмо с подтверждением адреса, порция смешанная: своё письмо
+  // автор получает законно, и утверждение «в порции нет писем автору»
+  // стало ложным, ничего при этом не поймав.
+  const оКоммите = почта.письма.filter(п => п.subject !== 'Подтвердите адрес');
+  проверить('письмо О КОММИТЕ ушло сотрудникам, а не автору',
+    оКоммите.length > 0 && оКоммите.every(п => п.to !== 'редактор@e.рф'),
+    'не автору', оКоммите.map(п => п.to).join(',') || 'писем о коммите нет');
   проверить('УГЛОВЫЕ СКОБКИ В ПИСЬМЕ НЕ СТАЛИ РАЗМЕТКОЙ',
     почта.письма.some(п => п.html.includes('&lt;угловыми&gt;')), '&lt;угловыми&gt;',
     'нет');

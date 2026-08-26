@@ -4,7 +4,7 @@
 // Поэтому у состояния есть версия, а у запроса — «с какой».
 
 import { exportAll, graphVersion, changesSince, entityHistory } from '../db/graph.js';
-import { НАБОР_ПО_РОДУ, НАБОРЫ } from './schema.js';
+import { SET_BY_KIND, SETS } from './schema.js';
 import { assertCan } from '../access/access.js';
 import { P } from '../access/roles.js';
 
@@ -13,8 +13,8 @@ export async function readGraph(pool, { actor }) {
   assertCan(actor, P.VIEW_GRAPH);
   // Версия берётся ПЕРВОЙ: если её взять после выгрузки, между ними может
   // лечь чужой коммит, и клиент решит, что у него состояние новее, чем есть.
-  const версия = await graphVersion(pool);
-  return { версия, наборы: await exportAll(pool) };
+  const version = await graphVersion(pool);
+  return { версия: version, наборы: await exportAll(pool) };
 }
 
 /**
@@ -24,28 +24,28 @@ export async function readGraph(pool, { actor }) {
  */
 export async function readGraphSince(pool, { actor, since }) {
   assertCan(actor, P.VIEW_GRAPH);
-  const версия = await graphVersion(pool);
-  const строки = await changesSince(pool, Number(since) || 0);
+  const version = await graphVersion(pool);
+  const rows = await changesSince(pool, Number(since) || 0);
   return {
-    версия, с: Number(since) || 0,
-    изменения: строки.map(с => ({
-      набор: НАБОР_ПО_РОДУ[с.kind],
+    версия: version, с: Number(since) || 0,
+    изменения: rows.map(с => ({
+      набор: SET_BY_KIND[с.kind],
       kind: с.kind,
       entityId: с.entityId,
       удалена: с.удалена,
       порядок: с.порядок,
-      запись: с.удалена ? null : собрать(с.kind, с.entityId, с.тело),
+      запись: с.удалена ? null : assemble(с.kind, с.entityId, с.тело),
     })),
   };
 }
 
-function собрать(kind, entityId, тело) {
-  const запись = {};
-  for (const ключ of НАБОРЫ[НАБОР_ПО_РОДУ[kind]].keys) {
-    if (ключ === 'id') запись.id = entityId;
-    else if (ключ in тело) запись[ключ] = тело[ключ];
+function assemble(kind, entityId, тело) {
+  const record = {};
+  for (const fieldKey of SETS[SET_BY_KIND[kind]].keys) {
+    if (fieldKey === 'id') record.id = entityId;
+    else if (fieldKey in тело) record[fieldKey] = тело[fieldKey];
   }
-  return запись;
+  return record;
 }
 
 export function readEntityHistory(pool, { actor, kind, entityId }) {

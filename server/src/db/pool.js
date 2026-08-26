@@ -16,7 +16,7 @@ const { Pool, types } = pg;
 // Точность в этих полях заведомо в пределах безопасной.
 types.setTypeParser(20, v => (v === null ? null : Number(v)));
 
-export function создатьПул(строкаПодключения = process.env.DATABASE_URL) {
+export function createPool(строкаПодключения = process.env.DATABASE_URL) {
   if (!строкаПодключения) {
     throw new Error(
       'DATABASE_URL не задан. Умолчания здесь нет нарочно: молча уйти ' +
@@ -31,4 +31,4 @@ export function создатьПул(строкаПодключения = proces
   });
 }
 
-export const pool = process.env.DATABASE_URL ? создатьПул() : null;
+export const pool = process.env.DATABASE_URL ? createPool() : null;

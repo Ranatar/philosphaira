@@ -301,6 +301,25 @@ function updateFilterStats() {
       
       document.getElementById('filterStats').textContent = 
         `Показано: ${visibleNodesCount}/${totalNodes} концепций, ${visibleLinksCount}/${totalLinks} связей`;
+      updateProvenanceCoverage();
+    }
+
+function updateProvenanceCoverage() {
+      const slot = document.getElementById('provenanceCoverage');
+      if (!slot) return;
+      // Считаем по ХРАНИМЫМ наборам (`relations`, `concepts`), а не по
+      // `links`/`nodes`: происхождение — свойство записи в базе, и узлы с
+      // связями получают его переносом. Считать по ним значило бы мерить
+      // полноту переноса, а не работу составителя.
+      const withValue = список => (список || [])
+        .filter(z => z && String(z.provenance || '').trim()).length;
+      const withRelations = withValue(DATA.relations);
+      const withConcepts = withValue(DATA.concepts);
+      if (!withRelations && !withConcepts) { slot.textContent = ''; return; }
+      const share = (сколько, всего) => всего
+        ? `${сколько}/${всего} (${Math.round(сколько * 100 / всего)}%)` : '—';
+      slot.textContent = 'С источником: связей ' + share(withRelations, (DATA.relations || []).length)
+        + ', концепций ' + share(withConcepts, (DATA.concepts || []).length);
     }
 
 const legendWeightsToggle = document.getElementById('useWeightsToggle');

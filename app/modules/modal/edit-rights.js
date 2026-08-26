@@ -27,7 +27,8 @@ function renderAuthControls() {
         + '<button data-act-click="open-auth-modal-2" data-tip="Регистрация">📝</button>';
       } else {
         box.innerHTML =
-          '<button data-act-click="auth-logout" data-tip="Выйти из учётной записи">🚪</button>'
+          '<button data-act-click="open-security-modal" data-tip="Безопасность учётной записи">🛡️</button>'
+        + '<button data-act-click="auth-logout" data-tip="Выйти из учётной записи">🚪</button>'
         + '<span id="authWho" data-tip="' + u.login
         + (u.role === 'admin' ? ' · правка открыта' : '') + '">' + u.login
         + (u.role === 'admin' ? ' · правка открыта' : '') + '</span>';

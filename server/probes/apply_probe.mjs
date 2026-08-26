@@ -7,7 +7,7 @@
 //
 //   DATABASE_URL=… node probes/apply_probe.mjs
 
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { register } from '../src/auth/service.js';
 import { findById } from '../src/db/users.js';
@@ -25,8 +25,8 @@ const мигр = (...д) => execFileSync('node',
   { encoding: 'utf8', env: process.env });
 
 const проверки = [];
-const проверить = (имя, годно, ждали, вышло) =>
-  проверки.push({ имя, годно: !!годно, ждали, вышло });
+const проверить = (имя, finite, ждали, вышло) =>
+  проверки.push({ имя, годно: !!finite, ждали, вышло });
 const отказ = async fn => {
   try { await fn(); return 'ПРОШЛО'; } catch (e) { return e.message; }
 };
@@ -37,7 +37,7 @@ const отказ = async fn => {
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
+const pool = createPool();
 const ПАРОЛЬ = 'вполне-длинный-пароль';
 
 async function завести(имя, роль) {
@@ -49,9 +49,9 @@ async function завести(имя, роль) {
   return findById(pool, user.userId);
 }
 
-const правка = (поле, было, стало, id = 'т1') => ([{
+const правка = (поле, previous, стало, id = 'т1') => ([{
   action: 'edit', kind: 'tradition', entityId: id,
-  fields: { [поле]: { base: было, next: стало } },
+  fields: { [поле]: { base: previous, next: стало } },
 }]);
 
 try {

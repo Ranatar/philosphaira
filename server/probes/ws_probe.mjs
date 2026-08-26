@@ -10,12 +10,12 @@
 
 import http from 'node:http';
 import { WebSocket } from 'ws';
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { register, login } from '../src/auth/service.js';
 import { findById } from '../src/db/users.js';
 import { revokeAllSessions } from '../src/db/sessions.js';
-import { поднятьУзел, publish } from '../src/ws/node.js';
+import { startNode, publish } from '../src/ws/node.js';
 import { deliverOnce } from '../src/notify/worker.js';
 import { importSet } from '../src/db/graph.js';
 import { createCommit } from '../src/commits/service.js';
@@ -36,7 +36,7 @@ const ждать = мс => new Promise(r => setTimeout(r, мс));
 while (!мигр('down').includes('откатывать нечего')) { /* до пустого места */ }
 мигр('up');
 
-const pool = создатьПул();
+const pool = createPool();
 const ПАРОЛЬ = 'вполне-длинный-пароль';
 const СТРОКА = process.env.DATABASE_URL;
 
@@ -44,9 +44,9 @@ let узел1, узел2, сервер1, сервер2;
 const сокеты = [];
 
 /** Открыть соединение с cookie сеанса и собирать всё, что придёт. */
-function подключиться(порт, токен, { origin } = {}) {
+function подключиться(порт, token, { origin } = {}) {
   const ws = new WebSocket(`ws://127.0.0.1:${порт}/ws`, {
-    headers: { cookie: `session=${токен}`, ...(origin ? { origin } : {}) },
+    headers: { cookie: `session=${token}`, ...(origin ? { origin } : {}) },
   });
   ws.полученное = [];
   ws.открылся = new Promise((готово, беда) => {
@@ -63,8 +63,8 @@ function подключиться(порт, токен, { origin } = {}) {
 
 try {
   // ── два узла, как два работника ─────────────────────────────────────────
-  узел1 = await поднятьУзел({ db: pool, строкаПодключения: СТРОКА });
-  узел2 = await поднятьУзел({ db: pool, строкаПодключения: СТРОКА });
+  узел1 = await startNode({ db: pool, строкаПодключения: СТРОКА });
+  узел2 = await startNode({ db: pool, строкаПодключения: СТРОКА });
   сервер1 = http.createServer(); сервер2 = http.createServer();
   сервер1.on('upgrade', (...д) => узел1.handleUpgrade(...д));
   сервер2.on('upgrade', (...д) => узел2.handleUpgrade(...д));
@@ -101,7 +101,7 @@ try {
 
   let чужойOrigin = 'подключился';
   try {
-    const строгий = await поднятьУзел({ db: pool, строкаПодключения: СТРОКА,
+    const строгий = await startNode({ db: pool, строкаПодключения: СТРОКА,
       origins: ['https://свой.example'] });
     const сервер3 = http.createServer();
     сервер3.on('upgrade', (...д) => строгий.handleUpgrade(...д));

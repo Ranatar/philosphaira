@@ -384,6 +384,90 @@
       transform: rotate(180deg);
     }
 
+    /* Раздел «Замеры»: список слева-сверху, сличение под ним. */
+    .obs-list { display: flex; flex-direction: column; gap: 6px; }
+    .obs-item {
+      padding: 8px 10px; border: 1px solid var(--border, rgba(255,255,255,0.08));
+      border-radius: 6px; cursor: pointer; font-size: 12px;
+    }
+    .obs-item:hover { border-color: var(--accent, #6c5ce7); }
+    .obs-item.picked { border-color: var(--accent, #6c5ce7); background: rgba(108,92,231,0.12); }
+    .obs-head { font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+    .obs-when, .obs-conditions { color: var(--fg-muted, #8b8b9e); font-size: 10px; }
+    .obs-note { font-style: italic; margin-top: 4px; }
+    .obs-summary { margin-top: 4px; color: var(--fg-dim, #c8c8d4); font-size: 11px; }
+    .obs-compare { margin-top: 14px; }
+    .obs-refusal {
+      padding: 10px; border-radius: 6px; font-size: 12px;
+      border: 1px solid var(--warning, #f39c12); color: var(--fg-dim, #c8c8d4);
+    }
+    .obs-diff { margin-top: 4px; font-size: 11px; }
+    .obs-verdict { font-size: 12px; margin-bottom: 8px; }
+    .obs-table { width: 100%; font-size: 11px; border-collapse: collapse; }
+    .obs-table th, .obs-table td {
+      padding: 4px 6px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.06));
+      text-align: left;
+    }
+    .obs-up { color: var(--success, #6ab04c); }
+    .obs-down { color: var(--danger, #d63b3b); }
+
+    /* Полоса замера: приписка под видом статистики, а не часть его. */
+    .observation-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+      font-size: 11px;
+    }
+    .observation-conditions { color: var(--fg-muted, #8b8b9e); }
+    .observation-bar input { flex: 1 1 200px; font-size: 11px; padding: 4px 6px; }
+    .observation-said { color: var(--success, #6ab04c); }
+
+    /* Пометка «(необязательно)» при подписи поля: тише самой подписи, иначе
+       читается как часть названия поля. Класс завёлся вместе с полем
+       источника, а стиль к нему написать забыли — нашёл сличением классов
+       разметки с описанными правилами. */
+    .необязательно {
+      color: var(--fg-muted, #8b8b9e);
+      font-weight: normal;
+      font-size: 10px;
+    }
+
+    /* Покрытие источниками — ещё тише самого раздела: это справка о ходе
+       работы, а не часть содержания. */
+    .provenance-coverage {
+      font-size: 10px;
+      color: var(--fg-muted, #8b8b9e);
+      letter-spacing: 0.02em;
+    }
+
+    /* ПРОИСХОЖДЕНИЕ. Раздел намеренно тихий: он не спорит с описанием за
+       внимание, но и не прячется. Подпись слева, текст справа — так пара
+       читается одной строкой, а при длинной ссылке переносится, не ломая
+       коробку (та же беда, что была у описания связи). */
+    .provenance {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+      font-size: 12px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+    .provenance-label {
+      flex: 0 0 auto;
+      color: var(--fg-muted, #8b8b9e);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 10px;
+    }
+    .provenance-text { color: var(--fg-dim, #c8c8d4); }
+
     .connection-description {
       /* `width:100%` при отступах слева и справа даёт коробку ШИРЕ родителя
          на сумму отступов (замер: 541 против 517) — описание вылезало за

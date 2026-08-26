@@ -23,20 +23,20 @@
  * забытый столбец в SELECT, и узнать об этом надо ЗДЕСЬ, а не через три слоя
  * в виде «прав нет».
  */
-function требоватьПоля(строка, поля, чей) {
+function requireColumns(строка, fieldNames, чей) {
   if (!строка || typeof строка !== 'object' || Array.isArray(строка)) {
     throw new Error(`${чей}: ожидалась строка базы, получено ${строка}`);
   }
-  const нет = поля.filter(п => !(п in строка));
-  if (нет.length) {
+  const missing = fieldNames.filter(п => !(п in строка));
+  if (missing.length) {
     throw new Error(
-      `${чей}: в строке базы нет полей: ${нет.join(', ')}. ` +
+      `${чей}: в строке базы нет полей: ${missing.join(', ')}. ` +
       'Скорее всего, SELECT их не забрал — преобразователь не угадывает.');
   }
   return строка;
 }
 
-const ПОЛЯ_ПОЛЬЗОВАТЕЛЯ = [
+const USER_FIELDS = [
   'user_id', 'username', 'email', 'role',
   'is_active', 'is_banned', 'deleted_at',
   'email_verified_at', 'mfa_enabled',
@@ -44,7 +44,7 @@ const ПОЛЯ_ПОЛЬЗОВАТЕЛЯ = [
 
 import { ROLES, effectivePermissions } from '../access/roles.js';
 
-const иso = v => (v == null ? null
+const toIso = v => (v == null ? null
   : (v instanceof Date ? v.toISOString() : new Date(v).toISOString()));
 
 /**
@@ -52,8 +52,8 @@ const иso = v => (v == null ? null
  * @param {object} [кому]   — доменный пользователь, КОМУ показываем: от него
  *                            зависит видимость почты. null — гость.
  */
-export function userFromRow(строка, { кому = null } = {}) {
-  требоватьПоля(строка, ПОЛЯ_ПОЛЬЗОВАТЕЛЯ, 'userFromRow');
+export function userFromRow(строка, { кому: recipients = null } = {}) {
+  requireColumns(строка, USER_FIELDS, 'userFromRow');
 
   const spec = ROLES[строка.role];
   if (!spec) throw new Error(`userFromRow: неизвестная роль «${строка.role}»`);
@@ -62,14 +62,14 @@ export function userFromRow(строка, { кому = null } = {}) {
   const mfaReady      = строка.mfa_enabled === true;
 
   // Почту видят сам человек и сотрудники от модератора и выше.
-  const сам = Boolean(кому && кому.userId === строка.user_id);
-  const видитПочту = сам
-    || Boolean(кому && кому.level >= ROLES.moderator.level);
+  const isSelf = Boolean(recipients && recipients.userId === строка.user_id);
+  const canSeeMail = isSelf
+    || Boolean(recipients && recipients.level >= ROLES.moderator.level);
 
   return Object.freeze({
     userId:   строка.user_id,
     username: строка.username,
-    email:    видитПочту ? строка.email : undefined,
+    email:    canSeeMail ? строка.email : undefined,
     role:     строка.role,
     level:    spec.level,
     permissions: effectivePermissions({ role: строка.role, emailVerified, mfaReady }),
@@ -86,7 +86,7 @@ export function userFromRow(строка, { кому = null } = {}) {
       displayName:  строка.display_name ?? null,
       avatarUrl:    строка.avatar_url ?? null,
       bio:          строка.bio ?? null,
-      registeredAt: иso(строка.registered_at),
+      registeredAt: toIso(строка.registered_at),
     }),
     settings: Object.freeze({
       language: строка.language ?? 'ru',
@@ -99,12 +99,12 @@ export function userFromRow(строка, { кому = null } = {}) {
 export function userToApi(user) {
   const { userId, username, email, role, level, permissions, profile, settings,
           isActive, isBanned, banReason, emailVerified, mfaReady } = user;
-  const наружу = {
+  const outward = {
     userId, username, role, level, permissions, profile, settings,
     state: { isActive, isBanned, banReason, emailVerified, mfaReady },
   };
-  if (email !== undefined) наружу.email = email;
-  return наружу;
+  if (email !== undefined) outward.email = email;
+  return outward;
 }
 
-export { требоватьПоля };
+export { requireColumns };

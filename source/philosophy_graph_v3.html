@@ -1515,6 +1515,90 @@
       transform: rotate(180deg);
     }
 
+    /* Раздел «Замеры»: список слева-сверху, сличение под ним. */
+    .obs-list { display: flex; flex-direction: column; gap: 6px; }
+    .obs-item {
+      padding: 8px 10px; border: 1px solid var(--border, rgba(255,255,255,0.08));
+      border-radius: 6px; cursor: pointer; font-size: 12px;
+    }
+    .obs-item:hover { border-color: var(--accent, #6c5ce7); }
+    .obs-item.picked { border-color: var(--accent, #6c5ce7); background: rgba(108,92,231,0.12); }
+    .obs-head { font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+    .obs-when, .obs-conditions { color: var(--fg-muted, #8b8b9e); font-size: 10px; }
+    .obs-note { font-style: italic; margin-top: 4px; }
+    .obs-summary { margin-top: 4px; color: var(--fg-dim, #c8c8d4); font-size: 11px; }
+    .obs-compare { margin-top: 14px; }
+    .obs-refusal {
+      padding: 10px; border-radius: 6px; font-size: 12px;
+      border: 1px solid var(--warning, #f39c12); color: var(--fg-dim, #c8c8d4);
+    }
+    .obs-diff { margin-top: 4px; font-size: 11px; }
+    .obs-verdict { font-size: 12px; margin-bottom: 8px; }
+    .obs-table { width: 100%; font-size: 11px; border-collapse: collapse; }
+    .obs-table th, .obs-table td {
+      padding: 4px 6px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.06));
+      text-align: left;
+    }
+    .obs-up { color: var(--success, #6ab04c); }
+    .obs-down { color: var(--danger, #d63b3b); }
+
+    /* Полоса замера: приписка под видом статистики, а не часть его. */
+    .observation-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+      font-size: 11px;
+    }
+    .observation-conditions { color: var(--fg-muted, #8b8b9e); }
+    .observation-bar input { flex: 1 1 200px; font-size: 11px; padding: 4px 6px; }
+    .observation-said { color: var(--success, #6ab04c); }
+
+    /* Пометка «(необязательно)» при подписи поля: тише самой подписи, иначе
+       читается как часть названия поля. Класс завёлся вместе с полем
+       источника, а стиль к нему написать забыли — нашёл сличением классов
+       разметки с описанными правилами. */
+    .необязательно {
+      color: var(--fg-muted, #8b8b9e);
+      font-weight: normal;
+      font-size: 10px;
+    }
+
+    /* Покрытие источниками — ещё тише самого раздела: это справка о ходе
+       работы, а не часть содержания. */
+    .provenance-coverage {
+      font-size: 10px;
+      color: var(--fg-muted, #8b8b9e);
+      letter-spacing: 0.02em;
+    }
+
+    /* ПРОИСХОЖДЕНИЕ. Раздел намеренно тихий: он не спорит с описанием за
+       внимание, но и не прячется. Подпись слева, текст справа — так пара
+       читается одной строкой, а при длинной ссылке переносится, не ломая
+       коробку (та же беда, что была у описания связи). */
+    .provenance {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+      font-size: 12px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+    .provenance-label {
+      flex: 0 0 auto;
+      color: var(--fg-muted, #8b8b9e);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 10px;
+    }
+    .provenance-text { color: var(--fg-dim, #c8c8d4); }
+
     .connection-description {
       /* `width:100%` при отступах слева и справа даёт коробку ШИРЕ родителя
          на сумму отступов (замер: 541 против 517) — описание вылезало за
@@ -4539,6 +4623,7 @@
     /* ---- кнопки в строках ---- */
     /* Общая кожа мелкой кнопки: та же, что у .modal-btn, но по содержимому,
        а не во всю ширину — их в строке несколько. */
+    .commit-impact-btn,
     .commit-approve, .commit-reject, .commit-revert,
     .user-role, .user-ban, .user-unban,
     .notify-mark, .commits-tabs button {
@@ -4553,6 +4638,7 @@
       transition: background 0.15s, border-color 0.15s;
     }
 
+    .commit-impact-btn:hover,
     .commit-approve:hover, .commit-reject:hover, .commit-revert:hover,
     .user-role:hover, .user-ban:hover, .user-unban:hover,
     .notify-mark:hover, .commits-tabs button:hover {
@@ -4998,6 +5084,7 @@
       <div class="filter-stats" id="filterStats">
         Показано: все концепции и связи
       </div>
+      <div class="filter-stats provenance-coverage" id="provenanceCoverage"></div>
     </div>
     
     <!-- Панель поиска пути -->
@@ -5212,6 +5299,10 @@
             <div class="stats-nav-item" data-view="overview" onclick="switchStatsView('overview')">
               <span class="stats-nav-item-icon">📈</span>
               <span class="stats-nav-item-text">Общий обзор</span>
+            </div>
+            <div class="stats-nav-item" data-view="observations" onclick="switchStatsView('observations')">
+              <span class="stats-nav-item-icon">📌</span>
+              <span class="stats-nav-item-text">Замеры</span>
             </div>
             <div class="stats-nav-item" data-view="comparison" onclick="switchStatsView('comparison')">
               <span class="stats-nav-item-icon">⚖️</span>
@@ -14317,7 +14408,11 @@
       concept: philosopherIdToName[c.philosopher], // Преобразуем id в имя
       rubrics: c.rubrics || [],
       description: c.description,
-      extendedDescription: c.extendedDescription
+      extendedDescription: c.extendedDescription,
+      // Происхождение переносится в узел ЯВНО. Узлы строятся по жёсткому
+      // перечню полей, и новое поле сущности само сюда не попадёт: окна
+      // просмотра получают именно узел, а не запись из concepts.
+      provenance: c.provenance
     }));
     
     // Создаём links из relations
@@ -17235,6 +17330,39 @@
       
       document.getElementById('filterStats').textContent = 
         `Показано: ${visibleNodesCount}/${totalNodes} концепций, ${visibleLinksCount}/${totalLinks} связей`;
+      updateProvenanceCoverage();
+    }
+
+    /**
+     * ПОКРЫТИЕ ИСТОЧНИКАМИ: сколько утверждений подкреплено.
+     *
+     * Без этой строки фронт работ невидим: 453 концепции и 1624 связи, и
+     * непонятно, сколько из них уже с источником, а сколько ждёт. Показатель
+     * не укоряет и не торопит — он просто есть, и по нему видно движение.
+     *
+     * СВЯЗИ ИДУТ ПЕРВЫМИ НЕ СЛУЧАЙНО: описание концепции чаще пересказ, а
+     * связь «X повлиял на Y» есть утверждение об истории идей — проверяемое
+     * и оспоримое. Там источник и нужен, и осмыслен.
+     *
+     * Пока не подкреплено НИЧЕГО, строка молчит: показатель «0 из 2077» в
+     * первый день ничего не сообщает, кроме того, что работа не начата.
+     */
+    function updateProvenanceCoverage() {
+      const slot = document.getElementById('provenanceCoverage');
+      if (!slot) return;
+      // Считаем по ХРАНИМЫМ наборам (`relations`, `concepts`), а не по
+      // `links`/`nodes`: происхождение — свойство записи в базе, и узлы с
+      // связями получают его переносом. Считать по ним значило бы мерить
+      // полноту переноса, а не работу составителя.
+      const withValue = список => (список || [])
+        .filter(z => z && String(z.provenance || '').trim()).length;
+      const withRelations = withValue(relations);
+      const withConcepts = withValue(concepts);
+      if (!withRelations && !withConcepts) { slot.textContent = ''; return; }
+      const share = (сколько, всего) => всего
+        ? `${сколько}/${всего} (${Math.round(сколько * 100 / всего)}%)` : '—';
+      slot.textContent = 'С источником: связей ' + share(withRelations, (relations || []).length)
+        + ', концепций ' + share(withConcepts, (concepts || []).length);
     }
 
     // ============================================
@@ -17338,6 +17466,48 @@
     // связь считается дважды, поэтому величина делится пополам; 'approx' —
     // то же, но к направленным слагаемым примешаны ненаправленные (петли
     // через reflexiveLinkOf), и деление приблизительно.
+    /**
+     * ВЕРСИИ ФОРМУЛ. Порождаются из `baseline/formulas.json` программой
+     * `tools/sync_formula_versions.mjs` — руками сюда писать нельзя: тогда
+     * страница и прибор разойдутся, и замер подпишется версией, которой
+     * формула не соответствует.
+     */
+    const FORMULA_VERSIONS = Object.freeze({
+      abstractionIndex: 1,
+      calculateBetweenness: 1,
+      calculateClosenessCentrality: 1,
+      calculateClusteringCoefficient: 1,
+      calculateEigenvectorCentrality: 1,
+      calculateLocalCohesion: 1,
+      calculatePageRank: 1,
+      calculateRichClubCoefficient: 1,
+      calculateWeightedClustering: 1,
+      calculateWeightedDegree: 1,
+      conceptualComplexityIndex: 1,
+      conceptualContinuityIndex: 1,
+      conceptualFertilityIndex: 1,
+      criticalPowerIndex: 1,
+      deductiveDepth: 1,
+      deductiveIndex: 1,
+      dialogicalIndex: 1,
+      foundationalIndex: 1,
+      generativeIndex: 1,
+      influenceIndex: 1,
+      instrumentalIndex: 1,
+      internalCoherenceIndex: 1,
+      paradigmShiftIndex: 1,
+      philosopherHistoricalReachIndex: 1,
+      philosopherInterdisciplinaryIndex: 1,
+      philosopherSystematicIndex: 1,
+      problemGenerationIndex: 1,
+      revolutionaryIndex: 1,
+      syntheticIndex: 1,
+      temporalInfluencePattern: 1,
+      tensionIndex: 1,
+      traditionBridgingIndex: 1,
+      transformationIndex: 1
+    });
+
     const METRIC_FLAGS = {
       // путевые: галочки применимы начисто, это их родная область
       calculateWeightedDegree:    { weights: 'yes', direction: 'yes' },
@@ -22085,6 +22255,214 @@
     }
 
     // Загрузка контента для выбранной метрики
+
+    /**
+     * ЗАПОМНИТЬ ЗАМЕР (E-2).
+     *
+     * Полоса под видом статистики. Считать метрику заново не нужно: она уже
+     * посчитана и показана — берётся то же, что видит человек.
+     *
+     * СОХРАНЯЕТ ЧЕЛОВЕК, А НЕ СТРАНИЦА. Складывать замер при каждом открытии
+     * вида значило бы копить 453 × 27 значений на всякий чих и утопить
+     * настоящие наблюдения в шуме. Замер имеет смысл тогда, когда кто-то
+     * решил, что вот это стоит запомнить.
+     */
+    function observationBar(viewName) {
+      const metric = VIEW_METRIC[viewName];
+      if (!serverMode || !metric) return '';
+      const flags = effectiveScopeFlags(viewName);
+      return `
+        <div class="observation-bar">
+          <span class="observation-conditions">${escapeAttr(
+            'условия: веса ' + (flags.weights ? '✓' : '✗')
+            + ' · направленность ' + (flags.direction ? '✓' : '✗')
+            + ' · охват ' + (metricsScopeActive ? 'частичный' : 'вся база'))}</span>
+          <input type="text" id="observationNote" maxlength="300"
+                 placeholder="зачем замеряете (необязательно)">
+          <button class="observation-save"
+                  onclick="saveObservation('${escapeAttr(viewName)}')">Запомнить замер</button>
+          <span class="observation-said" id="observationSaid"></span>
+        </div>`;
+    }
+
+    /**
+     * Значения берутся ИЗ ПОКАЗАННОГО: верхние строки таблицы и сводка по
+     * всем. Полный список не хранится — он пересчитывается за секунды, а
+     * хранить 453 числа на каждый замер значит копить то, что и так есть.
+     */
+    function observationValues(viewName) {
+      const lines = [...document.querySelectorAll('#statsContentArea tbody tr')];
+      const numbers = [];
+      const top = [];
+      for (const tr of lines) {
+        const cells = tr.querySelectorAll('td');
+        if (cells.length < 2) continue;
+        const cellNumber = parseFloat(String(cells[cells.length - 1].textContent).replace(',', '.'));
+        if (!Number.isFinite(cellNumber)) continue;
+        numbers.push(cellNumber);
+        if (top.length < 20) top.push({ имя: cells[0].textContent.trim(), значение: cellNumber });
+      }
+      if (!numbers.length) return null;
+      const ascending = [...numbers].sort((а, б) => а - б);
+      const mean = numbers.reduce((с, z2) => с + z2, 0) / numbers.length;
+      return {
+        top: top,
+        summary: {
+          mean: +mean.toFixed(6),
+          median: +ascending[Math.floor(ascending.length / 2)].toFixed(6),
+          spread: +Math.sqrt(numbers.reduce((с, z3) => с + (z3 - mean) ** 2, 0)
+                             / numbers.length).toFixed(6),
+          nonzero: numbers.filter(z4 => z4 !== 0).length,
+          count: numbers.length,
+        },
+      };
+    }
+
+    async function saveObservation(viewName) {
+      const say = t => {
+        const saidBox = document.getElementById('observationSaid');
+        if (saidBox) saidBox.textContent = t;
+      };
+      const metric = VIEW_METRIC[viewName];
+      const values = observationValues(viewName);
+      if (!values) { say('Нечего запоминать: в этом виде нет чисел'); return; }
+      const flags = effectiveScopeFlags(viewName);
+      const reply = await api('/api/metrics/observations', { метод: 'POST', тело: {
+        metric: metric,
+        // Версия формулы приходит со страницей: её учреждает прибор
+        // formula_probe, и он же стережёт, чтобы она не врала.
+        formulaVersion: (FORMULA_VERSIONS && FORMULA_VERSIONS[metric]) || 1,
+        flags: 'weights=' + (flags.weights ? 'on' : 'off')
+             + ';direction=' + (flags.direction ? 'on' : 'off'),
+        scope: metricsScopeActive ? metricsNodes().map(flagsNow => flagsNow.id) : [],
+        scopeNote: metricsScopeActive ? 'частичный охват' : 'вся база',
+        values: values,
+        note: (document.getElementById('observationNote') || {}).value || null,
+      } });
+      say(reply.годно
+        ? 'Запомнено при графе версии ' + reply.тело.data.graphVersion
+        : 'Не удалось запомнить');
+    }
+
+
+    /**
+     * РАЗДЕЛ «ЗАМЕРЫ» (E-2).
+     *
+     * Список запомненного и сравнение двух замеров. Числа здесь не считаются
+     * заново — они уже посчитаны и записаны вместе с условиями; смысл раздела
+     * в том, чтобы условия были ВИДНЫ, а несравнимое нельзя было сравнить.
+     */
+    let observationItems = [];
+    let observationPicked = [];
+
+    function generateObservationsContent() {
+      // Содержимое подгружается ходом; пока идёт запрос — место под него.
+      setTimeout(loadObservations, 0);
+      return '<div id="observationsBody"><div class="empty-state">'
+        + '<div class="empty-state-text">Читаю замеры…</div></div></div>';
+    }
+
+    async function loadObservations() {
+      const slot = document.getElementById('observationsBody');
+      if (!slot) return;
+      if (!serverMode) {
+        // БЕЗ СЕРВЕРА РАЗДЕЛ ОБЪЯСНЯЕТ СЕБЯ, А НЕ ОТДЕЛЫВАЕТСЯ ОТКАЗОМ.
+        // Прибор утверждений поймал первую редакцию: она умещалась в шесть
+        // слов, и вкладка считалась пустой. Пустая вкладка и вкладка,
+        // говорящая «здесь ничего нет и вот почему», — разные вещи.
+        slot.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📌</div>'
+          + '<div class="empty-state-text">Замеры хранит сервер</div>'
+          + '<div class="empty-state-hint">Замер — это записанное значение метрики'
+          + ' вместе с условиями, при которых оно получено: версия графа, версия'
+          + ' формулы, учёт весов и направленности, охват. Условия хранятся затем,'
+          + ' чтобы числа можно было сравнивать: два замера сличаются, только если'
+          + ' у них совпало всё, кроме версии графа. Без сервера записывать замеры'
+          + ' некуда — страница считает метрики заново при каждом открытии и'
+          + ' ничего о прошлых значениях не помнит.</div></div>';
+        return;
+      }
+      const reply = await api('/api/metrics/observations?limit=50');
+      observationItems = (reply.годно && reply.тело.data && reply.тело.data.items) || [];
+      renderObservations();
+    }
+
+    function renderObservations() {
+      const slot = document.getElementById('observationsBody');
+      if (!slot) return;
+      if (!observationItems.length) {
+        slot.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📌</div>'
+          + '<div class="empty-state-text">Замеров пока нет</div>'
+          + '<div class="empty-state-hint">Откройте вид метрики и нажмите'
+          + ' «Запомнить замер»</div></div>';
+        return;
+      }
+      // УСЛОВИЯ ПИШУТСЯ СЛОВАМИ, А НЕ ОТПЕЧАТКОМ. Отпечаток охвата годен для
+      // сравнения машиной, но человеку он не говорит ничего.
+      slot.innerHTML = '<div class="obs-list">' + observationItems.map(z => {
+        const picked = observationPicked.includes(z.observationId);
+        const summary = (z.values && z.values.summary) || {};
+        return `<div class="obs-item${picked ? ' picked' : ''}"
+                     onclick="pickObservation('${escapeAttr(z.observationId)}')">
+          <div class="obs-head">${escapeAttr(z.metric)}
+            <span class="obs-when">граф v${z.graphVersion} · формула v${z.formulaVersion}</span>
+          </div>
+          <div class="obs-conditions">${escapeAttr(z.flags)} · охват: ${
+            escapeAttr(z.scopeNote || 'не назван')} · ${escapeAttr(z.authorName || '')}</div>
+          ${z.note ? `<div class="obs-note">${escapeAttr(z.note)}</div>` : ''}
+          <div class="obs-summary">среднее ${summary.mean ?? '—'} · медиана ${
+            summary.median ?? '—'} · разброс ${summary.spread ?? '—'}</div>
+        </div>`;
+      }).join('') + '</div>'
+      + '<div class="obs-compare" id="obsCompare">'
+      + (observationPicked.length === 2
+          ? '<div class="empty-state-hint">Сличаю…</div>'
+          : `<div class="empty-state-hint">Выбрано ${observationPicked.length} из 2 —
+             отметьте два замера, чтобы сличить</div>`)
+      + '</div>';
+      if (observationPicked.length === 2) compareObservationsInPanel();
+    }
+
+    function pickObservation(id) {
+      const alreadyAt = observationPicked.indexOf(id);
+      if (alreadyAt >= 0) observationPicked.splice(alreadyAt, 1);
+      else if (observationPicked.length < 2) observationPicked.push(id);
+      else observationPicked = [observationPicked[1], id];
+      renderObservations();
+    }
+
+    /**
+     * СЛИЧЕНИЕ. Решает сервер, а не страница: он же хранит условия. Отказ
+     * показывается ЦЕЛИКОМ и с причиной — «версия формулы: у первого 1, у
+     * второго 2», — а не прячется за словом «несравнимы».
+     */
+    async function compareObservationsInPanel() {
+      const slot = document.getElementById('obsCompare');
+      if (!slot) return;
+      const [а, б] = observationPicked;
+      const reply = await api('/api/metrics/compare?a=' + encodeURIComponent(а)
+        + '&b=' + encodeURIComponent(б));
+      if (!reply.годно) { slot.innerHTML = '<div class="commits-error">Не вышло сличить</div>'; return; }
+      const verdict = reply.тело.data;
+      if (!verdict.сравнимы) {
+        slot.innerHTML = '<div class="obs-refusal"><b>Сравнивать нельзя</b><div>'
+          + escapeAttr(verdict.почему) + '</div>'
+          + (verdict.разошлось || []).map(р => `<div class="obs-diff">${escapeAttr(р.что)}:
+             у первого ${escapeAttr(String(р.у_первого))},
+             у второго ${escapeAttr(String(р.у_второго))}</div>`).join('')
+          + '</div>';
+        return;
+      }
+      const lines = Object.entries(verdict.сводка || {}).map(([имя, z]) =>
+        `<tr><td>${escapeAttr(имя)}</td><td>${z.было ?? '—'}</td><td>${z.стало ?? '—'}</td>
+         <td class="${Number(z.разница) > 0 ? 'obs-up' : Number(z.разница) < 0 ? 'obs-down' : ''}">${
+           z.разница == null ? '—' : (z.разница > 0 ? '+' : '') + z.разница}</td></tr>`).join('');
+      slot.innerHTML = `<div class="obs-verdict">${escapeAttr(verdict.метрика)}:
+          граф v${verdict.раньше.graphVersion} → v${verdict.позже.graphVersion},
+          условия совпали</div>
+        <table class="obs-table"><thead><tr><th>величина</th><th>было</th>
+          <th>стало</th><th>разница</th></tr></thead><tbody>${lines}</tbody></table>`;
+    }
+
     function loadStatsContent(viewName) {
       const contentArea = document.getElementById('statsContentArea');
       let content = '';
@@ -22092,6 +22470,7 @@
       // Определяем функцию генератора для каждой метрики
       const generators = {
         'overview': generateOverviewContent,
+        'observations': generateObservationsContent,
         'degree': generateDegreeContent,
         'pagerank': generatePageRankContent,
         'betweenness': generateBetweennessContent,
@@ -22145,7 +22524,7 @@
         `;
       }
       
-      contentArea.innerHTML = content;
+      contentArea.innerHTML = content + observationBar(viewName);
       applyMetricLayout();
       if (typeof renderComparison === 'function' && document.getElementById('cmpBody')) renderComparison();
       if (typeof renderClosestPairs === 'function' && document.getElementById('pairsBody')) renderClosestPairs();
@@ -27983,6 +28362,124 @@
       }
     }
 
+    // ---- окно «Безопасность учётной записи» -------------------------------
+    //
+    // Второй шаг заводится ЗДЕСЬ, а не в командной строке. Пока окна не
+    // было, bootstrap-admin отправлял человека заводить шаг в панели, а
+    // заводить его там было нечем: службы beginEnroll/confirmEnroll
+    // существовали, ходов наружу не имели, и проба, звавшая службы
+    // напрямую, этого не показывала.
+    //
+    // ПОРЯДОК ДВУХТАКТНЫЙ И ЭТО ГЛАВНОЕ. Секрет показывается, но шаг НЕ
+    // включается, пока не предъявлен код из приложения. Иначе можно
+    // запереть себя, сохранив в базе секрет, который никуда не записан.
+    let securitySecret = null;
+
+    function securityModalEl() { return document.getElementById('authModal'); }
+
+    function securityError(text) {
+      const el = document.getElementById('securityError');
+      if (el) el.textContent = text || '';
+    }
+
+    async function openSecurityModal() {
+      const el = securityModalEl();
+      if (!el) return;
+      securitySecret = null;
+      authModalKind = 'security';
+      const reply = await api('/api/users/me');
+      const me = (reply.тело && reply.тело.data) || {};
+      const ready = me.state ? me.state.mfaReady === true : false;
+      const mail = me.state ? me.state.emailVerified === true : false;
+      el.innerHTML =
+        '<h3>🛡️ Безопасность учётной записи</h3>'
+      + '<div class="auth-field"><label>Адрес</label><div id="securityEmail">'
+      + (mail ? 'подтверждён' : 'НЕ подтверждён — письмо со ссылкой уже отправлено')
+      + '</div></div>'
+      + '<div class="auth-field"><label>Второй шаг</label><div id="securityMfa">'
+      + (ready ? 'заведён' : 'НЕ заведён — опасные права срезаны')
+      + '</div></div>'
+      + '<div id="securityBody"></div>'
+      + '<div class="auth-error" id="securityError"></div>'
+      + '<div class="auth-actions">'
+      + '<button onclick="closeAuthModal()">Закрыть</button>'
+      + (ready ? ''
+              : '<button class="primary" onclick="startMfaEnroll()">Завести второй шаг</button>')
+      + '</div>';
+      el.classList.add('show');
+      const overlay = document.getElementById('modalOverlay');
+      if (overlay) overlay.classList.add('show');
+    }
+
+    async function startMfaEnroll() {
+      securityError('');
+      const reply = await api('/api/auth/mfa/enroll', { метод: 'POST' });
+      if (!reply.годно) {
+        securityError('Не удалось начать: ' + (reply.код || 'нет ответа'));
+        return;
+      }
+      const enrollData = reply.тело.data;
+      securitySecret = enrollData.секрет;
+      const body = document.getElementById('securityBody');
+      if (!body) return;
+      // Ссылка otpauth отдаётся ТЕКСТОМ, а не картинкой: рисовать QR нечем,
+      // а звать чужую службу за картинкой значило бы отдать ей секрет.
+      body.innerHTML =
+        '<div class="auth-field"><label for="securitySecret">Секрет</label>'
+      + '<input type="text" id="securitySecret" readonly value="' + escapeAttr(enrollData.секрет) + '"></div>'
+      + '<div class="auth-field"><label for="securityUri">Ссылка otpauth</label>'
+      + '<input type="text" id="securityUri" readonly value="' + escapeAttr(enrollData.ссылка) + '"></div>'
+      + '<div class="auth-field"><label for="securityCode">Код из приложения</label>'
+      + '<input type="text" id="securityCode" autocomplete="off" inputmode="numeric"></div>'
+      + '<div class="auth-actions">'
+      + '<button class="primary" onclick="confirmMfaEnroll()">Подтвердить код</button>'
+      + '</div>';
+      const field = document.getElementById('securityCode');
+      if (field) {
+        field.focus();
+        field.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); confirmMfaEnroll(); }
+        });
+      }
+    }
+
+    async function confirmMfaEnroll() {
+      const field = document.getElementById('securityCode');
+      const code = field ? String(field.value || '').trim() : '';
+      if (!code) { securityError('Введите код из приложения'); return; }
+      const reply = await api('/api/auth/mfa/enroll/confirm',
+        { метод: 'POST', тело: { code: code } });
+      if (!reply.годно) { securityError('Код не сошёлся'); return; }
+      securitySecret = null;
+      const codes = (reply.тело.data && reply.тело.data.коды) || [];
+      const body = document.getElementById('securityBody');
+      if (body) {
+        // КОДЫ ВИДНЫ ОДИН РАЗ: в базе лежат только их хеши. Поэтому окно
+        // требует ЯВНОГО подтверждения, что они сохранены, — закрыть его
+        // случайным щелчком мимо значило бы потерять их насовсем.
+        body.innerHTML =
+          '<div class="auth-field"><label>Коды восстановления</label>'
+        + '<div id="securityCodes">' + codes.map(к => escapeAttr(к)).join('<br>') + '</div></div>'
+        + '<div class="auth-field">'
+        + '<label for="securitySaved">Я сохранил коды вне этого устройства</label>'
+        + '<input type="checkbox" id="securitySaved" onchange="refreshSecurityDone()"></div>'
+        + '<div class="auth-actions">'
+        + '<button id="securityDone" class="primary" disabled '
+        + 'onclick="closeAuthModal()">Готово</button></div>';
+      }
+      const row = document.getElementById('securityMfa');
+      if (row) row.textContent = 'заведён';
+      securityError('');
+      renderAuthControls();
+      refreshEditHints();
+    }
+
+    function refreshSecurityDone() {
+      const checkbox = document.getElementById('securitySaved');
+      const button = document.getElementById('securityDone');
+      if (button) button.disabled = !(checkbox && checkbox.checked);
+    }
+
     function closeAuthModal() {
       const el = authModalEl();
       if (el) { el.classList.remove('show'); el.innerHTML = ''; }
@@ -28046,8 +28543,8 @@
       const l = login.trim();
 
       if (serverMode && authModalKind === 'mfa') {
-        const ответ = await api('/api/auth/mfa', { метод: 'POST', тело: { code: pass } });
-        if (!ответ.годно) { authError('Код не сошёлся'); return; }
+        const reply = await api('/api/auth/mfa', { метод: 'POST', тело: { code: pass } });
+        if (!reply.годно) { authError('Код не сошёлся'); return; }
         await detectServerMode();
         await pullGraphSince();
         connectLive();
@@ -28075,14 +28572,14 @@
       // страница только спрашивает и показывает. Местная ветка ниже
       // остаётся нетронутой: без сервера всё как прежде.
       if (serverMode) {
-        const ответ = await api('/api/auth/login',
+        const reply = await api('/api/auth/login',
           { метод: 'POST', тело: { email: l, password: pass } });
-        if (!ответ.годно) {
-          authError((ответ.тело && ответ.тело.error && ответ.тело.error.message)
+        if (!reply.годно) {
+          authError((reply.тело && reply.тело.error && reply.тело.error.message)
             || 'Не удалось войти');
           return;
         }
-        if (ответ.тело.data && ответ.тело.data.ждётКода) {
+        if (reply.тело.data && reply.тело.data.ждётКода) {
           // Второй шаг: сессия пока частичная и прав не даёт.
           authError('Введите одноразовый код в поле пароля и нажмите «Войти» ещё раз');
           authModalKind = 'mfa';
@@ -28182,7 +28679,8 @@
         + '<button onclick="openAuthModal(\'register\')" data-tip="Регистрация">📝</button>';
       } else {
         box.innerHTML =
-          '<button onclick="authLogout()" data-tip="Выйти из учётной записи">🚪</button>'
+          '<button onclick="openSecurityModal()" data-tip="Безопасность учётной записи">🛡️</button>'
+        + '<button onclick="authLogout()" data-tip="Выйти из учётной записи">🚪</button>'
         + '<span id="authWho" data-tip="' + u.login
         + (u.role === 'admin' ? ' · правка открыта' : '') + '">' + u.login
         + (u.role === 'admin' ? ' · правка открыта' : '') + '</span>';
@@ -28762,17 +29260,17 @@
     let serverMode = false;      // выясняется один раз при запуске
 
     function readCookie(имя) {
-      const пары = String(document.cookie || '').split(';');
-      for (const пара of пары) {
-        const i = пара.indexOf('=');
-        if (i !== -1 && пара.slice(0, i).trim() === имя) {
-          return decodeURIComponent(пара.slice(i + 1));
+      const pairs = String(document.cookie || '').split(';');
+      for (const pair of pairs) {
+        const i = pair.indexOf('=');
+        if (i !== -1 && pair.slice(0, i).trim() === имя) {
+          return decodeURIComponent(pair.slice(i + 1));
         }
       }
       return null;
     }
 
-    async function api(путь, { метод = 'GET', тело } = {}) {
+    async function api(path, { метод = 'GET', тело: body } = {}) {
       // БЕЗ СЕРВЕРА НЕ ХОДИМ ВОВСЕ. Обход жмёт все обработчики подряд,
       // включая кнопки панелей, — и на статическом сервере каждый такой
       // зов давал 404, который браузер печатает в консоль. Прибор счёл это
@@ -28782,19 +29280,19 @@
       // там лечилось меткой, здесь — одной заставой в единственной двери.
       if (!serverMode) return { есть: false, код: 0, годно: false, тело: null };
 
-      const заголовки = {};
-      if (тело) заголовки['Content-Type'] = 'application/json';
+      const headers = {};
+      if (body) headers['Content-Type'] = 'application/json';
       if (метод !== 'GET') {
-        const признак = readCookie('csrf');
-        if (признак) заголовки['X-CSRF-Token'] = признак;
+        const token = readCookie('csrf');
+        if (token) headers['X-CSRF-Token'] = token;
       }
       try {
-        const ответ = await fetch(путь, {
-          method: метод, credentials: 'same-origin', headers: заголовки,
-          body: тело ? JSON.stringify(тело) : undefined,
+        const reply = await fetch(path, {
+          method: метод, credentials: 'same-origin', headers: headers,
+          body: body ? JSON.stringify(body) : undefined,
         });
-        const разобрано = await ответ.json().catch(() => null);
-        return { есть: true, код: ответ.status, годно: ответ.ok, тело: разобрано };
+        const parsed = await reply.json().catch(() => null);
+        return { есть: true, код: reply.status, годно: reply.ok, тело: parsed };
       } catch (e) {
         // Сети нет вовсе (file:// или сервер лежит) — это не ошибка, это
         // местный режим.
@@ -28822,17 +29320,17 @@
       // Застава в api() смотрит на serverMode, а он ещё false: поднимаем
       // его здесь, до первого зова, и опускаем обратно, если ответа нет.
       serverMode = true;
-      const ответ = await api('/api/users/me');
-      if (!ответ.есть || !ответ.годно || !ответ.тело || !ответ.тело.data) {
+      const reply = await api('/api/users/me');
+      if (!reply.есть || !reply.годно || !reply.тело || !reply.тело.data) {
         serverMode = false;
         return false;
       }
-      const я = ответ.тело.data;
+      const me = reply.тело.data;
       // Права приходят СНАРУЖИ. Роль сервер тоже присылает, но заслоны
       // спрашивают право, а не роль, — и потому одна строка здесь заменяет
       // тринадцать заслонов по странице.
-      if (!я.гость) {
-        setSessionUser({ login: я.username, role: я.role }, я.permissions);
+      if (!me.гость) {
+        setSessionUser({ login: me.username, role: me.role }, me.permissions);
       }
       // И ВСЁ. Взять граф и открыть живое соединение — работа ЭТАЖА ВЫШЕ,
       // и зовёт её запуск, а не эта функция. Первый набросок делал всё
@@ -28869,9 +29367,9 @@
     //    смысла не несёт;
     //  - null, undefined и строка из пробелов — одно и то же «пусто».
     function sameValue(a, b) {
-      const пусто = v => v == null || (typeof v === 'string' && v.trim() === '');
-      if (пусто(a) && пусто(b)) return true;
-      if (пусто(a) || пусто(b)) return false;
+      const blank = v => v == null || (typeof v === 'string' && v.trim() === '');
+      if (blank(a) && blank(b)) return true;
+      if (blank(a) || blank(b)) return false;
       if (Array.isArray(a) || Array.isArray(b)) {
         if (!Array.isArray(a) || !Array.isArray(b)) return false;
         const sa = new Set(a.map(String)), sb = new Set(b.map(String));
@@ -28879,21 +29377,26 @@
       }
       if (typeof a === 'number' || typeof b === 'number') return Number(a) === Number(b);
       if (typeof a === 'boolean' || typeof b === 'boolean') return Boolean(a) === Boolean(b);
-      const т = v => String(v).replace(/\r\n?/g, '\n').trim();
-      return т(a) === т(b);
+      const t = v => String(v).replace(/\r\n?/g, '\n').trim();
+      return t(a) === t(b);
     }
 
-    function describeChange(action, kind, entityId, было, стало) {
-      const описание = { action, kind, entityId, fields: {} };
-      if (action === 'delete') return описание;
-      const поля = Object.keys(стало || {});
-      for (const поле of поля) {
-        const base = было ? было[поле] : null;
-        const next = стало[поле];
-        if (action === 'edit' && sameValue(base, next)) continue;
-        описание.fields[поле] = { base: base === undefined ? null : base, next };
+    function describeChange(action, kind, entityId, было, next) {
+      const descr = { action, kind, entityId, fields: {} };
+      if (action === 'delete') return descr;
+      const fields = Object.keys(next || {});
+      for (const field of fields) {
+        const base = было ? было[field] : null;
+        // ИМЯ РАЗВЕДЕНО С ДОВОДОМ. Переименование `стало` → `next` дало
+        // здесь `const next = next[field]` — переменная затенила довод
+        // ЕЩЁ ДО СВОЕГО ОБЪЯВЛЕНИЯ, и вся правка падала с «Cannot access
+        // next before initialization». Прибор проверял занятость имени
+        // СНАРУЖИ области, а тут занято было ВНУТРИ той же.
+        const nextValue = next[field];
+        if (action === 'edit' && sameValue(base, nextValue)) continue;
+        descr.fields[field] = { base: base === undefined ? null : base, next: nextValue };
       }
-      return описание;
+      return descr;
     }
 
     // Распорядитель. Местное воплощение: применить немедленно — ровно то,
@@ -28902,8 +29405,8 @@
     // Решение принимается здесь, а не в восьми местах, где нажимают кнопки.
     let lastSubmitted = null;      // последнее описание; читается приборами
 
-    function submitChange(описание, применить) {
-      lastSubmitted = описание;
+    function submitChange(descr, применить) {
+      lastSubmitted = descr;
 
       // МЕСТНОЕ ВОПЛОЩЕНИЕ — как было: применить немедленно.
       if (!serverMode) { применить(); return true; }
@@ -28913,11 +29416,11 @@
       // вовсе: она уходит коммитом и ждёт рассмотрения. Показать правку,
       // которой ещё нет, было бы обманом: человек уйдёт с экрана в
       // уверенности, что дело сделано.
-      const прямо = can(PERM.REVIEW_COMMIT);
-      if (прямо) применить();
+      const direct = can(PERM.REVIEW_COMMIT);
+      if (direct) применить();
 
-      sendCommit(описание, прямо);
-      return прямо;
+      sendCommit(descr, direct);
+      return direct;
     }
 
     /**
@@ -28926,40 +29429,40 @@
      * в первой редакции документа fetch не считал 403 ошибкой, и панель
      * рапортовала об успехе на отказ сервера.
      */
-    async function sendCommit(описание, прямо) {
+    async function sendCommit(descr, direct) {
       // Причина уходит ОТДЕЛЬНЫМ полем, а не вместо заголовка: заголовок —
       // адрес правки, по нему её ищут и разбирают столкновения, и терять
       // его ради вольного слова нельзя.
-      const поле = document.getElementById('commitReason');
-      const зачем = поле && поле.value ? поле.value.trim() : '';
+      const field = document.getElementById('commitReason');
+      const why = field && field.value ? field.value.trim() : '';
 
-      const ответ = await api('/api/commits', {
+      const reply = await api('/api/commits', {
         метод: 'POST',
-        тело: { message: commitMessageFor(описание), authorComment: зачем || null,
-                changes: [описание] },
+        тело: { message: commitMessageFor(descr), authorComment: why || null,
+                changes: [descr] },
       });
 
-      if (!ответ.годно) {
-        const текст = (ответ.тело && ответ.тело.error && ответ.тело.error.message)
+      if (!reply.годно) {
+        const serverMessage = (reply.тело && reply.тело.error && reply.тело.error.message)
           || 'Не удалось отправить правку';
-        reportSubmit('отказ', текст);
+        reportSubmit('отказ', serverMessage);
         return;
       }
-      const д = ответ.тело.data || {};
+      const commitData = reply.тело.data || {};
 
       // СТОЛКНОВЕНИЕ. Прямая правка тоже сталкивается — и это правильно:
       // если после того, как правщик открыл форму, кто-то тронул то же
       // поле, молча перезаписать чужое хуже, чем спросить.
-      if (д.исход === 'conflicted') {
+      if (commitData.исход === 'conflicted') {
         // Прямая правка успела лечь в базу СТРАНИЦЫ (мы применили её на
         // месте, не дожидаясь ответа). Сервер её отверг — значит на
         // странице она держаться не должна: иначе человек видит своё, а в
         // общем графе стоит чужое, и разойдутся они молча. Берём у сервера
         // нынешнее состояние ДО показа окна.
-        if (прямо) {
-          const свежий = await api('/api/graph');
-          if (свежий.годно && свежий.тело && свежий.тело.data) {
-            applyFreshGraph(свежий.тело.data);
+        if (direct) {
+          const fresh = await api('/api/graph');
+          if (fresh.годно && fresh.тело && fresh.тело.data) {
+            applyFreshGraph(fresh.тело.data);
           }
         }
         // Через ШИНУ, а не вызовом: распорядитель (этаж 1) не должен знать
@@ -28968,32 +29471,32 @@
         // modal/conflict.js ввозили друг друга. Событие развязывает их:
         // распорядитель говорит, ЧТО случилось, а кто это показывает —
         // не его забота.
-        emit('commit-conflicted', { описание, столкновения: д.столкновения || [] });
+        emit('commit-conflicted', { descr, столкновения: commitData.столкновения || [] });
         return;
       }
 
-      if (д.прямая || прямо) { reportSubmit('применено', 'Правка внесена'); return; }
+      if (commitData.прямая || direct) { reportSubmit('применено', 'Правка внесена'); return; }
 
-      let текст = 'Правка отправлена на рассмотрение';
-      if (д.пересечения && д.пересечения.length) {
+      let text = 'Правка отправлена на рассмотрение';
+      if (commitData.пересечения && commitData.пересечения.length) {
         // Предупреждение, а не отказ: половина столкновений снимается тем,
         // что правщик узнаёт о чужой правке ВОВРЕМЯ.
-        const п = д.пересечения[0];
-        текст += `. Учтите: ${п.authorName} уже правит `
-               + (п.поля && п.поля.length ? `поле «${п.поля[0]}»` : 'ту же запись');
+        const firstOverlap = commitData.пересечения[0];
+        text += `. Учтите: ${firstOverlap.authorName} уже правит `
+               + (firstOverlap.поля && firstOverlap.поля.length ? `поле «${firstOverlap.поля[0]}»` : 'ту же запись');
       }
-      reportSubmit('в очереди', текст);
+      reportSubmit('в очереди', text);
     }
 
     /** Сообщение к коммиту: коротко и по делу — его будет читать рецензент. */
-    function commitMessageFor(описание) {
-      const действие = { add: 'Добавлено', edit: 'Изменено', delete: 'Удалено' };
-      const род = { concept: 'концепция', relation: 'связь', philosopher: 'философ',
+    function commitMessageFor(descr) {
+      const action = { add: 'Добавлено', edit: 'Изменено', delete: 'Удалено' };
+      const kind = { concept: 'концепция', relation: 'связь', philosopher: 'философ',
                     tradition: 'традиция', rubric: 'рубрика', relationType: 'тип связи' };
-      const поля = Object.keys(описание.fields || {});
-      return `${действие[описание.action] || 'Правка'}: ${род[описание.kind] || описание.kind}`
-           + ` ${описание.entityId}`
-           + (поля.length ? ` (${поля.join(', ')})` : '');
+      const fields = Object.keys(descr.fields || {});
+      return `${action[descr.action] || 'Правка'}: ${kind[descr.kind] || descr.kind}`
+           + ` ${descr.entityId}`
+           + (fields.length ? ` (${fields.join(', ')})` : '');
     }
 
     /**
@@ -29003,8 +29506,8 @@
      * сам, а значит должен ВИДЕТЬ — какое поле разошлось, что он видел,
      * что хотел и что там теперь. Три величины, а не одна.
      */
-    subscribe('commit-conflicted', ({ описание, столкновения }) =>
-      showConflict(описание, столкновения));
+    subscribe('commit-conflicted', ({ descr, столкновения }) =>
+      showConflict(descr, столкновения));
 
     // ══════════════════════════════════════════════════════════════
     // ПАНЕЛЬ ПОЛЬЗОВАТЕЛЕЙ
@@ -29023,65 +29526,69 @@
     let usersError = '';
 
     function openUsersPanel() {
-      const окно = document.getElementById('usersModal');
-      if (!окно) return;
-      окно.style.display = 'flex';
+      const modal = document.getElementById('usersModal');
+      if (!modal) return;
+      modal.style.display = 'flex';
       loadUsers();
     }
 
     function closeUsersPanel() {
-      const окно = document.getElementById('usersModal');
-      if (окно) окно.style.display = 'none';
+      const modal = document.getElementById('usersModal');
+      if (modal) modal.style.display = 'none';
     }
 
     async function loadUsers() {
       usersError = '';
-      const ответ = await api('/api/users?limit=50');
-      if (!ответ.годно) {
+      const reply = await api('/api/users?limit=50');
+      if (!reply.годно) {
         userItems = [];
-        usersError = (ответ.тело && ответ.тело.error && ответ.тело.error.message)
+        usersError = (reply.тело && reply.тело.error && reply.тело.error.message)
                    || 'Не удалось получить список';
       } else {
-        userItems = (ответ.тело && ответ.тело.items) || [];
+        // Вид ответа один: успех в поле data. Прежнее чтение (ответ.тело.items)
+        // держалось на том, что списки уезжали наружу без обёртки; терпим и
+        // старый вид, чтобы страница пережила сервер прежней редакции.
+        const usersBody = (reply.тело && reply.тело.data) || reply.тело || {};
+        userItems = usersBody.items || [];
       }
       renderUsers();
       return userItems;
     }
 
     function renderUsers() {
-      const место = document.getElementById('usersBody');
-      if (!место) return;
+      const slot = document.getElementById('usersBody');
+      if (!slot) return;
       if (usersError) {
-        место.innerHTML = `<div class="users-error">${escapeAttr(usersError)}</div>`;
+        slot.innerHTML = `<div class="users-error">${escapeAttr(usersError)}</div>`;
         return;
       }
       if (!userItems.length) {
-        место.innerHTML = '<div class="users-empty">Пусто</div>';
+        slot.innerHTML = '<div class="users-empty">Пусто</div>';
         return;
       }
-      место.innerHTML = userItems.map(у => {
+      slot.innerHTML = userItems.map(u => {
         // Список ролей ПРИСЛАН. Пустой — значит этому человеку роль менять
         // нельзя, и выбора не рисуем вовсе.
-        const роли = (у.allowedRoles || []).map(р =>
-          `<button class="user-role" data-id="${escapeAttr(у.userId)}" `
+        const roles = (u.allowedRoles || []).map(р =>
+          `<button class="user-role" data-id="${escapeAttr(u.userId)}" `
           + `data-role="${escapeAttr(р)}">${escapeAttr(р)}</button>`).join('');
-        const бан = у.state && у.state.isBanned
-          ? `<button class="user-unban" data-id="${escapeAttr(у.userId)}">Снять бан</button>`
-          : `<button class="user-ban" data-id="${escapeAttr(у.userId)}">Забанить</button>`;
+        const ban = u.state && u.state.isBanned
+          ? `<button class="user-unban" data-id="${escapeAttr(u.userId)}">Снять бан</button>`
+          : `<button class="user-ban" data-id="${escapeAttr(u.userId)}">Забанить</button>`;
         return '<div class="user-item">'
-          + `<div class="user-name">${escapeAttr(у.username)}</div>`
-          + `<div class="user-role-now">${escapeAttr(у.role)}</div>`
-          + роли + (can(PERM.BAN_USER) ? бан : '') + '</div>';
+          + `<div class="user-name">${escapeAttr(u.username)}</div>`
+          + `<div class="user-role-now">${escapeAttr(u.role)}</div>`
+          + roles + (can(PERM.BAN_USER) ? ban : '') + '</div>';
       }).join('');
     }
 
-    async function changeUserRoleFromPanel(id, роль) {
-      const причина = prompt(`Причина смены роли на «${роль}» (обязательна):`);
-      if (!причина) return;
-      const ответ = await api('/api/users/' + encodeURIComponent(id) + '/role',
-        { метод: 'POST', тело: { newRole: роль, reason: причина } });
-      if (!ответ.годно) {
-        usersError = (ответ.тело && ответ.тело.error && ответ.тело.error.message)
+    async function changeUserRoleFromPanel(id, role) {
+      const reason = prompt(`Причина смены роли на «${role}» (обязательна):`);
+      if (!reason) return;
+      const reply = await api('/api/users/' + encodeURIComponent(id) + '/role',
+        { метод: 'POST', тело: { newRole: role, reason: reason } });
+      if (!reply.годно) {
+        usersError = (reply.тело && reply.тело.error && reply.тело.error.message)
                    || 'Сервер отказал';
         renderUsers();
         return;
@@ -29089,14 +29596,14 @@
       await loadUsers();
     }
 
-    async function banUserFromPanel(id, снять) {
-      const причина = снять ? null : prompt('Причина бана (обязательна):');
-      if (!снять && !причина) return;
-      const ответ = await api(
-        '/api/users/' + encodeURIComponent(id) + (снять ? '/unban' : '/ban'),
-        { метод: 'POST', тело: снять ? {} : { reason: причина } });
-      if (!ответ.годно) {
-        usersError = (ответ.тело && ответ.тело.error && ответ.тело.error.message)
+    async function banUserFromPanel(id, unban) {
+      const reason = unban ? null : prompt('Причина бана (обязательна):');
+      if (!unban && !reason) return;
+      const reply = await api(
+        '/api/users/' + encodeURIComponent(id) + (unban ? '/unban' : '/ban'),
+        { метод: 'POST', тело: unban ? {} : { reason: reason } });
+      if (!reply.годно) {
+        usersError = (reply.тело && reply.тело.error && reply.тело.error.message)
                    || 'Сервер отказал';
         renderUsers();
         return;
@@ -29106,15 +29613,15 @@
 
     // Слушатель один на панель: кнопки перерисовываются.
     document.addEventListener('click', событие => {
-      const цель = событие.target;
-      if (!цель || !цель.closest) return;
-      const роль = цель.closest('.user-role');
-      const забанить = цель.closest('.user-ban');
-      const снять = цель.closest('.user-unban');
-      if (роль) changeUserRoleFromPanel(роль.getAttribute('data-id'),
-                                        роль.getAttribute('data-role'));
-      else if (забанить) banUserFromPanel(забанить.getAttribute('data-id'), false);
-      else if (снять) banUserFromPanel(снять.getAttribute('data-id'), true);
+      const target = событие.target;
+      if (!target || !target.closest) return;
+      const role = target.closest('.user-role');
+      const banBtn = target.closest('.user-ban');
+      const unban = target.closest('.user-unban');
+      if (role) changeUserRoleFromPanel(role.getAttribute('data-id'),
+                                        role.getAttribute('data-role'));
+      else if (banBtn) banUserFromPanel(banBtn.getAttribute('data-id'), false);
+      else if (unban) banUserFromPanel(unban.getAttribute('data-id'), true);
     });
 
     // ══════════════════════════════════════════════════════════════
@@ -29134,15 +29641,15 @@
     let commitError = '';
 
     function openCommitsPanel() {
-      const окно = document.getElementById('commitsModal');
-      if (!окно) return;
-      окно.style.display = 'flex';
+      const modal = document.getElementById('commitsModal');
+      if (!modal) return;
+      modal.style.display = 'flex';
       loadCommits();
     }
 
     function closeCommitsPanel() {
-      const окно = document.getElementById('commitsModal');
-      if (окно) окно.style.display = 'none';
+      const modal = document.getElementById('commitsModal');
+      if (modal) modal.style.display = 'none';
     }
 
     function switchCommitTab(вкладка) {
@@ -29152,15 +29659,15 @@
 
     async function loadCommits() {
       commitError = '';
-      const путь = commitTab === 'pending' ? '/api/commits/pending' : '/api/commits';
-      const ответ = await api(путь);
-      if (!ответ.годно) {
+      const path = commitTab === 'pending' ? '/api/commits/pending' : '/api/commits';
+      const reply = await api(path);
+      if (!reply.годно) {
         commitItems = [];
-        commitError = (ответ.тело && ответ.тело.error && ответ.тело.error.message)
+        commitError = (reply.тело && reply.тело.error && reply.тело.error.message)
                     || 'Не удалось получить список';
       } else {
-        const тело = ответ.тело || {};
-        commitItems = тело.items || (тело.data && тело.data.items) || [];
+        const body = reply.тело || {};
+        commitItems = (body.data && body.data.items) || body.items || [];
       }
       renderCommits();
       return commitItems;
@@ -29190,56 +29697,71 @@
     }
 
     function renderCommits() {
-      const место = document.getElementById('commitsBody');
-      if (!место) return;
+      const slot = document.getElementById('commitsBody');
+      if (!slot) return;
 
-      const вкладки = document.getElementById('commitsTabs');
-      if (вкладки) {
+      const tabs = document.getElementById('commitsTabs');
+      if (tabs) {
         // Вкладка очереди рисуется ПО ПРАВУ, а не по роли.
-        const очередь = вкладки.querySelector('[data-tab="pending"]');
-        if (очередь) очередь.style.display = can(PERM.REVIEW_COMMIT) ? '' : 'none';
+        const queue = tabs.querySelector('[data-tab="pending"]');
+        if (queue) queue.style.display = can(PERM.REVIEW_COMMIT) ? '' : 'none';
       }
 
       if (commitError) {
-        место.innerHTML = `<div class="commits-error">${escapeAttr(commitError)}</div>`;
+        slot.innerHTML = `<div class="commits-error">${escapeAttr(commitError)}</div>`;
         return;
       }
       if (!commitItems.length) {
-        место.innerHTML = '<div class="commits-empty">Пусто</div>';
-        обновитьСчётПравок(0);
+        slot.innerHTML = '<div class="commits-empty">Пусто</div>';
+        refreshEditCount(0);
         return;
       }
-      обновитьСчётПравок(commitItems.length);
+      refreshEditCount(commitItems.length);
 
-      место.innerHTML = commitItems.map(к => {
-        const рассмотреть = (commitTab === 'pending' && can(PERM.REVIEW_COMMIT))
+      slot.innerHTML = commitItems.map(к => {
+        const reviewBtn = (commitTab === 'pending' && can(PERM.REVIEW_COMMIT))
           ? `<button class="commit-approve" data-id="${escapeAttr(к.commitId)}">Одобрить</button>`
           + `<button class="commit-reject" data-id="${escapeAttr(к.commitId)}">Отклонить</button>`
           : '';
-        const откат = (к.status === 'applied' && can(PERM.REVERT_COMMIT))
+        const revert = (к.status === 'applied' && can(PERM.REVERT_COMMIT))
           ? `<button class="commit-revert" data-id="${escapeAttr(к.commitId)}">Откатить</button>`
           : '';
         // ПРИЧИНА ОТКАЗА ПОКАЗЫВАЕТСЯ АВТОРУ. Она хранилась (review_comment),
         // но наружу не выходила: рецензент писал в пустоту.
-        const причина = (к.status === 'rejected' && к.reviewComment)
+        const reason = (к.status === 'rejected' && к.reviewComment)
           ? `<div class="commit-why">Причина отказа: ${escapeAttr(к.reviewComment)}</div>`
           : '';
-        const разбор = (к.status === 'conflicted')
+        // РОДСТВО ПОКАЗЫВАЕТСЯ КОРОТКО, но показывается: без него история
+        // правки распадается на несвязанные попытки, и не видно, что три
+        // похожих коммита — это три захода на одно и то же.
+        const supersedesLine = к.supersedes
+          ? '<div class="commit-what">Взамен правки '
+            + escapeAttr(String(к.supersedes).slice(0, 8)) + '…</div>'
+          : '';
+        const breakdown = (к.status === 'conflicted')
           ? '<div class="commit-why">Пересоберите правку поверх нынешнего состояния.</div>'
           : '';
         // Если автор объяснил — крупно идёт ЗАЧЕМ, а машинный адрес мелко
         // под ним. Не объяснил — заголовком служит адрес: он всегда есть.
-        const зачем = к.authorComment ? String(к.authorComment).trim() : '';
-        const голова = зачем
-          ? `<div class="commit-msg">${escapeAttr(зачем)}</div>`
+        const why = к.authorComment ? String(к.authorComment).trim() : '';
+        const head = why
+          ? `<div class="commit-msg">${escapeAttr(why)}</div>`
             + `<div class="commit-what">${escapeAttr(к.message || '')}</div>`
           : `<div class="commit-msg">${escapeAttr(к.message || '')}</div>`;
+        // ПОСЛЕДСТВИЯ СПРАШИВАЮТСЯ, А НЕ ПОКАЗЫВАЮТСЯ СРАЗУ. Счёт идёт по
+        // всему графу, и тянуть его для каждой записи очереди значило бы
+        // класть на сервер работу, которой никто не просил. Кнопка есть у
+        // всех, кому виден сам коммит: право то же.
+        const impactButton = `<button class="commit-impact-btn" `
+          + `data-id="${escapeAttr(к.commitId)}">Последствия</button>`;
         return '<div class="commit-item">'
-          + голова
+          + head
           + `<div class="commit-meta">${escapeAttr(к.authorName || '')} · `
           + `<span class="commit-state state-${commitStateKind(к.status)}">`
           + `${escapeAttr(commitStateWords(к.status))}</span></div>`
-          + причина + разбор + рассмотреть + откат + '</div>';
+          + supersedesLine + reason + breakdown
+          + `<div class="commit-impact" data-for="${escapeAttr(к.commitId)}"></div>`
+          + impactButton + reviewBtn + revert + '</div>';
       }).join('');
     }
 
@@ -29249,23 +29771,23 @@
      * решит, что очередь кончилась. Число говорит правду прежде, чем он
      * успеет ошибиться.
      */
-    function обновитьСчётПравок(сколько) {
-      const место = document.getElementById('commitsCount');
-      if (!место) return;
-      место.textContent = сколько
+    function refreshEditCount(сколько) {
+      const slot = document.getElementById('commitsCount');
+      if (!slot) return;
+      slot.textContent = сколько
         ? `${сколько} ${сколько === 1 ? 'правка' : (сколько < 5 ? 'правки' : 'правок')}`
         : '';
     }
 
     async function reviewCommitFromPanel(id, решение) {
-      const комментарий = решение === 'reject'
+      const comment = решение === 'reject'
         ? prompt('Причина отказа (обязательна):') : null;
-      if (решение === 'reject' && !комментарий) return;
-      const ответ = await api('/api/commits/' + encodeURIComponent(id) + '/review',
-        { метод: 'POST', тело: { action: решение, comment: комментарий } });
-      if (!ответ.годно) {
+      if (решение === 'reject' && !comment) return;
+      const reply = await api('/api/commits/' + encodeURIComponent(id) + '/review',
+        { метод: 'POST', тело: { action: решение, comment: comment } });
+      if (!reply.годно) {
         // ОТКАЗ ПОКАЗЫВАЕТСЯ, а не проглатывается.
-        commitError = (ответ.тело && ответ.тело.error && ответ.тело.error.message)
+        commitError = (reply.тело && reply.тело.error && reply.тело.error.message)
                     || 'Сервер отказал';
         renderCommits();
         return;
@@ -29276,12 +29798,12 @@
     }
 
     async function revertCommitFromPanel(id) {
-      const причина = prompt('Причина отката (обязательна):');
-      if (!причина) return;
-      const ответ = await api('/api/commits/' + encodeURIComponent(id) + '/revert',
-        { метод: 'POST', тело: { reason: причина } });
-      if (!ответ.годно) {
-        commitError = (ответ.тело && ответ.тело.error && ответ.тело.error.message)
+      const reason = prompt('Причина отката (обязательна):');
+      if (!reason) return;
+      const reply = await api('/api/commits/' + encodeURIComponent(id) + '/revert',
+        { метод: 'POST', тело: { reason: reason } });
+      if (!reply.годно) {
+        commitError = (reply.тело && reply.тело.error && reply.тело.error.message)
                     || 'Сервер отказал';
         renderCommits();
         return;
@@ -29290,16 +29812,75 @@
       await loadCommits();
     }
 
+    /**
+     * Последствия правки для СТРОЕНИЯ графа: что исчезнет вместе с ней, кто
+     * останется без связей, распадётся ли граф на большее число кусков.
+     *
+     * Это знание было и раньше — окно правки предупреждает автора о каскаде
+     * при удалении. Но видел его ТОЛЬКО АВТОР и ТОЛЬКО в миг правки; к
+     * рассмотрению оно не доходило, и рецензент решал вслепую. Считает
+     * сервер (GET /api/commits/:id/impact), клиент лишь показывает.
+     */
+    async function showImpact(id) {
+      // Перебором, а не селектором с подстановкой: CSS.escape в описи
+      // сущностей страницы не значится, а собирать селектор из чужого
+      // значения без него — способ однажды получить негодный селектор.
+      const slot = [...document.querySelectorAll('.commit-impact')]
+        .find(e => e.getAttribute('data-for') === id);
+      if (!slot) return;
+      if (slot.textContent.trim()) { slot.innerHTML = ''; return; }
+      slot.innerHTML = '<div class="commit-why">Считаю…</div>';
+      const reply = await api('/api/commits/' + encodeURIComponent(id) + '/impact');
+      if (!reply.годно) {
+        slot.innerHTML = '<div class="commits-error">Не удалось посчитать</div>';
+        return;
+      }
+      slot.innerHTML = describeImpact(reply.тело.data);
+    }
+
+    /**
+     * Словами, а не числами россыпью. «Строение не тронуто» — тоже ответ, и
+     * его надо сказать вслух: молчание читается как «не считали».
+     */
+    function describeImpact(data) {
+      const lines = [];
+      const gone = data.gone || {};
+      const goneConcepts = gone.concepts || [];
+      const goneRelations = gone.relations || [];
+      if (goneConcepts.length) {
+        lines.push('Исчезнут концепции: '
+          + goneConcepts.slice(0, 5).map(к => escapeAttr(к.label || к.id)).join(', ')
+          + (goneConcepts.length > 5 ? ' и ещё ' + (goneConcepts.length - 5) : ''));
+      }
+      if (goneRelations.length) {
+        lines.push('Исчезнут связи: ' + goneRelations.length
+          + (data.cascaded ? ' (из них ' + data.cascaded + ' — вместе с концами)' : ''));
+      }
+      if ((data.orphaned || []).length) {
+        lines.push('Останутся без связей: '
+          + data.orphaned.slice(0, 5).map(к => escapeAttr(к.label || к.id)).join(', ')
+          + (data.orphaned.length > 5 ? ' и ещё ' + (data.orphaned.length - 5) : ''));
+      }
+      if (data.connectivity && data.connectivity.splits) {
+        lines.push('Граф распадётся: кусков было ' + data.connectivity.before
+          + ', станет ' + data.connectivity.after);
+      }
+      if (!lines.length) lines.push('Строение графа не изменится.');
+      return '<div class="commit-why">' + lines.join('<br>') + '</div>';
+    }
+
     // Слушатель один на панель: кнопки перерисовываются.
     document.addEventListener('click', событие => {
-      const цель = событие.target;
-      if (!цель || !цель.closest) return;
-      const одобрить = цель.closest('.commit-approve');
-      const отклонить = цель.closest('.commit-reject');
-      const откатить = цель.closest('.commit-revert');
-      if (одобрить) reviewCommitFromPanel(одобрить.getAttribute('data-id'), 'approve');
-      else if (отклонить) reviewCommitFromPanel(отклонить.getAttribute('data-id'), 'reject');
-      else if (откатить) revertCommitFromPanel(откатить.getAttribute('data-id'));
+      const target = событие.target;
+      if (!target || !target.closest) return;
+      const approveBtn = target.closest('.commit-approve');
+      const rejectBtn = target.closest('.commit-reject');
+      const revertBtn = target.closest('.commit-revert');
+      const impactAsk = target.closest('.commit-impact-btn');
+      if (approveBtn) reviewCommitFromPanel(approveBtn.getAttribute('data-id'), 'approve');
+      else if (rejectBtn) reviewCommitFromPanel(rejectBtn.getAttribute('data-id'), 'reject');
+      else if (revertBtn) revertCommitFromPanel(revertBtn.getAttribute('data-id'));
+      else if (impactAsk) showImpact(impactAsk.getAttribute('data-id'));
     });
 
     // ══════════════════════════════════════════════════════════════
@@ -29319,53 +29900,53 @@
 
     async function refreshUnread() {
       if (!serverMode) return 0;
-      const ответ = await api('/api/notifications/unread-count');
-      if (!ответ.годно || !ответ.тело) return unreadCount;
-      unreadCount = (ответ.тело.data && ответ.тело.data.count) || 0;
+      const reply = await api('/api/notifications/unread-count');
+      if (!reply.годно || !reply.тело) return unreadCount;
+      unreadCount = (reply.тело.data && reply.тело.data.count) || 0;
       renderBell();
       return unreadCount;
     }
 
     async function loadNotifications() {
       if (!serverMode) return [];
-      const ответ = await api('/api/notifications?limit=50');
-      notifyItems = (ответ.годно && ответ.тело && ответ.тело.data) || [];
+      const reply = await api('/api/notifications?limit=50');
+      notifyItems = (reply.годно && reply.тело && reply.тело.data) || [];
       renderNotifyList();
       return notifyItems;
     }
 
     function renderBell() {
-      const колокол = document.getElementById('notifyBell');
-      if (!колокол) return;
-      колокол.style.display = serverMode ? 'inline-block' : 'none';
-      const значок = document.getElementById('notifyBadge');
-      if (!значок) return;
-      значок.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
-      значок.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+      const bell = document.getElementById('notifyBell');
+      if (!bell) return;
+      bell.style.display = serverMode ? 'inline-block' : 'none';
+      const badge = document.getElementById('notifyBadge');
+      if (!badge) return;
+      badge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+      badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
     }
 
     function renderNotifyList() {
-      const место = document.getElementById('notifyList');
-      if (!место) return;
+      const slot = document.getElementById('notifyList');
+      if (!slot) return;
       if (!notifyItems.length) {
-        место.innerHTML = '<div class="notify-empty">Пока ничего</div>';
+        slot.innerHTML = '<div class="notify-empty">Пока ничего</div>';
         return;
       }
-      место.innerHTML = notifyItems.map(з => {
-        const прочитано = з.прочитано ? ' notify-read' : '';
-        const кнопка = (з.вид === 'адресное' && !з.прочитано)
-          ? `<button class="notify-mark" data-id="${escapeAttr(з.id)}">прочитано</button>`
+      slot.innerHTML = notifyItems.map(z => {
+        const readMark = z.прочитано ? ' notify-read' : '';
+        const button = (z.вид === 'адресное' && !z.прочитано)
+          ? `<button class="notify-mark" data-id="${escapeAttr(z.id)}">прочитано</button>`
           : '';
-        return `<div class="notify-item${прочитано}">`
-             + `<div class="notify-type">${escapeAttr(notifyWords(з.type))}</div>`
-             + `<div class="notify-when">${escapeAttr(String(з.createdAt).slice(0, 16).replace('T', ' '))}</div>`
-             + кнопка + '</div>';
+        return `<div class="notify-item${readMark}">`
+             + `<div class="notify-type">${escapeAttr(notifyWords(z.type))}</div>`
+             + `<div class="notify-when">${escapeAttr(String(z.createdAt).slice(0, 16).replace('T', ' '))}</div>`
+             + button + '</div>';
       }).join('');
     }
 
     /** Тип уведомления по-человечески. Неизвестный не пугает загадочной строкой. */
-    function notifyWords(тип) {
-      const словарь = {
+    function notifyWords(kind) {
+      const dict = {
         graph_changed: 'Граф изменён',
         commit_approved: 'Ваше изменение одобрено',
         commit_rejected: 'Ваше изменение отклонено',
@@ -29378,23 +29959,23 @@
         user_banned: 'Учётная запись заблокирована',
         user_unbanned: 'Блокировка снята',
       };
-      return словарь[тип] || 'Уведомление';
+      return dict[kind] || 'Уведомление';
     }
 
     function toggleNotifyPanel() {
-      const панель = document.getElementById('notifyPanel');
-      if (!панель) return;
-      const открыть = getComputedStyle(панель).display === 'none';
-      панель.style.display = открыть ? 'block' : 'none';
-      if (открыть) loadNotifications();
+      const panel = document.getElementById('notifyPanel');
+      if (!panel) return;
+      const openBtn = getComputedStyle(panel).display === 'none';
+      panel.style.display = openBtn ? 'block' : 'none';
+      if (openBtn) loadNotifications();
     }
 
     async function markNotificationRead(id) {
       if (!serverMode || !id) return;
       await api('/api/notifications/' + encodeURIComponent(id) + '/read',
         { метод: 'POST' });
-      const з = notifyItems.find(з => String(з.id) === String(id));
-      if (з) з.прочитано = true;
+      const found = notifyItems.find(z2 => String(z2.id) === String(id));
+      if (found) found.прочитано = true;
       renderNotifyList();
       await refreshUnread();
     }
@@ -29402,7 +29983,7 @@
     async function markAllNotificationsRead() {
       if (!serverMode) return;
       await api('/api/notifications/read-all', { метод: 'POST' });
-      notifyItems.forEach(з => { з.прочитано = true; });
+      notifyItems.forEach(z => { z.прочитано = true; });
       renderNotifyList();
       await refreshUnread();
     }
@@ -29414,11 +29995,11 @@
     // кнопки перерисовываются, и вешать на каждую значило бы плодить
     // слушателей при каждом обновлении.
     document.addEventListener('click', событие => {
-      const кнопка = событие.target && событие.target.closest
+      const button = событие.target && событие.target.closest
                    && событие.target.closest('.notify-mark');
-      if (!кнопка) return;
+      if (!button) return;
       событие.stopPropagation();
-      markNotificationRead(кнопка.getAttribute('data-id'));
+      markNotificationRead(button.getAttribute('data-id'));
     });
 
     /**
@@ -29431,16 +30012,16 @@
      * первого этажа значило бы ввозить снизу вверх, чего дерево не
      * допускает. Проба строения это и показала.
      */
-    function warnRemoteEdit(тронуто) {
-      const окно = document.getElementById('universalModal');
-      if (!окно || getComputedStyle(окно).display === 'none') return;
+    function warnRemoteEdit(touched) {
+      const modal = document.getElementById('universalModal');
+      if (!modal || getComputedStyle(modal).display === 'none') return;
       // ModalContext — так это зовётся на самом деле. Я написал по памяти
       // «modalContext», и прибор строения тут же сказал, что такого имени
       // нет: имя, которого нет, останавливает сборку, а не проходит молча.
-      const данные = ModalContext && ModalContext.currentData;
-      const адрес = данные && (typeof данные === 'string' ? данные : данные.id);
-      if (!адрес) return;
-      if (!тронуто.some(т => т.entityId === адрес)) return;
+      const data = ModalContext && ModalContext.currentData;
+      const address = data && (typeof data === 'string' ? data : data.id);
+      if (!address) return;
+      if (!touched.some(t => t.entityId === address)) return;
       reportSubmit('чужая правка',
         'Эту запись только что изменил кто-то другой. '
         + 'Ваш текст цел; при сохранении вы увидите, что разошлось.');
@@ -29448,10 +30029,13 @@
 
     subscribe('graph-updated-remotely', warnRemoteEdit);
 
-    function showConflict(описание, столкновения) {
-      lastConflict = { описание, столкновения, когда: Date.now() };
+    function showConflict(descr, столкновения) {
+      // ПОЛЕ ОСТАЁТСЯ «описание»: его читает rebuildOverCurrent и проба.
+      // Переименование довода свернуло запись в `{ descr, … }`, и
+      // пересборка поверх текущего падала на `c.описание.entityId`.
+      lastConflict = { описание: descr, столкновения, когда: Date.now() };
 
-      const строки = столкновения.map(с => {
+      const lines = столкновения.map(с => {
         if (!с.field) {
           return `<div class="conflict-row"><b>${escapeAttr(String(с.reason || 'столкновение'))}</b></div>`;
         }
@@ -29463,17 +30047,17 @@
           + '</div>';
       }).join('');
 
-      const окно = document.getElementById('conflictModal');
-      const тело = document.getElementById('conflictBody');
-      if (!окно || !тело) {
+      const modal = document.getElementById('conflictModal');
+      const body = document.getElementById('conflictBody');
+      if (!modal || !body) {
         // Разметки нет (старая страница) — хотя бы не молчим.
         reportSubmit('столкновение',
           'Правка столкнулась с чужой: ' + столкновения.map(с => с.field).join(', '));
         return;
       }
-      тело.innerHTML = строки
+      body.innerHTML = lines
         || '<div class="conflict-row">Запись изменилась целиком</div>';
-      окно.style.display = 'flex';
+      modal.style.display = 'flex';
       reportSubmit('столкновение', 'Правка столкнулась с чужой');
     }
 
@@ -29483,25 +30067,25 @@
      * изменение и решит сам — это и есть разрешение столкновения.
      */
     async function rebuildOverCurrent() {
-      const с = lastConflict;
+      const c = lastConflict;
       closeConflictModal();
-      if (!с) return;
+      if (!c) return;
 
-      const ответ = await api('/api/graph');
-      if (!ответ.годно || !ответ.тело || !ответ.тело.data) {
+      const reply = await api('/api/graph');
+      if (!reply.годно || !reply.тело || !reply.тело.data) {
         reportSubmit('отказ', 'Не удалось взять свежую запись у сервера');
         return;
       }
-      applyFreshGraph(ответ.тело.data);
+      applyFreshGraph(reply.тело.data);
 
       // Окно ЗАКРЫВАЕТСЯ и открывается заново: открытое поверх открытого
       // остаётся с прежним содержимым полей, и правщик увидит своё старое
       // значение вместо нынешнего — то есть ровно то, от чего мы его и
       // спасаем. Первый набросок так и делал, и проба это показала.
       closeUniversalModal();
-      const адрес = с.описание.entityId;
-      if (с.описание.kind === 'concept') openEditConceptModal(адрес);
-      else if (с.описание.kind === 'philosopher') openEditPhilosopherModal(адрес);
+      const address = c.описание.entityId;
+      if (c.описание.kind === 'concept') openEditConceptModal(address);
+      else if (c.описание.kind === 'philosopher') openEditPhilosopherModal(address);
       reportSubmit('пересобрано', 'Взято нынешнее состояние — правьте заново');
     }
 
@@ -29519,14 +30103,14 @@
     let knownGraphVersion = 0;   // до какой версии дошла эта страница
 
     /** Заменить одну запись набора; вернуть true, если что-то изменилось. */
-    function replaceEntity(набор, id, запись) {
-      const i = набор.findIndex(з => з.id === id);
+    function replaceEntity(set, id, запись) {
+      const at = set.findIndex(z => z.id === id);
       if (запись === null) {
-        if (i === -1) return false;
-        набор.splice(i, 1); return true;
+        if (at === -1) return false;
+        set.splice(at, 1); return true;
       }
-      if (i === -1) { набор.push(запись); return true; }
-      набор[i] = запись; return true;
+      if (at === -1) { set.push(запись); return true; }
+      set[at] = запись; return true;
     }
 
     /**
@@ -29534,22 +30118,22 @@
      * решается, надо ли предупредить того, кто как раз правит эту запись.
      */
     function applyIncrement(приращение) {
-      const наборы = { concepts, relations, philosophers,
+      const sets = { concepts, relations, philosophers,
                        traditions, rubrics, relationTypes };
-      const тронуто = [];
-      for (const и of приращение.изменения || []) {
-        const набор = наборы[и.набор];
-        if (!набор) continue;
-        if (replaceEntity(набор, и.entityId, и.удалена ? null : и.запись)) {
-          тронуто.push({ kind: и.kind, entityId: и.entityId });
+      const touched = [];
+      for (const i of приращение.изменения || []) {
+        const set = sets[i.набор];
+        if (!set) continue;
+        if (replaceEntity(set, i.entityId, i.удалена ? null : i.запись)) {
+          touched.push({ kind: i.kind, entityId: i.entityId });
         }
       }
-      if (тронуто.length) {
+      if (touched.length) {
         rebuildDerived();
         afterDataChange({ philosophers: true, nodes: true, links: true });
       }
       knownGraphVersion = приращение.версия;
-      return тронуто;
+      return touched;
     }
 
     /** Спросить у сервера, что изменилось с нашей версии, и приложить. */
@@ -29565,18 +30149,18 @@
       // с версией ноль и чужих правок не видела вовсе. Проба показала это
       // сразу тремя утверждениями.
       if (!knownGraphVersion) {
-        const всё = await api('/api/graph');
-        if (!всё.годно || !всё.тело || !всё.тело.data) return [];
-        applyFreshGraph(всё.тело.data);
-        knownGraphVersion = всё.тело.data.версия || 0;
+        const all = await api('/api/graph');
+        if (!all.годно || !all.тело || !all.тело.data) return [];
+        applyFreshGraph(all.тело.data);
+        knownGraphVersion = all.тело.data.версия || 0;
         return [];
       }
 
-      const ответ = await api('/api/graph?since=' + encodeURIComponent(knownGraphVersion));
-      if (!ответ.годно || !ответ.тело || !ответ.тело.data) return [];
-      const тронуто = applyIncrement(ответ.тело.data);
-      if (тронуто.length) emit('graph-updated-remotely', тронуто);
-      return тронуто;
+      const reply = await api('/api/graph?since=' + encodeURIComponent(knownGraphVersion));
+      if (!reply.годно || !reply.тело || !reply.тело.data) return [];
+      const touched = applyIncrement(reply.тело.data);
+      if (touched.length) emit('graph-updated-remotely', touched);
+      return touched;
     }
 
     /**
@@ -29589,33 +30173,33 @@
       // Прежнее соединение закрываем: иначе после входа их станет два, и
       // каждое приращение возьмётся дважды.
       if (liveSocket) { try { liveSocket.close(); } catch (e) { /* уже мертво */ } }
-      const адрес = (location.protocol === 'https:' ? 'wss://' : 'ws://')
+      const address = (location.protocol === 'https:' ? 'wss://' : 'ws://')
                   + location.host + '/ws';
-      let сокет;
-      try { сокет = new WebSocket(адрес); } catch (e) { return null; }
-      сокет.addEventListener('message', событие => {
-        let сообщение;
-        try { сообщение = JSON.parse(событие.data); } catch (e) { return; }
-        if (сообщение.type === 'broadcast' || сообщение.type === 'notification') {
+      let socket;
+      try { socket = new WebSocket(address); } catch (e) { return null; }
+      socket.addEventListener('message', событие => {
+        let message;
+        try { message = JSON.parse(событие.data); } catch (e) { return; }
+        if (message.type === 'broadcast' || message.type === 'notification') {
           pullGraphSince();
         }
-        if (сообщение.type === 'notification' || сообщение.type === 'broadcast') {
-          emit('notification-arrived', сообщение);
+        if (message.type === 'notification' || message.type === 'broadcast') {
+          emit('notification-arrived', message);
         }
       });
-      сокет.addEventListener('open', () => { liveRetry = 0; });
+      socket.addEventListener('open', () => { liveRetry = 0; });
       // Разрыв — не беда: страница работает и без живого соединения. Но
       // соединение ВОССТАНАВЛИВАЕТСЯ с растущей задержкой: сеть моргает
       // чаще, чем кажется, а бить в дверь без передышки — верный способ
       // получить отказ и от исправного сервера.
-      сокет.addEventListener('close', () => {
+      socket.addEventListener('close', () => {
         liveSocket = null;
         if (!serverMode || liveClosedOnPurpose) return;
-        const пауза = Math.min(30000, 500 * Math.pow(2, liveRetry++));
-        setTimeout(() => { if (!liveSocket) connectLive(); }, пауза);
+        const pause = Math.min(30000, 500 * Math.pow(2, liveRetry++));
+        setTimeout(() => { if (!liveSocket) connectLive(); }, pause);
       });
-      liveSocket = сокет;
-      return сокет;
+      liveSocket = socket;
+      return socket;
     }
 
     let liveSocket = null;
@@ -29642,60 +30226,57 @@
      * страницу с прежней картиной при свежей базе.
      */
     function rebuildDerived() {
-      const поИмени = {};
-      for (const ф of philosophers) поИмени[ф.id] = ф.nameRu || ф.name;
+      const byName = {};
+      for (const f of philosophers) byName[f.id] = f.nameRu || f.name;
       // Координаты снимаются ДО замены: узлы пересоздаются целиком, и без
       // этого граф стирается с экрана, а при чужом коммите — прыгает.
-      const былиМеста = new Map();
-      for (const у of nodes) {
-        if (у && у.x !== undefined) былиМеста.set(у.id,
-          { x: у.x, y: у.y, vx: у.vx || 0, vy: у.vy || 0, fx: у.fx, fy: у.fy });
+      const priorPlaces = new Map();
+      for (const node of nodes) {
+        if (node && node.x !== undefined) priorPlaces.set(node.id,
+          { x: node.x, y: node.y, vx: node.vx || 0, vy: node.vy || 0, fx: node.fx, fy: node.fy });
       }
       nodes.length = 0;
       nodes.push(...concepts.map(c => ({
-        id: c.id, label: c.label, concept: поИмени[c.philosopher],
+        id: c.id, label: c.label, concept: byName[c.philosopher],
         rubrics: c.rubrics || [], description: c.description,
         extendedDescription: c.extendedDescription,
+        provenance: c.provenance,
       })));
       links.length = 0;
       links.push(...relations.map(r => ({
         id: r.id, source: r.source, target: r.target, type: r.type,
         weight: r.weight, bidirectional: r.bidirectional || false,
-        description: r.description,
+        description: r.description, provenance: r.provenance,
       })));
 
       // Места возвращаются уцелевшим по идентификатору; новым — середина
-      // видимой области, как в addNodeToGraph. Без координат d3 ставит узел
-      // в (0,0) и выбрасывает рывком через весь экран.
-      let середина = null;
-      for (const у of nodes) {
-        const было = былиМеста.get(у.id);
-        if (было) { Object.assign(у, было); continue; }
-        if (!середина) {
-          try { середина = renderState.transform.invert(
-            [viewWidth / 2, viewHeight / 2]); }
-          catch (e) { середина = [viewWidth / 2, viewHeight / 2]; }
-        }
-        у.x = середина[0] + (Math.random() - 0.5) * 60;
-        у.y = середина[1] + (Math.random() - 0.5) * 60;
-        у.vx = 0; у.vy = 0;
+      // области. БЕЗ renderState: слой данных не смеет спрашивать слой
+      // отрисовки — прибор слоёв показал ребро ввоза снизу вверх, как
+      // только оно появилось. Разница видна лишь при сильном увеличении,
+      // а укладка всё равно тут же двинет новый узел к его месту.
+      const viewCenter = [viewWidth / 2, viewHeight / 2];
+      for (const u of nodes) {
+        const prior = priorPlaces.get(u.id);
+        if (prior) { Object.assign(u, prior); continue; }
+        u.x = viewCenter[0] + (Math.random() - 0.5) * 60;
+        u.y = viewCenter[1] + (Math.random() - 0.5) * 60;
+        u.vx = 0; u.vy = 0;
       }
 
-      // Массивы передаются симуляции заново: d3 держит свои индексы и
-      // подменяет концы связей объектами узлов — после замены содержимого
-      // и то и другое устарело.
-      updateGraphData();
+      // МАССИВЫ СИМУЛЯЦИИ ПЕРЕДАЮТСЯ НЕ ОТСЮДА: слой данных не смеет звать
+      // слой отрисовки. Это делает подписчик `data-changed`, стоящий ПЕРВЫМ
+      // среди подписок запуска, — см. пояснение там же о том, почему первым.
     }
 
     function applyFreshGraph(состояние) {
-      const н = состояние && состояние.наборы;
-      if (!н) return false;
-      if (Array.isArray(н.concepts))      { concepts.length = 0;      concepts.push(...н.concepts); }
-      if (Array.isArray(н.relations))     { relations.length = 0;     relations.push(...н.relations); }
-      if (Array.isArray(н.philosophers))  { philosophers.length = 0;  philosophers.push(...н.philosophers); }
-      if (Array.isArray(н.traditions))    { traditions.length = 0;    traditions.push(...н.traditions); }
-      if (Array.isArray(н.rubrics))       { rubrics.length = 0;       rubrics.push(...н.rubrics); }
-      if (Array.isArray(н.relationTypes)) { relationTypes.length = 0; relationTypes.push(...н.relationTypes); }
+      const sets = состояние && состояние.наборы;
+      if (!sets) return false;
+      if (Array.isArray(sets.concepts))      { concepts.length = 0;      concepts.push(...sets.concepts); }
+      if (Array.isArray(sets.relations))     { relations.length = 0;     relations.push(...sets.relations); }
+      if (Array.isArray(sets.philosophers))  { philosophers.length = 0;  philosophers.push(...sets.philosophers); }
+      if (Array.isArray(sets.traditions))    { traditions.length = 0;    traditions.push(...sets.traditions); }
+      if (Array.isArray(sets.rubrics))       { rubrics.length = 0;       rubrics.push(...sets.rubrics); }
+      if (Array.isArray(sets.relationTypes)) { relationTypes.length = 0; relationTypes.push(...sets.relationTypes); }
 
       rebuildDerived();
       afterDataChange({ philosophers: true, nodes: true, links: true });
@@ -29703,28 +30284,31 @@
     }
 
     function closeConflictModal() {
-      const окно = document.getElementById('conflictModal');
-      if (окно) окно.style.display = 'none';
+      const modal = document.getElementById('conflictModal');
+      if (modal) modal.style.display = 'none';
     }
 
     let lastConflict = null;   // читается приборами
 
     /** Извещение правщику. Отдельной функцией: способ показа сменится. */
-    function reportSubmit(род, текст) {
-      lastSubmitResult = { род, текст, когда: Date.now() };
-      const место = document.getElementById('submitNotice');
-      if (!место) { if (род === 'отказ') alert(текст); return; }
+    function reportSubmit(kind, text) {
+      // ПОЛЕ ОСТАЁТСЯ «род». Переименование довода свернуло запись в
+      // `{ kind, … }`, и проба, читающая `.род`, стала получать undefined —
+      // а извещение при этом работало, так что глазами беду не увидеть.
+      lastSubmitResult = { род: kind, text, когда: Date.now() };
+      const slot = document.getElementById('submitNotice');
+      if (!slot) { if (kind === 'отказ') alert(text); return; }
 
-      место.textContent = текст;
-      место.className = 'submit-notice kind-' + род;
-      место.style.display = 'block';
+      slot.textContent = text;
+      slot.className = 'submit-notice kind-' + kind;
+      slot.style.display = 'block';
 
       // Гаснет само: извещение о судьбе правки — весть, а не окно, и
       // закрывать его руками человек не обязан. Отказ висит дольше:
       // его надо прочесть.
       clearTimeout(noticeTimer);
-      noticeTimer = setTimeout(() => { место.style.display = 'none'; },
-                               род === 'отказ' ? 12000 : 6000);
+      noticeTimer = setTimeout(() => { slot.style.display = 'none'; },
+                               kind === 'отказ' ? 12000 : 6000);
     }
 
     let noticeTimer = null;
@@ -29851,6 +30435,28 @@
       [2, '2 — обычная связь'],
       [3, '3 — сильная связь']
     ];
+
+
+    /**
+     * ПРОИСХОЖДЕНИЕ СОДЕРЖАНИЯ: откуда взято утверждение.
+     *
+     * Показывается ТОЛЬКО когда указано. Пустой раздел «Источник: —» под
+     * каждой из 453 концепций приучил бы не читать этот раздел вовсе, а
+     * заодно сделал бы «источника нет» неотличимым от «источник не указан».
+     *
+     * Строка, начинающаяся с двух косых, означает рассуждение составителя,
+     * а не ссылку: у графа философских концепций немалая часть содержания
+     * именно такова, и молчать об этом хуже, чем сказать прямо.
+     */
+    function provenanceBlock(value) {
+      const text = String(value == null ? '' : value).trim();
+      if (!text) return '';
+      const own = text.startsWith('//');
+      return '<div class="provenance">'
+        + '<span class="provenance-label">' + (own ? 'Основание' : 'Источник') + '</span>'
+        + '<span class="provenance-text">'
+        + escapeAttr(own ? text.slice(2).trim() : text) + '</span></div>';
+    }
 
     function escapeAttr(s) {
       return String(s == null ? '' : s).replace(/&/g, '&amp;')
@@ -30094,6 +30700,30 @@
       return w;
     }
 
+
+    /**
+     * ЗАСЛОН СОГЛАСОВАННОСТИ: описание изменено, а источник остался прежним.
+     *
+     * Это главное, ради чего заводилось поле. Ссылка, привязанная к
+     * сущности, после правки описания удостоверяет уже НЕ ТО утверждение —
+     * и выглядит при этом убедительнее, чем отсутствие ссылки. Ссылка на
+     * Диогена Лаэртского под переписанной формулировкой утверждает то,
+     * чего он не говорил.
+     *
+     * Не запрет, а вопрос: бывает, что источник подтверждает и новую
+     * формулировку тоже, и решать это может только человек.
+     */
+    function provenanceDriftWarning(prev, next) {
+      if (!prev || !prev.provenance) return [];
+      const textChanged = ['description', 'extendedDescription'].some(field =>
+        (next[field] ?? '') !== (prev[field] ?? ''));
+      if (!textChanged) return [];
+      if ((next.provenance ?? '') !== (prev.provenance ?? '')) return [];
+      return ['Описание изменено, а источник остался прежним: '
+        + String(prev.provenance).slice(0, 60)
+        + '. Подтверждает ли он и новую формулировку?'];
+    }
+
     function conceptIntegrityWarnings(label, philosopher, original) {
       const w = [];
       const id = original ? original.id : null;
@@ -30178,6 +30808,9 @@
       const clash = (name !== originalName) ? philosopherByName.get(name) : null;
       if (clash) { alert('Философ с именем «' + name + '» уже существует'); return; }
 
+      // Происхождение читается ДО заслона: заслон о нём и спрашивает.
+      const provenance = provenanceValue();
+
       // Полнота (у каждого хотя бы одна традиция) — договорённость, а не
       // запрет: предупреждаем и даём сохранить, как принято в этом окне.
       if (!confirmWarnings('Сохранение философа',
@@ -30185,7 +30818,13 @@
                          isNew ? null : originalName)
             .concat(traditionIds.length ? [] : [
               'Не выбрано ни одной традиции: раздел традиций в окне философа '
-              + 'выводиться не будет.']))) return;
+              + 'выводиться не будет.'])
+            // ПРЕЖНЕЕ СОСТОЯНИЕ берётся по ИМЕНИ: в этом окне под рукой не
+            // объект философа, а только его имя (ModalContext хранит имя,
+            // потому что философ и опознаётся по имени).
+            .concat(provenanceDriftWarning(
+              isNew ? null : philosopherByName.get(originalName),
+              { description, provenance })))) return;
 
       // years собирается по тому же правилу, что formatBirthYear:
       // отрицательный год без пояснения читается как «-515»
@@ -30199,8 +30838,9 @@
 
       // Поле traditions обязано попасть и в НОВУЮ запись: без него
       // у созданного философа не будет ни традиции, ни раздела в окне.
-      const стало = { name, nameRu: name, color,
-                birth, death, years, traditions: traditionIds, description };
+      const next = { name, nameRu: name, color,
+                birth, death, years, traditions: traditionIds, description,
+                ...(provenance ? { provenance } : {}) };
       const philId = isNew
         ? (name.toLowerCase().replace(/\s+/g, '_')
              .replace(/[^a-z0-9_а-яё]/gi, '') || generateId('phil'))
@@ -30208,14 +30848,14 @@
 
       submitChange(
         describeChange(isNew ? 'add' : 'edit', 'philosopher', philId,
-                 isNew ? null : philosophers[i], стало),
+                 isNew ? null : philosophers[i], next),
         () => {
           if (isNew) {
-            philosophers.push({ id: philId, ...стало });
+            philosophers.push({ id: philId, ...next });
           } else {
             const oldName = originalName;
             const oldId   = philosophers[i].id;
-            philosophers[i] = { ...philosophers[i], ...стало };
+            philosophers[i] = { ...philosophers[i], ...next };
 
             if (name !== oldName) {
               // Переименование тянет за собой больше, чем в unimod:
@@ -30313,6 +30953,7 @@
         ? Array.from(rubrEl.selectedOptions).map(o => o.value) : [];
       const description = descEl ? descEl.value.trim() : '';
       const extendedDescription = extEl ? extEl.value.trim() : '';
+      const provenance = provenanceValue();
 
       if (!label || !philosopher) {
         alert('Укажите название концепции и философа'); return;
@@ -30324,22 +30965,30 @@
       const isNew = !modalEntityExists('concept', original);
 
       if (!confirmWarnings('Сохранение концепции',
-          conceptIntegrityWarnings(label, philosopher, isNew ? null : original))) return;
+          conceptIntegrityWarnings(label, philosopher, isNew ? null : original)
+            .concat(provenanceDriftWarning(isNew ? null : original,
+              { description, extendedDescription, provenance })))) return;
 
       // Схемы разные: в concepts философ хранится ИДЕНТИФИКАТОРОМ,
       // в nodes — ИМЕНЕМ. Их нельзя перепутать местами. Описание идёт по
       // хранимой схеме — по concepts.
-      const стало = { label, philosopher: philData.id,
-              rubrics: selectedRubricIds, description, extendedDescription };
+      // ПУСТОЕ ПРОИСХОЖДЕНИЕ НЕ ПИШЕТСЯ ВОВСЕ. Иначе сущность без источника
+      // обрастёт полем-пустышкой, выгрузка разойдётся с файлами у всех
+      // четырёхсот с лишним разом, а «источника нет» станет неотличимо от
+      // «источник — пустая строка».
+      const next = { label, philosopher: philData.id,
+              rubrics: selectedRubricIds, description, extendedDescription,
+              ...(provenance ? { provenance } : {}) };
 
       if (isNew) {
         const id = generateId('concept');
         const newNode = { id, label, concept: philosopher,
-                  rubrics: selectedRubricIds, description, extendedDescription };
+                  rubrics: selectedRubricIds, description, extendedDescription,
+                  ...(provenance ? { provenance } : {}) };
         submitChange(
-          describeChange('add', 'concept', id, null, стало),
+          describeChange('add', 'concept', id, null, next),
           () => {
-            concepts.push({ id, ...стало });
+            concepts.push({ id, ...next });
             nodes.push(newNode);
             conceptToRubrics[id] = selectedRubricIds;
             addNodeToGraph(newNode);
@@ -30354,9 +31003,9 @@
       if (ci === -1 || ni === -1) { alert('Концепция не найдена'); return; }
 
       submitChange(
-        describeChange('edit', 'concept', original.id, concepts[ci], стало),
+        describeChange('edit', 'concept', original.id, concepts[ci], next),
         () => {
-          concepts[ci] = { ...concepts[ci], ...стало };
+          concepts[ci] = { ...concepts[ci], ...next };
           nodes[ni] = Object.assign(nodes[ni], { label, concept: philosopher,
                    rubrics: selectedRubricIds, description, extendedDescription });
           conceptToRubrics[original.id] = selectedRubricIds;
@@ -30429,22 +31078,26 @@
           original.source.id || original.source,
           original.target.id || original.target, false);
 
+      const provenance = provenanceValue();
       if (!confirmWarnings('Сохранение связи',
           connectionIntegrityWarnings(source, target, type, weight,
-                        bidirectional, originalLink))) return;
+                        bidirectional, originalLink)
+            .concat(provenanceDriftWarning(originalLink,
+              { description, provenance })))) return;
 
       // Описание идёт по ХРАНИМОЙ схеме — по relations, где концы лежат
       // идентификаторами. В links те же концы — объектами узлов, и путать
       // их нельзя: сервер примет только первое.
-      const стало = { source, target, type, weight, bidirectional, description };
+      const next = { source, target, type, weight, bidirectional, description,
+                ...(provenance ? { provenance } : {}) };
 
       if (isNew) {
         const id = generateId('rel');
-        const newLink = { id, ...стало };
+        const newLink = { id, ...next };
         submitChange(
-          describeChange('add', 'relation', id, null, стало),
+          describeChange('add', 'relation', id, null, next),
           () => {
-            relations.push({ id, ...стало });
+            relations.push({ id, ...next });
             links.push(newLink);
             addLinkToGraph(newLink);
             afterDataChange({ nodes: true, links: true });
@@ -30464,18 +31117,18 @@
 
       submitChange(
         describeChange('edit', 'relation', originalLink.id,
-                 ri !== -1 ? relations[ri] : null, стало),
+                 ri !== -1 ? relations[ri] : null, next),
         () => {
           Object.assign(originalLink, { source: srcNode, target: tgtNode,
                           type, weight, bidirectional, description });
           if (ri !== -1) {
-            relations[ri] = { ...relations[ri], ...стало };
+            relations[ri] = { ...relations[ri], ...next };
           } else {
             // Запасная ветка: связь есть в links, но не в relations. Имя берём
             // прежнее, чтобы адрес не сменился на ровном месте.
             const id = originalLink.id || generateId('rel');
             originalLink.id = id;
-            relations.push({ id, ...стало });
+            relations.push({ id, ...next });
           }
 
           updateLinkOnGraph();
@@ -30536,6 +31189,32 @@
 
 
     // ---- общие куски формы -----------------------------------------------
+
+    /**
+     * Поле происхождения в окне правки. Одна строка свободного вида, а не
+     * набор полей: онтология источников — работа на месяцы, и всё это время
+     * в графе не было бы НИ ОДНОЙ ссылки. Разбирать накопленное на поля
+     * можно потом, когда станет видно, какие поля нужны на деле.
+     */
+    function provenanceField(data) {
+      const prev = data && data.provenance ? data.provenance : '';
+      return `
+        <div class="modal-form-group">
+          <label for="entityProvenance">Источник <span class="необязательно">(необязательно)</span></label>
+          <input type="text" id="entityProvenance" maxlength="300"
+                 placeholder="Например: Гераклит, фр. B1 (Дильс–Кранц); или // своё рассуждение"
+                 value="${escapeAttr(prev)}">
+          <div class="modal-form-note">
+            Две косые в начале означают рассуждение составителя, а не ссылку.
+          </div>
+        </div>`;
+    }
+
+    function provenanceValue() {
+      const field = document.getElementById('entityProvenance');
+      return field ? field.value.trim() : '';
+    }
+
 
     /**
      * ЗАЧЕМ правка. Машинный заголовок («Изменено: концепция X (description)»)
@@ -30676,6 +31355,7 @@
           <textarea id="philDescription" rows="10"
                 placeholder="Подробное описание философа...">${philosopherData ? philosopherData.description || '' : ''}</textarea>
         </div>
+        ${provenanceField(philosopherData)}
       `;
 
       if (philosopherData) {
@@ -30770,6 +31450,7 @@
           <textarea id="conceptExtendedDescription" rows="6"
                 placeholder="Подробное описание концепции">${conceptData ? conceptData.extendedDescription || '' : ''}</textarea>
         </div>
+        ${provenanceField(conceptData)}
       `;
 
       if (conceptData && conceptData.id) {
@@ -31018,6 +31699,7 @@
             Описания в базе — 190–270 знаков, две фразы.
           </div>
         </div>
+        ${provenanceField(connectionData)}
       `;
 
       html += modalActions('saveConnectionData', 'deleteConnection',
@@ -31323,7 +32005,7 @@
               ${conn.description ? `
                 <div class="connection-description show" style="margin-top:10px;padding:10px;background:rgba(108,92,231,0.1);border-radius:6px;font-size:12px;color:#e0e0e0;line-height:1.5;">
                   ${conn.description}
-                </div>` : `
+                </div>${provenanceBlock(conn.provenance)}` : `
                 <div style="margin-top:10px;font-size:11px;color: var(--fg-muted);font-style:italic;">
                   Описания у этой связи нет
                 </div>`}
@@ -31599,6 +32281,7 @@
           ${conceptData.concept}
         </div>
         <div class="description">${conceptData.extendedDescription}</div>
+        ${provenanceBlock(conceptData.provenance)}
         <button class="goto-node-btn" onclick="gotoNodeFromModal('${conceptData.id}')">
           🎯 Перейти к узлу
         </button>
@@ -32135,6 +32818,7 @@
           ${philosopherData.years}
         </div>
         <div class="description">${formattedDescription}</div>
+        ${provenanceBlock(philosopherData.provenance)}
         <button class="goto-node-btn" onclick="closeUniversalModal(); setTimeout(() => showPhilosopherProfileModal('${philosopherName}'), 100);">
           📊 Статистический профиль
         </button>
@@ -32826,8 +33510,25 @@
         setTimeout(makeLegendsEditable, 100);
       }
     });
-    subscribe('data-changed', () => applyFiltersImmediate());
+    // ПОРЯДОК ЗДЕСЬ СУЩЕСТВЕНЕН, И ВОТ ПОЧЕМУ.
+    //
+    // Видимость собирается из концов ВАЛИДНЫХ связей, а `linkFilter`
+    // спрашивает у конца свойство: `S.selectedPhilosophers.has(l.source.concept)`.
+    // Пока d3 не подменила концы объектами, `l.source` — СТРОКА, у неё нет
+    // `concept`, отбор отсеивает всё, и видимых узлов выходит НОЛЬ.
+    //
+    // Подменяет концы именно `updateGraphData`, передавая массивы силе
+    // `link`. Значит она обязана идти ПЕРВОЙ: посчитать отбор до неё — то же,
+    // что мерить по данным, которых ещё нет.
+    //
+    // Прежде этого порядка не было, и `applyFreshGraph` звал `updateGraphData`
+    // НАПРЯМУЮ из слоя данных — ребром ввоза снизу вверх, единственным во всём
+    // дереве. Замер показал: зов по шине происходит исправно (один раз, из
+    // boot), координаты и концы на месте, ошибок нет — а холст пуст, потому
+    // что отбор посчитан раньше подмены. Причина была не в вызове, а в
+    // очерёдности.
     subscribe('data-changed', () => updateGraphData());
+    subscribe('data-changed', () => applyFiltersImmediate());
     subscribe('data-changed', () => {
       if (isStatsModalOpen && currentStatsView) loadStatsContent(currentStatsView);
     });

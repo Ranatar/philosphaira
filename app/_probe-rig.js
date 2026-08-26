@@ -6,13 +6,13 @@
 // значение застывает на миге подключения, и прибор читает старое молча.
 // Список порождён обходом дерева, а не памятью человека.
 import { DATA, S, MET, VIEWS } from './modules/core/ns.js';
-import { serverMode } from './modules/core/api.js';
+import { api, serverMode } from './modules/core/api.js';
 import { isSymmetricLink } from './modules/core/link-facts.js';
 import { PERM, can } from './modules/core/perms.js';
 import { authSession } from './modules/core/session.js';
 import { isLinkVisible, isNodeVisible } from './modules/core/visibility.js';
 import { lastSubmitResult, lastSubmitted } from './modules/data/backend.js';
-import { knownGraphVersion, pullGraphSince } from './modules/data/remote.js';
+import { connectLive, knownGraphVersion, pullGraphSince } from './modules/data/remote.js';
 import { DATA_SETS, collectData, hasUnsaved } from './modules/data/save.js';
 import { resetBeyondFilter } from './modules/filters/beyond-filter.js';
 import { findConnection, getConceptConnections } from './modules/graph/graph-data.js';
@@ -24,7 +24,7 @@ import { handleMetricsScopeChange } from './modules/metrics/scope.js';
 import { profileIsMeaningful, profileSimilarity, similarityData, structuralSimilarity } from './modules/metrics/similarity-concepts.js';
 import { philosopherSimilarity, philosopherSimilarityData } from './modules/metrics/similarity-philosophers.js';
 import { authLogout, closeAuthModal, openAuthModal, submitAuth } from './modules/modal/auth.js';
-import { closeCommitsPanel, commitError, commitItems, commitTab, loadCommits, openCommitsPanel, switchCommitTab } from './modules/modal/commits.js';
+import { closeCommitsPanel, commitError, commitItems, commitTab, loadCommits, openCommitsPanel, showImpact, switchCommitTab } from './modules/modal/commits.js';
 import { lastConflict, rebuildOverCurrent, showConflict } from './modules/modal/conflict.js';
 import { handleConnectionViewSearch, toggleConnectionSearchSection } from './modules/modal/connection-view.js';
 import { closeUniversalModal, openUniversalModal, toggleModalMode } from './modules/modal/core.js';
@@ -33,6 +33,7 @@ import { deleteConnection, saveConceptData, saveConnectionData } from './modules
 import { closeConceptProfileModal, showConceptProfileModal } from './modules/modal/profile-concept.js';
 import { closePhilosopherProfileModal, showPhilosopherProfileModal } from './modules/modal/profile-philosopher.js';
 import { handleModalSearch } from './modules/modal/search.js';
+import { confirmMfaEnroll, openSecurityModal, refreshSecurityDone, startMfaEnroll } from './modules/modal/security.js';
 import { closeUsersPanel, loadUsers, openUsersPanel, userItems, usersError } from './modules/modal/users.js';
 import { closePathDescriptionsModal, showPathDescriptionsModal } from './modules/paths/path-descriptions.js';
 import { findAndShowPath } from './modules/paths/path-ui.js';
@@ -46,7 +47,8 @@ import { highlightConnected, highlightNodeById, highlightPhilosopherOnGraph, res
 import { clearSimilarityOverlay, showSimilarityOverlay } from './modules/render/similarity-overlay.js';
 import { freezeSimulation, unfreezeSimulation } from './modules/render/simulation.js';
 import { selectedEdges, selectedNodes } from './modules/state/render.js';
-import { closeStatsModal, handleStatsParameterChange, openStatsModal, switchStatsView } from './modules/stats/modal.js';
+import { closeStatsModal, handleStatsParameterChange, loadStatsContent, openStatsModal, switchStatsView } from './modules/stats/modal.js';
+import { pickObservation, saveObservation } from './modules/stats/observations.js';
 import { toggleMetricLayout } from './modules/stats/results.js';
 import { closeAboutModal, openAboutModal } from './modules/ui/about.js';
 import { actionNames } from './modules/ui/actions.js';
@@ -58,7 +60,7 @@ import { handleLegendLinkSearch, pickLinkEnd } from './modules/ui/search-link.js
 import { clearPhilosopherSearch, handleLegendPhilSearch, handlePhilosopherSearch } from './modules/ui/search-philosopher.js';
 import { selectCustomOption, showCustomSelectDropdown } from './modules/widgets/custom-select.js';
 
-const A = { DATA, S, MET, VIEWS, DATA_SETS, PERM, actionNames, authLogout, can, cancelGraphSelection, changeFilterMode, clearLegendSearch, clearPhilosopherSearch, clearSimilarityOverlay, closeAboutModal, closeAuthModal, closeCommitsPanel, closeConceptProfileModal, closePathDescriptionsModal, closePhilosopherProfileModal, closeStatsModal, closeUniversalModal, closeUsersPanel, collectData, deleteConnection, deselectAllPhilosophers, deselectAllRubrics, exportToPNG, exportToSVG, findAndShowPath, findConnection, findShortestPath, freezeSimulation, getConceptConnections, gfxCanvas, handleConnectionViewSearch, handleLegendLinkSearch, handleLegendPhilSearch, handleLegendSearch, handleMetricsScopeChange, handleModalSearch, handlePhilosopherSearch, handleStatsParameterChange, hasNodeClass, hasUnsaved, highlightConnected, highlightNodeById, highlightPhilosopherOnGraph, initializePhilosophyMetrics, isLinkVisible, isNodeVisible, isSymmetricLink, linkDrawAlpha, linkVisualState, loadCommits, loadNotifications, loadUsers, markAllNotificationsRead, medianNodeDegree, nodeDegreeOf, onlyTradition, openAboutModal, openAuthModal, openCommitsPanel, openConceptById, openEditConceptModal, openEditConnectionModal, openStatsModal, openUniversalModal, openUsersPanel, philosopherSimilarity, philosopherSimilarityData, pickLink, pickLinkEnd, pickNode, profileIsMeaningful, profileSimilarity, pullGraphSince, rebuildOverCurrent, refreshUnread, renderState, resetBeyondFilter, resetHighlight, saveConceptData, saveConnectionData, selectAllPhilosophers, selectAllRelations, selectAllRubrics, selectAllTraditions, selectCustomOption, selectSearchResult, setSearchKind, showConceptProfileModal, showConflict, showCustomSelectDropdown, showPathDescriptionsModal, showPhilosopherProfileModal, showSimilarityOverlay, similarityData, structuralSimilarity, submitAuth, switchCommitTab, switchStatsView, toGraph, toggleConnectionSearchSection, toggleGrouping, toggleLegendSearch, toggleMetricLayout, toggleMetricValueMode, toggleModalMode, toggleNotifyPanel, togglePhilosopher, unfreezeSimulation };
+const A = { DATA, S, MET, VIEWS, DATA_SETS, PERM, actionNames, api, authLogout, can, cancelGraphSelection, changeFilterMode, clearLegendSearch, clearPhilosopherSearch, clearSimilarityOverlay, closeAboutModal, closeAuthModal, closeCommitsPanel, closeConceptProfileModal, closePathDescriptionsModal, closePhilosopherProfileModal, closeStatsModal, closeUniversalModal, closeUsersPanel, collectData, confirmMfaEnroll, connectLive, deleteConnection, deselectAllPhilosophers, deselectAllRubrics, exportToPNG, exportToSVG, findAndShowPath, findConnection, findShortestPath, freezeSimulation, getConceptConnections, gfxCanvas, handleConnectionViewSearch, handleLegendLinkSearch, handleLegendPhilSearch, handleLegendSearch, handleMetricsScopeChange, handleModalSearch, handlePhilosopherSearch, handleStatsParameterChange, hasNodeClass, hasUnsaved, highlightConnected, highlightNodeById, highlightPhilosopherOnGraph, initializePhilosophyMetrics, isLinkVisible, isNodeVisible, isSymmetricLink, linkDrawAlpha, linkVisualState, loadCommits, loadNotifications, loadStatsContent, loadUsers, markAllNotificationsRead, medianNodeDegree, nodeDegreeOf, onlyTradition, openAboutModal, openAuthModal, openCommitsPanel, openConceptById, openEditConceptModal, openEditConnectionModal, openSecurityModal, openStatsModal, openUniversalModal, openUsersPanel, philosopherSimilarity, philosopherSimilarityData, pickLink, pickLinkEnd, pickNode, pickObservation, profileIsMeaningful, profileSimilarity, pullGraphSince, rebuildOverCurrent, refreshSecurityDone, refreshUnread, renderState, resetBeyondFilter, resetHighlight, saveConceptData, saveConnectionData, saveObservation, selectAllPhilosophers, selectAllRelations, selectAllRubrics, selectAllTraditions, selectCustomOption, selectSearchResult, setSearchKind, showConceptProfileModal, showConflict, showCustomSelectDropdown, showImpact, showPathDescriptionsModal, showPhilosopherProfileModal, showSimilarityOverlay, similarityData, startMfaEnroll, structuralSimilarity, submitAuth, switchCommitTab, switchStatsView, toGraph, toggleConnectionSearchSection, toggleGrouping, toggleLegendSearch, toggleMetricLayout, toggleMetricValueMode, toggleModalMode, toggleNotifyPanel, togglePhilosopher, unfreezeSimulation };
 
 // Живые величины — через посредника: обращение к нему читает переменную
 // модуля в тот миг, когда спросили.

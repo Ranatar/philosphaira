@@ -12,7 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { создатьПул } from '../src/db/pool.js';
+import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 
 const КОРЕНЬ = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -39,7 +39,7 @@ const применённые = async db => {
 };
 
 const команда = process.argv[2] || 'up';
-const pool = создатьПул();
+const pool = createPool();
 
 try {
   if (команда === 'status') {
