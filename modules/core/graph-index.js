@@ -121,7 +121,11 @@ function buildIndexes() {
         concept: DATA.philosopherIdToName[c.philosopher], // Преобразуем id в имя
         rubrics: c.rubrics || [],
         description: c.description,
-        extendedDescription: c.extendedDescription
+        extendedDescription: c.extendedDescription,
+        // Происхождение переносится в узел ЯВНО. Узлы строятся по жёсткому
+        // перечню полей, и новое поле сущности само сюда не попадёт: окна
+        // просмотра получают именно узел, а не запись из concepts.
+        provenance: c.provenance
       }));
   
   DATA.links = DATA.relations.map(r => ({

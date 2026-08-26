@@ -39,7 +39,7 @@ import { resetBeyondFilter } from './modules/filters/beyond-filter.js';
 import { applyFiltersImmediate } from './modules/filters/filters.js';
 import { initializePhilosophyMetrics } from './modules/metrics/link-indexes.js';
 import { invalidateEverythingForScope } from './modules/metrics/scope-reset.js';
-import { revertCommitFromPanel, reviewCommitFromPanel } from './modules/modal/commits.js';
+import { revertCommitFromPanel, reviewCommitFromPanel, showImpact } from './modules/modal/commits.js';
 import { showConflict, warnRemoteEdit } from './modules/modal/conflict.js';
 import { selectConnectionEditConcept } from './modules/modal/connection-edit.js';
 import { selectConnectionViewConcept } from './modules/modal/connection-view.js';
@@ -110,30 +110,32 @@ export async function boot() {
   
   installUnsavedGuard();
   
-  subscribe('commit-conflicted', ({ описание, столкновения }) =>
-        showConflict(описание, столкновения));
+  subscribe('commit-conflicted', ({ descr, столкновения }) =>
+        showConflict(descr, столкновения));
   
   document.addEventListener('click', событие => {
-        const цель = событие.target;
-        if (!цель || !цель.closest) return;
-        const роль = цель.closest('.user-role');
-        const забанить = цель.closest('.user-ban');
-        const снять = цель.closest('.user-unban');
-        if (роль) changeUserRoleFromPanel(роль.getAttribute('data-id'),
-                                          роль.getAttribute('data-role'));
-        else if (забанить) banUserFromPanel(забанить.getAttribute('data-id'), false);
-        else if (снять) banUserFromPanel(снять.getAttribute('data-id'), true);
+        const target = событие.target;
+        if (!target || !target.closest) return;
+        const role = target.closest('.user-role');
+        const banBtn = target.closest('.user-ban');
+        const unban = target.closest('.user-unban');
+        if (role) changeUserRoleFromPanel(role.getAttribute('data-id'),
+                                          role.getAttribute('data-role'));
+        else if (banBtn) banUserFromPanel(banBtn.getAttribute('data-id'), false);
+        else if (unban) banUserFromPanel(unban.getAttribute('data-id'), true);
       });
   
   document.addEventListener('click', событие => {
-        const цель = событие.target;
-        if (!цель || !цель.closest) return;
-        const одобрить = цель.closest('.commit-approve');
-        const отклонить = цель.closest('.commit-reject');
-        const откатить = цель.closest('.commit-revert');
-        if (одобрить) reviewCommitFromPanel(одобрить.getAttribute('data-id'), 'approve');
-        else if (отклонить) reviewCommitFromPanel(отклонить.getAttribute('data-id'), 'reject');
-        else if (откатить) revertCommitFromPanel(откатить.getAttribute('data-id'));
+        const target = событие.target;
+        if (!target || !target.closest) return;
+        const approveBtn = target.closest('.commit-approve');
+        const rejectBtn = target.closest('.commit-reject');
+        const revertBtn = target.closest('.commit-revert');
+        const impactAsk = target.closest('.commit-impact-btn');
+        if (approveBtn) reviewCommitFromPanel(approveBtn.getAttribute('data-id'), 'approve');
+        else if (rejectBtn) reviewCommitFromPanel(rejectBtn.getAttribute('data-id'), 'reject');
+        else if (revertBtn) revertCommitFromPanel(revertBtn.getAttribute('data-id'));
+        else if (impactAsk) showImpact(impactAsk.getAttribute('data-id'));
       });
   
   subscribe('notification-arrived', () => { refreshUnread(); });
@@ -141,11 +143,11 @@ export async function boot() {
   subscribe('session-changed', () => { renderBell(); refreshUnread(); });
   
   document.addEventListener('click', событие => {
-        const кнопка = событие.target && событие.target.closest
+        const button = событие.target && событие.target.closest
                      && событие.target.closest('.notify-mark');
-        if (!кнопка) return;
+        if (!button) return;
         событие.stopPropagation();
-        markNotificationRead(кнопка.getAttribute('data-id'));
+        markNotificationRead(button.getAttribute('data-id'));
       });
   
   subscribe('graph-updated-remotely', warnRemoteEdit);
@@ -208,9 +210,9 @@ export async function boot() {
         }
       });
   
-  subscribe('data-changed', () => applyFiltersImmediate());
-  
   subscribe('data-changed', () => updateGraphData());
+  
+  subscribe('data-changed', () => applyFiltersImmediate());
   
   subscribe('data-changed', () => {
         if (S.isStatsModalOpen && S.currentStatsView) loadStatsContent(S.currentStatsView);

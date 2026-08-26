@@ -8,65 +8,69 @@ let userItems = [];
 let usersError = '';
 
 function openUsersPanel() {
-      const окно = document.getElementById('usersModal');
-      if (!окно) return;
-      окно.style.display = 'flex';
+      const modal = document.getElementById('usersModal');
+      if (!modal) return;
+      modal.style.display = 'flex';
       loadUsers();
     }
 
 function closeUsersPanel() {
-      const окно = document.getElementById('usersModal');
-      if (окно) окно.style.display = 'none';
+      const modal = document.getElementById('usersModal');
+      if (modal) modal.style.display = 'none';
     }
 
 async function loadUsers() {
       usersError = '';
-      const ответ = await api('/api/users?limit=50');
-      if (!ответ.годно) {
+      const reply = await api('/api/users?limit=50');
+      if (!reply.годно) {
         userItems = [];
-        usersError = (ответ.тело && ответ.тело.error && ответ.тело.error.message)
+        usersError = (reply.тело && reply.тело.error && reply.тело.error.message)
                    || 'Не удалось получить список';
       } else {
-        userItems = (ответ.тело && ответ.тело.items) || [];
+        // Вид ответа один: успех в поле data. Прежнее чтение (ответ.тело.items)
+        // держалось на том, что списки уезжали наружу без обёртки; терпим и
+        // старый вид, чтобы страница пережила сервер прежней редакции.
+        const usersBody = (reply.тело && reply.тело.data) || reply.тело || {};
+        userItems = usersBody.items || [];
       }
       renderUsers();
       return userItems;
     }
 
 function renderUsers() {
-      const место = document.getElementById('usersBody');
-      if (!место) return;
+      const slot = document.getElementById('usersBody');
+      if (!slot) return;
       if (usersError) {
-        место.innerHTML = `<div class="users-error">${escapeAttr(usersError)}</div>`;
+        slot.innerHTML = `<div class="users-error">${escapeAttr(usersError)}</div>`;
         return;
       }
       if (!userItems.length) {
-        место.innerHTML = '<div class="users-empty">Пусто</div>';
+        slot.innerHTML = '<div class="users-empty">Пусто</div>';
         return;
       }
-      место.innerHTML = userItems.map(у => {
+      slot.innerHTML = userItems.map(u => {
         // Список ролей ПРИСЛАН. Пустой — значит этому человеку роль менять
         // нельзя, и выбора не рисуем вовсе.
-        const роли = (у.allowedRoles || []).map(р =>
-          `<button class="user-role" data-id="${escapeAttr(у.userId)}" `
+        const roles = (u.allowedRoles || []).map(р =>
+          `<button class="user-role" data-id="${escapeAttr(u.userId)}" `
           + `data-role="${escapeAttr(р)}">${escapeAttr(р)}</button>`).join('');
-        const бан = у.state && у.state.isBanned
-          ? `<button class="user-unban" data-id="${escapeAttr(у.userId)}">Снять бан</button>`
-          : `<button class="user-ban" data-id="${escapeAttr(у.userId)}">Забанить</button>`;
+        const ban = u.state && u.state.isBanned
+          ? `<button class="user-unban" data-id="${escapeAttr(u.userId)}">Снять бан</button>`
+          : `<button class="user-ban" data-id="${escapeAttr(u.userId)}">Забанить</button>`;
         return '<div class="user-item">'
-          + `<div class="user-name">${escapeAttr(у.username)}</div>`
-          + `<div class="user-role-now">${escapeAttr(у.role)}</div>`
-          + роли + (can(PERM.BAN_USER) ? бан : '') + '</div>';
+          + `<div class="user-name">${escapeAttr(u.username)}</div>`
+          + `<div class="user-role-now">${escapeAttr(u.role)}</div>`
+          + roles + (can(PERM.BAN_USER) ? ban : '') + '</div>';
       }).join('');
     }
 
-async function changeUserRoleFromPanel(id, роль) {
-      const причина = prompt(`Причина смены роли на «${роль}» (обязательна):`);
-      if (!причина) return;
-      const ответ = await api('/api/users/' + encodeURIComponent(id) + '/role',
-        { метод: 'POST', тело: { newRole: роль, reason: причина } });
-      if (!ответ.годно) {
-        usersError = (ответ.тело && ответ.тело.error && ответ.тело.error.message)
+async function changeUserRoleFromPanel(id, role) {
+      const reason = prompt(`Причина смены роли на «${role}» (обязательна):`);
+      if (!reason) return;
+      const reply = await api('/api/users/' + encodeURIComponent(id) + '/role',
+        { метод: 'POST', тело: { newRole: role, reason: reason } });
+      if (!reply.годно) {
+        usersError = (reply.тело && reply.тело.error && reply.тело.error.message)
                    || 'Сервер отказал';
         renderUsers();
         return;
@@ -74,14 +78,14 @@ async function changeUserRoleFromPanel(id, роль) {
       await loadUsers();
     }
 
-async function banUserFromPanel(id, снять) {
-      const причина = снять ? null : prompt('Причина бана (обязательна):');
-      if (!снять && !причина) return;
-      const ответ = await api(
-        '/api/users/' + encodeURIComponent(id) + (снять ? '/unban' : '/ban'),
-        { метод: 'POST', тело: снять ? {} : { reason: причина } });
-      if (!ответ.годно) {
-        usersError = (ответ.тело && ответ.тело.error && ответ.тело.error.message)
+async function banUserFromPanel(id, unban) {
+      const reason = unban ? null : prompt('Причина бана (обязательна):');
+      if (!unban && !reason) return;
+      const reply = await api(
+        '/api/users/' + encodeURIComponent(id) + (unban ? '/unban' : '/ban'),
+        { метод: 'POST', тело: unban ? {} : { reason: reason } });
+      if (!reply.годно) {
+        usersError = (reply.тело && reply.тело.error && reply.тело.error.message)
                    || 'Сервер отказал';
         renderUsers();
         return;

@@ -214,6 +214,17 @@ function connectionIntegrityWarnings(srcId, tgtId, type, weight, bidir, original
       return w;
     }
 
+function provenanceDriftWarning(prev, next) {
+      if (!prev || !prev.provenance) return [];
+      const textChanged = ['description', 'extendedDescription'].some(field =>
+        (next[field] ?? '') !== (prev[field] ?? ''));
+      if (!textChanged) return [];
+      if ((next.provenance ?? '') !== (prev.provenance ?? '')) return [];
+      return ['Описание изменено, а источник остался прежним: '
+        + String(prev.provenance).slice(0, 60)
+        + '. Подтверждает ли он и новую формулировку?'];
+    }
+
 function conceptIntegrityWarnings(label, philosopher, original) {
       const w = [];
       const id = original ? original.id : null;
@@ -250,4 +261,4 @@ function philosopherIntegrityWarnings(name, birth, death, original) {
       return w;
     }
 
-export { conceptIntegrityWarnings, connectionIntegrityWarnings, nConcepts, nLinks, philosopherIntegrityWarnings, relationIndexById };
+export { conceptIntegrityWarnings, connectionIntegrityWarnings, nConcepts, nLinks, philosopherIntegrityWarnings, provenanceDriftWarning, relationIndexById };

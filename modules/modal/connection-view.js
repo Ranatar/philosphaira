@@ -10,6 +10,7 @@ import { selectConceptOnGraph } from '../graph/graph-selection.js';
 import { ModalContext } from './context.js';
 
 import { getContrastColor } from '../util/color.js';
+import { provenanceBlock } from '../util/html.js';
 
 function linkArrow(glyph, color, weight, label, more, from, to) {
       const to2 = weight || 2;
@@ -193,7 +194,7 @@ function generateConnectionVisualization(sourceNode, targetNode, connectionData)
               ${conn.description ? `
                 <div class="connection-description show" style="margin-top:10px;padding:10px;background:rgba(108,92,231,0.1);border-radius:6px;font-size:12px;color:#e0e0e0;line-height:1.5;">
                   ${conn.description}
-                </div>` : `
+                </div>${provenanceBlock(conn.provenance)}` : `
                 <div style="margin-top:10px;font-size:11px;color: var(--fg-muted);font-style:italic;">
                   Описания у этой связи нет
                 </div>`}

@@ -1,4 +1,5 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
+import { S } from '../core/ns.js';
 import { api, detectServerMode, serverMode } from '../core/api.js';
 import { emit } from '../core/events.js';
 import { AUTH_ADMIN, authAccounts, setSessionUser } from '../core/session.js';
@@ -7,12 +8,12 @@ import { ModalContext } from './context.js';
 import { toggleModalMode } from './core.js';
 import { refreshEditHints, refreshOpenModalToolbar, renderAuthControls } from './edit-rights.js';
 
-let authModalKind = 'login';
+S.authModalKind = 'login';
 
 function authModalEl() { return document.getElementById('authModal'); }
 
 function openAuthModal(kind) {
-      authModalKind = kind;
+      S.authModalKind = kind;
       const el = authModalEl();
       if (!el) return;
       const title = kind === 'register' ? '📝 Регистрация' : '🔑 Вход';
@@ -58,7 +59,7 @@ function authError(text) {
     }
 
 function showAuthNotice(title, bodyHtml) {
-      authModalKind = 'notice';
+      S.authModalKind = 'notice';
       const el = authModalEl();
       if (!el) return;
       el.innerHTML =
@@ -99,9 +100,9 @@ async function submitAuth() {
       if (!login.trim() || !pass) { authError('Заполните логин и пароль'); return; }
       const l = login.trim();
 
-      if (serverMode && authModalKind === 'mfa') {
-        const ответ = await api('/api/auth/mfa', { метод: 'POST', тело: { code: pass } });
-        if (!ответ.годно) { authError('Код не сошёлся'); return; }
+      if (serverMode && S.authModalKind === 'mfa') {
+        const reply = await api('/api/auth/mfa', { метод: 'POST', тело: { code: pass } });
+        if (!reply.годно) { authError('Код не сошёлся'); return; }
         await detectServerMode();
         await pullGraphSince();
         connectLive();
@@ -112,7 +113,7 @@ async function submitAuth() {
         return;
       }
 
-      if (authModalKind === 'register') {
+      if (S.authModalKind === 'register') {
         // Логин admin занят: он сверяется отдельно и регистрации не требует.
         if (l === AUTH_ADMIN.login || authAccounts.has(l)) {
           authError('Такой логин уже зарегистрирован'); return;
@@ -129,17 +130,17 @@ async function submitAuth() {
       // страница только спрашивает и показывает. Местная ветка ниже
       // остаётся нетронутой: без сервера всё как прежде.
       if (serverMode) {
-        const ответ = await api('/api/auth/login',
+        const reply = await api('/api/auth/login',
           { метод: 'POST', тело: { email: l, password: pass } });
-        if (!ответ.годно) {
-          authError((ответ.тело && ответ.тело.error && ответ.тело.error.message)
+        if (!reply.годно) {
+          authError((reply.тело && reply.тело.error && reply.тело.error.message)
             || 'Не удалось войти');
           return;
         }
-        if (ответ.тело.data && ответ.тело.data.ждётКода) {
+        if (reply.тело.data && reply.тело.data.ждётКода) {
           // Второй шаг: сессия пока частичная и прав не даёт.
           authError('Введите одноразовый код в поле пароля и нажмите «Войти» ещё раз');
-          authModalKind = 'mfa';
+          S.authModalKind = 'mfa';
           return;
         }
         await detectServerMode();          // права берём у сервера, а не гадаем

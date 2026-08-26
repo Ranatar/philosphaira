@@ -1,9 +1,9 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 
 function sameValue(a, b) {
-      const пусто = v => v == null || (typeof v === 'string' && v.trim() === '');
-      if (пусто(a) && пусто(b)) return true;
-      if (пусто(a) || пусто(b)) return false;
+      const blank = v => v == null || (typeof v === 'string' && v.trim() === '');
+      if (blank(a) && blank(b)) return true;
+      if (blank(a) || blank(b)) return false;
       if (Array.isArray(a) || Array.isArray(b)) {
         if (!Array.isArray(a) || !Array.isArray(b)) return false;
         const sa = new Set(a.map(String)), sb = new Set(b.map(String));
@@ -11,21 +11,26 @@ function sameValue(a, b) {
       }
       if (typeof a === 'number' || typeof b === 'number') return Number(a) === Number(b);
       if (typeof a === 'boolean' || typeof b === 'boolean') return Boolean(a) === Boolean(b);
-      const т = v => String(v).replace(/\r\n?/g, '\n').trim();
-      return т(a) === т(b);
+      const t = v => String(v).replace(/\r\n?/g, '\n').trim();
+      return t(a) === t(b);
     }
 
-function describeChange(action, kind, entityId, было, стало) {
-      const описание = { action, kind, entityId, fields: {} };
-      if (action === 'delete') return описание;
-      const поля = Object.keys(стало || {});
-      for (const поле of поля) {
-        const base = было ? было[поле] : null;
-        const next = стало[поле];
-        if (action === 'edit' && sameValue(base, next)) continue;
-        описание.fields[поле] = { base: base === undefined ? null : base, next };
+function describeChange(action, kind, entityId, было, next) {
+      const descr = { action, kind, entityId, fields: {} };
+      if (action === 'delete') return descr;
+      const fields = Object.keys(next || {});
+      for (const field of fields) {
+        const base = было ? было[field] : null;
+        // ИМЯ РАЗВЕДЕНО С ДОВОДОМ. Переименование `стало` → `next` дало
+        // здесь `const next = next[field]` — переменная затенила довод
+        // ЕЩЁ ДО СВОЕГО ОБЪЯВЛЕНИЯ, и вся правка падала с «Cannot access
+        // next before initialization». Прибор проверял занятость имени
+        // СНАРУЖИ области, а тут занято было ВНУТРИ той же.
+        const nextValue = next[field];
+        if (action === 'edit' && sameValue(base, nextValue)) continue;
+        descr.fields[field] = { base: base === undefined ? null : base, next: nextValue };
       }
-      return описание;
+      return descr;
     }
 
 export { describeChange };

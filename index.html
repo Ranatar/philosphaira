@@ -269,6 +269,7 @@
       <div class="filter-stats" id="filterStats">
         Показано: все концепции и связи
       </div>
+      <div class="filter-stats provenance-coverage" id="provenanceCoverage"></div>
     </div>
     
     <!-- Панель поиска пути -->
@@ -484,51 +485,55 @@
               <span class="stats-nav-item-icon">📈</span>
               <span class="stats-nav-item-text">Общий обзор</span>
             </div>
-            <div class="stats-nav-item" data-view="comparison" data-act-click="switch-stats-view-2">
+            <div class="stats-nav-item" data-view="observations" data-act-click="switch-stats-view-2">
+              <span class="stats-nav-item-icon">📌</span>
+              <span class="stats-nav-item-text">Замеры</span>
+            </div>
+            <div class="stats-nav-item" data-view="comparison" data-act-click="switch-stats-view-3">
               <span class="stats-nav-item-icon">⚖️</span>
               <span class="stats-nav-item-text">Сравнение концепций</span>
             </div>
-            <div class="stats-nav-item" data-view="closest-pairs" data-act-click="switch-stats-view-3">
+            <div class="stats-nav-item" data-view="closest-pairs" data-act-click="switch-stats-view-4">
               <span class="stats-nav-item-icon">🔗</span>
               <span class="stats-nav-item-text">Близкие пары</span>
             </div>
-            <div class="stats-nav-item" data-view="philosopher-comparison" data-act-click="switch-stats-view-4">
+            <div class="stats-nav-item" data-view="philosopher-comparison" data-act-click="switch-stats-view-5">
               <span class="stats-nav-item-icon">👤</span>
               <span class="stats-nav-item-text">Сравнение философов</span>
             </div>
-            <div class="stats-nav-item" data-view="philosopher-pairs" data-act-click="switch-stats-view-5">
+            <div class="stats-nav-item" data-view="philosopher-pairs" data-act-click="switch-stats-view-6">
               <span class="stats-nav-item-icon">🤝</span>
               <span class="stats-nav-item-text">Близкие пары философов</span>
             </div>
-            <div class="stats-nav-item" data-view="degree" data-act-click="switch-stats-view-6">
+            <div class="stats-nav-item" data-view="degree" data-act-click="switch-stats-view-7">
               <span class="stats-nav-item-icon">🔗</span>
               <span class="stats-nav-item-text">Степень связности</span>
             </div>
-            <div class="stats-nav-item" data-view="pagerank" data-act-click="switch-stats-view-7">
+            <div class="stats-nav-item" data-view="pagerank" data-act-click="switch-stats-view-8">
               <span class="stats-nav-item-icon">⭐</span>
               <span class="stats-nav-item-text">PageRank</span>
             </div>
-            <div class="stats-nav-item" data-view="betweenness" data-act-click="switch-stats-view-8">
+            <div class="stats-nav-item" data-view="betweenness" data-act-click="switch-stats-view-9">
               <span class="stats-nav-item-icon">🌉</span>
               <span class="stats-nav-item-text">Betweenness</span>
             </div>
-            <div class="stats-nav-item" data-view="closeness" data-act-click="switch-stats-view-9">
+            <div class="stats-nav-item" data-view="closeness" data-act-click="switch-stats-view-10">
               <span class="stats-nav-item-icon">🎯</span>
               <span class="stats-nav-item-text">Closeness</span>
             </div>
-            <div class="stats-nav-item" data-view="eigenvector" data-act-click="switch-stats-view-10">
+            <div class="stats-nav-item" data-view="eigenvector" data-act-click="switch-stats-view-11">
               <span class="stats-nav-item-icon">🏆</span>
               <span class="stats-nav-item-text">Eigenvector</span>
             </div>
-            <div class="stats-nav-item" data-view="weighted-clustering" data-act-click="switch-stats-view-11">
+            <div class="stats-nav-item" data-view="weighted-clustering" data-act-click="switch-stats-view-12">
               <span class="stats-nav-item-icon">🕸️</span>
               <span class="stats-nav-item-text">Взвешенная кластеризация</span>
             </div>
-            <div class="stats-nav-item" data-view="local-cohesion" data-act-click="switch-stats-view-12">
+            <div class="stats-nav-item" data-view="local-cohesion" data-act-click="switch-stats-view-13">
               <span class="stats-nav-item-icon">🔵</span>
               <span class="stats-nav-item-text">Локальная когезия</span>
             </div>
-            <div class="stats-nav-item" data-view="rich-club" data-act-click="switch-stats-view-13">
+            <div class="stats-nav-item" data-view="rich-club" data-act-click="switch-stats-view-14">
               <span class="stats-nav-item-icon">👑</span>
               <span class="stats-nav-item-text">Rich-Club</span>
             </div>
@@ -540,15 +545,15 @@
               <span>⚡</span>
               <span>Проблемность и критика</span>
             </div>
-            <div class="stats-nav-item" data-view="problem-generation" data-act-click="switch-stats-view-14">
+            <div class="stats-nav-item" data-view="problem-generation" data-act-click="switch-stats-view-15">
               <span class="stats-nav-item-icon">💥</span>
               <span class="stats-nav-item-text">Индекс проблемности</span>
             </div>
-            <div class="stats-nav-item" data-view="critical-power" data-act-click="switch-stats-view-15">
+            <div class="stats-nav-item" data-view="critical-power" data-act-click="switch-stats-view-16">
               <span class="stats-nav-item-icon">⚔️</span>
               <span class="stats-nav-item-text">Критическая сила</span>
             </div>
-            <div class="stats-nav-item" data-view="tension" data-act-click="switch-stats-view-16">
+            <div class="stats-nav-item" data-view="tension" data-act-click="switch-stats-view-17">
               <span class="stats-nav-item-icon">⚖️</span>
               <span class="stats-nav-item-text">Индекс напряжения</span>
             </div>
@@ -560,11 +565,11 @@
               <span>🔥</span>
               <span>Революционность и новизна</span>
             </div>
-            <div class="stats-nav-item" data-view="revolutionary" data-act-click="switch-stats-view-17">
+            <div class="stats-nav-item" data-view="revolutionary" data-act-click="switch-stats-view-18">
               <span class="stats-nav-item-icon">🌟</span>
               <span class="stats-nav-item-text">Индекс революционности</span>
             </div>
-            <div class="stats-nav-item" data-view="paradigm-shift" data-act-click="switch-stats-view-18">
+            <div class="stats-nav-item" data-view="paradigm-shift" data-act-click="switch-stats-view-19">
               <span class="stats-nav-item-icon">🌐</span>
               <span class="stats-nav-item-text">Парадигмальный сдвиг</span>
             </div>
@@ -576,11 +581,11 @@
               <span>💫</span>
               <span>Влияние и центральность</span>
             </div>
-            <div class="stats-nav-item" data-view="influence" data-act-click="switch-stats-view-19">
+            <div class="stats-nav-item" data-view="influence" data-act-click="switch-stats-view-20">
               <span class="stats-nav-item-icon">🎭</span>
               <span class="stats-nav-item-text">Индекс влияния</span>
             </div>
-            <div class="stats-nav-item" data-view="foundational" data-act-click="switch-stats-view-20">
+            <div class="stats-nav-item" data-view="foundational" data-act-click="switch-stats-view-21">
               <span class="stats-nav-item-icon">🏛️</span>
               <span class="stats-nav-item-text">Индекс основополагания</span>
             </div>
@@ -592,11 +597,11 @@
               <span>🧩</span>
               <span>Синтез и диалог</span>
             </div>
-            <div class="stats-nav-item" data-view="synthetic" data-act-click="switch-stats-view-21">
+            <div class="stats-nav-item" data-view="synthetic" data-act-click="switch-stats-view-22">
               <span class="stats-nav-item-icon">🔗</span>
               <span class="stats-nav-item-text">Индекс синтетичности</span>
             </div>
-            <div class="stats-nav-item" data-view="dialogical" data-act-click="switch-stats-view-22">
+            <div class="stats-nav-item" data-view="dialogical" data-act-click="switch-stats-view-23">
               <span class="stats-nav-item-icon">💬</span>
               <span class="stats-nav-item-text">Индекс диалогичности</span>
             </div>
@@ -608,7 +613,7 @@
               <span>🔮</span>
               <span>Когерентность системы</span>
             </div>
-            <div class="stats-nav-item" data-view="coherence" data-act-click="switch-stats-view-23">
+            <div class="stats-nav-item" data-view="coherence" data-act-click="switch-stats-view-24">
               <span class="stats-nav-item-icon">✨</span>
               <span class="stats-nav-item-text">Внутренняя когерентность</span>
             </div>
@@ -620,11 +625,11 @@
               <span>🦋</span>
               <span>Трансформация и развитие</span>
             </div>
-            <div class="stats-nav-item" data-view="transformation" data-act-click="switch-stats-view-24">
+            <div class="stats-nav-item" data-view="transformation" data-act-click="switch-stats-view-25">
               <span class="stats-nav-item-icon">🔄</span>
               <span class="stats-nav-item-text">Индекс трансформации</span>
             </div>
-            <div class="stats-nav-item" data-view="fertility" data-act-click="switch-stats-view-25">
+            <div class="stats-nav-item" data-view="fertility" data-act-click="switch-stats-view-26">
               <span class="stats-nav-item-icon">🌱</span>
               <span class="stats-nav-item-text">Концептуальная плодовитость</span>
             </div>
@@ -636,31 +641,31 @@
               <span>🧠</span>
               <span>Сложность и структура</span>
             </div>
-            <div class="stats-nav-item" data-view="complexity" data-act-click="switch-stats-view-26">
+            <div class="stats-nav-item" data-view="complexity" data-act-click="switch-stats-view-27">
               <span class="stats-nav-item-icon">📊</span>
               <span class="stats-nav-item-text">Концептуальная сложность</span>
             </div>
-            <div class="stats-nav-item" data-view="continuity" data-act-click="switch-stats-view-27">
+            <div class="stats-nav-item" data-view="continuity" data-act-click="switch-stats-view-28">
               <span class="stats-nav-item-icon">📜</span>
               <span class="stats-nav-item-text">Индекс преемственности</span>
             </div>
-            <div class="stats-nav-item" data-view="generative" data-act-click="switch-stats-view-28">
+            <div class="stats-nav-item" data-view="generative" data-act-click="switch-stats-view-29">
               <span class="stats-nav-item-icon">🌱</span>
               <span class="stats-nav-item-text">Генеративность</span>
             </div>
-            <div class="stats-nav-item" data-view="instrumental" data-act-click="switch-stats-view-29">
+            <div class="stats-nav-item" data-view="instrumental" data-act-click="switch-stats-view-30">
               <span class="stats-nav-item-icon">🔧</span>
               <span class="stats-nav-item-text">Инструментальность</span>
             </div>
-            <div class="stats-nav-item" data-view="bridging" data-act-click="switch-stats-view-30">
+            <div class="stats-nav-item" data-view="bridging" data-act-click="switch-stats-view-31">
               <span class="stats-nav-item-icon">🌉</span>
               <span class="stats-nav-item-text">Межтрадиционная мостовость</span>
             </div>
-            <div class="stats-nav-item" data-view="abstraction" data-act-click="switch-stats-view-31">
+            <div class="stats-nav-item" data-view="abstraction" data-act-click="switch-stats-view-32">
               <span class="stats-nav-item-icon">🎚️</span>
               <span class="stats-nav-item-text">Абстрактность</span>
             </div>
-            <div class="stats-nav-item" data-view="deductive" data-act-click="switch-stats-view-32">
+            <div class="stats-nav-item" data-view="deductive" data-act-click="switch-stats-view-33">
               <span class="stats-nav-item-icon">⛓️</span>
               <span class="stats-nav-item-text">Дедуктивная продуктивность</span>
             </div>
@@ -672,7 +677,7 @@
               <span>⏳</span>
               <span>Временная динамика</span>
             </div>
-            <div class="stats-nav-item" data-view="temporal-influence" data-act-click="switch-stats-view-33">
+            <div class="stats-nav-item" data-view="temporal-influence" data-act-click="switch-stats-view-34">
               <span class="stats-nav-item-icon">🕐</span>
               <span class="stats-nav-item-text">Временное влияние</span>
             </div>
@@ -684,19 +689,19 @@
               <span>👤</span>
               <span>Метрики философов</span>
             </div>
-            <div class="stats-nav-item" data-view="philosopher-profile" data-act-click="switch-stats-view-34">
+            <div class="stats-nav-item" data-view="philosopher-profile" data-act-click="switch-stats-view-35">
               <span class="stats-nav-item-icon">📖</span>
               <span class="stats-nav-item-text">Профиль философа</span>
             </div>
-            <div class="stats-nav-item" data-view="philosopher-systematic" data-act-click="switch-stats-view-35">
+            <div class="stats-nav-item" data-view="philosopher-systematic" data-act-click="switch-stats-view-36">
               <span class="stats-nav-item-icon">📚</span>
               <span class="stats-nav-item-text">Систематичность</span>
             </div>
-            <div class="stats-nav-item" data-view="philosopher-reach" data-act-click="switch-stats-view-36">
+            <div class="stats-nav-item" data-view="philosopher-reach" data-act-click="switch-stats-view-37">
               <span class="stats-nav-item-icon">🌍</span>
               <span class="stats-nav-item-text">Исторический охват</span>
             </div>
-            <div class="stats-nav-item" data-view="philosopher-interdisciplinary" data-act-click="switch-stats-view-37">
+            <div class="stats-nav-item" data-view="philosopher-interdisciplinary" data-act-click="switch-stats-view-38">
               <span class="stats-nav-item-icon">🔬</span>
               <span class="stats-nav-item-text">Междисциплинарность</span>
             </div>
@@ -708,11 +713,11 @@
               <span>⚖️</span>
               <span>Сравнительный анализ</span>
             </div>
-            <div class="stats-nav-item" data-view="concept-rankings" data-act-click="switch-stats-view-38">
+            <div class="stats-nav-item" data-view="concept-rankings" data-act-click="switch-stats-view-39">
               <span class="stats-nav-item-icon">🏅</span>
               <span class="stats-nav-item-text">Рейтинги концепций</span>
             </div>
-            <div class="stats-nav-item" data-view="philosopher-rankings" data-act-click="switch-stats-view-39">
+            <div class="stats-nav-item" data-view="philosopher-rankings" data-act-click="switch-stats-view-40">
               <span class="stats-nav-item-icon">🎖️</span>
               <span class="stats-nav-item-text">Рейтинги философов</span>
             </div>
