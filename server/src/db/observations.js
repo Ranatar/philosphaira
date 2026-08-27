@@ -7,7 +7,7 @@
 import crypto from 'node:crypto';
 
 /** Как замер выглядит наружу. */
-const observation = observation => Object.freeze({
+const observationToApi = observation => Object.freeze({
   observationId:  observation.observation_id,
   metric:         observation.metric,
   graphVersion:   Number(observation.graph_version),
@@ -53,13 +53,13 @@ export async function insertObservation(db, {
               scope_hash, scope_note, values, note, author_id, created_at`,
     [metric, graphVersion, formulaVersion, flags, scopeHash, scopeNote ?? null,
      JSON.stringify(values), note ?? null, authorId]);
-  return observation(rows[0]);
+  return observationToApi(rows[0]);
 }
 
 export async function findObservation(db, id) {
   const { rows } = await db.query(
     `SELECT ${COLUMNS} FROM ${FROM_CLAUSE} WHERE o.observation_id = $1`, [id]);
-  return rows[0] ? observation(rows[0]) : null;
+  return rows[0] ? observationToApi(rows[0]) : null;
 }
 
 /** Замеры одной метрики, свежие сверху. */
@@ -68,7 +68,7 @@ export async function listObservations(db, { metric, limit = 50 }) {
     SELECT ${COLUMNS} FROM ${FROM_CLAUSE}
      WHERE ($1::text IS NULL OR o.metric = $1)
      ORDER BY o.created_at DESC LIMIT $2`, [metric ?? null, Math.min(limit, 200)]);
-  return rows.map(observation);
+  return rows.map(observationToApi);
 }
 
 /**
@@ -84,5 +84,5 @@ export async function listComparable(db, { observationId }) {
          SELECT metric, formula_version, flags, scope_hash
            FROM metric_observations WHERE observation_id = $1)
      ORDER BY o.graph_version`, [observationId]);
-  return rows.map(observation);
+  return rows.map(observationToApi);
 }

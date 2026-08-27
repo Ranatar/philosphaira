@@ -96,7 +96,7 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
           ${conceptData.concept}
         </div>
         <div class="description">${conceptData.extendedDescription}</div>
-        ${provenanceBlock(conceptData.provenance)}
+        ${provenanceBlock(conceptData.provenance, conceptData.provenanceStatus)}
         <button class="goto-node-btn" data-act-click="goto-node-from-modal" data-a1="${conceptData.id}">
           🎯 Перейти к узлу
         </button>

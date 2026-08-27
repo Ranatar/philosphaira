@@ -191,9 +191,9 @@ export async function boot() {
   subscribe('data-changed', () => {
         initializePhilosophyMetrics();
         invalidateEverythingForScope();
-      });
+      }, 'derived');
   
-  subscribe('data-changed', updateFilterStats);
+  subscribe('data-changed', updateFilterStats, 'ui');
   
   subscribe('data-changed', () => {
         if (typeof S.similarityOverlay !== 'undefined' && S.similarityOverlay) clearSimilarityOverlay();
@@ -210,9 +210,9 @@ export async function boot() {
         }
       });
   
-  subscribe('data-changed', () => updateGraphData());
+  subscribe('data-changed', () => updateGraphData(), 'bound');
   
-  subscribe('data-changed', () => applyFiltersImmediate());
+  subscribe('data-changed', () => applyFiltersImmediate(), 'filters');
   
   subscribe('data-changed', () => {
         if (S.isStatsModalOpen && S.currentStatsView) loadStatsContent(S.currentStatsView);

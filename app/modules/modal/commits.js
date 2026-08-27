@@ -3,6 +3,8 @@ import { api } from '../core/api.js';
 import { emit } from '../core/events.js';
 import { PERM, can } from '../core/perms.js';
 import { pullGraphSince } from '../data/remote.js';
+import { PROVENANCE_STATES } from './forms.js';
+
 import { escapeAttr } from '../util/html.js';
 
 let commitTab = 'mine';
@@ -53,12 +55,50 @@ const COMMIT_STATES = Object.freeze({
       reverted:   { слово: 'отменён',            вид: 'отменён' },
     });
 
-function commitStateWords(состояние) {
-      return (COMMIT_STATES[состояние] || {}).слово || состояние;
+function commitStateWords(state2) {
+      return (COMMIT_STATES[state2] || {}).слово || state2;
     }
 
-function commitStateKind(состояние) {
-      return (COMMIT_STATES[состояние] || {}).вид || 'прочее';
+function commitStateKind(state2) {
+      return (COMMIT_STATES[state2] || {}).вид || 'прочее';
+    }
+
+function provenanceDiff(changes) {
+      const rows = [];
+      for (const change of changes || []) {
+        const fields2 = change.fields || {};
+        const line = fields2.provenance;
+        const state2 = fields2.provenanceStatus;
+        if (!line && !state2) continue;
+        const prevSide = [
+          state2 ? stateInWords(state2.base) : null,
+          line ? (line.base || '—') : null,
+        ].filter(Boolean).join(': ');
+        const nextSide = [
+          state2 ? stateInWords(state2.next) : null,
+          line ? (line.next || '—') : null,
+        ].filter(Boolean).join(': ');
+        // ТЕКСТ РЯДОМ, ЕСЛИ ТРОНУТ И ОН: разбирать основание в отрыве от
+        // формулировки, к которой оно относится, — то же, что читать ответ
+        // без вопроса.
+        const textToo = ('description' in fields2) || ('extendedDescription' in fields2);
+        rows.push('<div class="prov-diff-row">'
+          + '<span class="prov-diff-what">' + escapeAttr(change.entityId || '') + '</span>'
+          + '<span class="prov-diff-was">было: ' + escapeAttr(prevSide || '—') + '</span>'
+          + '<span class="prov-diff-now">стало: ' + escapeAttr(nextSide || '—') + '</span>'
+          + (textToo
+              ? '<span class="prov-diff-warn">текст изменён вместе с основанием</span>'
+              : '<span class="prov-diff-warn">изменено ТОЛЬКО основание</span>')
+          + '</div>');
+      }
+      if (!rows.length) return '';
+      return '<div class="prov-diff"><div class="prov-diff-head">Основание</div>'
+        + rows.join('') + '</div>';
+    }
+
+function stateInWords(код) {
+      const found = PROVENANCE_STATES.find(([к]) => к === (код || 'unspecified'));
+      return found ? found[1] : String(код);
     }
 
 function renderCommits() {
@@ -121,6 +161,7 @@ function renderCommits() {
           + `data-id="${escapeAttr(к.commitId)}">Последствия</button>`;
         return '<div class="commit-item">'
           + head
+          + provenanceDiff(к.changes)
           + `<div class="commit-meta">${escapeAttr(к.authorName || '')} · `
           + `<span class="commit-state state-${commitStateKind(к.status)}">`
           + `${escapeAttr(commitStateWords(к.status))}</span></div>`

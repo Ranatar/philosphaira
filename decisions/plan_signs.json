@@ -168,19 +168,19 @@
    "E-1",
    "раздел в окне концепции",
    "внутри",
-   "source/philosophy_graph_v3.html|provenanceBlock(conceptData.provenance)"
+   "source/philosophy_graph_v3.html|provenanceBlock(conceptData.provenance, conceptData.provenanceStatus)"
   ],
   [
    "E-1",
    "раздел в окне философа",
    "внутри",
-   "source/philosophy_graph_v3.html|provenanceBlock(philosopherData.provenance)"
+   "source/philosophy_graph_v3.html|provenanceBlock(philosopherData.provenance, philosopherData.provenanceStatus)"
   ],
   [
    "E-1",
    "раздел в окне связи",
    "внутри",
-   "source/philosophy_graph_v3.html|provenanceBlock(conn.provenance)"
+   "source/philosophy_graph_v3.html|provenanceBlock(conn.provenance, conn.provenanceStatus)"
   ],
   [
    "E-1",
@@ -367,6 +367,186 @@
    "согласие слоёв стережёт прибор",
    "внутри",
    "tools/accept.sh|exposure_probe"
+  ],
+  [
+   "F-0",
+   "ревизия 27.08 лежит в дереве",
+   "есть",
+   "doc/gaps-2026-08-27.md"
+  ],
+  [
+   "F-1",
+   "устаревшее обещание про MFA снято",
+   "нет-внутри",
+   "server/README.md|Службы готовы, работы немного"
+  ],
+  [
+   "F-1",
+   "контракт двух процессов записан",
+   "внутри",
+   "server/README.md|ДВА ПРОЦЕССА, А НЕ ОДИН"
+  ],
+  [
+   "F-1",
+   "устройство сервера вынесено отдельно",
+   "есть",
+   "doc/server-design.md"
+  ],
+  [
+   "F-1",
+   "README сервера — инструкция, а не история",
+   "нет-внутри",
+   "server/README.md|## Порядок слоёв"
+  ],
+  [
+   "F-1",
+   "прибор операционных фактов заведён",
+   "есть",
+   "tools/ops_probe.mjs"
+  ],
+  [
+   "F-1",
+   "и стоит в приёмке приложения",
+   "внутри",
+   "tools/accept.sh|ops_probe"
+  ],
+  [
+   "F-2",
+   "состояния происхождения объявлены",
+   "внутри",
+   "server/src/graph/schema.js|PROVENANCE_STATUS"
+  ],
+  [
+   "F-2",
+   "поле в описи всех трёх наборов",
+   "внутри",
+   "server/src/graph/schema.js|'provenanceStatus'"
+  ],
+  [
+   "F-2",
+   "миграция перевода старых записей",
+   "есть",
+   "server/migrations/012_provenance_status.up.sql"
+  ],
+  [
+   "F-2",
+   "заслон согласия состояния со строкой",
+   "внутри",
+   "server/src/commits/service.js|assertProvenance"
+  ],
+  [
+   "F-2",
+   "проверяется пробой",
+   "внутри",
+   "server/probes/product_flow_probe.mjs|«ИСТОЧНИК ЕСТЬ» БЕЗ ССЫЛКИ ОТВЕРГНУТ"
+  ],
+  [
+   "F-2",
+   "выбор состояния в окне правки",
+   "внутри",
+   "source/philosophy_graph_v3.html|entityProvenanceStatus"
+  ],
+  [
+   "F-2",
+   "состояние переносится в узлы",
+   "внутри",
+   "source/philosophy_graph_v3.html|provenanceStatus: c.provenanceStatus"
+  ],
+  [
+   "F-2",
+   "показатель покрытия раздельный",
+   "внутри",
+   "source/philosophy_graph_v3.html|не разобрано"
+  ],
+  [
+   "F-2",
+   "соглашение о двух косых снято из подписи",
+   "нет-внутри",
+   "source/philosophy_graph_v3.html|Две косые в начале означают"
+  ],
+  [
+   "F-3",
+   "изменение основания видно в записи правки",
+   "внутри",
+   "source/philosophy_graph_v3.html|provenanceDiff"
+  ],
+  [
+   "F-3",
+   "состояние названо словами, а не кодом",
+   "внутри",
+   "source/philosophy_graph_v3.html|stateInWords"
+  ],
+  [
+   "F-3",
+   "проверяется браузером",
+   "внутри",
+   "server/probes/page_probe.mjs|ИЗМЕНЕНИЕ ОСНОВАНИЯ"
+  ],
+  [
+   "F-4",
+   "фазы шины объявлены",
+   "внутри",
+   "source/philosophy_graph_v3.html|BUS_PHASES"
+  ],
+  [
+   "F-4",
+   "подписчики называют фазу",
+   "внутри",
+   "source/philosophy_graph_v3.html|updateGraphData(), 'bound'"
+  ],
+  [
+   "F-4",
+   "фаза важнее порядка записи — проверено",
+   "внутри",
+   "server/probes/live_graph_probe.mjs|ФАЗА ВАЖНЕЕ ПОРЯДКА ЗАПИСИ"
+  ],
+  [
+   "F-5",
+   "стиль кнопок легенды написан",
+   "внутри",
+   "source/philosophy_graph_v3.html|.legend-button {"
+  ],
+  [
+   "F-5",
+   "политика для гостя объявлена в коде",
+   "внутри",
+   "server/src/ws/manager.js|ГОСТЬ ЖИВЫХ ОБНОВЛЕНИЙ НЕ ПОЛУЧАЕТ"
+  ],
+  [
+   "F-5",
+   "и в инструкции оператору",
+   "внутри",
+   "server/README.md|Что видит гость"
+  ],
+  [
+   "F-5",
+   "отказ гостю стережётся пробой",
+   "внутри",
+   "server/probes/ws_probe.mjs|ГОСТЬ (без сессии вовсе) СОКЕТА НЕ ПОЛУЧАЕТ"
+  ],
+  [
+   "F-5",
+   "проба двух вкладок заведена",
+   "внутри",
+   "server/probes/live_graph_probe.mjs|ДВЕ ВКЛАДКИ ОДНОГО ЧЕЛОВЕКА"
+  ],
+  [
+   "F-5",
+   "вкладки сходятся после правки",
+   "внутри",
+   "server/probes/live_graph_probe.mjs|ВКЛАДКА Б ДОГНАЛА САМА"
+  ],
+  [
+   "F-5",
+   "выход везде проверяется",
+   "внутри",
+   "server/probes/product_flow_probe.mjs|ВЫХОД ВЕЗДЕ ГАСИТ И ДРУГУЮ ВКЛАДКУ"
+  ],
+  [
+   "F-5",
+   "кириллица в коде продукта стережётся прибором",
+   "внутри",
+   "tools/ops_probe.mjs|кириллических имён в"
   ]
  ]
 }

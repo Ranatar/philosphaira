@@ -4,12 +4,12 @@
 // Узел добирает уведомление из базы и разносит по своим сокетам. Так
 // уведомление доходит и до тех, кто висит на другом узле.
 
-import { Соединения } from './manager.js';
+import { Connections } from './manager.js';
 import { subscribe, publish } from './bus.js';
 import { notificationForDelivery } from '../db/notifications.js';
 
 export async function startNode({ db, строкаПодключения, origins = null }) {
-  const connections = new Соединения({ db, origins });
+  const connections = new Connections({ db, origins });
 
   const subscription = await subscribe(строкаПодключения, async и => {
     if (и.вид === 'уведомление') {

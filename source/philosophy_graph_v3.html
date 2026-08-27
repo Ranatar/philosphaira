@@ -165,6 +165,25 @@
       color: var(--fg);
     }
     
+    /* Кнопки «Сбросить» в разделах легенды. Правила у них не было вовсе:
+       замер вычисленного стиля показал голую кнопку браузера посреди
+       тёмной панели. Класс существовал, разметка его ставила — и это
+       единственный случай из пятнадцати, где ОТСУТСТВИЕ ПРАВИЛА оказалось
+       дефектом, а не задельным крючком. */
+    .legend-button {
+      background: var(--bg-elev, rgba(255,255,255,0.06));
+      color: var(--fg-dim, #c8c8d4);
+      border: 1px solid var(--border, rgba(255,255,255,0.12));
+      border-radius: 5px;
+      padding: 5px 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .legend-button:hover {
+      border-color: var(--accent, #6c5ce7);
+      color: var(--fg, #eee);
+    }
+
     .legend-item {
       display: flex;
       align-items: center;
@@ -1514,6 +1533,21 @@
     .connection-toggle.expanded {
       transform: rotate(180deg);
     }
+
+    /* Изменение основания в записи правки: рядом с адресом, но тише его. */
+    .prov-diff {
+      margin-top: 6px; padding: 6px 8px; font-size: 11px;
+      border-left: 2px solid var(--accent, #6c5ce7);
+      background: rgba(108,92,231,0.06);
+    }
+    .prov-diff-head {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--fg-muted, #8b8b9e);
+    }
+    .prov-diff-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 3px; }
+    .prov-diff-what { font-weight: 600; }
+    .prov-diff-was { color: var(--fg-muted, #8b8b9e); }
+    .prov-diff-warn { color: var(--warning, #f39c12); }
 
     /* Раздел «Замеры»: список слева-сверху, сличение под ним. */
     .obs-list { display: flex; flex-direction: column; gap: 6px; }
@@ -14412,7 +14446,11 @@
       // Происхождение переносится в узел ЯВНО. Узлы строятся по жёсткому
       // перечню полей, и новое поле сущности само сюда не попадёт: окна
       // просмотра получают именно узел, а не запись из concepts.
-      provenance: c.provenance
+      provenance: c.provenance,
+      // Состояние переносится ВМЕСТЕ со строкой: окна просмотра получают
+      // узел, а не запись набора, и без этого им нечем отличить «нет
+      // источника» от «не искали».
+      provenanceStatus: c.provenanceStatus
     }));
     
     // Создаём links из relations
@@ -16056,7 +16094,18 @@
     ];
     const busSubscribers = new Map();
 
-    function subscribe(event, handler) {
+    const BUS_PHASES = ['derived', 'bound', 'filters', 'ui'];
+
+    function subscribe(event, handler, фаза) {
+      // Фаза приписывается самому подписчику: список подписок читается
+      // сверху вниз, и увидеть в нём очередь рассылки иначе нельзя.
+      if (фаза) {
+        if (!BUS_PHASES.includes(фаза)) {
+          console.error('шина: неизвестная фаза —', фаза);
+          return;
+        }
+        handler.фаза = фаза;
+      }
       if (!BUS_EVENTS.includes(event)) {
         console.error('шина: неизвестное событие при подписке —', event);
         return;
@@ -16065,12 +16114,41 @@
       busSubscribers.get(event).push(handler);
     }
 
+    /**
+     * ФАЗЫ РАССЫЛКИ `data-changed` (F-4, п. 13 ревизии).
+     *
+     * ПОРЯДОК ЗДЕСЬ — СЕМАНТИКА, А НЕ ПОРЯДОК ЗАПИСИ. Отбор спрашивает у
+     * конца связи свойство `l.source.concept`, а концы становятся объектами
+     * только после `updateGraphData`; посчитать отбор раньше — значит
+     * получить ноль видимых узлов и пустой холст. На этом уже горели, и
+     * лечение было молчаливым: подписки просто поменяли местами.
+     *
+     * Молчаливое лечение держится, пока никто не добавит девятого
+     * подписчика. Поэтому очередь названа ВСЛУХ: подписчик объявляет фазу,
+     * а не место в списке.
+     *
+     *   derived   — производные данные пересчитаны (указатели, метрики)
+     *   bound     — массивы переданы отрисовке; КОНЦЫ СВЯЗЕЙ СТАЛИ ОБЪЕКТАМИ
+     *   filters   — отбор пересчитан по НОВЫМ данным
+     *   ui        — окна и панели подтянуты
+     *
+     * Подписка без фазы попадает в `ui` — самую позднюю: если фаза не
+     * названа, значит подписчик ни от чего не зависит, и ставить его раньше
+     * незачем.
+     */
     function emit(event, ...args) {
       if (!BUS_EVENTS.includes(event)) {
         console.error('шина: неизвестное событие —', event);
         return;
       }
-      for (const handler of busSubscribers.get(event) || []) {
+      const allHandlers = busSubscribers.get(event) || [];
+      // Рассылка идёт ПО ФАЗАМ. Внутри фазы порядок прежний — порядок
+      // записи; между фазами он объявлен и не зависит от того, кто когда
+      // подписался.
+      const queue = BUS_PHASES.length && allHandlers.some(h => h.фаза)
+        ? BUS_PHASES.flatMap(ф => allHandlers.filter(h => (h.фаза || 'ui') === ф))
+        : allHandlers;
+      for (const handler of queue) {
         try { handler(...args); }
         catch (e) { console.error('шина: подписчик события «' + event + '» упал —', e); }
       }
@@ -17354,15 +17432,38 @@
       // `links`/`nodes`: происхождение — свойство записи в базе, и узлы с
       // связями получают его переносом. Считать по ним значило бы мерить
       // полноту переноса, а не работу составителя.
-      const withValue = список => (список || [])
-        .filter(z => z && String(z.provenance || '').trim()).length;
-      const withRelations = withValue(relations);
-      const withConcepts = withValue(concepts);
-      if (!withRelations && !withConcepts) { slot.textContent = ''; return; }
-      const share = (сколько, всего) => всего
-        ? `${сколько}/${всего} (${Math.round(сколько * 100 / всего)}%)` : '—';
-      slot.textContent = 'С источником: связей ' + share(withRelations, (relations || []).length)
-        + ', концепций ' + share(withConcepts, (concepts || []).length);
+      // РАЗДЕЛЬНО ПО СОСТОЯНИЯМ, А НЕ «С ИСТОЧНИКОМ: X/Y».
+      //
+      // Прежний счётчик мерил ЗАПОЛНЕННОСТЬ: библиографическая ссылка и
+      // собственное рассуждение шли в одну кучу, и число говорило, сколько
+      // полей не пусто, — а не сколько утверждений подкреплено.
+      // «Процента достоверности» здесь нет и не будет: достоверность не
+      // считается делением, и такой процент немедленно стал бы враньём.
+      const byState = список => {
+        const fields = { sourced: 0, editorial_reasoning: 0, source_not_found: 0 };
+        for (const z of список || []) {
+          if (!z) continue;
+          const line = String(z.provenance || '').trim();
+          const state = z.provenanceStatus
+            || (line.startsWith('//') ? 'editorial_reasoning'
+                                        : (line ? 'sourced' : 'unspecified'));
+          if (state in fields) fields[state]++;
+        }
+        return fields;
+      };
+      const byRelations = byState(relations);
+      const byConcepts = byState(concepts);
+      const classified = о => о.sourced + о.editorial_reasoning + о.source_not_found;
+      if (!classified(byRelations) && !classified(byConcepts)) {
+        slot.textContent = '';
+        return;
+      }
+      const asLine = (имя, о, длина) => имя + ': источник ' + о.sourced
+        + ' · основание ' + о.editorial_reasoning
+        + ' · не найден ' + о.source_not_found
+        + ' · не разобрано ' + (длина - classified(о));
+      slot.textContent = asLine('связи', byRelations, (relations || []).length)
+        + '; ' + asLine('концепции', byConcepts, (concepts || []).length);
     }
 
     // ============================================
@@ -26341,9 +26442,9 @@
         <div class="simleg-links" data-tip="Карта гасит все связи разом, чтобы рёбра не перетягивали внимание. «С источником» показывает, совпало ли сходство с прямым отношением; «между похожими» — сложилась ли подсвеченная часть в связную область">
           ${[['none', 'нет', 0],
              ['source', 'с источником', similarityLinkCount('source')],
-             ['all', 'между похожими', similarityLinkCount('all')]].map(([m, подпись, n]) =>
+             ['all', 'между похожими', similarityLinkCount('all')]].map(([m, label, n]) =>
             `<button class="simleg-lbtn ${(similarityOverlay.linkMode || 'none') === m ? 'active' : ''}"
-                 onclick="setSimilarityLinks('${m}')">${подпись}${m === 'none' ? '' : ` <b>${n}</b>`}</button>`).join('')}
+                 onclick="setSimilarityLinks('${m}')">${label}${m === 'none' ? '' : ` <b>${n}</b>`}</button>`).join('')}
         </div>
         <div class="simleg-scale ${isProfile ? '' : 'one-sided'}"></div>
         <div class="simleg-ticks">
@@ -29381,12 +29482,12 @@
       return t(a) === t(b);
     }
 
-    function describeChange(action, kind, entityId, было, next) {
+    function describeChange(action, kind, entityId, prevSide, next) {
       const descr = { action, kind, entityId, fields: {} };
       if (action === 'delete') return descr;
       const fields = Object.keys(next || {});
       for (const field of fields) {
-        const base = было ? было[field] : null;
+        const base = prevSide ? prevSide[field] : null;
         // ИМЯ РАЗВЕДЕНО С ДОВОДОМ. Переименование `стало` → `next` дало
         // здесь `const next = next[field]` — переменная затенила довод
         // ЕЩЁ ДО СВОЕГО ОБЪЯВЛЕНИЯ, и вся правка падала с «Cannot access
@@ -29688,12 +29789,63 @@
       reverted:   { слово: 'отменён',            вид: 'отменён' },
     });
 
-    function commitStateWords(состояние) {
-      return (COMMIT_STATES[состояние] || {}).слово || состояние;
+    function commitStateWords(state2) {
+      return (COMMIT_STATES[state2] || {}).слово || state2;
     }
 
-    function commitStateKind(состояние) {
-      return (COMMIT_STATES[состояние] || {}).вид || 'прочее';
+    function commitStateKind(state2) {
+      return (COMMIT_STATES[state2] || {}).вид || 'прочее';
+    }
+
+
+    /**
+     * ИЗМЕНЕНИЕ ОСНОВАНИЯ — РЕЦЕНЗЕНТУ, А НЕ ТОЛЬКО АВТОРУ (F-3, п. 6).
+     *
+     * Автор видит предупреждение при правке; рецензент до сих пор видел
+     * лишь машинный адрес вида «Изменено: концепция X (description,
+     * provenance)» — то есть ЧТО тронуто, но не ЧЕМ это было и стало.
+     * Между тем именно смена основания решает, подтверждено ли утверждение:
+     * ссылка, оставшаяся под переписанным текстом, удостоверяет уже не то.
+     *
+     * Показывается ТОЛЬКО когда основание тронуто. Строка «источник не
+     * менялся» под каждой правкой была бы шумом.
+     */
+    function provenanceDiff(changes) {
+      const rows = [];
+      for (const change of changes || []) {
+        const fields2 = change.fields || {};
+        const line = fields2.provenance;
+        const state2 = fields2.provenanceStatus;
+        if (!line && !state2) continue;
+        const prevSide = [
+          state2 ? stateInWords(state2.base) : null,
+          line ? (line.base || '—') : null,
+        ].filter(Boolean).join(': ');
+        const nextSide = [
+          state2 ? stateInWords(state2.next) : null,
+          line ? (line.next || '—') : null,
+        ].filter(Boolean).join(': ');
+        // ТЕКСТ РЯДОМ, ЕСЛИ ТРОНУТ И ОН: разбирать основание в отрыве от
+        // формулировки, к которой оно относится, — то же, что читать ответ
+        // без вопроса.
+        const textToo = ('description' in fields2) || ('extendedDescription' in fields2);
+        rows.push('<div class="prov-diff-row">'
+          + '<span class="prov-diff-what">' + escapeAttr(change.entityId || '') + '</span>'
+          + '<span class="prov-diff-was">было: ' + escapeAttr(prevSide || '—') + '</span>'
+          + '<span class="prov-diff-now">стало: ' + escapeAttr(nextSide || '—') + '</span>'
+          + (textToo
+              ? '<span class="prov-diff-warn">текст изменён вместе с основанием</span>'
+              : '<span class="prov-diff-warn">изменено ТОЛЬКО основание</span>')
+          + '</div>');
+      }
+      if (!rows.length) return '';
+      return '<div class="prov-diff"><div class="prov-diff-head">Основание</div>'
+        + rows.join('') + '</div>';
+    }
+
+    function stateInWords(код) {
+      const found = PROVENANCE_STATES.find(([к]) => к === (код || 'unspecified'));
+      return found ? found[1] : String(код);
     }
 
     function renderCommits() {
@@ -29756,6 +29908,7 @@
           + `data-id="${escapeAttr(к.commitId)}">Последствия</button>`;
         return '<div class="commit-item">'
           + head
+          + provenanceDiff(к.changes)
           + `<div class="commit-meta">${escapeAttr(к.authorName || '')} · `
           + `<span class="commit-state state-${commitStateKind(к.status)}">`
           + `${escapeAttr(commitStateWords(к.status))}</span></div>`
@@ -30240,13 +30393,14 @@
         id: c.id, label: c.label, concept: byName[c.philosopher],
         rubrics: c.rubrics || [], description: c.description,
         extendedDescription: c.extendedDescription,
-        provenance: c.provenance,
+        provenance: c.provenance, provenanceStatus: c.provenanceStatus,
       })));
       links.length = 0;
       links.push(...relations.map(r => ({
         id: r.id, source: r.source, target: r.target, type: r.type,
         weight: r.weight, bidirectional: r.bidirectional || false,
         description: r.description, provenance: r.provenance,
+        provenanceStatus: r.provenanceStatus,
       })));
 
       // Места возвращаются уцелевшим по идентификатору; новым — середина
@@ -30268,8 +30422,8 @@
       // среди подписок запуска, — см. пояснение там же о том, почему первым.
     }
 
-    function applyFreshGraph(состояние) {
-      const sets = состояние && состояние.наборы;
+    function applyFreshGraph(state2) {
+      const sets = state2 && state2.наборы;
       if (!sets) return false;
       if (Array.isArray(sets.concepts))      { concepts.length = 0;      concepts.push(...sets.concepts); }
       if (Array.isArray(sets.relations))     { relations.length = 0;     relations.push(...sets.relations); }
@@ -30448,14 +30602,29 @@
      * а не ссылку: у графа философских концепций немалая часть содержания
      * именно такова, и молчать об этом хуже, чем сказать прямо.
      */
-    function provenanceBlock(value) {
+    function provenanceBlock(value, status) {
       const text = String(value == null ? '' : value).trim();
-      if (!text) return '';
+      // Старое соглашение читается на входе: записи, не прошедшие перевод
+      // миграцией, не должны терять смысл.
       const own = text.startsWith('//');
+      const state2 = status || (own ? 'editorial_reasoning'
+                                       : (text ? 'sourced' : 'unspecified'));
+      // «НЕ УКАЗАН» МОЛЧИТ. Показывать его под каждой из 453 концепций
+      // значило бы приучить не читать этот раздел вовсе; он должен говорить
+      // тогда, когда есть что сказать.
+      if (state2 === 'unspecified') return '';
+      const label = state2 === 'sourced' ? 'Источник'
+                    : state2 === 'editorial_reasoning' ? 'Основание'
+                    : 'Источник не найден';
+      // У «искали, не нашли» ссылки нет и быть не может: это состояние
+      // говорит о ходе работы, а не о предмете.
+      const body = state2 === 'source_not_found'
+        ? 'искали, пока не нашли'
+        : escapeAttr(own ? text.slice(2).trim() : text);
+      if (!body) return '';
       return '<div class="provenance">'
-        + '<span class="provenance-label">' + (own ? 'Основание' : 'Источник') + '</span>'
-        + '<span class="provenance-text">'
-        + escapeAttr(own ? text.slice(2).trim() : text) + '</span></div>';
+        + '<span class="provenance-label">' + label + '</span>'
+        + '<span class="provenance-text">' + body + '</span></div>';
     }
 
     function escapeAttr(s) {
@@ -30809,7 +30978,7 @@
       if (clash) { alert('Философ с именем «' + name + '» уже существует'); return; }
 
       // Происхождение читается ДО заслона: заслон о нём и спрашивает.
-      const provenance = provenanceValue();
+      const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
 
       // Полнота (у каждого хотя бы одна традиция) — договорённость, а не
       // запрет: предупреждаем и даём сохранить, как принято в этом окне.
@@ -30840,7 +31009,7 @@
       // у созданного философа не будет ни традиции, ни раздела в окне.
       const next = { name, nameRu: name, color,
                 birth, death, years, traditions: traditionIds, description,
-                ...(provenance ? { provenance } : {}) };
+                ...provenanceFields(provenance, provenanceStatus) };
       const philId = isNew
         ? (name.toLowerCase().replace(/\s+/g, '_')
              .replace(/[^a-z0-9_а-яё]/gi, '') || generateId('phil'))
@@ -30953,7 +31122,7 @@
         ? Array.from(rubrEl.selectedOptions).map(o => o.value) : [];
       const description = descEl ? descEl.value.trim() : '';
       const extendedDescription = extEl ? extEl.value.trim() : '';
-      const provenance = provenanceValue();
+      const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
 
       if (!label || !philosopher) {
         alert('Укажите название концепции и философа'); return;
@@ -30978,13 +31147,13 @@
       // «источник — пустая строка».
       const next = { label, philosopher: philData.id,
               rubrics: selectedRubricIds, description, extendedDescription,
-              ...(provenance ? { provenance } : {}) };
+              ...provenanceFields(provenance, provenanceStatus) };
 
       if (isNew) {
         const id = generateId('concept');
         const newNode = { id, label, concept: philosopher,
                   rubrics: selectedRubricIds, description, extendedDescription,
-                  ...(provenance ? { provenance } : {}) };
+                  ...provenanceFields(provenance, provenanceStatus) };
         submitChange(
           describeChange('add', 'concept', id, null, next),
           () => {
@@ -31078,7 +31247,7 @@
           original.source.id || original.source,
           original.target.id || original.target, false);
 
-      const provenance = provenanceValue();
+      const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
       if (!confirmWarnings('Сохранение связи',
           connectionIntegrityWarnings(source, target, type, weight,
                         bidirectional, originalLink)
@@ -31089,7 +31258,7 @@
       // идентификаторами. В links те же концы — объектами узлов, и путать
       // их нельзя: сервер примет только первое.
       const next = { source, target, type, weight, bidirectional, description,
-                ...(provenance ? { provenance } : {}) };
+                ...provenanceFields(provenance, provenanceStatus) };
 
       if (isNew) {
         const id = generateId('rel');
@@ -31196,23 +31365,96 @@
      * в графе не было бы НИ ОДНОЙ ссылки. Разбирать накопленное на поля
      * можно потом, когда станет видно, какие поля нужны на деле.
      */
+    /**
+     * ПРОИСХОЖДЕНИЕ: состояние ВЫБИРАЕТСЯ, а не кодируется пунктуацией.
+     *
+     * Прежде две косые в начале строки означали «своё рассуждение» — тип
+     * данных, записанный знаками препинания. Это плохо проверялось, мешало
+     * ввозу-вывозу и, главное, отвечало лишь на ОДИН вопрос из четырёх:
+     * пустое поле одинаково значило «не искали», «искали и не нашли»,
+     * «своё построение» и «прежний источник отвергнут».
+     */
+    const PROVENANCE_STATES = [
+      ['unspecified',         'не указан',            'источник ещё не искали'],
+      ['sourced',             'источник',             'библиографическая ссылка'],
+      ['editorial_reasoning', 'основание редактора',  'собственное построение, а не ссылка'],
+      ['source_not_found',    'искали, не нашли',     'о ходе работы, а не о предмете'],
+    ];
+
     function provenanceField(data) {
-      const prev = data && data.provenance ? data.provenance : '';
+      const prevSide = data && data.provenance ? String(data.provenance) : '';
+      // Старое соглашение читается на входе: записи, не прошедшие перевод,
+      // должны открываться правильно, а не терять смысл.
+      const own = prevSide.startsWith('//');
+      const text = own ? prevSide.slice(2).trim() : prevSide;
+      const state2 = (data && data.provenanceStatus)
+        || (own ? 'editorial_reasoning' : (text ? 'sourced' : 'unspecified'));
+      const stateSelect = PROVENANCE_STATES.map(([код, имя, пояснение]) =>
+        `<option value="${код}"${код === state2 ? ' selected' : ''}>`
+        + `${имя} — ${пояснение}</option>`).join('');
       return `
         <div class="modal-form-group">
-          <label for="entityProvenance">Источник <span class="необязательно">(необязательно)</span></label>
+          <label for="entityProvenanceStatus">Происхождение</label>
+          <select id="entityProvenanceStatus"
+                  onchange="refreshProvenanceField()">${stateSelect}</select>
           <input type="text" id="entityProvenance" maxlength="300"
-                 placeholder="Например: Гераклит, фр. B1 (Дильс–Кранц); или // своё рассуждение"
-                 value="${escapeAttr(prev)}">
-          <div class="modal-form-note">
-            Две косые в начале означают рассуждение составителя, а не ссылку.
-          </div>
+                 placeholder="Например: Гераклит, фр. B1 (Дильс–Кранц)"
+                 value="${escapeAttr(text)}">
+          <div class="modal-form-note" id="entityProvenanceNote"></div>
         </div>`;
     }
 
+    /**
+     * Поле ссылки нужно НЕ ВСЕГДА, и это видно сразу: «искали, не нашли» —
+     * состояние о работе, ссылки у него нет и быть не может.
+     */
+    function refreshProvenanceField() {
+      const stateSelect = document.getElementById('entityProvenanceStatus');
+      const field = document.getElementById('entityProvenance');
+      const noteSlot = document.getElementById('entityProvenanceNote');
+      if (!stateSelect || !field) return;
+      const state2 = stateSelect.value;
+      const needsCitation2 = state2 === 'sourced' || state2 === 'editorial_reasoning';
+      field.style.display = needsCitation2 ? '' : 'none';
+      if (!needsCitation2) field.value = '';
+      if (noteSlot) {
+        noteSlot.textContent =
+          state2 === 'sourced' ? 'Укажите локус: книга, глава, фрагмент.'
+        : state2 === 'editorial_reasoning' ? 'Своими словами: на чём держится утверждение.'
+        : state2 === 'source_not_found' ? 'Это пометка о ходе работы, а не о предмете: источник может найтись позже.'
+        : 'Источник ещё не искали — так и останется, пока не укажете.';
+      }
+    }
+
+    /** Строка и состояние отдаются вместе: порознь они могут разойтись. */
     function provenanceValue() {
       const field = document.getElementById('entityProvenance');
-      return field ? field.value.trim() : '';
+      const stateSelect = document.getElementById('entityProvenanceStatus');
+      const line = field ? field.value.trim() : '';
+      const state2 = stateSelect ? stateSelect.value : 'unspecified';
+      // Согласие сторожит и сервер (`assertProvenance`), но чинить его надо
+      // ЗДЕСЬ: человеку незачем получать отказ за то, что окно позволило.
+      if (state2 === 'sourced' && !line) {
+        return { строка: '', состояние: 'unspecified' };
+      }
+      return { строка: needsCitation(state2) ? line : '', состояние: state2 };
+    }
+
+    /**
+     * Что именно попадает в запись. `unspecified` НЕ ПИШЕТСЯ ВОВСЕ: это
+     * умолчание, и заводить поле ради него значит обвешать пустышками 453
+     * концепции, разойтись с файлами и снова смешать «нет» с «не указано» —
+     * ровно то, от чего состояние и заводилось.
+     */
+    function provenanceFields(line, состояние) {
+      const fields = {};
+      if (line) fields.provenance = line;
+      if (состояние && состояние !== 'unspecified') fields.provenanceStatus = состояние;
+      return fields;
+    }
+
+    function needsCitation(состояние) {
+      return состояние === 'sourced' || состояние === 'editorial_reasoning';
     }
 
 
@@ -32005,7 +32247,7 @@
               ${conn.description ? `
                 <div class="connection-description show" style="margin-top:10px;padding:10px;background:rgba(108,92,231,0.1);border-radius:6px;font-size:12px;color:#e0e0e0;line-height:1.5;">
                   ${conn.description}
-                </div>${provenanceBlock(conn.provenance)}` : `
+                </div>${provenanceBlock(conn.provenance, conn.provenanceStatus)}` : `
                 <div style="margin-top:10px;font-size:11px;color: var(--fg-muted);font-style:italic;">
                   Описания у этой связи нет
                 </div>`}
@@ -32281,7 +32523,7 @@
           ${conceptData.concept}
         </div>
         <div class="description">${conceptData.extendedDescription}</div>
-        ${provenanceBlock(conceptData.provenance)}
+        ${provenanceBlock(conceptData.provenance, conceptData.provenanceStatus)}
         <button class="goto-node-btn" onclick="gotoNodeFromModal('${conceptData.id}')">
           🎯 Перейти к узлу
         </button>
@@ -32818,7 +33060,7 @@
           ${philosopherData.years}
         </div>
         <div class="description">${formattedDescription}</div>
-        ${provenanceBlock(philosopherData.provenance)}
+        ${provenanceBlock(philosopherData.provenance, philosopherData.provenanceStatus)}
         <button class="goto-node-btn" onclick="closeUniversalModal(); setTimeout(() => showPhilosopherProfileModal('${philosopherName}'), 100);">
           📊 Статистический профиль
         </button>
@@ -33489,12 +33731,16 @@
     // invalidateEverythingForScope через invalidateAllMetricsCaches покрывает
     // все 38 функций сброса (проверено замером). Подписан ПЕРВЫМ: прочие
     // подписчики считают уже по обновлённым метрикам.
+    // ФАЗЫ НАЗВАНЫ ВСЛУХ (F-4). Прежде очередь держалась на порядке
+    // записи, и о её значимости знал только тот, кто однажды на ней
+    // погорел: отбор считался раньше подмены концов связей объектами, и
+    // граф исчезал с экрана.
     subscribe('data-changed', () => {
       initializePhilosophyMetrics();
       invalidateEverythingForScope();
-    });
+    }, 'derived');
 
-    subscribe('data-changed', updateFilterStats);
+    subscribe('data-changed', updateFilterStats, 'ui');
 
     // Всё, что раньше afterDataChange звал напрямую. Порядок сохранён тот же,
     // что был в теле функции: подписчики вызываются в порядке подписки.
@@ -33527,8 +33773,10 @@
     // boot), координаты и концы на месте, ошибок нет — а холст пуст, потому
     // что отбор посчитан раньше подмены. Причина была не в вызове, а в
     // очерёдности.
-    subscribe('data-changed', () => updateGraphData());
-    subscribe('data-changed', () => applyFiltersImmediate());
+    // Здесь d3 подменяет концы связей объектами — без этого отбор
+    // отсеивает всё, потому что спрашивает у конца свойство.
+    subscribe('data-changed', () => updateGraphData(), 'bound');
+    subscribe('data-changed', () => applyFiltersImmediate(), 'filters');
     subscribe('data-changed', () => {
       if (isStatsModalOpen && currentStatsView) loadStatsContent(currentStatsView);
     });

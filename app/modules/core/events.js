@@ -23,7 +23,18 @@ const BUS_EVENTS = [
 
 const busSubscribers = new Map();
 
-function subscribe(event, handler) {
+const BUS_PHASES = ['derived', 'bound', 'filters', 'ui'];
+
+function subscribe(event, handler, фаза) {
+      // Фаза приписывается самому подписчику: список подписок читается
+      // сверху вниз, и увидеть в нём очередь рассылки иначе нельзя.
+      if (фаза) {
+        if (!BUS_PHASES.includes(фаза)) {
+          console.error('шина: неизвестная фаза —', фаза);
+          return;
+        }
+        handler.фаза = фаза;
+      }
       if (!BUS_EVENTS.includes(event)) {
         console.error('шина: неизвестное событие при подписке —', event);
         return;
@@ -37,7 +48,14 @@ function emit(event, ...args) {
         console.error('шина: неизвестное событие —', event);
         return;
       }
-      for (const handler of busSubscribers.get(event) || []) {
+      const allHandlers = busSubscribers.get(event) || [];
+      // Рассылка идёт ПО ФАЗАМ. Внутри фазы порядок прежний — порядок
+      // записи; между фазами он объявлен и не зависит от того, кто когда
+      // подписался.
+      const queue = BUS_PHASES.length && allHandlers.some(h => h.фаза)
+        ? BUS_PHASES.flatMap(ф => allHandlers.filter(h => (h.фаза || 'ui') === ф))
+        : allHandlers;
+      for (const handler of queue) {
         try { handler(...args); }
         catch (e) { console.error('шина: подписчик события «' + event + '» упал —', e); }
       }

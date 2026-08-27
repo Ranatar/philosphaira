@@ -205,6 +205,51 @@ try {
     `!!(window.__app.authSession && window.__app.authSession.user)`), 'вошёл', 'нет');
   проверить('редактор править вправе', await pageHtml.evaluate(
     `window.__app.can(window.__app.PERM.CREATE_COMMIT)`), true, false);
+
+  // ── ВЫБОР СОСТОЯНИЯ В ОКНЕ ПРАВКИ (F-2, клиентская часть) ────────────
+  // СТАВИТСЯ ТАМ, ГДЕ ПРАВО ПРАВКИ ЗАВЕДОМО ЕСТЬ. Прежнее место было в
+  // конце пробы, после снятия второго шага, — а `openEditConceptModal`
+  // молча выходит по заслону `can(CREATE_COMMIT)`, и окно не открывалось
+  // вовсе. Проба показывала «вариантов 0», и выглядело это поломкой окна.
+  await pageHtml.evaluate(`window.__app.openEditConceptModal(
+    window.__app.DATA.concepts[0].id)`);
+  await ждать(900);
+  проверить('в окне правки выбирается СОСТОЯНИЕ, а не пунктуация',
+    (await pageHtml.evaluate(
+      `document.querySelectorAll('#entityProvenanceStatus option').length`)) === 4,
+    4, await pageHtml.evaluate(`(() => {
+      const о = document.getElementById('universalModalContent');
+      return 'вариантов ' + document.querySelectorAll('#entityProvenanceStatus option').length
+        + '; внутри: ' + (о ? о.textContent.replace(/\s+/g, ' ').slice(0, 80) : 'нет');
+    })()`));
+
+  // «Искали, не нашли» — состояние о ХОДЕ РАБОТЫ: строки у него нет.
+  await pageHtml.evaluate(`(() => {
+    document.getElementById('entityProvenanceStatus').value = 'source_not_found';
+    window.__app.refreshProvenanceField();
+  })()`);
+  проверить('у «искали, не нашли» поле ссылки скрыто',
+    (await pageHtml.evaluate(
+      `document.getElementById('entityProvenance').style.display`)) === 'none',
+    'none', await pageHtml.evaluate(
+      `document.getElementById('entityProvenance').style.display`));
+  проверить('и сказано, что это пометка о работе, а не о предмете',
+    /о ходе работы/.test(await pageHtml.evaluate(
+      `document.getElementById('entityProvenanceNote').textContent`)),
+    'о ходе работы', await pageHtml.evaluate(
+      `document.getElementById('entityProvenanceNote').textContent`).then(т => т.slice(0, 50)));
+
+  // ОКНО ЧИНИТ РАСХОЖДЕНИЕ САМО: «источник есть» без ссылки не уходит на
+  // сервер отказом, а превращается в «не указано».
+  await pageHtml.evaluate(`(() => {
+    document.getElementById('entityProvenanceStatus').value = 'sourced';
+    window.__app.refreshProvenanceField();
+    document.getElementById('entityProvenance').value = '';
+  })()`);
+  проверить('«источник есть» без ссылки окно правит само',
+    (await pageHtml.evaluate(`window.__app.provenanceValue().состояние`)) === 'unspecified',
+    'unspecified', await pageHtml.evaluate(`window.__app.provenanceValue().состояние`));
+  await pageHtml.evaluate(`window.__app.closeUniversalModal()`);
   проверить('но НЕ напрямую', await pageHtml.evaluate(
     `window.__app.can(window.__app.PERM.REVIEW_COMMIT) === false`), true, false);
 
@@ -642,6 +687,7 @@ try {
       .then(т => /адрес или пароль/i.test(т)), 'адрес или пароль',
     await pageHtml.evaluate(`(document.getElementById('authError')||{}).textContent || ''`));
 
+
   // ── КОЛОКОЛ (покрытие многопользовательской части) ────────────────────
   // Обход `sweep_all` сюда не доберётся никогда: он идёт по странице без
   // сервера, где колокола нет вовсе. Значит стеречь его может только этот
@@ -691,6 +737,7 @@ try {
       await pageHtml.evaluate(`window.__app.unreadCount`));
   }
 
+
   // ── ПРОИСХОЖДЕНИЕ СОДЕРЖАНИЯ В ОКНАХ (E-1, клиентская часть) ─────────
   // Раздел показывается ТОЛЬКО когда источник указан: пустое «Источник: —»
   // под каждой из 453 концепций приучило бы не читать этот раздел вовсе.
@@ -733,11 +780,91 @@ try {
       `(document.querySelector('#universalModal .provenance') || {}).textContent || ''`)),
     'Гераклит', await pageHtml.evaluate(
       `(document.querySelector('#universalModal .provenance') || {}).textContent || ''`));
+  // ВСЕ ТРИ ОКНА, А НЕ ОДНО. Прошлый заход по E-1 закончился тем, что
+  // заслон согласованности стоял только у концепции, — и нашлось это
+  // случайно, через несколько заходов. Проверяется каждое.
+  // СОСТОЯНИЕ ЗАВОДИТСЯ ЗДЕСЬ ЖЕ. Проба сеет граф из файлов, а в них
+  // состояния нет и не должно быть: оно появляется при правке. Брать
+  // «первую попавшуюся запись» бессмысленно — их ни одной.
+  await pageHtml.evaluate(`(async () => {
+    const c = window.__app.DATA.concepts[0];
+    await window.__app.api('/api/commits', { метод: 'POST', тело: {
+      message: 'проба: состояние происхождения',
+      changes: [{ action: 'edit', kind: 'concept', entityId: c.id,
+                  fields: {
+                    provenance: { base: c.provenance ?? null, next: 'Диоген Лаэртский IX' },
+                    provenanceStatus: { base: null, next: 'sourced' } } }] } });
+    await window.__app.pullGraphSince();
+  })()`);
+  await ждать(1500);
+
+  // ПРОВЕРЯЕТСЯ НА ЗАПИСИ, У КОТОРОЙ СОСТОЯНИЕ ЕСТЬ. Первая редакция брала
+  // `concepts[0]` — а у неё состояния нет ни в записи, ни в узле, и
+  // равенство сходилось бы само собой, ничего не проверив. Такая проверка
+  // зелена ровно до того дня, когда сломается перенос.
+  проверить('состояние доходит до УЗЛА, а не только до записи набора',
+    await pageHtml.evaluate(`(() => {
+      const c = window.__app.DATA.concepts.find(c => c.provenanceStatus);
+      if (!c) return 'нет ни одной записи с состоянием';
+      const n = window.__app.DATA.nodes.find(n => n.id === c.id);
+      if (!n) return 'узла нет';
+      return n.provenanceStatus === c.provenanceStatus
+        || 'у записи ' + c.provenanceStatus + ', у узла ' + n.provenanceStatus;
+    })()`) === true, 'перенесено',
+    await pageHtml.evaluate(`(() => {
+      const c = window.__app.DATA.concepts.find(c => c.provenanceStatus);
+      if (!c) return 'нет ни одной записи с состоянием';
+      const n = window.__app.DATA.nodes.find(n => n.id === c.id);
+      return n ? 'у записи ' + c.provenanceStatus + ', у узла ' + n.provenanceStatus : 'узла нет';
+    })()`));
+
   проверить('и назван словом «Источник»',
     /Источник/.test(await pageHtml.evaluate(
       `(document.querySelector('#universalModal .provenance-label') || {}).textContent || ''`)),
     'Источник', await pageHtml.evaluate(
       `(document.querySelector('#universalModal .provenance-label') || {}).textContent || ''`));
+
+  // СТАВИТСЯ ПОСЛЕ ПРОВЕРОК E-1. Прежнее место было выше, и правка
+  // источника, которую делает этот блок, подменяла тот, что ищет
+  // соседнее утверждение: оно ждало «Гераклита», а получало «Секста».
+  // Проба, меняющая данные, обязана знать, кто читает их после неё.
+  // ── ИЗМЕНЕНИЕ ОСНОВАНИЯ ВИДНО РЕЦЕНЗЕНТУ (F-3, п. 6) ─────────────────
+  // Автор видел предупреждение при правке; рецензенту доставался машинный
+  // адрес — ЧТО тронуто, но не чем это было и стало.
+  await pageHtml.evaluate(`(async () => {
+    const c = window.__app.DATA.concepts[0];
+    await window.__app.api('/api/commits', { метод: 'POST', тело: {
+      message: 'проба: смена основания',
+      changes: [{ action: 'edit', kind: 'concept', entityId: c.id,
+                  fields: {
+                    provenance: { base: c.provenance ?? null, next: 'Секст Эмпирик, Против учёных' },
+                    provenanceStatus: { base: c.provenanceStatus ?? null, next: 'sourced' } } }] } });
+  })()`);
+  await ждать(900);
+  await pageHtml.evaluate(`window.__app.openCommitsPanel()`);
+  await ждать(1200);
+  // ВКЛАДКА «СВОИ», А НЕ ОЧЕРЕДЬ. Правка админа ложится СРАЗУ (право
+  // рассмотрения у него есть), в очередь она не попадает вовсе — а
+  // основание надо показывать и у применённых.
+  await pageHtml.evaluate(`window.__app.switchCommitTab('mine')`);
+  await ждать(1500);
+  const основание = await pageHtml.evaluate(
+    `(document.querySelector('.prov-diff') || {}).textContent || ''`);
+  проверить('в записи правки видно ИЗМЕНЕНИЕ ОСНОВАНИЯ',
+    /Основание/.test(основание) && /было:/.test(основание) && /стало:/.test(основание),
+    'было и стало', await pageHtml.evaluate(`(() => {
+      const с = (window.__app.commitItems || [])[0];
+      return 'записей ' + (window.__app.commitItems || []).length
+        + '; changes ' + (с ? JSON.stringify(с.changes).slice(0, 60) : 'нет')
+        + '; блоков ' + document.querySelectorAll('.prov-diff').length;
+    })()`));
+  проверить('и сказано, менялся ли текст вместе с ним',
+    /ТОЛЬКО основание|текст изменён вместе/.test(основание),
+    'сказано', основание.replace(/\s+/g, ' ').slice(0, 70));
+  проверить('состояние названо СЛОВАМИ, а не кодом',
+    /источник|не указан|основание редактора|искали/.test(основание),
+    'словами', основание.replace(/\s+/g, ' ').slice(0, 70));
+  await pageHtml.evaluate(`window.__app.closeCommitsPanel && window.__app.closeCommitsPanel()`);
   await pageHtml.evaluate(`window.__app.closeUniversalModal()`);
 
   // ── ПОКРЫТИЕ ИСТОЧНИКАМИ (E-1, видимость фронта работ) ───────────────
@@ -745,11 +872,17 @@ try {
   // первый день не сообщает ничего, кроме того, что работа не начата.
   const покрытиеДо = await pageHtml.evaluate(
     `((document.getElementById('provenanceCoverage') || {}).textContent || '').trim()`);
-  проверить('покрытие источниками уже видно (источник внесён выше)',
-    /С источником/.test(покрытиеДо), 'строка есть', покрытиеДо.slice(0, 60));
+  // ПОКАЗАТЕЛЬ РАЗДЕЛЬНЫЙ (F-2, п. 5): библиография, собственное основание
+  // и «не найден» считаются порознь — прежнее «С источником: X/Y» мерило
+  // заполненность, а не подкреплённость.
+  проверить('покрытие названо по состояниям, а не одним числом',
+    /источник \d+ · основание \d+ · не найден \d+/.test(покрытиеДо),
+    'разбор по состояниям', покрытиеДо.slice(0, 70));
   проверить('и называет связи ПЕРВЫМИ, концепции после',
-    покрытиеДо.indexOf('связей') < покрытиеДо.indexOf('концепций'),
-    'связи впереди', покрытиеДо.slice(0, 60));
+    покрытиеДо.indexOf('связи') < покрытиеДо.indexOf('концепции'),
+    'связи впереди', покрытиеДо.slice(0, 70));
+  проверить('«не разобрано» показано отдельно — это фронт работ',
+    /не разобрано \d+/.test(покрытиеДо), 'не разобрано', покрытиеДо.slice(0, 70));
 
   // ── ЗАПОМНИТЬ ЗАМЕР (E-2, клиентская часть) ──────────────────────────
   await pageHtml.evaluate(`window.__app.openStatsModal()`);

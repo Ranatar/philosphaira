@@ -15,12 +15,12 @@ function sameValue(a, b) {
       return t(a) === t(b);
     }
 
-function describeChange(action, kind, entityId, было, next) {
+function describeChange(action, kind, entityId, prevSide, next) {
       const descr = { action, kind, entityId, fields: {} };
       if (action === 'delete') return descr;
       const fields = Object.keys(next || {});
       for (const field of fields) {
-        const base = было ? было[field] : null;
+        const base = prevSide ? prevSide[field] : null;
         // ИМЯ РАЗВЕДЕНО С ДОВОДОМ. Переименование `стало` → `next` дало
         // здесь `const next = next[field]` — переменная затенила довод
         // ЕЩЁ ДО СВОЕГО ОБЪЯВЛЕНИЯ, и вся правка падала с «Cannot access

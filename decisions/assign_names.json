@@ -854,16 +854,17 @@
     "loadObservations": "stats/observations.js",
     "renderObservations": "stats/observations.js",
     "pickObservation": "stats/observations.js",
-    "compareObservationsInPanel": "stats/observations.js"
+    "compareObservationsInPanel": "stats/observations.js",
+    "PROVENANCE_STATES": "modal/forms.js",
+    "refreshProvenanceField": "modal/forms.js",
+    "provenanceFields": "modal/persist.js",
+    "provenanceDiff": "modal/commits.js",
+    "stateInWords": "modal/commits.js",
+    "needsCitation": "modal/forms.js",
+    "BUS_PHASES": "core/events.js"
   },
   "новые": [
-    "observationItems",
-    "observationPicked",
-    "generateObservationsContent",
-    "loadObservations",
-    "renderObservations",
-    "pickObservation",
-    "compareObservationsInPanel"
+    "BUS_PHASES"
   ],
   "операторы": {
     "DATA.concepts.forEach(c => { DATA.conceptToRubrics[c.id] = c.r) @0293d862": {

@@ -193,9 +193,9 @@ function updateSimilarityLegend() {
         <div class="simleg-links" data-tip="Карта гасит все связи разом, чтобы рёбра не перетягивали внимание. «С источником» показывает, совпало ли сходство с прямым отношением; «между похожими» — сложилась ли подсвеченная часть в связную область">
           ${[['none', 'нет', 0],
              ['source', 'с источником', similarityLinkCount('source')],
-             ['all', 'между похожими', similarityLinkCount('all')]].map(([m, подпись, n]) =>
+             ['all', 'между похожими', similarityLinkCount('all')]].map(([m, label, n]) =>
             `<button class="simleg-lbtn ${(S.similarityOverlay.linkMode || 'none') === m ? 'active' : ''}"
-                 data-act-click="set-similarity-links" data-a1="${m}">${подпись}${m === 'none' ? '' : ` <b>${n}</b>`}</button>`).join('')}
+                 data-act-click="set-similarity-links" data-a1="${m}">${label}${m === 'none' ? '' : ` <b>${n}</b>`}</button>`).join('')}
         </div>
         <div class="simleg-scale ${isProfile ? '' : 'one-sided'}"></div>
         <div class="simleg-ticks">

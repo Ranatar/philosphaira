@@ -20,7 +20,7 @@ const parseCookie = строка => Object.fromEntries(
     return i === -1 ? [к.trim(), ''] : [к.slice(0, i).trim(), decodeURIComponent(к.slice(i + 1))];
   }).filter(([и]) => и));
 
-export class Соединения {
+export class Connections {
   constructor({ db, origins = null } = {}) {
     this.db = db;
     this.origins = origins;              // null — не проверять (для проб)
@@ -38,8 +38,8 @@ export class Соединения {
    * может жить неизвестным ни секунды.
    */
   async handleUpgrade(request, socket, head) {
-    const refuse = recoveryCode => {
-      socket.write(`HTTP/1.1 ${recoveryCode} \r\n\r\n`);
+    const refuse = httpCode => {
+      socket.write(`HTTP/1.1 ${httpCode} \r\n\r\n`);
       socket.destroy();
     };
     try {
@@ -48,8 +48,22 @@ export class Соединения {
       }
       const token = parseCookie(request.headers.cookie)[SESSION_COOKIE];
       const session = await sessionByToken(this.db, token);
-      // Частичная сессия (пароль прошёл, второй шаг нет) сокета не получает:
-      // она не даёт ничего, кроме права предъявить код.
+      // ГОСТЬ ЖИВЫХ ОБНОВЛЕНИЙ НЕ ПОЛУЧАЕТ — И ЭТО РЕШЕНИЕ, А НЕ УПУЩЕНИЕ
+      // (п. 18 ревизии 27.08). Он видит СНИМОК: граф на миг открытия
+      // страницы, а чужие правки — после перезагрузки.
+      //
+      // Почему так. По сокету идут не только правки графа, но и личные
+      // извещения; развести их — отдельная работа, а до тех пор всякий
+      // сокет несёт то, что гостю знать незачем: кто что правит, чьи
+      // коммиты ждут рассмотрения. Дешевле и честнее не открывать сокет
+      // вовсе, чем открыть и фильтровать содержимое.
+      //
+      // Если решение переменится, менять надо ЗДЕСЬ и вместе с разделением
+      // потоков: «читающий сигнал без личной начинки» — отдельный род
+      // сообщения, а не ослабленная застава.
+      //
+      // Частичная сессия (пароль прошёл, второй шаг нет) сокета не получает
+      // по другой причине: она не даёт ничего, кроме права предъявить код.
       if (!session || session.mfaPending || !isUsable(session.user)) return refuse(401);
 
       this.wss.handleUpgrade(request, socket, head,

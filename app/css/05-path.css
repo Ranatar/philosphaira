@@ -384,6 +384,21 @@
       transform: rotate(180deg);
     }
 
+    /* Изменение основания в записи правки: рядом с адресом, но тише его. */
+    .prov-diff {
+      margin-top: 6px; padding: 6px 8px; font-size: 11px;
+      border-left: 2px solid var(--accent, #6c5ce7);
+      background: rgba(108,92,231,0.06);
+    }
+    .prov-diff-head {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--fg-muted, #8b8b9e);
+    }
+    .prov-diff-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 3px; }
+    .prov-diff-what { font-weight: 600; }
+    .prov-diff-was { color: var(--fg-muted, #8b8b9e); }
+    .prov-diff-warn { color: var(--warning, #f39c12); }
+
     /* Раздел «Замеры»: список слева-сверху, сличение под ним. */
     .obs-list { display: flex; flex-direction: column; gap: 6px; }
     .obs-item {

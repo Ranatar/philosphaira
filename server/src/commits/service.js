@@ -17,7 +17,8 @@ import { insertCommit, findCommit, findOwnPendingForUpdate, updateOwnCommit,
 import { audit } from '../db/users.js';
 import { assertCan } from '../access/access.js';
 import { P } from '../access/roles.js';
-import { SET_BY_KIND } from '../graph/schema.js';
+import { SET_BY_KIND, PROVENANCE_STATUS, PROVENANCE_STATUSES }
+  from '../graph/schema.js';
 import { notify } from '../notify/notify.js';
 import { N } from '../notify/catalog.js';
 import { Forbidden, Conflict, NotFound } from '../http/errors.js';
@@ -70,8 +71,41 @@ export function assertChanges(changes) {
           'Без «было» нельзя отличить одинаковую правку от разной.');
       }
     }
+    assertProvenance(fieldNames, where);
   });
   return changes;
+}
+
+/**
+ * СОСТОЯНИЕ ПРОИСХОЖДЕНИЯ СОГЛАСНО СО СТРОКОЙ.
+ *
+ * Состояние, расходящееся со строкой, хуже отсутствия состояния: оно
+ * УТВЕРЖДАЕТ то, чего нет. `sourced` без ссылки говорит «источник есть», а
+ * его нет; `unspecified` при заполненной строке говорит «не искали», хотя
+ * искали и нашли. Проверяется здесь, а не в окне: окно можно обойти ходом.
+ */
+function assertProvenance(fields, where) {
+  const status = fields.provenanceStatus?.next;
+  const citation = 'provenance' in fields
+    ? String(fields.provenance.next ?? '').trim()
+    : null;
+
+  if (status != null && !PROVENANCE_STATUSES.includes(status)) {
+    throw new Forbidden(`${where}: неизвестное состояние происхождения «${status}»`);
+  }
+  if (status == null) return;   // состояние не трогают — судить не о чем
+
+  const hasCitation = citation !== null ? citation.length > 0 : undefined;
+  if (hasCitation === undefined) return;   // строку не трогают, проверить нечем
+
+  if (status === PROVENANCE_STATUS.SOURCED && !hasCitation) {
+    throw new Forbidden(
+      `${where}: состояние «источник есть», а строка источника пуста`);
+  }
+  if (status === PROVENANCE_STATUS.UNSPECIFIED && hasCitation) {
+    throw new Forbidden(
+      `${where}: состояние «не указано», а строка источника заполнена`);
+  }
 }
 
 export async function createCommit(pool, { actor, message, authorComment = null,

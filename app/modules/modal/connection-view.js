@@ -194,7 +194,7 @@ function generateConnectionVisualization(sourceNode, targetNode, connectionData)
               ${conn.description ? `
                 <div class="connection-description show" style="margin-top:10px;padding:10px;background:rgba(108,92,231,0.1);border-radius:6px;font-size:12px;color:#e0e0e0;line-height:1.5;">
                   ${conn.description}
-                </div>${provenanceBlock(conn.provenance)}` : `
+                </div>${provenanceBlock(conn.provenance, conn.provenanceStatus)}` : `
                 <div style="margin-top:10px;font-size:11px;color: var(--fg-muted);font-style:italic;">
                   Описания у этой связи нет
                 </div>`}
