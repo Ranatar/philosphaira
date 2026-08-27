@@ -117,13 +117,14 @@ function rebuildDerived() {
         id: c.id, label: c.label, concept: byName[c.philosopher],
         rubrics: c.rubrics || [], description: c.description,
         extendedDescription: c.extendedDescription,
-        provenance: c.provenance,
+        provenance: c.provenance, provenanceStatus: c.provenanceStatus,
       })));
       DATA.links.length = 0;
       DATA.links.push(...DATA.relations.map(r => ({
         id: r.id, source: r.source, target: r.target, type: r.type,
         weight: r.weight, bidirectional: r.bidirectional || false,
         description: r.description, provenance: r.provenance,
+        provenanceStatus: r.provenanceStatus,
       })));
 
       // Места возвращаются уцелевшим по идентификатору; новым — середина
@@ -145,8 +146,8 @@ function rebuildDerived() {
       // среди подписок запуска, — см. пояснение там же о том, почему первым.
     }
 
-function applyFreshGraph(состояние) {
-      const sets = состояние && состояние.наборы;
+function applyFreshGraph(state2) {
+      const sets = state2 && state2.наборы;
       if (!sets) return false;
       if (Array.isArray(sets.concepts))      { DATA.concepts.length = 0;      DATA.concepts.push(...sets.concepts); }
       if (Array.isArray(sets.relations))     { DATA.relations.length = 0;     DATA.relations.push(...sets.relations); }

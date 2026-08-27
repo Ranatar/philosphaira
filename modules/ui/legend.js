@@ -311,15 +311,38 @@ function updateProvenanceCoverage() {
       // `links`/`nodes`: происхождение — свойство записи в базе, и узлы с
       // связями получают его переносом. Считать по ним значило бы мерить
       // полноту переноса, а не работу составителя.
-      const withValue = список => (список || [])
-        .filter(z => z && String(z.provenance || '').trim()).length;
-      const withRelations = withValue(DATA.relations);
-      const withConcepts = withValue(DATA.concepts);
-      if (!withRelations && !withConcepts) { slot.textContent = ''; return; }
-      const share = (сколько, всего) => всего
-        ? `${сколько}/${всего} (${Math.round(сколько * 100 / всего)}%)` : '—';
-      slot.textContent = 'С источником: связей ' + share(withRelations, (DATA.relations || []).length)
-        + ', концепций ' + share(withConcepts, (DATA.concepts || []).length);
+      // РАЗДЕЛЬНО ПО СОСТОЯНИЯМ, А НЕ «С ИСТОЧНИКОМ: X/Y».
+      //
+      // Прежний счётчик мерил ЗАПОЛНЕННОСТЬ: библиографическая ссылка и
+      // собственное рассуждение шли в одну кучу, и число говорило, сколько
+      // полей не пусто, — а не сколько утверждений подкреплено.
+      // «Процента достоверности» здесь нет и не будет: достоверность не
+      // считается делением, и такой процент немедленно стал бы враньём.
+      const byState = список => {
+        const fields = { sourced: 0, editorial_reasoning: 0, source_not_found: 0 };
+        for (const z of список || []) {
+          if (!z) continue;
+          const line = String(z.provenance || '').trim();
+          const state = z.provenanceStatus
+            || (line.startsWith('//') ? 'editorial_reasoning'
+                                        : (line ? 'sourced' : 'unspecified'));
+          if (state in fields) fields[state]++;
+        }
+        return fields;
+      };
+      const byRelations = byState(DATA.relations);
+      const byConcepts = byState(DATA.concepts);
+      const classified = о => о.sourced + о.editorial_reasoning + о.source_not_found;
+      if (!classified(byRelations) && !classified(byConcepts)) {
+        slot.textContent = '';
+        return;
+      }
+      const asLine = (имя, о, длина) => имя + ': источник ' + о.sourced
+        + ' · основание ' + о.editorial_reasoning
+        + ' · не найден ' + о.source_not_found
+        + ' · не разобрано ' + (длина - classified(о));
+      slot.textContent = asLine('связи', byRelations, (DATA.relations || []).length)
+        + '; ' + asLine('концепции', byConcepts, (DATA.concepts || []).length);
     }
 
 const legendWeightsToggle = document.getElementById('useWeightsToggle');

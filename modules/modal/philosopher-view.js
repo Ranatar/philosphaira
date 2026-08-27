@@ -125,7 +125,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
           ${philosopherData.years}
         </div>
         <div class="description">${formattedDescription}</div>
-        ${provenanceBlock(philosopherData.provenance)}
+        ${provenanceBlock(philosopherData.provenance, philosopherData.provenanceStatus)}
         <button class="goto-node-btn" data-act-click="close-universal-modal-3" data-a1="${philosopherName}">
           📊 Статистический профиль
         </button>

@@ -62,7 +62,7 @@ function savePhilosopherData() {
       if (clash) { alert('Философ с именем «' + name + '» уже существует'); return; }
 
       // Происхождение читается ДО заслона: заслон о нём и спрашивает.
-      const provenance = provenanceValue();
+      const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
 
       // Полнота (у каждого хотя бы одна традиция) — договорённость, а не
       // запрет: предупреждаем и даём сохранить, как принято в этом окне.
@@ -93,7 +93,7 @@ function savePhilosopherData() {
       // у созданного философа не будет ни традиции, ни раздела в окне.
       const next = { name, nameRu: name, color,
                 birth, death, years, traditions: traditionIds, description,
-                ...(provenance ? { provenance } : {}) };
+                ...provenanceFields(provenance, provenanceStatus) };
       const philId = isNew
         ? (name.toLowerCase().replace(/\s+/g, '_')
              .replace(/[^a-z0-9_а-яё]/gi, '') || generateId('phil'))
@@ -200,7 +200,7 @@ function saveConceptData() {
         ? Array.from(rubrEl.selectedOptions).map(o => o.value) : [];
       const description = descEl ? descEl.value.trim() : '';
       const extendedDescription = extEl ? extEl.value.trim() : '';
-      const provenance = provenanceValue();
+      const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
 
       if (!label || !philosopher) {
         alert('Укажите название концепции и философа'); return;
@@ -225,13 +225,13 @@ function saveConceptData() {
       // «источник — пустая строка».
       const next = { label, philosopher: philData.id,
               rubrics: selectedRubricIds, description, extendedDescription,
-              ...(provenance ? { provenance } : {}) };
+              ...provenanceFields(provenance, provenanceStatus) };
 
       if (isNew) {
         const id = generateId('concept');
         const newNode = { id, label, concept: philosopher,
                   rubrics: selectedRubricIds, description, extendedDescription,
-                  ...(provenance ? { provenance } : {}) };
+                  ...provenanceFields(provenance, provenanceStatus) };
         submitChange(
           describeChange('add', 'concept', id, null, next),
           () => {
@@ -321,7 +321,7 @@ function saveConnectionData() {
           original.source.id || original.source,
           original.target.id || original.target, false);
 
-      const provenance = provenanceValue();
+      const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
       if (!confirmWarnings('Сохранение связи',
           connectionIntegrityWarnings(source, target, type, weight,
                         bidirectional, originalLink)
@@ -332,7 +332,7 @@ function saveConnectionData() {
       // идентификаторами. В links те же концы — объектами узлов, и путать
       // их нельзя: сервер примет только первое.
       const next = { source, target, type, weight, bidirectional, description,
-                ...(provenance ? { provenance } : {}) };
+                ...provenanceFields(provenance, provenanceStatus) };
 
       if (isNew) {
         const id = generateId('rel');
@@ -428,6 +428,13 @@ function deleteConnection(sourceId = null, targetId = null) {
         if (cur) openUniversalModal('concept', cur, ModalContext.currentMode,
                       { noPush: true });
       }
+    }
+
+function provenanceFields(line, состояние) {
+      const fields = {};
+      if (line) fields.provenance = line;
+      if (состояние && состояние !== 'unspecified') fields.provenanceStatus = состояние;
+      return fields;
     }
 
 export { deleteConcept, deleteConnection, deletePhilosopher, saveConceptData, saveConnectionData, savePhilosopherData };

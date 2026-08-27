@@ -1063,6 +1063,13 @@
   "аргументов": 0,
   "откуда": "modules/modal/edit-rights.js"
  },
+ "refresh-provenance-field-change": {
+  "код": "refreshProvenanceField()",
+  "attr": "onchange",
+  "тело": "refreshProvenanceField()",
+  "аргументов": 0,
+  "откуда": "modules/modal/forms.js"
+ },
  "open-universal-modal-9": {
   "код": "openUniversalModal('philosopher', '${f.nameRu}', 'view');",
   "attr": "onclick",

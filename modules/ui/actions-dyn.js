@@ -11,6 +11,7 @@ import { closeUniversalModal, openUniversalModal, popModalState, toggleModalMode
 import { toggleAllConnectionDescriptions, toggleAllPhilosopherConceptDescriptions, toggleAllPhilosopherConnectionDescriptions, toggleConnectionDescription, togglePhilosopherConceptDescription, toggleSubsection } from '../modal/descriptions.js';
 import { syncPhilColorFromPicker, updatePhilColorSample } from '../modal/edit-forms.js';
 import { gotoNodeFromModal, openConceptById, openEditConceptModal, openEditConnectionModal, showAllConcepts, showPhilosopherDetailModal } from '../modal/entry.js';
+import { refreshProvenanceField } from '../modal/forms.js';
 import { deleteConnection } from '../modal/persist.js';
 import { closeConceptProfileModal, showConceptProfileModal, toggleProfileOrder } from '../modal/profile-concept.js';
 import { closePhilosopherProfileModal, showPhilosopherProfileModal } from '../modal/profile-philosopher.js';
@@ -78,6 +79,7 @@ registerActions({
   "open-auth-modal-2": (el, ev) => { openAuthModal('register'); },
   "open-security-modal": (el, ev) => { openSecurityModal(); },
   "auth-logout": (el, ev) => { authLogout(); },
+  "refresh-provenance-field-change": (el, ev) => { refreshProvenanceField(); },
   "open-universal-modal-9": (el, ev) => { openUniversalModal('philosopher', el.dataset.a1, 'view'); },
   "show-philosopher-detail-modal": (el, ev) => { showPhilosopherDetailModal(el.dataset.a1); },
   "handle-philosopher-search-input": (el, ev) => { handlePhilosopherSearch(el.value); },
