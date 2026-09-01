@@ -5,6 +5,7 @@ import '../core/graph-index.js';
 import '../state/render.js';
 import { resizeCanvas } from './canvas-core.js';
 import { resetHighlight } from './selection.js';
+import { pullStrengthOf, resetLayoutClock } from '../state/render.js';
 
 const philosopherNames = Object.keys(DATA.philosopherConcepts);
 
@@ -47,6 +48,10 @@ function toggleGrouping() {
           .force("y", d3.forceY(d => groupPositions[d.concept].y).strength(0.3))
           .force("charge", d3.forceManyBody().strength(-200))
           .force("collision", d3.forceCollide().radius(40));
+        // Тяга к середине ГАСИТСЯ, а не снимается: снятая сила исчезла бы
+        // насовсем, а гашение обратимо одной строкой ниже.
+        S.simulation.force("pullX").strength(0);
+        S.simulation.force("pullY").strength(0);
       } else {
         btn.classList.remove('active');
         btn.textContent = '📦';
@@ -59,12 +64,14 @@ function toggleGrouping() {
           .force("charge", d3.forceManyBody().strength(-350))
           .force("collision", d3.forceCollide().radius(45))
           .force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
+        S.simulation.force("pullX").strength(pullStrengthOf);
+        S.simulation.force("pullY").strength(pullStrengthOf);
       }
-      S.tickCount = 0;
+      resetLayoutClock();
       S.simulation.alpha(0.5).restart();
     }
 
-// window.addEventListener('resize') @896fd83c
+// window.addEventListener('resize') @f7a8b18f
 function installResize() {
 window.addEventListener('resize', () => {
       const newWidth = window.innerWidth;
@@ -94,6 +101,11 @@ window.addEventListener('resize', () => {
       } else {
         S.simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
       }
+      // forceX вычисляет цель ОДИН РАЗ, при инициализации силы. Без этих
+      // двух строк после разворота окна центр тяжести и центр тяги
+      // разъезжаются, и граф тянут в разные стороны две силы сразу.
+      S.simulation.force("pullX").x(newWidth / 2);
+      S.simulation.force("pullY").y(newHeight / 2);
       
       S.simulation.alpha(0.3).restart();
     });

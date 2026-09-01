@@ -6,6 +6,7 @@ import '../core/graph-index.js';
 import { renderState } from './canvas-core.js';
 import { requestDraw } from './loop.js';
 import { startRadiusAnimation } from './scene.js';
+import { resetLayoutClock } from '../state/render.js';
 
 const nodeHandlers = {};
 
@@ -89,7 +90,7 @@ const gfxZoom = d3.zoom()
 
 function dragstarted(event, d) {
       if (!event.active) {
-        S.tickCount = 0; 
+        resetLayoutClock();
         S.simulation.alphaTarget(0.3).restart();
       }
       d.fx = d.x;

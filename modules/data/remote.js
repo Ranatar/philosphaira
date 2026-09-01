@@ -4,6 +4,7 @@ import '../core/graph-index.js';
 import { api, serverMode } from '../core/api.js';
 import { emit } from '../core/events.js';
 import { afterDataChange } from './mutate.js';
+import { applyServerLayout } from '../state/render.js';
 
 let knownGraphVersion = 0;
 
@@ -58,6 +59,11 @@ async function pullGraphSince() {
       const reply = await api('/api/graph?since=' + encodeURIComponent(knownGraphVersion));
       if (!reply.годно || !reply.тело || !reply.тело.data) return [];
       const touched = applyIncrement(reply.тело.data);
+      // Раскладка приходит с приращением только когда она новее той, что у
+      // нас, — то есть после чужой правки, задевшей состав узлов и связей.
+      // Ставится ПОСЛЕ применения приращения: сперва новые сущности, потом
+      // их места.
+      applyServerLayout(reply.тело.data.раскладка && reply.тело.data.раскладка.позиции);
       if (touched.length) emit('graph-updated-remotely', touched);
       return touched;
     }
@@ -158,6 +164,9 @@ function applyFreshGraph(state2) {
 
       rebuildDerived();
       afterDataChange({ philosophers: true, nodes: true, links: true });
+      // ПОРЯДОК СУЩЕСТВЕНЕН: afterDataChange будит укладку, и координаты
+      // ставятся ПОСЛЕ неё — иначе симуляция стронет узлы с присланных мест.
+      applyServerLayout(state2.раскладка && state2.раскладка.позиции);
       return true;
     }
 

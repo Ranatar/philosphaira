@@ -2,6 +2,7 @@
 import { DATA, S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
+import '../state/render.js';
 import { showTemporaryMessage } from '../core/long-task.js';
 import { gfxSvg } from './canvas-core.js';
 import { gfxZoom } from './d3-layer.js';
@@ -9,10 +10,13 @@ import { requestDraw } from './loop.js';
 import { rebuildQuadtree } from './picking.js';
 import { ensureAnimLoop, needsContinuousAnimation } from './scene.js';
 import { resetHighlight } from './selection.js';
+import { resetLayoutClock } from '../state/render.js';
 
-const maxTicks = 300;
+const maxTicksFor = decay => Math.ceil(Math.log(S.simulation.alphaMin()) / Math.log(1 - decay));
 
-// S.simulation.on("tick") @a784a5a3
+S.maxTicks = maxTicksFor(S.simulation.alphaDecay());
+
+// S.simulation.on("tick") @c9c97c96
 function installSimulationTick() {
 S.simulation.on("tick", () => {
       // Ф0.5/Б12: d3-timer уже синхронизирован с кадрами, поэтому обёртка
@@ -25,7 +29,8 @@ S.simulation.on("tick", () => {
       S.pickDirty = true;
       requestDraw();
 
-      if (S.tickCount >= maxTicks) {
+      if (S.tickCount >= S.maxTicks) {
+        S.layoutSettled = true;
         S.simulation.stop();
       }
     });
@@ -51,14 +56,14 @@ function resetSimulation() {
         n.fy = null;
       });
       resetHighlight();
-      S.tickCount = 0;
+      resetLayoutClock();
       S.simulation.alpha(1).restart();
     }
 
 function toggleSimulationFreeze() {
       if (simLockedByHand) {
         simLockedByHand = false;
-        const settled = !S.simulation || S.tickCount >= maxTicks;
+        const settled = !S.simulation || S.layoutSettled;
         unfreezeSimulation('рука');
         if (settled) showTemporaryMessage('Раскладка уже улеглась — двигаться нечему', 2000);
       } else {
@@ -86,7 +91,7 @@ function centerGraph() {
         .scale(1);
       gfxSvg.transition().duration(750).call(gfxZoom.transform, transform);
       S.simulation.force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
-      S.tickCount = 0;
+      resetLayoutClock();
       S.simulation.alpha(0.3).restart();
     }
 
@@ -108,7 +113,7 @@ function unfreezeSimulation(source) {
         && needsContinuousAnimation()) {
         ensureAnimLoop();
       }
-      if (S.simulation && S.tickCount < maxTicks) {
+      if (S.simulation && !S.layoutSettled) {
         // Возобновляем симуляцию с небольшой энергией
         S.simulation.alpha(0.3).restart();
         // console.log("Симуляция разморожена");

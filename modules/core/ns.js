@@ -18,7 +18,7 @@
 // Почему не отдельные .js-модули с данными: база остаётся шестью .json —
 // их пишет сохранение из приложения, их же кладут в data/ вручную. Заменишь
 // способ чтения на .js — подложенный .json перестанет действовать молча.
-const FILES = ["traditions","philosophers","rubrics","relationTypes","concepts","relations"];
+const FILES = ["traditions","philosophers","rubrics","relationTypes","concepts","relations","nodePositions"];
 const loaded = await Promise.all(FILES.map(n =>
   fetch(new URL('../../data/' + n + '.json', import.meta.url))
     .then(r => {

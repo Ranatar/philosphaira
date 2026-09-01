@@ -16,7 +16,7 @@ import { lastSubmitResult, lastSubmitted } from './modules/data/backend.js';
 import { connectLive, knownGraphVersion, pullGraphSince } from './modules/data/remote.js';
 import { DATA_SETS, collectData, hasUnsaved } from './modules/data/save.js';
 import { resetBeyondFilter } from './modules/filters/beyond-filter.js';
-import { findConnection, getConceptConnections } from './modules/graph/graph-data.js';
+import { addLinkToGraph, findConnection, getConceptConnections } from './modules/graph/graph-data.js';
 import { cancelGraphSelection } from './modules/graph/graph-selection.js';
 import { toggleMetricValueMode } from './modules/metrics/format.js';
 import { initializePhilosophyMetrics } from './modules/metrics/link-indexes.js';
@@ -25,7 +25,7 @@ import { handleMetricsScopeChange } from './modules/metrics/scope.js';
 import { profileIsMeaningful, profileSimilarity, similarityData, structuralSimilarity } from './modules/metrics/similarity-concepts.js';
 import { philosopherSimilarity, philosopherSimilarityData } from './modules/metrics/similarity-philosophers.js';
 import { authLogout, closeAuthModal, openAuthModal, submitAuth } from './modules/modal/auth.js';
-import { closeCommitsPanel, commitError, commitItems, commitTab, loadCommits, openCommitsPanel, showImpact, switchCommitTab } from './modules/modal/commits.js';
+import { applyRelayout, askLayoutRevert, closeCommitsPanel, commitError, commitItems, commitTab, doLayoutRevert, layoutHistoryItems, layoutPlan, layoutRevertTo, loadCommits, loadLayoutHistory, openCommitsPanel, planRelayout, showImpact, switchCommitTab } from './modules/modal/commits.js';
 import { lastConflict, rebuildOverCurrent, showConflict } from './modules/modal/conflict.js';
 import { handleConnectionViewSearch, toggleConnectionSearchSection } from './modules/modal/connection-view.js';
 import { closeUniversalModal, openUniversalModal, toggleModalMode } from './modules/modal/core.js';
@@ -47,8 +47,8 @@ import { pickLink, pickNode, toGraph } from './modules/render/picking.js';
 import { hasNodeClass } from './modules/render/render-state.js';
 import { highlightConnected, highlightNodeById, highlightPhilosopherOnGraph, resetHighlight } from './modules/render/selection.js';
 import { clearSimilarityOverlay, showSimilarityOverlay } from './modules/render/similarity-overlay.js';
-import { freezeSimulation, unfreezeSimulation } from './modules/render/simulation.js';
-import { selectedEdges, selectedNodes } from './modules/state/render.js';
+import { freezeSimulation, resetSimulation, unfreezeSimulation } from './modules/render/simulation.js';
+import { applyStoredLayout, graphFingerprint, layoutFromStore, selectedEdges, selectedNodes } from './modules/state/render.js';
 import { closeStatsModal, handleStatsParameterChange, loadStatsContent, openStatsModal, switchStatsView } from './modules/stats/modal.js';
 import { pickObservation, saveObservation } from './modules/stats/observations.js';
 import { toggleMetricLayout } from './modules/stats/results.js';
@@ -62,7 +62,7 @@ import { handleLegendLinkSearch, pickLinkEnd } from './modules/ui/search-link.js
 import { clearPhilosopherSearch, handleLegendPhilSearch, handlePhilosopherSearch } from './modules/ui/search-philosopher.js';
 import { selectCustomOption, showCustomSelectDropdown } from './modules/widgets/custom-select.js';
 
-const A = { DATA, S, MET, VIEWS, DATA_SETS, PERM, actionNames, api, authLogout, can, cancelGraphSelection, changeFilterMode, clearLegendSearch, clearPhilosopherSearch, clearSimilarityOverlay, closeAboutModal, closeAuthModal, closeCommitsPanel, closeConceptProfileModal, closePathDescriptionsModal, closePhilosopherProfileModal, closeStatsModal, closeUniversalModal, closeUsersPanel, collectData, confirmMfaEnroll, connectLive, deleteConnection, deselectAllPhilosophers, deselectAllRubrics, emit, exportToPNG, exportToSVG, findAndShowPath, findConnection, findShortestPath, freezeSimulation, getConceptConnections, gfxCanvas, handleConnectionViewSearch, handleLegendLinkSearch, handleLegendPhilSearch, handleLegendSearch, handleMetricsScopeChange, handleModalSearch, handlePhilosopherSearch, handleStatsParameterChange, hasNodeClass, hasUnsaved, highlightConnected, highlightNodeById, highlightPhilosopherOnGraph, initializePhilosophyMetrics, isLinkVisible, isNodeVisible, isSymmetricLink, linkDrawAlpha, linkVisualState, loadCommits, loadNotifications, loadStatsContent, loadUsers, markAllNotificationsRead, medianNodeDegree, nodeDegreeOf, onlyTradition, openAboutModal, openAuthModal, openCommitsPanel, openConceptById, openEditConceptModal, openEditConnectionModal, openSecurityModal, openStatsModal, openUniversalModal, openUsersPanel, philosopherSimilarity, philosopherSimilarityData, pickLink, pickLinkEnd, pickNode, pickObservation, profileIsMeaningful, profileSimilarity, provenanceValue, pullGraphSince, rebuildOverCurrent, refreshProvenanceField, refreshSecurityDone, refreshUnread, renderState, resetBeyondFilter, resetHighlight, saveConceptData, saveConnectionData, saveObservation, selectAllPhilosophers, selectAllRelations, selectAllRubrics, selectAllTraditions, selectCustomOption, selectSearchResult, setSearchKind, showConceptProfileModal, showConflict, showCustomSelectDropdown, showImpact, showPathDescriptionsModal, showPhilosopherProfileModal, showSimilarityOverlay, similarityData, startMfaEnroll, structuralSimilarity, submitAuth, subscribe, switchCommitTab, switchStatsView, toGraph, toggleConnectionSearchSection, toggleGrouping, toggleLegendSearch, toggleMetricLayout, toggleMetricValueMode, toggleModalMode, toggleNotifyPanel, togglePhilosopher, unfreezeSimulation };
+const A = { DATA, S, MET, VIEWS, DATA_SETS, PERM, actionNames, addLinkToGraph, api, applyRelayout, applyStoredLayout, askLayoutRevert, authLogout, can, cancelGraphSelection, changeFilterMode, clearLegendSearch, clearPhilosopherSearch, clearSimilarityOverlay, closeAboutModal, closeAuthModal, closeCommitsPanel, closeConceptProfileModal, closePathDescriptionsModal, closePhilosopherProfileModal, closeStatsModal, closeUniversalModal, closeUsersPanel, collectData, confirmMfaEnroll, connectLive, deleteConnection, deselectAllPhilosophers, deselectAllRubrics, doLayoutRevert, emit, exportToPNG, exportToSVG, findAndShowPath, findConnection, findShortestPath, freezeSimulation, getConceptConnections, gfxCanvas, graphFingerprint, handleConnectionViewSearch, handleLegendLinkSearch, handleLegendPhilSearch, handleLegendSearch, handleMetricsScopeChange, handleModalSearch, handlePhilosopherSearch, handleStatsParameterChange, hasNodeClass, hasUnsaved, highlightConnected, highlightNodeById, highlightPhilosopherOnGraph, initializePhilosophyMetrics, isLinkVisible, isNodeVisible, isSymmetricLink, layoutFromStore, linkDrawAlpha, linkVisualState, loadCommits, loadLayoutHistory, loadNotifications, loadStatsContent, loadUsers, markAllNotificationsRead, medianNodeDegree, nodeDegreeOf, onlyTradition, openAboutModal, openAuthModal, openCommitsPanel, openConceptById, openEditConceptModal, openEditConnectionModal, openSecurityModal, openStatsModal, openUniversalModal, openUsersPanel, philosopherSimilarity, philosopherSimilarityData, pickLink, pickLinkEnd, pickNode, pickObservation, planRelayout, profileIsMeaningful, profileSimilarity, provenanceValue, pullGraphSince, rebuildOverCurrent, refreshProvenanceField, refreshSecurityDone, refreshUnread, renderState, resetBeyondFilter, resetHighlight, resetSimulation, saveConceptData, saveConnectionData, saveObservation, selectAllPhilosophers, selectAllRelations, selectAllRubrics, selectAllTraditions, selectCustomOption, selectSearchResult, setSearchKind, showConceptProfileModal, showConflict, showCustomSelectDropdown, showImpact, showPathDescriptionsModal, showPhilosopherProfileModal, showSimilarityOverlay, similarityData, startMfaEnroll, structuralSimilarity, submitAuth, subscribe, switchCommitTab, switchStatsView, toGraph, toggleConnectionSearchSection, toggleGrouping, toggleLegendSearch, toggleMetricLayout, toggleMetricValueMode, toggleModalMode, toggleNotifyPanel, togglePhilosopher, unfreezeSimulation };
 
 // Живые величины — через посредника: обращение к нему читает переменную
 // модуля в тот миг, когда спросили.
@@ -75,6 +75,9 @@ const ЖИВЫЕ = {
   get lastConflict() { return typeof lastConflict !== 'undefined' ? lastConflict : undefined; },
   get lastSubmitResult() { return typeof lastSubmitResult !== 'undefined' ? lastSubmitResult : undefined; },
   get lastSubmitted() { return typeof lastSubmitted !== 'undefined' ? lastSubmitted : undefined; },
+  get layoutHistoryItems() { return typeof layoutHistoryItems !== 'undefined' ? layoutHistoryItems : undefined; },
+  get layoutPlan() { return typeof layoutPlan !== 'undefined' ? layoutPlan : undefined; },
+  get layoutRevertTo() { return typeof layoutRevertTo !== 'undefined' ? layoutRevertTo : undefined; },
   get notifyItems() { return typeof notifyItems !== 'undefined' ? notifyItems : undefined; },
   get selectedEdges() { return typeof selectedEdges !== 'undefined' ? selectedEdges : undefined; },
   get selectedNodes() { return typeof selectedNodes !== 'undefined' ? selectedNodes : undefined; },
@@ -101,6 +104,9 @@ Object.defineProperties(A, {
   lastConflict: { get: () => ЖИВЫЕ.lastConflict },
   lastSubmitResult: { get: () => ЖИВЫЕ.lastSubmitResult },
   lastSubmitted: { get: () => ЖИВЫЕ.lastSubmitted },
+  layoutHistoryItems: { get: () => ЖИВЫЕ.layoutHistoryItems },
+  layoutPlan: { get: () => ЖИВЫЕ.layoutPlan },
+  layoutRevertTo: { get: () => ЖИВЫЕ.layoutRevertTo },
   notifyItems: { get: () => ЖИВЫЕ.notifyItems },
   selectedEdges: { get: () => (S.selectedEdges !== undefined ? S.selectedEdges : ЖИВЫЕ.selectedEdges) },
   selectedNodes: { get: () => (S.selectedNodes !== undefined ? S.selectedNodes : ЖИВЫЕ.selectedNodes) },

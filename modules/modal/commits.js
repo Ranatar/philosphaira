@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { api } from '../core/api.js';
 import { emit } from '../core/events.js';
+import { showTemporaryMessage } from '../core/long-task.js';
 import { PERM, can } from '../core/perms.js';
 import { pullGraphSince } from '../data/remote.js';
 import { PROVENANCE_STATES } from './forms.js';
@@ -26,8 +27,95 @@ function closeCommitsPanel() {
     }
 
 function switchCommitTab(вкладка) {
-      commitTab = (вкладка === 'pending' && can(PERM.REVIEW_COMMIT)) ? 'pending' : 'mine';
+      // Вкладка выбирается ПО ПРАВУ, а не по названию: нажатие на скрытую
+      // кнопку (или зов из консоли) не должен открывать чужое.
+      if (вкладка === 'layout' && can(PERM.RELAYOUT_GRAPH)) commitTab = 'layout';
+      else if (вкладка === 'pending' && can(PERM.REVIEW_COMMIT)) commitTab = 'pending';
+      else commitTab = 'mine';
+      if (commitTab === 'layout') {
+        layoutPlan = null; layoutError = ''; layoutRevertTo = null;
+        renderCommits();
+        loadLayoutHistory();
+        return;
+      }
       loadCommits();
+    }
+
+let layoutPlan = null;
+
+let layoutError = '';
+
+async function planRelayout() {
+      layoutError = '';
+      const reply = await api('/api/layout/plan', { метод: 'POST' });
+      if (!reply.годно) {
+        layoutPlan = null;
+        layoutError = (reply.тело && reply.тело.error && reply.тело.error.message)
+                    || 'Не удалось посчитать';
+      } else {
+        layoutPlan = (reply.тело && reply.тело.data) || null;
+      }
+      renderCommits();
+    }
+
+let layoutHistoryItems = [];
+
+async function loadLayoutHistory() {
+      const reply = await api('/api/layout/history');
+      layoutHistoryItems = (reply.годно && reply.тело && reply.тело.data) || [];
+      renderCommits();
+    }
+
+let layoutRevertTo = null;
+
+function cancelLayoutRevert() { layoutRevertTo = null; renderCommits(); }
+
+function askLayoutRevert(id) {
+      const цель = layoutHistoryItems.find(л => String(л.id) === String(id));
+      layoutRevertTo = цель || null;
+      renderCommits();
+    }
+
+async function doLayoutRevert() {
+      if (!layoutRevertTo) return;
+      layoutError = '';
+      const reply = await api('/api/layout/' + encodeURIComponent(layoutRevertTo.id) + '/revert',
+        { метод: 'POST' });
+      if (!reply.годно) {
+        layoutError = (reply.тело && reply.тело.error && reply.тело.error.message)
+                    || 'Не удалось вернуть';
+      } else {
+        layoutRevertTo = null;
+        layoutPlan = null;
+        showTemporaryMessage('Раскладка возвращена', 4000);
+        pullGraphSince();
+        await loadLayoutHistory();
+        return;
+      }
+      renderCommits();
+    }
+
+async function applyRelayout() {
+      if (!layoutPlan) return;
+      layoutError = '';
+      // Версия отправляется ТА, по которой человек принимал решение. Сервер
+      // считает заново и откажется, если граф успел измениться: иначе
+      // применилась бы раскладка не того графа, а увиденная мера оказалась
+      // бы чужой.
+      const reply = await api('/api/layout/apply', { метод: 'POST',
+        тело: { версия: layoutPlan.версия } });
+      if (!reply.годно) {
+        layoutError = (reply.тело && reply.тело.error && reply.тело.error.message)
+                    || 'Не удалось применить';
+      } else {
+        layoutPlan = null;
+        showTemporaryMessage('Раскладка переучреждена', 4000);
+        // Свежие координаты придут обычным путём — с приращением графа.
+        pullGraphSince();
+        await loadLayoutHistory();
+        return;
+      }
+      renderCommits();
     }
 
 async function loadCommits() {
@@ -101,16 +189,88 @@ function stateInWords(код) {
       return found ? found[1] : String(код);
     }
 
+const LAYOUT_KINDS = Object.freeze({ full: 'полная', warm: 'доращённая' });
+
+function layoutHistoryHtml() {
+      if (!layoutHistoryItems.length) return '';
+      const строки = layoutHistoryItems.map((л, i) => {
+        const мера = л.расхождение && л.расхождение.медиана !== null
+          ? `сдвиг ${л.расхождение.медиана} px` : 'первая';
+        const когда = л.когда ? new Date(л.когда).toLocaleString('ru-RU') : '';
+        // У действующей раскладки кнопки возврата нет: возвращать к самой себе
+        // нечего, а кнопка, которая ничего не делает, учит не доверять кнопкам.
+        const кнопка = i === 0 ? '<span class="layout-current">действующая</span>'
+          : `<button class="layout-revert" data-act-click="ask-layout-revert" data-a1="${escapeAttr(String(л.id))}">Вернуть</button>`;
+        return `<li>№${escapeAttr(String(л.id))} · ${LAYOUT_KINDS[л.род] || escapeAttr(л.род)}`
+             + ` · ${escapeAttr(мера)} · ${escapeAttr(когда)} ${кнопка}</li>`;
+      }).join('');
+      return `<div class="layout-history"><b>Прежние раскладки</b><ul>${строки}</ul></div>`;
+    }
+
+function layoutTabHtml() {
+      if (layoutError) return `<div class="commits-error">${escapeAttr(layoutError)}</div>`;
+
+      // ВОЗВРАТ СПРАШИВАЕТ ПОДТВЕРЖДЕНИЯ, как и перекладка. Разница в том,
+      // что здесь мера уже известна — она записана при создании раскладки.
+      if (layoutRevertTo) {
+        const м = layoutRevertTo.расхождение;
+        return `<div class="commits-empty">Вернуть раскладку №${escapeAttr(String(layoutRevertTo.id))}`
+          + ` (${LAYOUT_KINDS[layoutRevertTo.род] || escapeAttr(layoutRevertTo.род)})?<br><br>`
+          + (м && м.медиана !== null
+              ? `Когда её сменили, узлы сдвинулись на ${м.медиана} px по медиане.`
+                + ` Возврат сдвинет их примерно настолько же — обратно.`
+              : 'Это первая раскладка графа.')
+          + `<br>Прежняя не пропадёт: возврат записывается новой строкой, и вернуться`
+          + ` можно будет и к нынешней.</div>`
+          + `<div class="modal-actions">`
+          + `<button data-act-click="do-layout-revert">Вернуть</button>`
+          + `<button data-act-click="cancel-layout-revert">Отмена</button>`
+          + `</div>`;
+      }
+
+      if (!layoutPlan) {
+        return '<div class="commits-empty">Перекладка переставит узлы графа заново.'
+          + ' Сперва посчитаем, насколько картина разойдётся с нынешней.</div>'
+          + '<div class="modal-actions"><button data-act-click="plan-relayout">Посчитать</button></div>'
+          + layoutHistoryHtml();
+      }
+      const м = layoutPlan.мера;
+      if (!м) {
+        return '<div class="commits-empty">Раскладки ещё нет — эта будет первой,'
+          + ' расходиться не с чем.</div>'
+          + '<div class="modal-actions"><button data-act-click="apply-relayout">Применить</button></div>';
+      }
+      const дальние = (layoutPlan.дальние || [])
+        .map(у => `<li>${escapeAttr(у.id)} — ${у.сдвиг} px</li>`).join('');
+      return `<div class="commits-empty">`
+        + `Медианный сдвиг узла: <b>${м.медиана} px</b><br>`
+        + `Узлов дальше 200 px: <b>${м.далеко}</b> из ${м.сверено}<br>`
+        + `<br>Дальше всех уедут:<ul>${дальние}</ul>`
+        + `<br>При медиане в сотню пикселей привычная картина графа перестанет`
+        + ` узнаваться — у всех сразу. Прежняя раскладка сохранится, вернуть её`
+        + ` можно, но ориентировку это вернёт не сразу.`
+        + `</div>`
+        + `<div class="modal-actions">`
+        + `<button data-act-click="apply-relayout">Применить</button>`
+        + `<button data-act-click="plan-relayout">Пересчитать</button>`
+        + `</div>`
+        + layoutHistoryHtml();
+    }
+
 function renderCommits() {
       const slot = document.getElementById('commitsBody');
       if (!slot) return;
 
       const tabs = document.getElementById('commitsTabs');
       if (tabs) {
-        // Вкладка очереди рисуется ПО ПРАВУ, а не по роли.
+        // Вкладки рисуются ПО ПРАВУ, а не по роли.
         const queue = tabs.querySelector('[data-tab="pending"]');
         if (queue) queue.style.display = can(PERM.REVIEW_COMMIT) ? '' : 'none';
+        const lay = tabs.querySelector('[data-tab="layout"]');
+        if (lay) lay.style.display = can(PERM.RELAYOUT_GRAPH) ? '' : 'none';
       }
+
+      if (commitTab === 'layout') { slot.innerHTML = layoutTabHtml(); return; }
 
       if (commitError) {
         slot.innerHTML = `<div class="commits-error">${escapeAttr(commitError)}</div>`;
@@ -256,4 +416,4 @@ function describeImpact(data) {
       return '<div class="commit-why">' + lines.join('<br>') + '</div>';
     }
 
-export { closeCommitsPanel, commitError, commitItems, commitTab, loadCommits, openCommitsPanel, revertCommitFromPanel, reviewCommitFromPanel, showImpact, switchCommitTab };
+export { applyRelayout, askLayoutRevert, cancelLayoutRevert, closeCommitsPanel, commitError, commitItems, commitTab, doLayoutRevert, layoutHistoryItems, layoutPlan, layoutRevertTo, loadCommits, loadLayoutHistory, openCommitsPanel, planRelayout, revertCommitFromPanel, reviewCommitFromPanel, showImpact, switchCommitTab };

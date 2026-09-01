@@ -5,6 +5,7 @@ import { findConnection } from '../graph/graph-data.js';
 import { cancelGraphSelection } from '../graph/graph-selection.js';
 import { toggleMetricValueMode } from '../metrics/format.js';
 import { authLogout, closeAuthModal, openAuthModal, submitAuth } from '../modal/auth.js';
+import { applyRelayout, askLayoutRevert, cancelLayoutRevert, doLayoutRevert, planRelayout } from '../modal/commits.js';
 import { createNewConceptForPhilosopher, createNewConnectionForConcept, onConnTypeChange, selectConnectionEditConcept, swapConnectionConcepts } from '../modal/connection-edit.js';
 import { handleConnectionViewSearch, selectConnectionViewConcept, toggleConnectionSearchSection } from '../modal/connection-view.js';
 import { closeUniversalModal, openUniversalModal, popModalState, toggleModalMode } from '../modal/core.js';
@@ -39,6 +40,11 @@ registerActions({
   "cancel-graph-selection": (el, ev) => { cancelGraphSelection(); },
   "close-auth-modal": (el, ev) => { closeAuthModal(); },
   "submit-auth": (el, ev) => { submitAuth(); },
+  "ask-layout-revert": (el, ev) => { askLayoutRevert(el.dataset.a1); },
+  "do-layout-revert": (el, ev) => { doLayoutRevert(); },
+  "cancel-layout-revert": (el, ev) => { cancelLayoutRevert(); },
+  "plan-relayout": (el, ev) => { planRelayout(); },
+  "apply-relayout": (el, ev) => { applyRelayout(); },
   "open-concept-by-id": (el, ev) => { openConceptById(el.dataset.a1); },
   "show-similarity-overlay": (el, ev) => { showSimilarityOverlay(el.dataset.a1,'profile'); },
   "handle-modal-search-input": (el, ev) => { handleModalSearch(el.value); },

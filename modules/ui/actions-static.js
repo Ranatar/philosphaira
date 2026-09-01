@@ -81,6 +81,7 @@ registerActions({
   "close-users-panel": (el, ev) => { closeUsersPanel(); },
   "switch-commit-tab": (el, ev) => { switchCommitTab('mine'); },
   "switch-commit-tab-2": (el, ev) => { switchCommitTab('pending'); },
+  "switch-commit-tab-3": (el, ev) => { switchCommitTab('layout'); },
   "close-commits-panel": (el, ev) => { closeCommitsPanel(); },
   "open-commits-panel": (el, ev) => { openCommitsPanel(); },
   "open-users-panel": (el, ev) => { openUsersPanel(); },

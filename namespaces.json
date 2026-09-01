@@ -5,6 +5,7 @@
  "relationTypes": "DATA",
  "concepts": "DATA",
  "relations": "DATA",
+ "nodePositions": "DATA",
  "philosopherIdToName": "DATA",
  "philosopherConcepts": "DATA",
  "philosopherOrder": "DATA",
@@ -107,6 +108,7 @@
  "selectedTargetNode": "S",
  "pickDirty": "S",
  "similarityOverlay": "S",
+ "layoutSettled": "S",
  "tickCount": "S",
  "tooltipTimeout": "S",
  "isGrouped": "S",
@@ -117,6 +119,7 @@
  "liveClosedOnPurpose": "S",
  "METRIC_COVERAGE_FN": "S",
  "simulation": "S",
+ "maxTicks": "S",
  "spacingX": "S",
  "spacingY": "S"
 }
