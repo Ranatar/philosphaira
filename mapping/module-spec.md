@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 127 модулей, 19803 строк.
+Составлено из готовой сборки: 127 модулей, 20133 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/gen_spec2.mjs`
 после каждой сборки.
@@ -41,7 +41,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 | Модуль | Строк | Вывозит | Ввозит из |
 |---|---|---|---|
-| `boot.js` | 294 | 1 | 63 |
+| `boot.js` | 311 | 1 | 65 |
 | `main.js` | 133 | 0 | 122 |
 | `modules/boot-defs.js` | 62 | 2 | 8 |
 | `modules/core/api.js` | 85 | 3 | 1 |
@@ -51,7 +51,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/core/link-facts.js` | 48 | 7 | 2 |
 | `modules/core/long-task.js` | 120 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
-| `modules/core/perms.js` | 15 | 3 | 0 |
+| `modules/core/perms.js` | 21 | 3 | 0 |
 | `modules/core/ready.js` | 15 | 2 | 0 |
 | `modules/core/relation-types.js` | 59 | 4 | 2 |
 | `modules/core/search.js` | 68 | 4 | 3 |
@@ -62,7 +62,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/data/commit-draft.js` | 37 | 1 | 0 |
 | `modules/data/load.js` | 9 | 1 | 1 |
 | `modules/data/mutate.js` | 89 | 1 | 6 |
-| `modules/data/remote.js` | 165 | 5 | 5 |
+| `modules/data/remote.js` | 174 | 5 | 6 |
 | `modules/data/save.js` | 72 | 7 | 1 |
 | `modules/dead.js` | 86 | 6 | 5 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 |
@@ -91,7 +91,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/metrics/tradition-bridging.js` | 89 | 3 | 2 |
 | `modules/modal/assembly.js` | 56 | 3 | 2 |
 | `modules/modal/auth.js` | 215 | 4 | 8 |
-| `modules/modal/commits.js` | 260 | 10 | 6 |
+| `modules/modal/commits.js` | 420 | 19 | 7 |
 | `modules/modal/concept-view.js` | 338 | 0 | 8 |
 | `modules/modal/conflict.js` | 88 | 5 | 7 |
 | `modules/modal/connection-edit.js` | 286 | 5 | 13 |
@@ -118,25 +118,25 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/paths/path-ui.js` | 416 | 5 | 9 |
 | `modules/paths/shortest-path.js` | 203 | 1 | 5 |
 | `modules/render/canvas-core.js` | 45 | 9 | 2 |
-| `modules/render/d3-layer.js` | 106 | 9 | 5 |
+| `modules/render/d3-layer.js` | 107 | 9 | 6 |
 | `modules/render/draw-link.js` | 101 | 6 | 6 |
 | `modules/render/geometry.js` | 95 | 6 | 3 |
-| `modules/render/grouping.js` | 103 | 3 | 5 |
+| `modules/render/grouping.js` | 115 | 3 | 6 |
 | `modules/render/interactions.js` | 308 | 4 | 18 |
 | `modules/render/loop.js` | 20 | 2 | 0 |
 | `modules/render/metric-visualization.js` | 371 | 3 | 5 |
 | `modules/render/picking.js` | 79 | 4 | 7 |
 | `modules/render/render-state.js` | 17 | 6 | 1 |
-| `modules/render/scene.js` | 340 | 7 | 13 |
+| `modules/render/scene.js` | 350 | 7 | 13 |
 | `modules/render/selection.js` | 261 | 7 | 10 |
 | `modules/render/similarity-overlay.js` | 219 | 5 | 8 |
-| `modules/render/simulation.js` | 126 | 8 | 9 |
+| `modules/render/simulation.js` | 131 | 8 | 11 |
 | `modules/render/tooltip-el.js` | 7 | 1 | 0 |
 | `modules/state/edit.js` | 12 | 1 | 0 |
 | `modules/state/filters.js` | 22 | 3 | 2 |
 | `modules/state/metrics-scope.js` | 13 | 0 | 1 |
 | `modules/state/paths.js` | 18 | 0 | 2 |
-| `modules/state/render.js` | 38 | 3 | 2 |
+| `modules/state/render.js` | 141 | 11 | 4 |
 | `modules/state/stats.js` | 33 | 0 | 1 |
 | `modules/stats/coverage.js` | 66 | 3 | 6 |
 | `modules/stats/modal.js` | 240 | 8 | 17 |
@@ -151,8 +151,8 @@ tools/unbridge.mjs <дерево>                               снятие м�
 | `modules/stats/views/rankings.js` | 141 | 2 | 5 |
 | `modules/ui/about.js` | 102 | 3 | 1 |
 | `modules/ui/actions-byname.js` | 20 | 0 | 2 |
-| `modules/ui/actions-dyn.js` | 158 | 0 | 34 |
-| `modules/ui/actions-static.js` | 136 | 0 | 25 |
+| `modules/ui/actions-dyn.js` | 164 | 0 | 35 |
+| `modules/ui/actions-static.js` | 137 | 0 | 25 |
 | `modules/ui/actions.js` | 27 | 3 | 0 |
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
 | `modules/ui/export.js` | 126 | 2 | 11 |
@@ -174,7 +174,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `boot.js`
 
-Строк 294.
+Строк 311.
 
 **Вывозит:** `boot`
 
@@ -214,6 +214,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./modules/core/api.js`: `detectServerMode`
 - из `./modules/core/events.js`: `emit`, `subscribe`
 - из `./modules/core/graph-index.js`: `rebuildIndexes`
+- из `./modules/core/long-task.js`: `showTemporaryMessage`
 - из `./modules/data/remote.js`: `connectLive`, `liveSocket`, `pullGraphSince`
 - из `./modules/filters/beyond-filter.js`: `resetBeyondFilter`
 - из `./modules/filters/filters.js`: `applyFiltersImmediate`
@@ -231,11 +232,12 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./modules/paths/path-ui.js`: `initPathFinder`
 - из `./modules/render/canvas-core.js`: `resizeCanvas`
 - из `./modules/render/interactions.js`: `initGraphEventHandlers`
-- из `./modules/render/loop.js`: `setPainter`
+- из `./modules/render/loop.js`: `requestDraw`, `setPainter`
 - из `./modules/render/metric-visualization.js`: `saveOriginalRadii`
 - из `./modules/render/scene.js`: `draw`, `updateGraphData`
 - из `./modules/render/similarity-overlay.js`: `clearSimilarityOverlay`
 - из `./modules/state/filters.js`: `pinnedDespiteFilter`
+- из `./modules/state/render.js`: `installLayoutPull`, `layoutFromStore`, `storedLayoutComplaint`
 - из `./modules/stats/modal.js`: `closeStatsModal`, `loadStatsContent`, `switchStatsView`
 - из `./modules/stats/views/comparison.js`: `renderComparison`
 - из `./modules/ui/legend.js`: `initFilters`, `markChosenInLegend`, `updateFilterStats`, `updatePhilosopherDimming`
@@ -479,7 +481,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/core/perms.js`
 
-Строк 15.
+Строк 21.
 
 **Вывозит:** `PERM`, `can`, `setPermissions`
 
@@ -614,7 +616,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/data/remote.js`
 
-Строк 165.
+Строк 174.
 
 **Вывозит:** `applyFreshGraph`, `connectLive`, `knownGraphVersion`, `liveSocket`, `pullGraphSince`
 
@@ -624,6 +626,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../core/api.js`: `api`, `serverMode`
 - из `../core/events.js`: `emit`
 - из `./mutate.js`: `afterDataChange`
+- из `../state/render.js`: `applyServerLayout`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `S.liveClosedOnPurpose`, `applyFreshGraph`, `applyIncrement`, `connectLive`, `knownGraphVersion`, `liveRetry`, `liveSocket`, `pullGraphSince`, `rebuildDerived`, `replaceEntity`
@@ -1054,20 +1057,21 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/modal/commits.js`
 
-Строк 260.
+Строк 420.
 
-**Вывозит:** `closeCommitsPanel`, `commitError`, `commitItems`, `commitTab`, `loadCommits`, `openCommitsPanel`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `showImpact`, `switchCommitTab`
+**Вывозит:** `applyRelayout`, `askLayoutRevert`, `cancelLayoutRevert`, `closeCommitsPanel`, `commitError`, `commitItems`, `commitTab`, `doLayoutRevert`, `layoutHistoryItems`, `layoutPlan`, `layoutRevertTo`, `loadCommits`, `loadLayoutHistory`, `openCommitsPanel`, `planRelayout`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `showImpact`, `switchCommitTab`
 
 **Ввозит:**
 
 - из `../core/api.js`: `api`
 - из `../core/events.js`: `emit`
+- из `../core/long-task.js`: `showTemporaryMessage`
 - из `../core/perms.js`: `PERM`, `can`
 - из `../data/remote.js`: `pullGraphSince`
 - из `./forms.js`: `PROVENANCE_STATES`
 - из `../util/html.js`: `escapeAttr`
 
-**Содержит:** `COMMIT_STATES`, `closeCommitsPanel`, `commitError`, `commitItems`, `commitStateKind`, `commitStateWords`, `commitTab`, `describeImpact`, `loadCommits`, `openCommitsPanel`, `provenanceDiff`, `refreshEditCount`, `renderCommits`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `showImpact`, `stateInWords`, `switchCommitTab`
+**Содержит:** `COMMIT_STATES`, `LAYOUT_KINDS`, `applyRelayout`, `askLayoutRevert`, `cancelLayoutRevert`, `closeCommitsPanel`, `commitError`, `commitItems`, `commitStateKind`, `commitStateWords`, `commitTab`, `describeImpact`, `doLayoutRevert`, `layoutError`, `layoutHistoryHtml`, `layoutHistoryItems`, `layoutPlan`, `layoutRevertTo`, `layoutTabHtml`, `loadCommits`, `loadLayoutHistory`, `openCommitsPanel`, `planRelayout`, `provenanceDiff`, `refreshEditCount`, `renderCommits`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `showImpact`, `stateInWords`, `switchCommitTab`
 
 ### `modules/modal/concept-view.js`
 
@@ -1529,7 +1533,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/render/d3-layer.js`
 
-Строк 106.
+Строк 107.
 
 **Вывозит:** `dragended`, `dragstarted`, `gfxLink`, `gfxLinkAll`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`, `updateArrows`
 
@@ -1539,6 +1543,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./canvas-core.js`: `renderState`
 - из `./loop.js`: `requestDraw`
 - из `./scene.js`: `startRadiusAnimation`
+- из `../state/render.js`: `resetLayoutClock`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `dragended`, `dragstarted`, `gfxLink`, `gfxLinkAll`, `gfxNode`, `gfxZoom`, `linkHandlers`, `makeClassed`, `nodeHandlers`, `subSelection`, `updateArrows`
@@ -1576,7 +1581,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/render/grouping.js`
 
-Строк 103.
+Строк 115.
 
 **Вывозит:** `buildGroupPositions`, `installResize`, `toggleGrouping`
 
@@ -1585,6 +1590,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../core/ns.js`: `DATA`, `S`
 - из `./canvas-core.js`: `resizeCanvas`
 - из `./selection.js`: `resetHighlight`
+- из `../state/render.js`: `pullStrengthOf`, `resetLayoutClock`
 - из `../core/graph-index.js`: _ради побочного действия_
 - из `../state/render.js`: _ради побочного действия_
 
@@ -1677,7 +1683,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/render/scene.js`
 
-Строк 340.
+Строк 350.
 
 **Вывозит:** `DRAW_ORDER`, `draw`, `ensureAnimLoop`, `needsContinuousAnimation`, `renderScene`, `startRadiusAnimation`, `updateGraphData`
 
@@ -1694,7 +1700,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./picking.js`: `rebuildQuadtree`
 - из `./render-state.js`: `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `hasLinkClass`, `hasNodeClass`, `nodeLabelDy`, `nodeRadius`
 - из `./similarity-overlay.js`: `similarityColor`
-- из `../state/render.js`: `linkLayer`, `selectedEdges`, `selectedNodes`
+- из `../state/render.js`: `linkLayer`, `resetLayoutClock`, `selectedEdges`, `selectedNodes`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `DRAW_ORDER`, `LABEL_SHADOW_PASSES`, `animLoopRunning`, `draw`, `drawLinkSet`, `ensureAnimLoop`, `graphIsCovered`, `lastLayerKey`, `linkDrawnLive`, `linkOutOfLayer`, `linksLayerKey`, `needsContinuousAnimation`, `paintLinkLayer`, `renderScene`, `sameLayerKey`, `startRadiusAnimation`, `stepRadiusAnimation`, `updateGraphData`
@@ -1741,7 +1747,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/render/simulation.js`
 
-Строк 126.
+Строк 131.
 
 **Вывозит:** `centerGraph`, `freezeSimulation`, `installSimulationLog`, `installSimulationStatsEnd`, `installSimulationTick`, `resetSimulation`, `toggleSimulationFreeze`, `unfreezeSimulation`
 
@@ -1755,9 +1761,11 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `./picking.js`: `rebuildQuadtree`
 - из `./scene.js`: `ensureAnimLoop`, `needsContinuousAnimation`
 - из `./selection.js`: `resetHighlight`
+- из `../state/render.js`: `resetLayoutClock`
 - из `../core/graph-index.js`: _ради побочного действия_
+- из `../state/render.js`: _ради побочного действия_
 
-**Содержит:** `centerGraph`, `freezeSimulation`, `installSimulationLog`, `installSimulationStatsEnd`, `installSimulationTick`, `maxTicks`, `resetSimulation`, `simLockedByHand`, `toggleSimulationFreeze`, `unfreezeSimulation`, `updateFreezeButton`
+**Содержит:** `S.maxTicks`, `centerGraph`, `freezeSimulation`, `installSimulationLog`, `installSimulationStatsEnd`, `installSimulationTick`, `maxTicksFor`, `resetSimulation`, `simLockedByHand`, `toggleSimulationFreeze`, `unfreezeSimulation`, `updateFreezeButton`
 
 ### `modules/render/tooltip-el.js`
 
@@ -1819,16 +1827,18 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/state/render.js`
 
-Строк 38.
+Строк 141.
 
-**Вывозит:** `linkLayer`, `selectedEdges`, `selectedNodes`
+**Вывозит:** `applyServerLayout`, `applyStoredLayout`, `graphFingerprint`, `installLayoutPull`, `layoutFromStore`, `linkLayer`, `pullStrengthOf`, `resetLayoutClock`, `selectedEdges`, `selectedNodes`, `storedLayoutComplaint`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
+- из `../core/events.js`: `emit`
+- из `../core/graph-index.js`: `linksByConcept`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `S.arrowMode`, `S.arrowRadius`, `S.isGrouped`, `S.pickDirty`, `S.similarityOverlay`, `S.simulation`, `S.tickCount`, `S.uniformLinkWidthActive`, `S.viewHeight`, `S.viewWidth`, `linkLayer`, `selectedEdges`, `selectedNodes`
+**Содержит:** `LAYOUT_PULL`, `S.arrowMode`, `S.arrowRadius`, `S.isGrouped`, `S.layoutSettled`, `S.pickDirty`, `S.similarityOverlay`, `S.simulation`, `S.tickCount`, `S.uniformLinkWidthActive`, `S.viewHeight`, `S.viewWidth`, `applyServerLayout`, `applyStoredLayout`, `graphFingerprint`, `installLayoutPull`, `layoutFromStore`, `linkLayer`, `pullStrengthOf`, `resetLayoutClock`, `selectedEdges`, `selectedNodes`, `storedLayoutComplaint`
 
 ### `modules/state/stats.js`
 
@@ -2061,7 +2071,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/ui/actions-dyn.js`
 
-Строк 158.
+Строк 164.
 
 **Вывозит:** _ничего_
 
@@ -2073,6 +2083,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 - из `../graph/graph-selection.js`: `cancelGraphSelection`
 - из `../metrics/format.js`: `toggleMetricValueMode`
 - из `../modal/auth.js`: `authLogout`, `closeAuthModal`, `openAuthModal`, `submitAuth`
+- из `../modal/commits.js`: `applyRelayout`, `askLayoutRevert`, `cancelLayoutRevert`, `doLayoutRevert`, `planRelayout`
 - из `../modal/connection-edit.js`: `createNewConceptForPhilosopher`, `createNewConnectionForConcept`, `onConnTypeChange`, `selectConnectionEditConcept`, `swapConnectionConcepts`
 - из `../modal/connection-view.js`: `handleConnectionViewSearch`, `selectConnectionViewConcept`, `toggleConnectionSearchSection`
 - из `../modal/core.js`: `closeUniversalModal`, `openUniversalModal`, `popModalState`, `toggleModalMode`
@@ -2106,7 +2117,7 @@ tools/unbridge.mjs <дерево>                               снятие м�
 
 ### `modules/ui/actions-static.js`
 
-Строк 136.
+Строк 137.
 
 **Вывозит:** _ничего_
 

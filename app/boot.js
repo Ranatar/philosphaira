@@ -34,6 +34,7 @@ import { showChronologyModeIfOn } from './modules/paths/chronology.js';
 import { detectServerMode } from './modules/core/api.js';
 import { emit, subscribe } from './modules/core/events.js';
 import { rebuildIndexes } from './modules/core/graph-index.js';
+import { showTemporaryMessage } from './modules/core/long-task.js';
 import { connectLive, liveSocket, pullGraphSince } from './modules/data/remote.js';
 import { resetBeyondFilter } from './modules/filters/beyond-filter.js';
 import { applyFiltersImmediate } from './modules/filters/filters.js';
@@ -51,11 +52,12 @@ import { banUserFromPanel, changeUserRoleFromPanel } from './modules/modal/users
 import { initPathFinder } from './modules/paths/path-ui.js';
 import { resizeCanvas } from './modules/render/canvas-core.js';
 import { initGraphEventHandlers } from './modules/render/interactions.js';
-import { setPainter } from './modules/render/loop.js';
+import { requestDraw, setPainter } from './modules/render/loop.js';
 import { saveOriginalRadii } from './modules/render/metric-visualization.js';
 import { draw, updateGraphData } from './modules/render/scene.js';
 import { clearSimilarityOverlay } from './modules/render/similarity-overlay.js';
 import { pinnedDespiteFilter } from './modules/state/filters.js';
+import { installLayoutPull, layoutFromStore, storedLayoutComplaint } from './modules/state/render.js';
 import { closeStatsModal, loadStatsContent, switchStatsView } from './modules/stats/modal.js';
 import { renderComparison } from './modules/stats/views/comparison.js';
 import { initFilters, markChosenInLegend, updateFilterStats, updatePhilosopherDimming } from './modules/ui/legend.js';
@@ -93,6 +95,19 @@ export async function boot() {
   installNodeDrag();
   
   resizeCanvas();
+  
+  installLayoutPull();
+  
+  if (layoutFromStore) {
+        S.simulation.stop();
+        S.layoutSettled = true;
+        // СЧЁТЧИК НЕ ТРОГАЕМ НАРОЧНО. Соблазн выставить его в потолок велик —
+        // и он бы уничтожил то самое различение, ради которого признак заводили
+        // в Л-1: раскладка ГОТОВА, а тиков прошло НОЛЬ. Всякий, кто вернётся к
+        // вопросу «улеглось ли?» через счётчик, немедленно разбудит готовую
+        // раскладку, и прибор это увидит.
+        requestDraw();
+      }
   
   installSimulationTick();
   
@@ -277,6 +292,8 @@ export async function boot() {
   syncLegendDirectionToggle();
   
   saveOriginalRadii();
+  
+  if (storedLayoutComplaint) showTemporaryMessage(storedLayoutComplaint, 5000);
   
   console.log("Граф инициализирован. Используйте кнопки для запуска анализа.");
   

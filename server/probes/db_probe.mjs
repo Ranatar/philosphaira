@@ -55,7 +55,7 @@ try {
   const expected = ['audit_log', 'broadcasts', 'commits', 'email_verifications',
     // metric_observations — замеры метрик (E-2): наблюдение с условиями,
     // при которых оно снято.
-    'metric_observations',
+    'metric_observations', 'graph_layout',
                 'graph_entities', 'graph_state', 'mfa_recovery_codes',
                 'notification_preferences', 'notifications', 'outbox',
                 'role_history', 'user_sessions', 'users'];

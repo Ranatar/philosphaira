@@ -19,6 +19,7 @@ import { ROLES } from '../access/roles.js';
 export const N = Object.freeze({
   EMAIL_VERIFY:       'email_verify',
   GRAPH_CHANGED:      'graph_changed',
+  LAYOUT_CHANGED:     'layout_changed',
   COMMIT_APPROVED:    'commit_approved',
   COMMIT_REJECTED:    'commit_rejected',
   COMMIT_CONFLICTED:  'commit_conflicted',
@@ -60,6 +61,16 @@ export const CATALOG = Object.freeze({
   [N.GRAPH_CHANGED]: {
     audience: { kind: 'everyone' },
     category: 'graphChanges', priority: 'low', broadcast: true,
+  },
+  // ПОЛНАЯ ПЕРЕКЛАДКА — извещение отдельное от «граф изменён», и вот почему:
+  // граф при ней НЕ меняется вовсе, меняется только то, что люди видят
+  // глазами. Молчаливая перекладка означала бы, что человек открывает
+  // знакомый граф и не узнаёт его, не понимая, что произошло.
+  // Приоритет выше обычных изменений графа: пропустить это извещение хуже,
+  // чем пропустить сообщение об одной правленой концепции.
+  [N.LAYOUT_CHANGED]: {
+    audience: { kind: 'everyone' },
+    category: 'graphChanges', priority: 'normal', broadcast: true,
   },
   [N.COMMIT_APPROVED]: {
     audience: { kind: 'author' }, category: 'commitStatus', priority: 'normal',

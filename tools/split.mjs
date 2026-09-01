@@ -120,7 +120,10 @@ const byName = new Map(entities.filter(e => e.name).map(e => [e.name, e]));
 // перечнем внутри программы: раскладка должна быть единственным источником.
 
 // ── пространства имён ──────────────────────────────────────────────
-const RAW_DATA = ['traditions', 'philosophers', 'rubrics', 'relationTypes', 'concepts', 'relations'];
+// СЕДЬМОЙ НАБОР — nodePositions. Он не такой, как шесть первых: те правит
+// человек, этот всегда порождён (tools/layout.mjs). Лежит здесь потому, что
+// иначе стороны разойдутся по поведению, а сличение сторон — главный прибор.
+const RAW_DATA = ['traditions', 'philosophers', 'rubrics', 'relationTypes', 'concepts', 'relations', 'nodePositions'];
 const DERIVED = ['philosopherIdToName', 'philosopherConcepts', 'philosopherOrder',
                  'relationTypesObj', 'linkColors', 'conceptToRubrics', 'rubricsObj',
                  'philosopherTraditions', 'nodes', 'links'];

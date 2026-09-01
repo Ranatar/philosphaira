@@ -103,6 +103,14 @@ if [ "$WHAT" != "--только-сервер" ]; then
   node tools/assert_probe.mjs index.html 2>&1 | tail -1 | grep -q "не сошлось 0"; verdict "assert_probe" $?
   serve_up; node tools/tip_probe.mjs   2>&1 | tail -1 | grep -q "переживают"; verdict "tip_probe" $?
   serve_up; node tools/draft_probe.mjs 2>&1 | tail -1 | grep -q "не сошлось 0"; verdict "draft_probe" $?
+  # layout_probe меряет живую раскладку и десять случайных стартов — минуты
+  serve_up; node tools/layout_probe.mjs 2>&1 | tail -1 | grep -q "не сошлось 0"; verdict "layout_probe" $?
+  # Свежесть набора позиций: отпечаток базы против отпечатка в наборе.
+  # Забыть `node tools/layout.mjs` после правки базы легко, а последствие
+  # тихое — страница просто снова считает раскладку двадцать секунд.
+  node tools/maps_fresh.mjs 2>&1 | grep -q "все карты свежие"; verdict "карты и позиции свежи" $?
+  node tools/tools_listed.mjs 2>&1 | tail -1 | grep -q "не сошлось 0"; verdict "перечень программ сходится" $?
+  node tools/resets_listed.mjs 2>&1 | tail -1 | grep -q "не сошлось 0"; verdict "сбрасыватели кешей не забыты" $?
 
   echo "── эталоны (минуты)"
   for P in compare probe6 probe7 probe8 css_probe blind_probe; do

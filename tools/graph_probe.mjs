@@ -99,6 +99,26 @@ async function settle(page) {
 async function freshPoint(page, id) {
   await page.evaluate(() => window.__rig.freezeSimulation());
   await wait(200);
+  // ОЖИДАНИЕ ПО УСТОЯВШЕМУСЯ, А НЕ ГЛУХИМ СРОКОМ. Экранная точка узла
+  // считается через transform(), а тот меняется, пока вид подгоняется под
+  // окно. Прежде хватало двухсот миллисекунд; с предвычисленной раскладкой
+  // страница готова сразу, подгонка идёт позже — и точка ловилась то до
+  // неё, то после. Замер, который это вскрыл: ДВА ПРОГОНА ОДНОЙ СТОРОНЫ
+  // разошлись 11 из 15, то есть прибор мерил не страницу, а собственное
+  // везение. Срок стал потолком (до 6 с), мера — устойчивостью transform.
+  {
+    const снять = () => page.evaluate(() => {
+      const t = window.__rig.transform();
+      return [t.k, t.x, t.y].join(',');
+    });
+    let прежний = await снять(), тихо = 0;
+    for (let i = 0; i < 30 && тихо < 2; i++) {
+      await wait(200);
+      const с = await снять();
+      тихо = (с === прежний) ? тихо + 1 : 0;
+      прежний = с;
+    }
+  }
   return await page.evaluate(nid => {
     const n = window.__rig.nodes().find(x => x.id === nid);
     if (!n) return null;

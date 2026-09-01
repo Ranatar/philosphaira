@@ -3032,9 +3032,25 @@
        полотна не отображался нигде. */
     /* Вес и прозрачность — на ГЛИФЕ, а не на всей стрелке: ярлык лежит
        внутри неё и наследовал бы и жирность, и полупрозрачность. */
-    .connection-arrow-glyph.cw-1 { font-weight: 300; opacity: 0.65; }
-    .connection-arrow-glyph.cw-2 { font-weight: 600; opacity: 0.85; }
-    .connection-arrow-glyph.cw-3 { font-weight: 800; opacity: 1; text-shadow: 0 0 4px currentColor; }
+    /* ЧИТАЕМОСТЬ ГЛИФА: ОБВОДКА, А НЕ ПОДМЕНА ЦВЕТА.
+       Цвет стрелки берётся ОТ ТИПА СВЯЗИ, то есть из данных, и несёт смысл:
+       пять типов из 21 темнее порога 4,5 (emerge_from даёт 1,78, dialogue
+       2,1). Поднять их значило бы переписать палитру — сменить смысловое
+       кодирование ради оформления, чего делать нельзя. Отсюда тёмный ореол
+       под глифом: он не трогает цвет, а отделяет знак от фона.
+       Долг стоял в readme §10 с пометкой «нужен другой ход — обводка или
+       тень»; это он и есть.
+
+       ПРОЗРАЧНОСТЬ УБРАНА. Она множила и без того низкий контраст (0,65 у
+       слабых связей), а вес и так закодирован ЖИРНОСТЬЮ — то же знание
+       двумя способами, из которых один вредит читаемости. */
+    .connection-arrow-glyph {
+      opacity: 1;
+      text-shadow: 0 0 3px rgba(0, 0, 0, 0.95), 0 1px 2px rgba(0, 0, 0, 0.9);
+    }
+    .connection-arrow-glyph.cw-1 { font-weight: 300; }
+    .connection-arrow-glyph.cw-2 { font-weight: 600; }
+    .connection-arrow-glyph.cw-3 { font-weight: 800; }
 
     /* D5: год рождения в плашке философа */
     .phil-box-year {
@@ -5238,6 +5254,7 @@
       <div id="commitsTabs" class="commits-tabs">
         <button data-tab="mine" onclick="switchCommitTab('mine')">Мои</button>
         <button data-tab="pending" onclick="switchCommitTab('pending')">Очередь</button>
+        <button data-tab="layout" onclick="switchCommitTab('layout')">Раскладка</button>
       </div>
       <div id="commitsCount" class="commits-count"></div>
       <div id="commitsBody" class="commits-body"></div>
@@ -6091,15 +6108,6 @@
         reserved: true
       }
     ];
-    // A9: типология де-факто расслоена на два языка, и это расслоение
-    // объявляется явно.
-    //   layer — «historical»: отношение между ЛЮДЬМИ (950 из 951 внешнего ребра);
-    //       «logical»:  отношение между ПОЛОЖЕНИЯМИ (584 из 585 — внутренние).
-    //   temporal (только для historical): в какую сторону времени читается ребро.
-    //      "forward"    — источник раньше цели (influence 326/0, develop 202/10);
-    //      "retrospective"  — источник позже цели (critique 4/121, oppose 5/28);
-    //      "contemporary"   — допускается пересечение периодов (dialogue 16/127 при 47 ровесниках).
-    //   Для logical temporal === null: связь внутри одной системы хронологии не имеет.
     const relationTypes = [
       { id: "oppose", label: "противопоставление", color: "#E74C3C", layer: "both", temporal: "retrospective" },
       { id: "consequence", label: "влечёт следствие", color: "#3498DB", layer: "logical", temporal: null, ground: "source" },
@@ -14382,6 +14390,129 @@
       { id: "rel_a89a5229b278", source: "categories", target: "accidents", type: "influence", weight: 3,
         description: "Девять родов сказуемого, кроме первого, перешли в схоластику как то, что существует не само по себе, а в ином: перечень способов сказать о сущем обратился в перечень способов быть при чём-то. Изменилось место различения — из учения о речи оно перешло в учение о вещи, остающейся собой при перемене." },
     ];
+
+    // ── РАСКЛАДКА, ПОСЧИТАННАЯ ЗАРАНЕЕ ────────────────────────────────
+    // ПОРОЖДЕНО tools/layout.mjs. РУКАМИ НЕ ПРАВИТЬ.
+    //
+    // Седьмой набор данных наравне с шестью выше — но единственный, который
+    // человек не правит никогда: он всегда вычислен из базы. Производное в
+    // рукотворном файле нарушает правило «порождаемое не мешать с
+    // рукотворным», и обойти это нельзя: положи раскладку только в сборку —
+    // стороны разойдутся ПО ПОВЕДЕНИЮ (исходник считает, сборка читает), а
+    // probe4, probe5 и graph_probe выбирают узлы ПО КООРДИНАТАМ и покраснеют.
+    // Сличение сторон здесь дороже опрятности. Свежесть стережёт отпечаток.
+    //
+    // ЗАЧЕМ ВООБЩЕ. Раскладка детерминирована и зависит только от базы:
+    // два прогона страницы дают координаты побайтово одинаковые. Считать её
+    // заново на каждой машине при каждом открытии незачем — это 24 секунды
+    // ёрзающих узлов на 1440x900 и заметно больше на слабой машине. Считать
+    // её в браузере порциями с указателем занятости тоже не выход: чтобы
+    // указатель жил, порция должна быть мелкой, а тогда счёт втрое дольше.
+    // Значит — посчитать один раз оснасткой и загрузить готовой.
+    //
+    // ПОПУТНО УХОДИТ СТРАННОСТЬ: сейчас одна и та же страница на экранах
+    // разного размера даёт РАЗНЫЕ раскладки (forceCenter сдвигает координаты,
+    // меняется разбиение квадродерева Барнса–Хата, дальше хаос). С готовыми
+    // координатами положение концепции — свойство базы, а не окна.
+    const nodePositions = {"fingerprint":"dfef517cdbacd3de","nodes":{"harmony_spheres":[-624.3,871.4],"tetraktys":[-794.2,796.9],"number_essence":[-593.4,658.8],"music_mathematics":[-72.2,703.1],"metempsychosis":[-645.8,585.6],"logos_heraclitus":[117.9,900.5],"fire":[407.9,957.5],"panta_rhei":[183.7,839.1],"war_father":[787.7,1362.5],"unity_opposites":[323.9,1126],"hidden_harmony":[579.6,1430.8],"being_is":[-265,490.4],"one_being":[-185.6,877.2],"immutability":[-360.1,974.7],"sphere_being":[-474.1,808.9],"way_truth":[-299.4,136.1],"way_opinion":[-526.7,271.6],"know_nothing":[229.8,366.5],"maieutics":[-227.5,190.3],"daimonion":[-291.5,373.7],"soul":[-27.3,625.1],"virtue_knowledge":[-357.9,557.9],"care_soul":[-175.1,386.2],"the_one_plato":[-545.6,916.5],"methexis":[-469.1,1010.1],"mimesis":[-446,672.1],"chora":[-271.2,960.6],"anamnesis":[-440.5,370.3],"ideas":[-246.1,737.4],"cave":[-512.9,535.6],"eidos":[-92.6,563.2],"eros":[-732,559.7],"tripartite_soul":[-404.4,752],"ideal_state":[145.7,678.1],"good":[-569.5,800.1],"demiurge":[-523.3,1091.6],"dialectic_plato":[-71.4,432.9],"act_potency":[-116.4,1067.4],"categories":[18.8,238.5],"logos":[-374.6,836.9],"matter_ar":[-393.1,1058.4],"form":[-314.1,668.7],"four_causes":[-19.5,811.9],"entelechy":[-3.2,1086.2],"theoria":[-159.1,760.4],"nous_poietikos":[-182.6,562.1],"nous_pathetikos":[-259.9,826.4],"golden_mean":[-170.8,966],"eudaimonia":[-24,901.8],"phronesis":[583,651.5],"unmoved_mover":[-593.9,1236.8],"atoms_void":[-120,1292.4],"clinamen":[145.1,1224.8],"ataraxia":[24.7,1458.9],"aponia":[-183.8,1460.3],"pleasure_epicurus":[-199.1,1223.3],"garden_epicurus":[195.3,1395.9],"tetrapharmakos":[-180.6,1550.2],"cosmic_sympathy":[125.2,1512.6],"prohairesis":[786.8,1272.5],"stoic_reason":[397.3,1289.1],"amor_fati":[309.4,1269.8],"logos_marcus":[26.1,1548.9],"to_meditations":[46.7,957.5],"the_one":[-383.2,1344.1],"matter_plotinus":[-279.6,1477.8],"world_soul":[-207.6,1312.9],"nous":[-305.4,1078.3],"emanation":[57.5,1285.2],"contemplation":[-455.7,921.1],"henosis":[-695.8,816.7],"faith_reason":[-69.2,1218.1],"confession":[-270.8,580.3],"time_augustine":[361.3,487.1],"original_sin":[-106.8,833.7],"two_cities":[-373.2,1176.3],"grace":[-563.1,1010.8],"ontological_argument":[169.1,1107.7],"faith_seeking_understanding":[-281,1260.7],"id_quo_maius":[130.2,766.8],"necessary_existence":[-10.5,1344.2],"truth_as_rectitudo":[-225,1037.8],"cur_deus_homo":[-461.7,1244.7],"actual_being":[-291.8,1350.1],"accidents":[-179.1,672.7],"real_distinction":[-287.6,1586.8],"essence_existence":[-248.3,1148],"participatio":[-461.7,1405.4],"intellectualism":[105.5,1361.3],"thomistic_synthesis":[-36.9,990.9],"natural_law":[539.9,1014.9],"analogy":[-94.1,1525.4],"five_ways":[-146.1,1378.6],"common_nature":[322.9,1505.5],"univocity_being":[465.4,1454.2],"formal_distinction":[351.7,1366.7],"haecceitas":[370,1203.3],"infinity_scotus":[196.5,1667],"voluntarism_scotus":[552.5,1344.9],"contraction":[134,1602.2],"possest":[697.2,1591.8],"docta_ignorantia":[946.9,1356.2],"enigma_cusanus":[978.1,1655.8],"maximum_minimum":[334.2,1768.1],"coincidentia_oppositorum":[798.8,1681.4],"knowledge_power":[1552.3,-196.5],"idols":[1323.4,-649],"idols_tribe":[1158.7,-633.3],"idols_cave":[865,-424.8],"idols_marketplace":[939.4,-684],"idols_theatre":[1203.8,-555.4],"induction":[1275.5,94.8],"new_organon":[1747.7,-215.7],"dualism":[624.6,731.3],"innate_ideas":[699.9,10],"clear_distinct":[536.7,-64.1],"cogito":[679.1,261.3],"res_cogitans":[495.3,631.7],"res_extensa":[1003.3,666.6],"infinite_idea":[331.1,402.3],"method":[359.5,239.4],"modes":[576.4,1520.7],"substance_spinoza":[441.7,1367.4],"natura_naturata":[536.4,1838.1],"determinism":[868.1,1311.1],"adequate_ideas":[665.5,608.1],"attributes":[777.7,1451.9],"intellectual_love":[365.5,1036.9],"deus_sive_natura":[423.6,1671.6],"natura_naturans":[547.3,1605.9],"conatus":[946,1266.2],"substance_locke":[1759.6,-472.4],"secondary_qualities":[1511.8,-58.3],"primary_qualities":[1400.1,-197.2],"simple_ideas":[1546.5,-505.1],"complex_ideas":[1900.4,-367.2],"tabula_rasa":[1596.1,8.3],"personal_identity":[2146.8,4.1],"reflection":[1666,-173],"social_contract_locke":[2228.9,294.8],"government_consent":[2265.1,481.5],"property_theory":[1895.4,496.6],"possible_worlds":[343.9,811.8],"sufficient_reason":[301.5,891.1],"monads":[760.6,834],"preestablished":[562.5,1102],"continuity":[594,815.9],"identity_indiscernibles":[896,785],"apperception":[1175.7,-41.6],"perception_monad":[984.1,758.5],"petites_perceptions":[1092.1,243.1],"best_worlds":[137.2,1023.6],"theodicy":[235.9,1217.8],"immaterialism":[1445.8,-119.7],"esse_percipi":[1612.1,-392.1],"ideas_berkeley":[1649.6,-635.8],"notions":[1508.2,-423.6],"spirit":[1526.6,-617.9],"god_perceiver":[1727.6,-591],"association":[1063.5,-397.2],"impressions":[1276.4,-456],"ideas_hume":[1450.2,-667.6],"causality_critique":[1064.7,-129.5],"custom":[1250.6,8.3],"bundle_theory":[1817.7,-331.9],"is_ought":[963.3,239.3],"noble_savage":[1285.4,1325.8],"amour_de_soi":[1728.4,1243.4],"amour_propre":[1975,846.1],"natural_goodness":[1378.6,1529.2],"pity_rousseau":[1537.5,1496.3],"general_will":[1842.9,1011.7],"social_contract":[2238,741.1],"thing_itself":[759.4,684.1],"phenomenon":[999.6,139.2],"autonomy":[1352.6,1082.8],"antinomies":[954.7,908.4],"apriori":[1041.9,-42.4],"synthetic_apriori":[648.8,157.3],"schematism":[804.1,-161.2],"transcendental":[993.2,389.2],"aesthetic_judgment":[556.3,565.6],"sublime":[607,905],"categorical":[1162.2,987.4],"postulates":[1466.2,1065.7],"non_ego":[1157.8,1600.4],"striving":[1273,1414.9],"absolute_ego":[1102.1,1128.4],"imagination":[1076.5,1448.3],"tathandlung":[1331.3,1170.3],"practical_primacy":[1336.4,852.2],"wissenschaftslehre":[1061.1,1276.8],"abstract":[869,1401.1],"an_sich_fur_sich":[1048.1,930.9],"concrete":[882.9,1051.5],"sittlichkeit":[845.8,559.1],"objective_spirit":[1089.1,639.2],"absolute_idea":[696.7,897.3],"weltgeist":[536,747.1],"master_slave":[1577.7,693.8],"dialectic":[781.3,1095.9],"negative":[1140.4,1234.2],"cunning_reason":[959.5,1004.2],"aufhebung":[864.7,1531.2],"entfremdung":[1853.1,774],"absolute_identity":[697.6,1284],"naturphilosophie":[666.7,1368.6],"potencies":[649.8,1079.8],"intellectual_intuition":[881.5,1141.4],"transcendental_idealism_system":[783.5,921],"aesthetic_production":[714.2,1163.4],"philosophy_revelation":[405.8,621.9],"individuation":[872.5,871.8],"denial_will":[1266.2,1108.1],"representation":[466.7,301.7],"compassion":[1353.4,1266.8],"suffering":[1175.6,1076.5],"aesthetics_schop":[762.9,594.2],"will_schop":[918.4,697],"three_stages":[1022.4,578.7],"hierarchy_sciences":[1796.2,143.2],"positive_knowledge":[1337.2,345.5],"social_physics":[1809.4,470.1],"sociology":[1946,385.5],"stages_existence":[1259.5,1224.5],"leap_faith":[1119,1345.7],"anxiety":[1391.4,923.4],"absurd":[1085.8,1035],"subjective_truth":[809.9,758.6],"individual":[633.5,391.5],"despair":[1420.4,806.2],"moment":[1133.4,902.2],"repetition":[1036.7,1190.2],"base_superstructure":[1887.7,690.9],"ideology":[1488.7,680.3],"historical_materialism":[1636.7,853.4],"class_struggle":[2015.9,926.3],"alienation":[2029.8,747.1],"praxis":[1634.8,763.4],"surplus_value":[1885.8,857.8],"commodity_fetish":[2124.9,1030.2],"labor":[2005.3,521.1],"leben_dilthey":[280.8,173.6],"hermeneutics_life":[114.1,-82.3],"historical_reason":[716.9,98.4],"geisteswissenschaften":[868.7,6.5],"verstehen":[470.6,-237.6],"objective_spirit_dilthey":[426.9,171.9],"erlebnis":[714.4,-168.4],"evidence_brentano":[1081.2,-504.2],"inner_perception":[1199.1,-270.4],"descriptive_psychology":[954.9,-419.3],"immanent_objectivity":[281.2,-365.6],"intentionality_brentano":[376,-238.6],"psychical_physical":[941.7,70.3],"judgment_presentation":[444.3,-687.4],"secondness":[614.8,-19.5],"firstness":[854,-236.2],"synechism":[716.8,985],"thirdness":[580.8,318.6],"fallibilism":[1416.4,-330],"semiosis":[585,-402.9],"abduction":[828.8,-675.7],"pragmatic_maxim":[954.9,-595.4],"perspectivism":[732.1,334],"eternal_return":[627.2,992.7],"master_morality":[1196.6,1462.5],"slave_morality":[1503.1,1176.5],"ressentiment":[1356.4,1381.1],"ubermensch":[1198.3,1303.1],"god_dead":[1217.9,843],"apollonian":[463.8,800.8],"will_power":[970.7,1129],"dionysian":[803.7,1008.7],"logicism":[181.6,-317.6],"thought":[411.5,-803.3],"context_principle":[321.5,-806.7],"begriffsschrift":[-25.5,-798.1],"sense_reference":[498.2,-984.8],"function_argument":[135.9,-974],"incomplete_objects":[520.9,-1102.8],"non_existent_objects":[404.9,-1082.5],"sosein":[553.3,-913.6],"object_theory":[369.5,-882.9],"assumptions":[655,-916.2],"unconscious":[1250,181.1],"repression":[1596.9,138],"id_ego_superego":[1592.2,272.9],"transference":[1422.7,378.1],"reality_principle":[1775.6,652.8],"dream_work":[955.1,-18.7],"oedipus_complex":[1581.2,362.3],"death_drive":[1419.5,1143],"pleasure_principle":[1699,1054.7],"lifeworld":[995,-338.8],"eidetic":[436.4,-487.7],"intentionality":[836.8,-581.1],"intersubjectivity":[1306.9,-180.4],"constitution":[762.9,-244.2],"noesis_noema":[580.6,-827.8],"evidence":[747.1,-574.7],"transcendental_ego":[1121.6,-322.8],"phenomenology":[824.3,-765.6],"epoché":[809.2,-495.4],"elan_vital":[880.3,961.5],"image_bergson":[855.3,95.5],"creative_evolution":[921.9,607.1],"intellect_spatialization":[784.8,261],"intuition_bergson":[631.8,68.9],"matter_memory":[1131.4,344.4],"pure_perception":[1108.4,18.2],"duree":[823.6,179.8],"open_closed_morality":[1027.4,837.4],"laughter":[842.3,649],"instrumentalism":[1758.4,392],"warranted_assertibility":[1456.5,221],"experience_dewey":[1336.7,-288.3],"democracy_education":[1735.8,251.3],"inquiry":[1703.3,93.9],"learning_doing":[1476.4,-244.9],"actual_occasion":[425.5,1104],"eternal_objects":[214.7,735.8],"process_reality":[521.7,869.6],"creativity_whitehead":[484.6,1267.2],"prehension":[610.3,1178.3],"concrescence":[802,1183.5],"fallacy_misplaced_concreteness":[1012.8,477],"external_world":[1187,-466.9],"logical_atomism":[285.4,-678.3],"acquaintance_description":[1055.5,-959.9],"russell_paradox":[227.8,-809.2],"sense_data":[1027.7,-729.5],"theory_descriptions":[588.6,-996.4],"functional_concept":[742.1,-69.5],"myth_cassirer":[513.6,378.5],"symbolic_pregnance":[658.7,-533.5],"cultural_philosophy":[563.8,127.8],"animal_symbolicum":[733.8,186.8],"symbolic_forms":[673,-248.3],"limits_language":[366.8,-328.1],"picture_theory":[184.6,-725.2],"private_language":[617.1,-318.8],"logical_space":[160,-446.2],"showing_saying":[491.6,-560.8],"family_resemblance":[363.6,-727.1],"rule_following":[589,-698.7],"form_of_life":[914.7,-499.9],"language_game":[362.8,-539.5],"being_in_world":[559.8,-249.4],"dwelling":[1260.5,-336.2],"kehre":[222.8,-27.4],"geviert":[1050.4,-267.8],"das_man":[1297.4,-90.9],"dasein":[1000.7,-192.8],"ereignis":[576.3,216.9],"geworfenheit":[931.6,323.6],"sein":[207.1,120.8],"sorge":[1186.2,71.1],"vorhanden":[1024.9,305],"zuhanden":[1213.4,-123.3],"aletheia":[322.4,-16.1],"sein_zum_tode":[1284.9,264],"verification_principle":[137.9,-813],"protocol_sentences":[409.3,-970.4],"linguistic_framework":[2.3,-695.1],"logical_syntax":[-4.7,-560.4],"internal_external":[-37.4,-972.5],"construction_world":[349,-1153.1],"sovereignty_bataille":[1234.3,678.6],"inner_experience":[1101.4,535.5],"transgression":[1483,965.1],"general_economy":[1246,1020.4],"sacred_profane":[1709.4,1144.1],"expenditure":[1596.3,1247.1],"heterology":[1154.7,757.5],"application":[224.5,243.8],"hermeneutic_circle":[49.1,-163.3],"horizon_understanding":[500.1,-353.2],"effective_history":[138.9,-168.8],"prejudice_gadamer":[-15.1,-19.9],"fusion_horizons":[674.6,-394.3],"tradition_gadamer":[424.4,-160.3],"big_other":[1425.8,-32],"lack":[1685.7,628.9],"mirror_stage":[1507.3,146.7],"three_registers":[1667.6,336.9],"signifier":[905.2,-344.3],"desire_other":[1421.8,620.1],"objet_petit_a":[1685.9,965.6],"in_itself":[1190.8,546.1],"existence":[1219.4,325.7],"bad_faith":[1438.2,496],"project":[1327.7,435],"freedom_sartre":[1317.2,731.4],"look":[1364.2,79.9],"for_itself":[1184.4,242.8],"nothingness":[1163.6,460.3],"engagement":[1378.3,265.4],"trace":[546.8,39.4],"other_levinas":[874.5,254],"face":[657.1,-98.9],"responsibility":[1240.3,413.2],"ethics_first_philosophy":[635.7,523.2],"saying_said":[535.5,-482.2],"infinity_levinas":[339.5,682.7],"visible_invisible":[1603.2,537.4],"wild_being":[831.9,-75.6],"chiasm":[1497.4,428.2],"reversibility":[1270.7,504.7],"perception_phenomenology":[913.9,-169],"lived_body":[945.3,-263.8],"flesh":[1339.4,-6.7],"ontological_commitment":[222.3,-999.3],"two_dogmas":[-72.5,-624.4],"naturalized_epistemology":[100.7,-692.8],"web_belief":[107,-267.2],"indeterminacy_translation":[348.9,-450.6],"inscrutability_reference":[228.3,-608.7],"assemblage":[977.9,-105.7],"virtual_actual":[725.1,512.5],"multiplicity":[453.4,711.4],"fold":[1069.9,727.1],"event":[532.7,478.7],"body_without_organs":[1405.6,714.8],"deterritorialization":[1266.6,594.6],"difference":[710.1,759.4],"rhizome":[871.1,432],"desiring_machines":[1297.3,946.5],"care_self":[1111.2,151.5],"biopower":[1710.9,715.3],"power_knowledge":[1513.5,545.2],"heterotopia":[1479.2,308.1],"dispositif":[1518.6,54.1],"discipline":[1719.4,473],"panopticon":[1846,371],"episteme":[912.4,165.1],"archaeology":[395.7,36.2],"problematization":[784.9,39.5],"trace_derrida":[525.4,-166.2],"differance":[478.7,98.3],"iterability":[329.8,-105.8],"logocentrism":[314.3,74.5],"arche_writing":[722.8,-470.3],"pharmakon":[110.3,494.2],"supplement":[455,524.1],"deconstruction":[212.4,-116.8],"contingency_rorty":[717.8,422.8],"anti_representationalism":[422.5,-398.8],"ironism":[380.3,326.9],"solidarity":[1502.5,769.2],"conversation_mankind":[923.1,505.4],"vocabularies":[286,-238.3],"edifying_philosophy":[615.7,-178.9]}};
+
+    // Створка: раскладка ставится, только если отпечаток набора сошёлся с
+    // отпечатком нынешней базы. Иначе — живая симуляция, как раньше.
+    //
+    // ОТПЕЧАТОК СЧИТАЕТСЯ ЗДЕСЬ И ТОЛЬКО ЗДЕСЬ. tools/layout.mjs спрашивает
+    // его у страницы через оснастку, а не считает по своему образцу: правило,
+    // записанное дважды, однажды разъедется, и прибор покажет полное согласие
+    // при подложенной поломке.
+    function graphFingerprint() {
+      const ид = concepts.map(c => c.id).sort();
+      const рёбра = relations
+        .map(r => r.source + '|' + r.target + '|' + r.type).sort();
+      const строка = ид.join(',') + ';' + рёбра.join(',');
+      // Двойной 32-битный FNV: одного мало для 1,6 тысячи рёбер, а
+      // криптографический в браузере только асинхронный.
+      let a = 0x811c9dc5, b = 0x01000193;
+      for (let i = 0; i < строка.length; i++) {
+        const c = строка.charCodeAt(i);
+        a = Math.imul(a ^ c, 0x01000193) >>> 0;
+        b = Math.imul(b + c, 0x85ebca6b) >>> 0;
+      }
+      return (a.toString(16).padStart(8, '0') + b.toString(16).padStart(8, '0'));
+    }
+
+    // Возвращает true, если раскладка поставлена из набора.
+    // ОТКАЗ ГРОМКИЙ. Молчаливый откат означал бы, что о протухших позициях
+    // узнают через месяц: человек видел бы «просто медленную загрузку».
+    function applyStoredLayout() {
+      const н = nodePositions;
+      const свой = graphFingerprint();
+      if (!н || !н.fingerprint) {
+        console.warn('Раскладка: набор позиций пуст — считаю на месте.');
+        return false;
+      }
+      if (н.fingerprint !== свой) {
+        console.warn('Раскладка: позиции протухли (в наборе ' + н.fingerprint +
+          ', у базы ' + свой + ') — считаю на месте. Пересчитать: node tools/layout.mjs');
+        storedLayoutComplaint = 'Позиции графа устарели — раскладка считается заново';
+        return false;
+      }
+      let поставлено = 0;
+      for (const n of nodes) {
+        const p = н.nodes[n.id];
+        if (!p) continue;
+        n.x = p[0]; n.y = p[1]; n.vx = 0; n.vy = 0;
+        поставлено++;
+      }
+      if (поставлено !== nodes.length) {
+        console.warn('Раскладка: координат ' + поставлено + ' из ' + nodes.length +
+          ' — считаю на месте.');
+        storedLayoutComplaint = 'Позиции графа неполны — раскладка считается заново';
+        for (const n of nodes) { delete n.x; delete n.y; delete n.vx; delete n.vy; }
+        return false;
+      }
+      return true;
+    }
+
+    // РАСКЛАДКА, ПРИШЕДШАЯ С СЕРВЕРА. Отпечаток здесь не нужен: сервер
+    // отдаёт координаты ВМЕСТЕ с графом, одной выдачей, и разъехаться им
+    // негде — в отличие от набора в файле, который едет отдельно от базы.
+    // Пришедшая раскладка сильнее посчитанной заранее: она учитывает чужие
+    // утверждённые правки, которых в наборе ещё нет.
+    function applyServerLayout(позиции) {
+      if (!позиции) return false;
+      let поставлено = 0;
+      for (const n of nodes) {
+        const p = позиции[n.id];
+        if (!p) continue;
+        n.x = p[0]; n.y = p[1]; n.vx = 0; n.vy = 0;
+        поставлено++;
+      }
+      if (поставлено !== nodes.length) {
+        console.warn('Раскладка с сервера неполна: ' + поставлено + ' из ' +
+          nodes.length + ' — раскладка считается на месте.');
+        return false;
+      }
+      if (simulation) simulation.stop();
+      layoutSettled = true;
+      // ПЕРЕРИСОВКА ЧЕРЕЗ СОБЫТИЕ, А НЕ ПРЯМЫМ ЗОВОМ: requestDraw живёт на
+      // третьем этаже (render/), а эта створка — на первом, и прямой вызов
+      // дал бы ребро ввоза снизу вверх.
+      //
+      // НО СОБЫТИЕ НУЖНО ВЕРНОЕ. Первая редакция объявляла 'data-changed' —
+      // «база правлена». Это неправда: база не менялась, изменились только
+      // координаты. И неправда обошлась дорого: на 'data-changed' подписан
+      // updateGraphData, а он БУДИТ УКЛАДКУ — узлы тут же уезжали с
+      // присланных мест. Замер поймал: расхождение с координатами сервера
+      // 352 px вместо нуля.
+      //
+      // 'filters-applied' — «вид пора обновить»: ровно то, что здесь и
+      // случилось, и никто на нём укладку не трогает.
+      emit('filters-applied', {});
+      return true;
+    }
+
+    // Жалоба показывается человеку, когда интерфейс уже готов принимать
+    // сообщения; на месте отказа окна ещё нет.
+    let storedLayoutComplaint = null;
 
     // Создаём карту философов по id -> имя на русском
     const philosopherIdToName = {};
@@ -27233,16 +27364,111 @@
     // Заодно закрыт Б1: создание arrow-internal_contradiction стояло ВНУТРИ
     // forEach по 18 типам и порождало 18 элементов с одинаковым id.
 
+    // ВЫЗОВ СТОИТ ЗДЕСЬ, А НЕ РЯДОМ С ОБЪЯВЛЕНИЕМ. applyStoredLayout читает
+    // nodes, а они объявлены ниже литералов базы: вызов у объявления валит
+    // одностраничник в TDZ («Cannot access 'nodes' before initialization»).
+    // В сборке этого не видно — там разбивка растаскивает объявления по
+    // модулям и порядок другой. Тот же род расхождения сторон, что и с
+    // запоминанием силы тяги: исходник и сборка живут по разным порядкам,
+    // и правило «сперва сличение сторон» ловит именно это.
+    // Пара «счётчик и признак» объявлена ЗДЕСЬ, до створки: створка вправе
+    // объявить раскладку готовой ещё до того, как симуляция вообще создана.
+    let tickCount = 0;
+    let layoutSettled = false;
+
+    const layoutFromStore = applyStoredLayout();
+
+    // ТЯГА К СЕРЕДИНЕ, ОБРАТНАЯ СТЕПЕНИ. Заряд здесь безграничен по
+    // дальности и потому работает не как расталкивание соседей, а как
+    // давление, суммируемое по всем 452 остальным узлам. Узлы, у которых
+    // мало пружин, это давление выносит наружу: замер по десяти случайным
+    // началам — 17,3 ± 3,7 узла дальше 150 px от ближайшего соседа.
+    // Слабая тяга к середине, обратно пропорциональная степени, держит
+    // именно их: 9,8 ± 4,0 при том же заряде.
+    //
+    // ПОЧЕМУ НЕ ПОТОЛОК ДАЛЬНОСТИ У ЗАРЯДА. distanceMax(400) убирает
+    // пустоты полностью, но заодно стирает расслоение по традициям
+    // (отношение «внутри/между» 0,630 → 0,695) и не ускоряет ни на
+    // миллисекунду: обход квадродерева он не обрывает, только обнуляет
+    // вклад далёкого квадрата. Замер: 642 мс против 645 мс на 300 тиков.
+    // Тяга стоит той же группировке 0,023 — вчетверо дешевле.
+    //
+    // ПОЧЕМУ НЕ ПОРОГ ПО СТЕПЕНИ. «Тянуть только тех, у кого связей ≤ 3»
+    // убирает 14 узлов из 25 и не задевает «Теорию собственности» —
+    // у неё девять связей, и растянута она не бедностью, а тем, что
+    // тянут её в разные стороны. Работает только непрерывная форма.
+    const LAYOUT_PULL = 0.1;
+    // Степень спрашивается у указателя связей, а не считается заново:
+    // два ответа на один вопрос в одном файле уже обходились дорого.
+    const pullStrengthOf = d =>
+      LAYOUT_PULL / Math.max(1, (linksByConcept.get(d.id) || []).length);
+
     let simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(160))
       .force("charge", d3.forceManyBody().strength(-350))
       .force("center", d3.forceCenter(viewWidth / 2, viewHeight / 2))
       .force("collision", d3.forceCollide().radius(45))
       .alphaDecay(0.02); // Ускоряем затухание симуляции
+
+    // ТЯГА СТАВИТСЯ ОТДЕЛЬНЫМ ШАГОМ, А НЕ В ЦЕПОЧКЕ СОЗДАНИЯ. Причина не
+    // в опрятности: d3 ЗАПОМИНАЕТ силу при initialize, обходя узлы один раз.
+    // Мера силы читает linksByConcept, а построение указателей —
+    // верхнеуровневый вызов rebuildIndexes(), и разбивка уносит такие вызовы
+    // в boot(), то есть ПОСЛЕ тел модулей. Поставь тягу в цепочке — на
+    // странице указатель уже построен, а в сборке ещё пуст, и запоминается
+    // 0,1 для всех: тяга выходит ровной вместо обратной степени.
+    // Замер до починки: раскладки сторон разошлись на 291 px по медиане при
+    // 1305 px в худшем узле; после — 0,0 и 0,0.
+    // Имена pullX/pullY выбраны НЕ ради красоты: под именами x и y
+    // группировка по философам держит свои силы и снимает их
+    // (force("x", null)) при разгруппировке. Назови тягу так же — она
+    // исчезнет после первого же «сгруппировать → разгруппировать».
+    function installLayoutPull() {
+      simulation
+        .force("pullX", d3.forceX(viewWidth / 2).strength(pullStrengthOf))
+        .force("pullY", d3.forceY(viewHeight / 2).strength(pullStrengthOf));
+    }
+    installLayoutPull();
+
+    // Раскладка пришла готовой — крутить нечего. Останов ДО первого тика:
+    // иначе узлы дёрнутся с готовых мест, и вся выгода пропадёт.
+    if (layoutFromStore) {
+      simulation.stop();
+      layoutSettled = true;
+      // СЧЁТЧИК НЕ ТРОГАЕМ НАРОЧНО. Соблазн выставить его в потолок велик —
+      // и он бы уничтожил то самое различение, ради которого признак заводили
+      // в Л-1: раскладка ГОТОВА, а тиков прошло НОЛЬ. Всякий, кто вернётся к
+      // вопросу «улеглось ли?» через счётчик, немедленно разбудит готовую
+      // раскладку, и прибор это увидит.
+      requestDraw();
+    }
     
     // Останавливаем симуляцию после стабилизации
-    let tickCount = 0;
-    const maxTicks = 300; // Ограничиваем количество тиков
+    // (объявление tickCount и layoutSettled поднято выше — к створке готовой
+    //  раскладки, которая обязана уметь объявить её улёгшейся)
+    // ПОТОЛОК ТИКОВ — СЛЕДСТВИЕ ТЕМПА ОСТЫВАНИЯ, А НЕ ОТДЕЛЬНОЕ ЧИСЛО.
+    // Прежние 300 были подобраны под alphaDecay 0.02 и молча становились
+    // негодными при любом другом. Замер: при распаде 0.005 на 300-м тике
+    // альфа ещё 0,0667, узлы едут по 20 px за 20 тиков — раскладка
+    // замерзала бы на полном ходу после каждого перетаскивания.
+    // Здесь потолок считается из самого распада: столько тиков, сколько
+    // нужно альфе, чтобы от единицы дойти до alphaMin.
+    const maxTicksFor = decay => Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - decay));
+    let maxTicks = maxTicksFor(simulation.alphaDecay());   // 342 при 0.02
+
+    // ПРИЗНАК УЛЁГШЕЙСЯ РАСКЛАДКИ — ОТДЕЛЬНЫЙ. Прежде о ней спрашивали
+    // счётчик тиков, и он работал разом счётчиком, стоп-краном и
+    // признаком состояния. Три роли на одной величине означают, что
+    // всякий, кто научится ставить раскладку иначе (посчитать её заранее,
+    // прочитать готовой), обязан помнить про счётчик — а он не обязан.
+
+    // Пара «счётчик и признак» сбрасывается ТОЛЬКО ЗДЕСЬ, чтобы не
+    // разъезжалась: пять мест будят укладку, и в каждом из них прежде
+    // стояло по своей строке.
+    function resetLayoutClock() {
+      tickCount = 0;
+      layoutSettled = false;
+    }
     
     simulation.on("tick", () => {
       // Ф0.5/Б12: d3-timer уже синхронизирован с кадрами, поэтому обёртка
@@ -27256,6 +27482,7 @@
       requestDraw();
 
       if (tickCount >= maxTicks) {
+        layoutSettled = true;
         simulation.stop();
       }
     });
@@ -27704,7 +27931,7 @@
 
     function dragstarted(event, d) {
       if (!event.active) {
-        tickCount = 0; 
+        resetLayoutClock();
         simulation.alphaTarget(0.3).restart();
       }
       d.fx = d.x;
@@ -27724,7 +27951,7 @@
         n.fy = null;
       });
       resetHighlight();
-      tickCount = 0;
+      resetLayoutClock();
       simulation.alpha(1).restart();
     }
 
@@ -27734,7 +27961,7 @@
     function toggleSimulationFreeze() {
       if (simLockedByHand) {
         simLockedByHand = false;
-        const settled = !simulation || tickCount >= maxTicks;
+        const settled = !simulation || layoutSettled;
         unfreezeSimulation('рука');
         if (settled) showTemporaryMessage('Раскладка уже улеглась — двигаться нечему', 2000);
       } else {
@@ -27762,7 +27989,7 @@
         .scale(1);
       gfxSvg.transition().duration(750).call(gfxZoom.transform, transform);
       simulation.force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
-      tickCount = 0;
+      resetLayoutClock();
       simulation.alpha(0.3).restart();
     }
 
@@ -27785,7 +28012,7 @@
         && needsContinuousAnimation()) {
         ensureAnimLoop();
       }
-      if (simulation && tickCount < maxTicks) {
+      if (simulation && !layoutSettled) {
         // Возобновляем симуляцию с небольшой энергией
         simulation.alpha(0.3).restart();
         // console.log("Симуляция разморожена");
@@ -27866,6 +28093,10 @@
           .force("y", d3.forceY(d => groupPositions[d.concept].y).strength(0.3))
           .force("charge", d3.forceManyBody().strength(-200))
           .force("collision", d3.forceCollide().radius(40));
+        // Тяга к середине ГАСИТСЯ, а не снимается: снятая сила исчезла бы
+        // насовсем, а гашение обратимо одной строкой ниже.
+        simulation.force("pullX").strength(0);
+        simulation.force("pullY").strength(0);
       } else {
         btn.classList.remove('active');
         btn.textContent = '📦';
@@ -27878,8 +28109,10 @@
           .force("charge", d3.forceManyBody().strength(-350))
           .force("collision", d3.forceCollide().radius(45))
           .force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
+        simulation.force("pullX").strength(pullStrengthOf);
+        simulation.force("pullY").strength(pullStrengthOf);
       }
-      tickCount = 0;
+      resetLayoutClock();
       simulation.alpha(0.5).restart();
     }
 
@@ -27911,6 +28144,11 @@
       } else {
         simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
       }
+      // forceX вычисляет цель ОДИН РАЗ, при инициализации силы. Без этих
+      // двух строк после разворота окна центр тяжести и центр тяги
+      // разъезжаются, и граф тянут в разные стороны две силы сразу.
+      simulation.force("pullX").x(newWidth / 2);
+      simulation.force("pullY").y(newHeight / 2);
       
       simulation.alpha(0.3).restart();
     });
@@ -28407,6 +28645,12 @@
     const PERM = Object.freeze({
       CREATE_COMMIT: 'create_commit',   // можно править граф (через очередь)
       REVIEW_COMMIT: 'review_commit',   // можно править НАПРЯМУЮ, без очереди
+      // Перекладка графа. Право отдельное от прочих администраторских
+      // нарочно: настройки меняют то, КАК работает система, а перекладка —
+      // то, ЧТО люди видят глазами. Клиент его не выводит из роли, а
+      // получает от сервера: в местном режиме перекладки нет вовсе, потому
+      // что нет и хранимой раскладки, которую можно было бы переучредить.
+      RELAYOUT_GRAPH: 'relayout_graph',
     });
 
     let granted = new Set();
@@ -29149,6 +29393,16 @@
       pickDirty = true;    // хит-тест связей (карта выбора)
       linkLayer.key = null;  // слой застывших связей
       requestDraw();
+      // Счётчик тиков — он же стоп-кран: обработчик тика глушит симуляцию,
+      // как только tickCount дорос до maxTicks. Здесь его не сбрасывали, и
+      // потому энергию наливали впустую: на улёгшейся раскладке (tickCount
+      // 300) перезапуск давал РОВНО ОДИН тик, после чего stop(). Замер на
+      // живой странице: 301-й тик, альфа осталась 0.294, наибольшее
+      // смещение узла 10 px — новая концепция так и стояла там, куда её
+      // поставил addNodeToGraph. Со сбросом смещение 535 px.
+      // Прочие четыре перезапуска (перетаскивание, центрирование, сброс,
+      // группировка) счётчик сбрасывают; этот был единственным исключением.
+      resetLayoutClock();
       simulation.alpha(0.3).restart();
     }
 
@@ -29754,8 +30008,108 @@
     }
 
     function switchCommitTab(вкладка) {
-      commitTab = (вкладка === 'pending' && can(PERM.REVIEW_COMMIT)) ? 'pending' : 'mine';
+      // Вкладка выбирается ПО ПРАВУ, а не по названию: нажатие на скрытую
+      // кнопку (или зов из консоли) не должен открывать чужое.
+      if (вкладка === 'layout' && can(PERM.RELAYOUT_GRAPH)) commitTab = 'layout';
+      else if (вкладка === 'pending' && can(PERM.REVIEW_COMMIT)) commitTab = 'pending';
+      else commitTab = 'mine';
+      if (commitTab === 'layout') {
+        layoutPlan = null; layoutError = ''; layoutRevertTo = null;
+        renderCommits();
+        loadLayoutHistory();
+        return;
+      }
       loadCommits();
+    }
+
+    // ── ПЕРЕКЛАДКА РАСКЛАДКИ: ДВА ТАКТА ────────────────────────────────
+    // Перекладка меняет то, что люди видят глазами. Она необратима не
+    // технически (прежняя раскладка хранится, откат есть), а ПО ВОСПРИЯТИЮ:
+    // ориентировка теряется у всех сразу, и вернуть координаты легче, чем
+    // вернуть спокойствие. Поэтому одной кнопки «Переложить» здесь нет:
+    // сперва «Посчитать», которая НИЧЕГО НЕ ПИШЕТ и показывает меру
+    // расхождения, и только потом «Применить».
+    let layoutPlan = null;
+    let layoutError = '';
+
+    async function planRelayout() {
+      layoutError = '';
+      const reply = await api('/api/layout/plan', { метод: 'POST' });
+      if (!reply.годно) {
+        layoutPlan = null;
+        layoutError = (reply.тело && reply.тело.error && reply.тело.error.message)
+                    || 'Не удалось посчитать';
+      } else {
+        layoutPlan = (reply.тело && reply.тело.data) || null;
+      }
+      renderCommits();
+    }
+
+    // ИСТОРИЯ РАСКЛАДОК. Без неё обещание вкладки было неправдой: там сказано
+    // «прежняя раскладка сохранится, вернуть её можно», а вернуть человек мог
+    // только скриптом на сервере — то есть никак. Откат, доступный лишь тому,
+    // у кого есть доступ к машине, для человека за кнопкой не существует.
+    let layoutHistoryItems = [];
+
+    async function loadLayoutHistory() {
+      const reply = await api('/api/layout/history');
+      layoutHistoryItems = (reply.годно && reply.тело && reply.тело.data) || [];
+      renderCommits();
+    }
+
+    // Возврат — ТОЖЕ ДВА ТАКТА. Первое нажатие называет, насколько вернёт
+    // картину, второе возвращает. Возврат меняет вид графа ровно так же, как
+    // перекладка, и «отменить» здесь не безобиднее, чем «применить».
+    let layoutRevertTo = null;
+
+    function cancelLayoutRevert() { layoutRevertTo = null; renderCommits(); }
+
+    function askLayoutRevert(id) {
+      const цель = layoutHistoryItems.find(л => String(л.id) === String(id));
+      layoutRevertTo = цель || null;
+      renderCommits();
+    }
+
+    async function doLayoutRevert() {
+      if (!layoutRevertTo) return;
+      layoutError = '';
+      const reply = await api('/api/layout/' + encodeURIComponent(layoutRevertTo.id) + '/revert',
+        { метод: 'POST' });
+      if (!reply.годно) {
+        layoutError = (reply.тело && reply.тело.error && reply.тело.error.message)
+                    || 'Не удалось вернуть';
+      } else {
+        layoutRevertTo = null;
+        layoutPlan = null;
+        showTemporaryMessage('Раскладка возвращена', 4000);
+        pullGraphSince();
+        await loadLayoutHistory();
+        return;
+      }
+      renderCommits();
+    }
+
+    async function applyRelayout() {
+      if (!layoutPlan) return;
+      layoutError = '';
+      // Версия отправляется ТА, по которой человек принимал решение. Сервер
+      // считает заново и откажется, если граф успел измениться: иначе
+      // применилась бы раскладка не того графа, а увиденная мера оказалась
+      // бы чужой.
+      const reply = await api('/api/layout/apply', { метод: 'POST',
+        тело: { версия: layoutPlan.версия } });
+      if (!reply.годно) {
+        layoutError = (reply.тело && reply.тело.error && reply.тело.error.message)
+                    || 'Не удалось применить';
+      } else {
+        layoutPlan = null;
+        showTemporaryMessage('Раскладка переучреждена', 4000);
+        // Свежие координаты придут обычным путём — с приращением графа.
+        pullGraphSince();
+        await loadLayoutHistory();
+        return;
+      }
+      renderCommits();
     }
 
     async function loadCommits() {
@@ -29848,16 +30202,94 @@
       return found ? found[1] : String(код);
     }
 
+    // Разметка вкладки раскладки. Числа показываются ДО применения и
+    // называются прямо: медианный сдвиг и сколько узлов уедет дальше 200 px
+    // (медиана расстояния до ближайшего соседа — 90, значит 200 — это выход
+    // за пределы своего окружения). Это число решения, а не украшение.
+    // Список прежних раскладок. Род называется словами, а не кодом: 'warm' в
+    // глазах человека — не ответ на вопрос «что это было».
+    const LAYOUT_KINDS = Object.freeze({ full: 'полная', warm: 'доращённая' });
+
+    function layoutHistoryHtml() {
+      if (!layoutHistoryItems.length) return '';
+      const строки = layoutHistoryItems.map((л, i) => {
+        const мера = л.расхождение && л.расхождение.медиана !== null
+          ? `сдвиг ${л.расхождение.медиана} px` : 'первая';
+        const когда = л.когда ? new Date(л.когда).toLocaleString('ru-RU') : '';
+        // У действующей раскладки кнопки возврата нет: возвращать к самой себе
+        // нечего, а кнопка, которая ничего не делает, учит не доверять кнопкам.
+        const кнопка = i === 0 ? '<span class="layout-current">действующая</span>'
+          : `<button class="layout-revert" onclick="askLayoutRevert('${escapeAttr(String(л.id))}')">Вернуть</button>`;
+        return `<li>№${escapeAttr(String(л.id))} · ${LAYOUT_KINDS[л.род] || escapeAttr(л.род)}`
+             + ` · ${escapeAttr(мера)} · ${escapeAttr(когда)} ${кнопка}</li>`;
+      }).join('');
+      return `<div class="layout-history"><b>Прежние раскладки</b><ul>${строки}</ul></div>`;
+    }
+
+    function layoutTabHtml() {
+      if (layoutError) return `<div class="commits-error">${escapeAttr(layoutError)}</div>`;
+
+      // ВОЗВРАТ СПРАШИВАЕТ ПОДТВЕРЖДЕНИЯ, как и перекладка. Разница в том,
+      // что здесь мера уже известна — она записана при создании раскладки.
+      if (layoutRevertTo) {
+        const м = layoutRevertTo.расхождение;
+        return `<div class="commits-empty">Вернуть раскладку №${escapeAttr(String(layoutRevertTo.id))}`
+          + ` (${LAYOUT_KINDS[layoutRevertTo.род] || escapeAttr(layoutRevertTo.род)})?<br><br>`
+          + (м && м.медиана !== null
+              ? `Когда её сменили, узлы сдвинулись на ${м.медиана} px по медиане.`
+                + ` Возврат сдвинет их примерно настолько же — обратно.`
+              : 'Это первая раскладка графа.')
+          + `<br>Прежняя не пропадёт: возврат записывается новой строкой, и вернуться`
+          + ` можно будет и к нынешней.</div>`
+          + `<div class="modal-actions">`
+          + `<button onclick="doLayoutRevert()">Вернуть</button>`
+          + `<button onclick="cancelLayoutRevert()">Отмена</button>`
+          + `</div>`;
+      }
+
+      if (!layoutPlan) {
+        return '<div class="commits-empty">Перекладка переставит узлы графа заново.'
+          + ' Сперва посчитаем, насколько картина разойдётся с нынешней.</div>'
+          + '<div class="modal-actions"><button onclick="planRelayout()">Посчитать</button></div>'
+          + layoutHistoryHtml();
+      }
+      const м = layoutPlan.мера;
+      if (!м) {
+        return '<div class="commits-empty">Раскладки ещё нет — эта будет первой,'
+          + ' расходиться не с чем.</div>'
+          + '<div class="modal-actions"><button onclick="applyRelayout()">Применить</button></div>';
+      }
+      const дальние = (layoutPlan.дальние || [])
+        .map(у => `<li>${escapeAttr(у.id)} — ${у.сдвиг} px</li>`).join('');
+      return `<div class="commits-empty">`
+        + `Медианный сдвиг узла: <b>${м.медиана} px</b><br>`
+        + `Узлов дальше 200 px: <b>${м.далеко}</b> из ${м.сверено}<br>`
+        + `<br>Дальше всех уедут:<ul>${дальние}</ul>`
+        + `<br>При медиане в сотню пикселей привычная картина графа перестанет`
+        + ` узнаваться — у всех сразу. Прежняя раскладка сохранится, вернуть её`
+        + ` можно, но ориентировку это вернёт не сразу.`
+        + `</div>`
+        + `<div class="modal-actions">`
+        + `<button onclick="applyRelayout()">Применить</button>`
+        + `<button onclick="planRelayout()">Пересчитать</button>`
+        + `</div>`
+        + layoutHistoryHtml();
+    }
+
     function renderCommits() {
       const slot = document.getElementById('commitsBody');
       if (!slot) return;
 
       const tabs = document.getElementById('commitsTabs');
       if (tabs) {
-        // Вкладка очереди рисуется ПО ПРАВУ, а не по роли.
+        // Вкладки рисуются ПО ПРАВУ, а не по роли.
         const queue = tabs.querySelector('[data-tab="pending"]');
         if (queue) queue.style.display = can(PERM.REVIEW_COMMIT) ? '' : 'none';
+        const lay = tabs.querySelector('[data-tab="layout"]');
+        if (lay) lay.style.display = can(PERM.RELAYOUT_GRAPH) ? '' : 'none';
       }
+
+      if (commitTab === 'layout') { slot.innerHTML = layoutTabHtml(); return; }
 
       if (commitError) {
         slot.innerHTML = `<div class="commits-error">${escapeAttr(commitError)}</div>`;
@@ -30312,6 +30744,11 @@
       const reply = await api('/api/graph?since=' + encodeURIComponent(knownGraphVersion));
       if (!reply.годно || !reply.тело || !reply.тело.data) return [];
       const touched = applyIncrement(reply.тело.data);
+      // Раскладка приходит с приращением только когда она новее той, что у
+      // нас, — то есть после чужой правки, задевшей состав узлов и связей.
+      // Ставится ПОСЛЕ применения приращения: сперва новые сущности, потом
+      // их места.
+      applyServerLayout(reply.тело.data.раскладка && reply.тело.data.раскладка.позиции);
       if (touched.length) emit('graph-updated-remotely', touched);
       return touched;
     }
@@ -30434,6 +30871,9 @@
 
       rebuildDerived();
       afterDataChange({ philosophers: true, nodes: true, links: true });
+      // ПОРЯДОК СУЩЕСТВЕНЕН: afterDataChange будит укладку, и координаты
+      // ставятся ПОСЛЕ неё — иначе симуляция стронет узлы с присланных мест.
+      applyServerLayout(state2.раскладка && state2.раскладка.позиции);
       return true;
     }
 
@@ -33853,6 +34293,11 @@
     // Инициализация оригинальных радиусов
     saveOriginalRadii();
     
+    // Жалоба на протухшие позиции — здесь, а не на месте отказа: там окна
+    // сообщений ещё нет. Отказ обязан быть слышен человеку, а не только в
+    // журнале браузера.
+    if (storedLayoutComplaint) showTemporaryMessage(storedLayoutComplaint, 5000);
+
     console.log("Граф инициализирован. Используйте кнопки для запуска анализа.");
     console.log("Текущий режим: веса -", useWeightedPaths ? "ВКЛ" : "ВЫКЛ", 
           ", направленность -", respectDirection ? "ВКЛ" : "ВЫКЛ");

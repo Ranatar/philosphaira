@@ -28,6 +28,7 @@ window.__rig = { openStatsModal: A.openStatsModal, closeStatsModal: A.closeStats
   замок: () => document.getElementById('freezeBtn').classList.contains('frozen-by-hand'),
   alpha: () => (A.S.simulation ? A.S.simulation.alpha() : -1),
   tick: () => A.S.tickCount,
+  улеглось: () => A.S.layoutSettled,
   узел: () => { const n = A.DATA.nodes[0]; return [n.x, n.y]; },
   первая: () => A.DATA.concepts[0].id };
 window.__rigReady = true;`;
@@ -38,6 +39,7 @@ window.__rig = { openStatsModal: openStatsModal, closeStatsModal: closeStatsModa
   замок: function () { return document.getElementById('freezeBtn').classList.contains('frozen-by-hand'); },
   alpha: function () { return simulation ? simulation.alpha() : -1; },
   tick: function () { return tickCount; },
+  улеглось: function () { return layoutSettled; },
   узел: function () { var n = nodes[0]; return [n.x, n.y]; },
   первая: function () { return concepts[0].id; } };
 window.__rigReady = true;`;
@@ -124,9 +126,14 @@ async function run(label) {
   out['после второго нажатия: замок снят'] = await H(`String(window.__rig.замок())`);
   out['после второго нажатия: подпись'] = await H(
     `document.getElementById('freezeBtn').textContent.trim()`);
-  const шагов = await page.evaluate(() => window.__rig.tick());
+  // ПРИБОР СПРАШИВАЕТ ПРИЗНАК, А НЕ ПЕРЕСКАЗЫВАЕТ ПРАВИЛО. Прежде здесь
+  // стояло `шагов >= 300` — потолок тиков, переписанный числом. Он устарел
+  // дважды: потолок стал производным от темпа остывания (342), а с
+  // предвычисленной раскладкой тиков не бывает вовсе — счётчик ноль, и
+  // условие давало «не улеглась» на заведомо улёгшейся странице.
+  const улеглось = await page.evaluate(() => window.__rig.улеглось());
   out['разморозка: раскладка снова едет либо уже улеглась'] = await H(JSON.stringify(
-    (await едет()) || шагов >= 300));
+    (await едет()) || улеглось === true));
 
   // ── без замка окна ведут себя как прежде ──────────────────────────
   await page.evaluate(() => window.__rig.openStatsModal());
@@ -134,9 +141,9 @@ async function run(label) {
   out['без замка: окно останавливает'] = await H(JSON.stringify(!(await едет())));
   await page.evaluate(() => window.__rig.closeStatsModal());
   await wait(900);
-  const шагов2 = await page.evaluate(() => window.__rig.tick());
+  const улеглось2 = await page.evaluate(() => window.__rig.улеглось());
   out['без замка: закрытие возвращает движение'] = await H(JSON.stringify(
-    (await едет()) || шагов2 >= 300));
+    (await едет()) || улеглось2 === true));
 
   out.__errs = errs;
   await page.close(); await browser.close();

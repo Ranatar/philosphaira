@@ -384,6 +384,13 @@
   "аргументов": 0,
   "откуда": "index.html"
  },
+ "switch-commit-tab-3": {
+  "код": "switchCommitTab('layout')",
+  "attr": "onclick",
+  "тело": "switchCommitTab('layout')",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
  "close-commits-panel": {
   "код": "closeCommitsPanel()",
   "attr": "onclick",
@@ -782,6 +789,41 @@
   "тело": "submitAuth()",
   "аргументов": 0,
   "откуда": "modules/modal/auth.js"
+ },
+ "ask-layout-revert": {
+  "код": "askLayoutRevert('${escapeAttr(String(л.id))}')",
+  "attr": "onclick",
+  "тело": "askLayoutRevert(el.dataset.a1)",
+  "аргументов": 1,
+  "откуда": "modules/modal/commits.js"
+ },
+ "do-layout-revert": {
+  "код": "doLayoutRevert()",
+  "attr": "onclick",
+  "тело": "doLayoutRevert()",
+  "аргументов": 0,
+  "откуда": "modules/modal/commits.js"
+ },
+ "cancel-layout-revert": {
+  "код": "cancelLayoutRevert()",
+  "attr": "onclick",
+  "тело": "cancelLayoutRevert()",
+  "аргументов": 0,
+  "откуда": "modules/modal/commits.js"
+ },
+ "plan-relayout": {
+  "код": "planRelayout()",
+  "attr": "onclick",
+  "тело": "planRelayout()",
+  "аргументов": 0,
+  "откуда": "modules/modal/commits.js"
+ },
+ "apply-relayout": {
+  "код": "applyRelayout()",
+  "attr": "onclick",
+  "тело": "applyRelayout()",
+  "аргументов": 0,
+  "откуда": "modules/modal/commits.js"
  },
  "open-concept-by-id": {
   "код": "openConceptById('${x.id}')",

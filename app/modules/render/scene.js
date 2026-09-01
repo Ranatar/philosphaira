@@ -12,7 +12,7 @@ import { requestDraw } from './loop.js';
 import { rebuildQuadtree } from './picking.js';
 import { LABEL_ALL_ABOVE, LABEL_HIDE_BELOW, hasLinkClass, hasNodeClass, nodeLabelDy, nodeRadius } from './render-state.js';
 import { similarityColor } from './similarity-overlay.js';
-import { linkLayer, selectedEdges, selectedNodes } from '../state/render.js';
+import { linkLayer, resetLayoutClock, selectedEdges, selectedNodes } from '../state/render.js';
 
 let animLoopRunning = false;
 
@@ -333,6 +333,16 @@ function updateGraphData() {
       S.pickDirty = true;    // хит-тест связей (карта выбора)
       linkLayer.key = null;  // слой застывших связей
       requestDraw();
+      // Счётчик тиков — он же стоп-кран: обработчик тика глушит симуляцию,
+      // как только tickCount дорос до maxTicks. Здесь его не сбрасывали, и
+      // потому энергию наливали впустую: на улёгшейся раскладке (tickCount
+      // 300) перезапуск давал РОВНО ОДИН тик, после чего stop(). Замер на
+      // живой странице: 301-й тик, альфа осталась 0.294, наибольшее
+      // смещение узла 10 px — новая концепция так и стояла там, куда её
+      // поставил addNodeToGraph. Со сбросом смещение 535 px.
+      // Прочие четыре перезапуска (перетаскивание, центрирование, сброс,
+      // группировка) счётчик сбрасывают; этот был единственным исключением.
+      resetLayoutClock();
       S.simulation.alpha(0.3).restart();
     }
 

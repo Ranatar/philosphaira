@@ -35,6 +35,9 @@ echo
 echo "══ откат, история, приращение"
 node probes/revert_probe.mjs | tail -3; v=${PIPESTATUS[0]}
 echo
+echo "══ раскладка"
+node probes/layout_probe.mjs | tail -3; l=${PIPESTATUS[0]}
+echo
 echo "══ уведомления"
 node probes/notify_probe.mjs | tail -3; n=${PIPESTATUS[0]}
 echo
@@ -64,4 +67,4 @@ echo
   && [ $v -eq 0 ] && [ $n -eq 0 ] && [ $w -eq 0 ] && [ $c -eq 0 ] && [ $h -eq 0 ] \
   && [ $p -eq 0 ] && [ $q -eq 0 ] && [ $l -eq 0 ] && [ $b -eq 0 ] \
   && echo "ПРИЁМКА ЗЕЛЁНАЯ" || echo "ПРИЁМКА КРАСНАЯ"
-exit $(( s + r + d + a + m + u + g + k + f + y + v + n + w + c + h + p + b ))
+exit $(( s + r + d + a + m + u + g + k + f + y + v + n + w + c + h + p + b + l ))

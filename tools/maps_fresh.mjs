@@ -89,6 +89,64 @@ for (const к of карты) {
   else { console.log(`✗ ${к.имя} — УСТАРЕЛА (${к.зачем})`); плохо++; }
 }
 
+// НАБОР ПОЗИЦИЙ — не карта, но устаревает так же молча. Пересчитывать его
+// здесь нельзя (это шесть секунд отжига в браузере), да и незачем: у набора
+// есть отпечаток базы, и достаточно сверить его с нынешней базой. Расходятся —
+// значит после последней правки базы забыли `node tools/layout.mjs`, и
+// страница будет каждый раз считать раскладку заново, теряя двадцать секунд.
+{
+  const файл = path.join(ДЕРЕВО, 'data', 'nodePositions.json');
+  if (!fs.existsSync(файл)) {
+    console.log('? data/nodePositions.json — НЕ НАЙДЕН (соберите дерево)');
+    плохо++;
+  } else {
+    const набор = JSON.parse(fs.readFileSync(файл, 'utf8'));
+    // Отпечаток считается ТЕМ ЖЕ правилом, что и на странице, — правило
+    // одно и живёт в исходнике; здесь оно вынуто из него текстом, а не
+    // переписано по образцу. Разъедется исходник — вынется другое.
+    const телоИсх = fs.readFileSync(ИСХОДНИК, 'utf8');
+    // Тело функции берётся по СЧЁТУ СКОБОК, а не по образцу «\n    }»:
+    // внутри есть вложенные блоки, и образец обрывал функцию на первом же
+    // из них — отпечаток выходил undefined, а сообщение винило базу.
+    const тело = (имя) => {
+      const r = new RegExp('function ' + имя + '\\(\\) \\{').exec(телоИсх);
+      let гл = 0, i = r.index + r[0].length - 1;
+      for (; i < телоИсх.length; i++) {
+        const c = телоИсх[i];
+        if (c === '{') гл++;
+        else if (c === '}') { гл--; if (!гл) break; }
+      }
+      return телоИсх.slice(r.index, i + 1);
+    };
+    const м = [тело('graphFingerprint')];
+    const дан = н => {
+      const r = new RegExp('^[ \\t]*const ' + н + ' = ', 'm').exec(телоИсх);
+      const от = r.index + r[0].length;
+      let гл = 0, i = от;
+      for (; i < телоИсх.length; i++) {
+        const c = телоИсх[i];
+        if (c === '[' || c === '{') гл++;
+        else if (c === ']' || c === '}') { гл--; if (!гл) break; }
+      }
+      return телоИсх.slice(от, i + 1);
+    };
+    const код = `const concepts = ${дан('concepts')};\nconst relations = ${дан('relations')};\n`
+      + м[0].replace('function graphFingerprint()', 'const f = function ()') + ';\nreturn f();';
+    let свой;
+    try { свой = new Function(код)(); }
+    catch (e) { свой = null; }
+    if (свой === null) {
+      console.log('? nodePositions — отпечаток не вычислился, проверьте graphFingerprint');
+      плохо++;
+    } else if (набор.fingerprint === свой) {
+      console.log('✓ data/nodePositions.json — свежий');
+    } else {
+      console.log(`✗ data/nodePositions.json — УСТАРЕЛ (в наборе ${набор.fingerprint}, у базы ${свой}); пересчитать: node tools/layout.mjs`);
+      плохо++;
+    }
+  }
+}
+
 // спецификация модулей — текстом
 {
   const старый = есть('mapping/module-spec.md');

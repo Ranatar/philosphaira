@@ -10,6 +10,7 @@ import path from 'node:path';
 import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { importSet, bumpGraphVersion, counts } from '../src/db/graph.js';
+import { saveLayout } from '../src/db/layout.js';
 import { SET_NAMES } from '../src/graph/schema.js';
 
 const папка = process.argv[2];
@@ -41,7 +42,24 @@ try {
       if (!fs.existsSync(filePath)) throw new Error('нет файла ' + filePath);
       по[имя] = await importSet(client, имя, JSON.parse(fs.readFileSync(filePath, 'utf8')));
     }
-    await bumpGraphVersion(client);
+    const версия = await bumpGraphVersion(client);
+    // СЕДЬМОЙ НАБОР — РАСКЛАДКА. Она не сущность графа и живёт не в
+    // graph_entities, а в graph_layout, поэтому через importSet не проходит.
+    // Но и обойти её нельзя: без начальной раскладки коммиты не заведут её
+    // НИКОГДА (дорастить не из чего), каждый клиент считал бы свою, и узнали
+    // бы об этом, когда двое сравнят картины. Раньше это лечилось отдельным
+    // ходом человека (README §5б) — то есть надеждой, что он не забудет.
+    // Нашла дыру проверка развёртывания: выгрузка не совпала с семенем.
+    const файлРаскладки = path.join(папка, 'nodePositions.json');
+    if (fs.existsSync(файлРаскладки)) {
+      const набор = JSON.parse(fs.readFileSync(файлРаскладки, 'utf8'));
+      const позиции = набор.nodes ?? набор;
+      if (Object.keys(позиции).length) {
+        await saveLayout(client, { версияГрафа: версия ?? 0, род: 'full', позиции,
+          отпечаток: набор.fingerprint ?? null });
+        по.nodePositions = Object.keys(позиции).length;
+      }
+    }
     return по;
   });
   for (const [имя, n] of Object.entries(merged)) console.log(`  ${имя.padEnd(14, '.')} ${n}`);

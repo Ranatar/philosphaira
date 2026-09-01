@@ -72,7 +72,8 @@ try {
   // auth/service.js добавился, когда регистрация начала класть письмо с
   // подтверждением адреса.
   const исходники = ['src/commits/service.js', 'src/commits/review.js',
-                     'src/users/service.js', 'src/auth/service.js']
+                     'src/users/service.js', 'src/auth/service.js',
+                     'src/graph/relayout-service.js']
     .map(ф => fs.readFileSync(path.join(КОРЕНЬ, ф), 'utf8')).join('\n');
   const мёртвые = Object.entries(N)
     .filter(([имя]) => !исходники.includes(`N.${имя}`)).map(([, т]) => т);

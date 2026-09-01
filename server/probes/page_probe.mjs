@@ -17,6 +17,9 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import puppeteer from 'puppeteer-core';
 import { createPool } from '../src/db/pool.js';
+import { saveLayout } from '../src/db/layout.js';
+import { полнаяРаскладка } from '../src/graph/layout.js';
+import { exportAll, graphVersion } from '../src/db/graph.js';
 import { createServer } from '../src/http/server.js';
 import { register } from '../src/auth/service.js';
 import { importSet } from '../src/db/graph.js';
@@ -559,6 +562,107 @@ try {
     const в = document.querySelector('[data-tab="pending"]');
     return !!в && в.style.display !== 'none';
   })()`), 'видна', 'скрыта');
+
+  // ВКЛАДКА РАСКЛАДКИ. Без этого утверждения кнопка проверялась бы только со
+  // стороны сервера: маршруты зелены, а вкладка могла бы не нарисоваться, и
+  // никто бы не заметил — тот самый молчаливый отказ.
+  проверить('администратору вкладка раскладки видна', await pageHtml.evaluate(`(function(){
+    const в = document.querySelector('[data-tab="layout"]');
+    return !!в && в.style.display !== 'none';
+  })()`), 'видна', 'скрыта');
+
+  await pageHtml.evaluate(`window.__app.switchCommitTab('layout')`);
+  await ждать(600);
+  проверить('вкладка раскладки открылась',
+    await pageHtml.evaluate(`window.__app.commitTab`) === 'layout', 'layout',
+    await pageHtml.evaluate(`window.__app.commitTab`));
+  // ПЕРВЫЙ ТАКТ НИЧЕГО НЕ ПИШЕТ: до счёта на вкладке только приглашение.
+  проверить('до счёта показана только кнопка «Посчитать»',
+    await pageHtml.evaluate(
+      `/Посчитать/.test(document.getElementById('commitsBody').textContent)
+       && !/Применить/.test(document.getElementById('commitsBody').textContent)`),
+    'есть «Посчитать», нет «Применить»', 'не так');
+
+  // ПРЕДУСЛОВИЕ: чтобы мера расхождения была НЕ ПУСТА, нужна прежняя
+  // раскладка. Без неё вкладка честно говорит «эта будет первой,
+  // расходиться не с чем» — состояние законное, но проверять на нём
+  // предъявление меры бессмысленно. Первая редакция утверждения этого не
+  // учла и краснела на правильном поведении.
+  {
+    const граф0 = await exportAll(pool);
+    const версия0 = await graphVersion(pool);
+    await withTransaction(pool, client => saveLayout(client, {
+      версияГрафа: версия0, род: 'full', позиции: полнаяРаскладка(граф0),
+    }));
+  }
+
+  await pageHtml.evaluate(`window.__app.planRelayout()`);
+  await ждать(9000);
+  // ВТОРОЙ ТАКТ ПОЯВЛЯЕТСЯ ТОЛЬКО ПОСЛЕ МЕРЫ. И мера должна быть НАЗВАНА:
+  // кнопка без числа расхождения — это одношаговая кнопка с лишним щелчком.
+  проверить('после счёта названа мера расхождения',
+    await pageHtml.evaluate(
+      `/px/.test(document.getElementById('commitsBody').textContent)`),
+    'мера в пикселях', 'меры нет');
+  проверить('и только теперь предложено применить',
+    await pageHtml.evaluate(
+      `/Применить/.test(document.getElementById('commitsBody').textContent)`),
+    'есть «Применить»', 'нет');
+  проверить('план держит версию графа',
+    Number.isFinite(await pageHtml.evaluate(`(window.__app.layoutPlan||{}).версия`)),
+    'число', await pageHtml.evaluate(`JSON.stringify((window.__app.layoutPlan||{}).версия)`));
+
+  // ИСТОРИЯ И ВОЗВРАТ. Без них обещание вкладки было бы неправдой: там
+  // сказано «прежняя раскладка сохранится, вернуть её можно», а вернуть
+  // человек мог бы только скриптом на сервере — то есть никак.
+  // ПРЕДУСЛОВИЕ: раскладок должно быть ДВЕ, иначе возвращать не к чему и
+  // утверждения о возврате молча не выполнятся. Первая редакция так и
+  // прошла — 104 из 104 при двух непройденных проверках. Пустая проверка
+  // хуже отсутствующей: она показывает зелёное.
+  {
+    const граф1 = await exportAll(pool);
+    const версия1 = await graphVersion(pool);
+    await withTransaction(pool, client => saveLayout(client, {
+      версияГрафа: версия1, род: 'warm', позиции: полнаяРаскладка(граф1),
+      расхождение: { медиана: 12.3, далеко: 0 },
+    }));
+  }
+
+  await pageHtml.evaluate(`window.__app.loadLayoutHistory()`);
+  await ждать(1500);
+  проверить('история раскладок пришла',
+    (await pageHtml.evaluate(`(window.__app.layoutHistoryItems||[]).length`)) > 0,
+    '>0', await pageHtml.evaluate(`(window.__app.layoutHistoryItems||[]).length`));
+  проверить('история показана человеком читаемо',
+    await pageHtml.evaluate(
+      `/Прежние раскладки/.test(document.getElementById('commitsBody').textContent)
+       && !/warm|full/.test(document.getElementById('commitsBody').textContent)`),
+    'список без машинных слов', 'не так');
+  // У ДЕЙСТВУЮЩЕЙ РАСКЛАДКИ КНОПКИ ВОЗВРАТА НЕТ: возвращать к самой себе
+  // нечего, а кнопка, которая ничего не делает, учит не доверять кнопкам.
+  проверить('кнопок возврата на одну меньше, чем раскладок',
+    (await pageHtml.evaluate(`document.querySelectorAll('.layout-revert').length`))
+      === (await pageHtml.evaluate(`(window.__app.layoutHistoryItems||[]).length`)) - 1,
+    'на одну меньше',
+    await pageHtml.evaluate(`document.querySelectorAll('.layout-revert').length + ' из ' + (window.__app.layoutHistoryItems||[]).length`));
+
+  // ВОЗВРАТ ТОЖЕ ДВУХТАКТНЫЙ: сперва спрашивает, потом возвращает.
+  const кКакой = await pageHtml.evaluate(`(window.__app.layoutHistoryItems||[])[1] ? String((window.__app.layoutHistoryItems||[])[1].id) : ''`);
+  проверить('есть к чему возвращаться', !!кКакой, 'вторая раскладка', кКакой || 'НЕТ');
+  if (кКакой) {
+    await pageHtml.evaluate(`window.__app.askLayoutRevert(${JSON.stringify(кКакой)})`);
+    await ждать(400);
+    проверить('возврат сперва спрашивает',
+      await pageHtml.evaluate(
+        `/Вернуть раскладку/.test(document.getElementById('commitsBody').textContent)`),
+      'вопрос показан', 'нет вопроса');
+    const былоДо = await pageHtml.evaluate(`(window.__app.layoutHistoryItems||[]).length`);
+    await pageHtml.evaluate(`window.__app.doLayoutRevert()`);
+    await ждать(3000);
+    проверить('возврат записан новой строкой, история не стёрта',
+      (await pageHtml.evaluate(`(window.__app.layoutHistoryItems||[]).length`)) === былоДо + 1,
+      былоДо + 1, await pageHtml.evaluate(`(window.__app.layoutHistoryItems||[]).length`));
+  }
 
   await pageHtml.evaluate(`window.__app.switchCommitTab('pending')`);
   await ждать(1200);

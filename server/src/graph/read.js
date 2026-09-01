@@ -4,6 +4,7 @@
 // Поэтому у состояния есть версия, а у запроса — «с какой».
 
 import { exportAll, graphVersion, changesSince, entityHistory } from '../db/graph.js';
+import { currentLayout } from '../db/layout.js';
 import { SET_BY_KIND, SETS } from './schema.js';
 import { assertCan } from '../access/access.js';
 import { P } from '../access/roles.js';
@@ -14,7 +15,15 @@ export async function readGraph(pool, { actor }) {
   // Версия берётся ПЕРВОЙ: если её взять после выгрузки, между ними может
   // лечь чужой коммит, и клиент решит, что у него состояние новее, чем есть.
   const version = await graphVersion(pool);
-  return { версия: version, наборы: await exportAll(pool) };
+  // Раскладка едет ВМЕСТЕ с графом, одним ответом. Порознь они разъезжаются:
+  // страница получила бы новые связи со старыми координатами и на миг
+  // показала бы картину, которой не было никогда.
+  const раскладка = await currentLayout(pool);
+  return {
+    версия: version,
+    наборы: await exportAll(pool),
+    раскладка: раскладка ? { версияГрафа: раскладка.версияГрафа, позиции: раскладка.позиции } : null,
+  };
 }
 
 /**
@@ -26,8 +35,18 @@ export async function readGraphSince(pool, { actor, since }) {
   assertCan(actor, P.VIEW_GRAPH);
   const version = await graphVersion(pool);
   const rows = await changesSince(pool, Number(since) || 0);
+  // Раскладка идёт с приращением ТОЛЬКО когда она новее того, что у клиента.
+  // Она весит вчетверо больше самого приращения (453 пары чисел против
+  // одной-двух сущностей), и слать её на каждое обновление значило бы
+  // отменить весь смысл приращения. Дорасклад случается лишь при правках,
+  // задевающих состав узлов и связей, — это меньшинство коммитов.
+  const раскладка = await currentLayout(pool);
+  const нужнаРаскладка = раскладка && раскладка.версияГрафа > (Number(since) || 0);
   return {
     версия: version, с: Number(since) || 0,
+    раскладка: нужнаРаскладка
+      ? { версияГрафа: раскладка.версияГрафа, позиции: раскладка.позиции }
+      : null,
     изменения: rows.map(с => ({
       набор: SET_BY_KIND[с.kind],
       kind: с.kind,

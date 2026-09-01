@@ -29,12 +29,15 @@ import { directCommit, reviewCommit } from '../commits/review.js';
 import { revertCommit } from '../commits/revert.js';
 import { listUsers, changeUserRole, banUser, unbanUser, allowedRoles }
   from '../users/service.js';
-import { can } from '../access/access.js';
+import { can, assertCan } from '../access/access.js';
 import { readGraph, readGraphSince, readEntityHistory } from '../graph/read.js';
+import { планПерекладки, применитьПерекладку, вернутьРаскладку }
+  from '../graph/relayout-service.js';
+import { layoutHistory } from '../db/layout.js';
 import { unread, list, read, readAll, preferences, updatePreferences }
   from '../notify/read.js';
 import { P } from '../access/roles.js';
-import { errorHandler } from './errors.js';
+import { errorHandler, Conflict, NotFound } from './errors.js';
 import { requireAuth } from './guards.js';
 import { checkCsrf, newCsrfToken, cookieСеанса, cookieCsrf,
          SESSION_COOKIE, CSRF_COOKIE } from './cookies.js';
@@ -342,6 +345,56 @@ export function createApp({ pool, безопасныеCookie = true,
   app.post('/api/commits/:id/revert', requireAuth, wrap(async (req, res) => {
     res.json({ data: await revertCommit(pool, { actor: req.user,
       commitId: req.params.id, reason: req.body?.reason, ip: req.ip }) });
+  }));
+
+  // ── раскладка графа ────────────────────────────────────────────────────
+  //
+  // ХОД ДВУХТАКТНЫЙ, И ЭТО НЕ ФОРМАЛЬНОСТЬ. Перекладка меняет то, что люди
+  // видят глазами; она необратима не технически (прежняя раскладка хранится),
+  // а ПО ВОСПРИЯТИЮ: ориентировка теряется у всех сразу, и вернуть координаты
+  // легче, чем вернуть спокойствие. Поэтому «посчитать и показать меру» и
+  // «применить» — разные запросы, и первый НИЧЕГО НЕ ПИШЕТ.
+  //
+  // ПЛАН НЕ ХРАНИТСЯ МЕЖДУ ЗАПРОСАМИ. Соблазн был: посчитать раз и подать
+  // применению готовое. Но хранимый план — это состояние, которое протухает
+  // молча: пока человек думает, чужой коммит меняет граф, и применится
+  // раскладка не того графа, а мера, которую человек видел, окажется чужой.
+  // Вместо кэша — ВЕРСИЯ: применение считает заново и отказывается, если
+  // версия разошлась с той, по которой человек принимал решение.
+  app.post('/api/layout/plan', requireAuth, wrap(async (req, res) => {
+    assertCan(req.user, P.RELAYOUT_GRAPH);
+    const план = await планПерекладки(pool);
+    // Координаты наружу НЕ отдаются: их 453 пары, а решение принимается по
+    // мере расхождения. Клиенту нужны числа, а не картина.
+    res.json({ data: {
+      версия: план.версия,
+      прежняя: план.прежняя ? { id: план.прежняя.id, род: план.прежняя.род } : null,
+      мера: план.мера, дальние: план.дальние,
+    } });
+  }));
+
+  app.post('/api/layout/apply', requireAuth, requireFreshMfa(), wrap(async (req, res) => {
+    assertCan(req.user, P.RELAYOUT_GRAPH);
+    const план = await планПерекладки(pool);
+    const обещано = Number(req.body?.версия);
+    if (!Number.isFinite(обещано) || обещано !== план.версия) {
+      throw new Conflict('граф изменился с тех пор, как вы смотрели меру ' +
+        `(было ${обещано || 'не указано'}, стало ${план.версия}) — посчитайте заново`);
+    }
+    res.json({ data: await применитьПерекладку(pool, { план, actorId: req.user.userId }) });
+  }));
+
+  app.post('/api/layout/:id/revert', requireAuth, requireFreshMfa(), wrap(async (req, res) => {
+    assertCan(req.user, P.RELAYOUT_GRAPH);
+    const итог = await вернутьРаскладку(pool, {
+      id: Number(req.params.id), actorId: req.user.userId });
+    if (!итог) throw new NotFound('такой раскладки нет');
+    res.json({ data: итог });
+  }));
+
+  app.get('/api/layout/history', requireAuth, wrap(async (req, res) => {
+    assertCan(req.user, P.RELAYOUT_GRAPH);
+    res.json({ data: await layoutHistory(pool, { limit: 20 }) });
   }));
 
   // ── пользователи (беседа 4.5б) ─────────────────────────────────────────

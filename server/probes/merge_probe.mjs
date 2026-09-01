@@ -1,4 +1,4 @@
-import { mergeField, mergeEntityChange, sameValue, MERGE } from '../src/commits/merge.js';
+import { mergeField, mergeEntityChange, sameValue, MERGE, ACTIONS } from '../src/commits/merge.js';
 const т = [], п = (имя, ждали, вышло) =>
   т.push([JSON.stringify(ждали)===JSON.stringify(вышло)?'  ':'✗ ', имя, `ждали ${ждали}, вышло ${вышло}`]);
 
@@ -39,6 +39,19 @@ const edit = (fields, current=cur) => mergeEntityChange({ action:'edit', fields,
   edit({ description:{ base:'старое', next:'моё' } }, null).outcome);
 п('добавляю по занятому адресу → столкновение', MERGE.CONFLICT,
   mergeEntityChange({ action:'add', current:cur }).outcome);
+
+// НЕЗНАКОМОЕ ДЕЙСТВИЕ ПАДАЕТ, А НЕ ПОЛУЧАЕТ ПРИГОВОР. Прежде оно молча
+// проваливалось в ветку правки: `{action:'relayout', current:null}` отвечал
+// «столкновение: сущность удалена» — диагноз ЛОЖНЫЙ, сущность цела. Опечатка
+// в действии («ad» вместо «add») так же получила бы вердикт вместо жалобы.
+const падает = вход => {
+  try { mergeEntityChange(вход); return 'НЕ УПАЛО'; }
+  catch (e) { return /неизвестное действие/.test(e.message) ? 'упало' : 'упало не тем: ' + e.message; }
+};
+п('незнакомое действие падает', 'упало', падает({ action:'relayout', fields:{}, current:null }));
+п('опечатка в действии падает', 'упало', падает({ action:'ad', fields:{}, current:cur }));
+п('действие не указано вовсе — падает', 'упало', падает({ fields:{}, current:cur }));
+п('три известных действия по-прежнему приняты', 'add,edit,delete', ACTIONS.join(','));
 
 for (const [verification,result,commitRow] of т) console.log(verification, result.padEnd(54,'.'), commitRow);
 const плохо = т.filter(x=>x[0]==='✗ ').length;

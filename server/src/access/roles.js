@@ -27,6 +27,14 @@ export const P = Object.freeze({
   MANAGE_ADMINS:             'manage_admins',      // любая ↔ administrator
   DELETE_USER:               'delete_user',
   SYSTEM_SETTINGS:           'system_settings',
+
+  // ПЕРЕКЛАДКА — ОТДЕЛЬНОЕ ПРАВО, а не часть SYSTEM_SETTINGS. Соблазн был:
+  // и то и другое «администраторское». Но настройки меняют то, КАК работает
+  // система, а перекладка — то, ЧТО люди видят глазами: после неё
+  // пространственная память о графе перестаёт работать у всех сразу. Свести
+  // их в одно имя значило бы дать этому имени два смысла — и однажды выдать
+  // право на перекладку тому, кому хотели дать право на настройки.
+  RELAYOUT_GRAPH:            'relayout_graph',
 });
 
 // approve_commit и reject_commit слиты в review_commit: разных прав у них не
@@ -44,7 +52,7 @@ const moderator = [...editor, P.VIEW_PENDING_COMMITS, P.REVIEW_COMMIT,
 // Иначе всякое будущее право достаётся ему молча — а решать, кому оно
 // достаётся, должен человек, который это право вписывает.
 const administrator = [...moderator, P.MANAGE_MODERATORS, P.MANAGE_ADMINS,
-                       P.DELETE_USER, P.SYSTEM_SETTINGS];
+                       P.DELETE_USER, P.SYSTEM_SETTINGS, P.RELAYOUT_GRAPH];
 
 export const ROLES = Object.freeze({
   guest:         Object.freeze({ level: 0, permissions: Object.freeze([P.VIEW_GRAPH]) }),
@@ -70,6 +78,9 @@ export const NEEDS_MFA = Object.freeze([
   P.REVIEW_COMMIT, P.REVERT_COMMIT, P.BAN_USER,
   P.MANAGE_EDITORS, P.MANAGE_MODERATORS, P.MANAGE_ADMINS,
   P.DELETE_USER, P.SYSTEM_SETTINGS,
+  // Перекладка — по той же мерке, что откат коммита: действие редкое, видное
+  // всем и трудно отменяемое ПО ВОСПРИЯТИЮ, даже когда отменяемо технически.
+  P.RELAYOUT_GRAPH,
 ]);
 
 /**

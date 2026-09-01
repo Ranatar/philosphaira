@@ -1,28 +1,28 @@
 {
  "меры": {
   "модулей": 127,
-  "строк": 19803,
-  "объявлений": 779,
-  "вывозов": 547,
-  "рёбер": 778,
+  "строк": 20133,
+  "объявлений": 801,
+  "вывозов": 564,
+  "рёбер": 786,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
-  "вывозовДляПриборов": 16,
+  "вывозовДляПриборов": 22,
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-08-27 19:21:23"
+  "составлено": "2026-09-01 10:28:22"
  },
  "модули": [
   {
    "путь": "boot.js",
-   "строк": 294,
+   "строк": 311,
    "объявлений": 0,
    "вывозит": 1,
-   "ввозитИз": 63,
+   "ввозитИз": 65,
    "вНС": {
     "DATA": 2,
-    "S": 6
+    "S": 8
    },
    "вывоз": [
     "boot"
@@ -240,6 +240,12 @@
      ]
     },
     {
+     "откуда": "modules/core/long-task.js",
+     "имена": [
+      "showTemporaryMessage"
+     ]
+    },
+    {
      "откуда": "modules/data/remote.js",
      "имена": [
       "connectLive",
@@ -355,6 +361,7 @@
     {
      "откуда": "modules/render/loop.js",
      "имена": [
+      "requestDraw",
       "setPainter"
      ]
     },
@@ -381,6 +388,14 @@
      "откуда": "modules/state/filters.js",
      "имена": [
       "pinnedDespiteFilter"
+     ]
+    },
+    {
+     "откуда": "modules/state/render.js",
+     "имена": [
+      "installLayoutPull",
+      "layoutFromStore",
+      "storedLayoutComplaint"
      ]
     },
     {
@@ -436,7 +451,7 @@
     },
     {
      "имя": "S",
-     "раз": 11,
+     "раз": 13,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -1443,7 +1458,7 @@
   },
   {
    "путь": "modules/core/perms.js",
-   "строк": 15,
+   "строк": 21,
    "объявлений": 4,
    "вывозит": 3,
    "ввозитИз": 0,
@@ -2007,10 +2022,10 @@
   },
   {
    "путь": "modules/data/remote.js",
-   "строк": 165,
+   "строк": 174,
    "объявлений": 9,
    "вывозит": 5,
-   "ввозитИз": 5,
+   "ввозитИз": 6,
    "вНС": {
     "DATA": 8,
     "S": 3
@@ -2052,6 +2067,12 @@
      "имена": [
       "afterDataChange"
      ]
+    },
+    {
+     "откуда": "modules/state/render.js",
+     "имена": [
+      "applyServerLayout"
+     ]
     }
    ],
    "свои": [
@@ -2073,7 +2094,7 @@
     {
      "имя": "pullGraphSince",
      "вид": "async function",
-     "строк": 25
+     "строк": 30
     },
     {
      "имя": "connectLive",
@@ -2098,7 +2119,7 @@
     {
      "имя": "applyFreshGraph",
      "вид": "function",
-     "строк": 14
+     "строк": 17
     }
    ],
    "чащеВсего": [
@@ -5180,18 +5201,27 @@
   },
   {
    "путь": "modules/modal/commits.js",
-   "строк": 260,
-   "объявлений": 18,
-   "вывозит": 10,
-   "ввозитИз": 6,
+   "строк": 420,
+   "объявлений": 31,
+   "вывозит": 19,
+   "ввозитИз": 7,
    "вНС": {},
    "вывоз": [
+    "applyRelayout",
+    "askLayoutRevert",
+    "cancelLayoutRevert",
     "closeCommitsPanel",
     "commitError",
     "commitItems",
     "commitTab",
+    "doLayoutRevert",
+    "layoutHistoryItems",
+    "layoutPlan",
+    "layoutRevertTo",
     "loadCommits",
+    "loadLayoutHistory",
     "openCommitsPanel",
+    "planRelayout",
     "revertCommitFromPanel",
     "reviewCommitFromPanel",
     "showImpact",
@@ -5208,6 +5238,12 @@
      "откуда": "modules/core/events.js",
      "имена": [
       "emit"
+     ]
+    },
+    {
+     "откуда": "modules/core/long-task.js",
+     "имена": [
+      "showTemporaryMessage"
      ]
     },
     {
@@ -5265,7 +5301,57 @@
     {
      "имя": "switchCommitTab",
      "вид": "function",
-     "строк": 4
+     "строк": 14
+    },
+    {
+     "имя": "layoutPlan",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "layoutError",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "planRelayout",
+     "вид": "async function",
+     "строк": 12
+    },
+    {
+     "имя": "layoutHistoryItems",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "loadLayoutHistory",
+     "вид": "async function",
+     "строк": 5
+    },
+    {
+     "имя": "layoutRevertTo",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "cancelLayoutRevert",
+     "вид": "function",
+     "строк": 1
+    },
+    {
+     "имя": "askLayoutRevert",
+     "вид": "function",
+     "строк": 5
+    },
+    {
+     "имя": "doLayoutRevert",
+     "вид": "async function",
+     "строк": 18
+    },
+    {
+     "имя": "applyRelayout",
+     "вид": "async function",
+     "строк": 22
     },
     {
      "имя": "loadCommits",
@@ -5298,9 +5384,24 @@
      "строк": 4
     },
     {
+     "имя": "LAYOUT_KINDS",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "layoutHistoryHtml",
+     "вид": "function",
+     "строк": 15
+    },
+    {
+     "имя": "layoutTabHtml",
+     "вид": "function",
+     "строк": 49
+    },
+    {
      "имя": "renderCommits",
      "вид": "function",
-     "строк": 69
+     "строк": 73
     },
     {
      "имя": "refreshEditCount",
@@ -5331,27 +5432,27 @@
    "чащеВсего": [
     {
      "имя": "escapeAttr",
-     "раз": 18,
+     "раз": 27,
      "откуда": "modules/util/html.js"
     },
     {
+     "имя": "api",
+     "раз": 8,
+     "откуда": "modules/core/api.js"
+    },
+    {
      "имя": "can",
-     "раз": 4,
+     "раз": 6,
      "откуда": "modules/core/perms.js"
     },
     {
      "имя": "PERM",
-     "раз": 4,
+     "раз": 6,
      "откуда": "modules/core/perms.js"
     },
     {
-     "имя": "api",
-     "раз": 4,
-     "откуда": "modules/core/api.js"
-    },
-    {
      "имя": "pullGraphSince",
-     "раз": 2,
+     "раз": 4,
      "откуда": "modules/data/remote.js"
     }
    ]
@@ -8408,13 +8509,13 @@
   },
   {
    "путь": "modules/render/d3-layer.js",
-   "строк": 106,
+   "строк": 107,
    "объявлений": 11,
    "вывозит": 9,
-   "ввозитИз": 6,
+   "ввозитИз": 7,
    "вНС": {
     "DATA": 2,
-    "S": 3
+    "S": 2
    },
    "вывоз": [
     "dragended",
@@ -8459,6 +8560,12 @@
      "откуда": "modules/render/scene.js",
      "имена": [
       "startRadiusAnimation"
+     ]
+    },
+    {
+     "откуда": "modules/state/render.js",
+     "имена": [
+      "resetLayoutClock"
      ]
     }
    ],
@@ -8537,7 +8644,7 @@
     },
     {
      "имя": "S",
-     "раз": 4,
+     "раз": 3,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -8757,13 +8864,13 @@
   },
   {
    "путь": "modules/render/grouping.js",
-   "строк": 103,
+   "строк": 115,
    "объявлений": 7,
    "вывозит": 3,
-   "ввозитИз": 6,
+   "ввозитИз": 7,
    "вНС": {
     "DATA": 1,
-    "S": 7
+    "S": 6
    },
    "вывоз": [
     "buildGroupPositions",
@@ -8801,6 +8908,13 @@
      "имена": [
       "resetHighlight"
      ]
+    },
+    {
+     "откуда": "modules/state/render.js",
+     "имена": [
+      "pullStrengthOf",
+      "resetLayoutClock"
+     ]
     }
    ],
    "свои": [
@@ -8832,19 +8946,24 @@
     {
      "имя": "toggleGrouping",
      "вид": "function",
-     "строк": 33
+     "строк": 39
     },
     {
      "имя": "installResize",
      "вид": "function",
-     "строк": 33
+     "строк": 38
     }
    ],
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 19,
+     "раз": 24,
      "откуда": "modules/core/ns.js"
+    },
+    {
+     "имя": "pullStrengthOf",
+     "раз": 2,
+     "откуда": "modules/state/render.js"
     },
     {
      "имя": "DATA",
@@ -8857,9 +8976,9 @@
      "откуда": "modules/render/selection.js"
     },
     {
-     "имя": "resizeCanvas",
+     "имя": "resetLayoutClock",
      "раз": 1,
-     "откуда": "modules/render/canvas-core.js"
+     "откуда": "modules/state/render.js"
     }
    ]
   },
@@ -9445,7 +9564,7 @@
   },
   {
    "путь": "modules/render/scene.js",
-   "строк": 340,
+   "строк": 350,
    "объявлений": 18,
    "вывозит": 7,
    "ввозитИз": 14,
@@ -9557,6 +9676,7 @@
      "откуда": "modules/state/render.js",
      "имена": [
       "linkLayer",
+      "resetLayoutClock",
       "selectedEdges",
       "selectedNodes"
      ]
@@ -9651,7 +9771,7 @@
     {
      "имя": "updateGraphData",
      "вид": "function",
-     "строк": 14
+     "строк": 24
     }
    ],
    "чащеВсего": [
@@ -9990,13 +10110,13 @@
   },
   {
    "путь": "modules/render/simulation.js",
-   "строк": 126,
+   "строк": 131,
    "объявлений": 11,
    "вывозит": 8,
-   "ввозитИз": 10,
+   "ввозитИз": 12,
    "вНС": {
     "DATA": 2,
-    "S": 3
+    "S": 5
    },
    "вывоз": [
     "centerGraph",
@@ -10022,6 +10142,10 @@
     },
     {
      "откуда": "modules/core/graph-index.js",
+     "имена": []
+    },
+    {
+     "откуда": "modules/state/render.js",
      "имена": []
     },
     {
@@ -10066,18 +10190,24 @@
      "имена": [
       "resetHighlight"
      ]
+    },
+    {
+     "откуда": "modules/state/render.js",
+     "имена": [
+      "resetLayoutClock"
+     ]
     }
    ],
    "свои": [
     {
-     "имя": "maxTicks",
+     "имя": "maxTicksFor",
      "вид": "const",
      "строк": 1
     },
     {
      "имя": "installSimulationTick",
      "вид": "function",
-     "строк": 17
+     "строк": 18
     },
     {
      "имя": "installSimulationStatsEnd",
@@ -10128,13 +10258,18 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 20,
+     "раз": 23,
      "откуда": "modules/core/ns.js"
     },
     {
      "имя": "DATA",
      "раз": 3,
      "откуда": "modules/core/ns.js"
+    },
+    {
+     "имя": "resetLayoutClock",
+     "раз": 2,
+     "откуда": "modules/state/render.js"
     },
     {
      "имя": "ensureAnimLoop",
@@ -10145,11 +10280,6 @@
      "имя": "needsContinuousAnimation",
      "раз": 2,
      "откуда": "modules/render/scene.js"
-    },
-    {
-     "имя": "rebuildQuadtree",
-     "раз": 1,
-     "откуда": "modules/render/picking.js"
     }
    ]
   },
@@ -10323,18 +10453,26 @@
   },
   {
    "путь": "modules/state/render.js",
-   "строк": 38,
-   "объявлений": 3,
-   "вывозит": 3,
-   "ввозитИз": 3,
+   "строк": 141,
+   "объявлений": 12,
+   "вывозит": 11,
+   "ввозитИз": 5,
    "вНС": {
-    "DATA": 2,
-    "S": 10
+    "DATA": 5,
+    "S": 11
    },
    "вывоз": [
+    "applyServerLayout",
+    "applyStoredLayout",
+    "graphFingerprint",
+    "installLayoutPull",
+    "layoutFromStore",
     "linkLayer",
+    "pullStrengthOf",
+    "resetLayoutClock",
     "selectedEdges",
-    "selectedNodes"
+    "selectedNodes",
+    "storedLayoutComplaint"
    ],
    "ввоз": [
     {
@@ -10351,13 +10489,70 @@
     {
      "откуда": "modules/core/graph-index.js",
      "имена": []
+    },
+    {
+     "откуда": "modules/core/events.js",
+     "имена": [
+      "emit"
+     ]
+    },
+    {
+     "откуда": "modules/core/graph-index.js",
+     "имена": [
+      "linksByConcept"
+     ]
     }
    ],
    "свои": [
     {
+     "имя": "graphFingerprint",
+     "вид": "function",
+     "строк": 15
+    },
+    {
+     "имя": "applyStoredLayout",
+     "вид": "function",
+     "строк": 29
+    },
+    {
+     "имя": "applyServerLayout",
+     "вид": "function",
+     "строк": 32
+    },
+    {
+     "имя": "storedLayoutComplaint",
+     "вид": "let",
+     "строк": 1
+    },
+    {
      "имя": "linkLayer",
      "вид": "const",
      "строк": 1
+    },
+    {
+     "имя": "layoutFromStore",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "LAYOUT_PULL",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "pullStrengthOf",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "installLayoutPull",
+     "вид": "function",
+     "строк": 5
+    },
+    {
+     "имя": "resetLayoutClock",
+     "вид": "function",
+     "строк": 4
     },
     {
      "имя": "selectedNodes",
@@ -10373,13 +10568,23 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 12,
+     "раз": 21,
      "откуда": "modules/core/ns.js"
     },
     {
      "имя": "DATA",
-     "раз": 2,
+     "раз": 12,
      "откуда": "modules/core/ns.js"
+    },
+    {
+     "имя": "emit",
+     "раз": 1,
+     "откуда": "modules/core/events.js"
+    },
+    {
+     "имя": "linksByConcept",
+     "раз": 1,
+     "откуда": "modules/core/graph-index.js"
     }
    ]
   },
@@ -11968,10 +12173,10 @@
   },
   {
    "путь": "modules/ui/actions-dyn.js",
-   "строк": 158,
+   "строк": 164,
    "объявлений": 0,
    "вывозит": 0,
-   "ввозитИз": 34,
+   "ввозитИз": 35,
    "вНС": {
     "DATA": 1,
     "S": 9
@@ -12016,6 +12221,16 @@
       "closeAuthModal",
       "openAuthModal",
       "submitAuth"
+     ]
+    },
+    {
+     "откуда": "modules/modal/commits.js",
+     "имена": [
+      "applyRelayout",
+      "askLayoutRevert",
+      "cancelLayoutRevert",
+      "doLayoutRevert",
+      "planRelayout"
      ]
     },
     {
@@ -12267,7 +12482,7 @@
   },
   {
    "путь": "modules/ui/actions-static.js",
-   "строк": 136,
+   "строк": 137,
    "объявлений": 0,
    "вывозит": 0,
    "ввозитИз": 25,
@@ -12477,9 +12692,9 @@
      "откуда": "modules/ui/search-legend.js"
     },
     {
-     "имя": "handleLegendSearch",
-     "раз": 2,
-     "откуда": "modules/ui/search-legend.js"
+     "имя": "switchCommitTab",
+     "раз": 3,
+     "откуда": "modules/modal/commits.js"
     }
    ]
   },
@@ -13834,12 +14049,12 @@
    "ввозятМодулей": 22
   },
   {
-   "имя": "MET",
+   "имя": "emit",
    "ввозятМодулей": 21
   },
   {
-   "имя": "emit",
-   "ввозятМодулей": 20
+   "имя": "MET",
+   "ввозятМодулей": 21
   },
   {
    "имя": "initializePhilosophyMetrics",
@@ -13848,6 +14063,10 @@
   {
    "имя": "philosopherByName",
    "ввозятМодулей": 11
+  },
+  {
+   "имя": "requestDraw",
+   "ввозятМодулей": 10
   },
   {
    "имя": "PERM",
@@ -13874,16 +14093,16 @@
    "ввозятМодулей": 9
   },
   {
-   "имя": "requestDraw",
-   "ввозятМодулей": 9
-  },
-  {
    "имя": "isReflexiveLink",
    "ввозятМодулей": 9
   },
   {
    "имя": "escapeAttr",
    "ввозятМодулей": 9
+  },
+  {
+   "имя": "showTemporaryMessage",
+   "ввозятМодулей": 8
   },
   {
    "имя": "isNodeVisible",
@@ -13916,10 +14135,6 @@
   {
    "имя": "closeUniversalModal",
    "ввозятМодулей": 6
-  },
-  {
-   "имя": "serverMode",
-   "ввозятМодулей": 6
   }
  ],
  "держатДом": [
@@ -13933,7 +14148,7 @@
   },
   {
    "модуль": "modules/core/events.js",
-   "ввозятИзНего": 21
+   "ввозятИзНего": 22
   },
   {
    "модуль": "modules/core/link-facts.js",
@@ -13945,7 +14160,7 @@
   },
   {
    "модуль": "modules/state/render.js",
-   "ввозятИзНего": 14
+   "ввозятИзНего": 18
   },
   {
    "модуль": "modules/metrics/link-indexes.js",
@@ -13972,16 +14187,16 @@
    "ввозятИзНего": 12
   },
   {
+   "модуль": "modules/core/long-task.js",
+   "ввозятИзНего": 11
+  },
+  {
    "модуль": "modules/core/perms.js",
    "ввозятИзНего": 11
   },
   {
    "модуль": "modules/render/loop.js",
    "ввозятИзНего": 11
-  },
-  {
-   "модуль": "modules/stats/results.js",
-   "ввозятИзНего": 10
   }
  ],
  "круги": [],
@@ -14025,12 +14240,32 @@
   {
    "имя": "commitTab",
    "модуль": "modules/modal/commits.js",
-   "внутри": 3
+   "внутри": 7
+  },
+  {
+   "имя": "layoutHistoryItems",
+   "модуль": "modules/modal/commits.js",
+   "внутри": 4
+  },
+  {
+   "имя": "layoutPlan",
+   "модуль": "modules/modal/commits.js",
+   "внутри": 10
+  },
+  {
+   "имя": "layoutRevertTo",
+   "модуль": "modules/modal/commits.js",
+   "внутри": 11
   },
   {
    "имя": "loadCommits",
    "модуль": "modules/modal/commits.js",
    "внутри": 4
+  },
+  {
+   "имя": "loadLayoutHistory",
+   "модуль": "modules/modal/commits.js",
+   "внутри": 3
   },
   {
    "имя": "lastConflict",
@@ -14051,6 +14286,16 @@
    "имя": "usersError",
    "модуль": "modules/modal/users.js",
    "внутри": 6
+  },
+  {
+   "имя": "applyStoredLayout",
+   "модуль": "modules/state/render.js",
+   "внутри": 1
+  },
+  {
+   "имя": "graphFingerprint",
+   "модуль": "modules/state/render.js",
+   "внутри": 1
   },
   {
    "имя": "loadNotifications",
@@ -14115,11 +14360,11 @@
  ],
  "пространства": {
   "DATA": {
-   "полей": 16,
+   "полей": 17,
    "самые": [
     {
      "поле": "nodes",
-     "раз": 129,
+     "раз": 136,
      "модулей": 35
     },
     {
@@ -14133,19 +14378,19 @@
      "модулей": 22
     },
     {
+     "поле": "concepts",
+     "раз": 59,
+     "модулей": 19
+    },
+    {
      "поле": "philosopherConcepts",
      "раз": 49,
      "модулей": 19
     },
     {
-     "поле": "concepts",
-     "раз": 58,
-     "модулей": 18
-    },
-    {
      "поле": "relations",
-     "раз": 51,
-     "модулей": 17
+     "раз": 52,
+     "модулей": 18
     },
     {
      "поле": "conceptToRubrics",
@@ -14170,7 +14415,7 @@
    ]
   },
   "S": {
-   "полей": 69,
+   "полей": 71,
    "самые": [
     {
      "поле": "_concepts",
@@ -14194,12 +14439,12 @@
     },
     {
      "поле": "viewWidth",
-     "раз": 16,
+     "раз": 17,
      "модулей": 10
     },
     {
      "поле": "viewHeight",
-     "раз": 16,
+     "раз": 17,
      "модулей": 10
     },
     {
