@@ -13,6 +13,9 @@ export class Conflict extends Error {
 export class Unauthorized extends Error {
   constructor(message = 'Требуется вход') { super(message); this.status = 401; this.code = 'unauthorized'; }
 }
+export class TooMany extends Error {
+  constructor(message = 'Слишком часто') { super(message); this.status = 429; this.code = 'too_many'; }
+}
 export class NotFound extends Error {
   constructor(message = 'Не найдено') { super(message); this.status = 404; this.code = 'not_found'; }
 }

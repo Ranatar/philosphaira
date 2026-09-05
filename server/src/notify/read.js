@@ -9,6 +9,7 @@ import { withTransaction } from '../db/tx.js';
 import { unreadCount, listAddressed, listBroadcasts, markRead, markAllRead,
          getPreferences, setPreferences } from '../db/notifications.js';
 import { CATEGORIES } from './catalog.js';
+import { checkUnsubscribeToken } from './unsubscribe.js';
 import { Forbidden } from '../http/errors.js';
 
 export const unread = (pool, user) => unreadCount(pool, user.userId);
@@ -33,6 +34,22 @@ export const readAll = (pool, user) =>
   withTransaction(pool, client => markAllRead(client, user.userId));
 
 export const preferences = (pool, user) => getPreferences(pool, user.userId);
+
+/**
+ * Отписка по подписанной ссылке из письма — БЕЗ ВХОДА.
+ *
+ * Выключает почту целиком и больше ничего. Отказ при негодной подписи
+ * ОДИНАКОВ для «нет такого человека» и «подпись не та»: иначе ссылка стала
+ * бы способом перебирать, какие номера заведены.
+ */
+export async function unsubscribeByToken(pool, { userId, token }) {
+  if (!userId || !checkUnsubscribeToken(userId, token)) {
+    throw new Forbidden('Ссылка отписки недействительна');
+  }
+  await withTransaction(pool, client =>
+    setPreferences(client, userId, { emailEnabled: false }));
+  return { отписан: true };
+}
 
 export function updatePreferences(pool, user, изменения) {
   for (const categoryName of Object.keys(изменения.categories ?? {})) {

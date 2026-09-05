@@ -15,7 +15,7 @@ import { mergeEntityChange, MERGE } from './merge.js';
 import { bumpGraphVersion, lockEntity, nextOrd, markEntityDeleted,
          upsertEntity, patchEntity, stampVersion, exportAll } from '../db/graph.js';
 import { currentLayout, saveLayout } from '../db/layout.js';
-import { задеваетРаскладку, дорасклад, расхождение } from '../graph/layout.js';
+import { touchesLayout, growLayout, divergence } from '../graph/layout.js';
 import { SETS, SET_BY_KIND } from '../graph/schema.js';
 import { Conflict } from '../http/errors.js';
 
@@ -104,18 +104,18 @@ export async function applyCommit(client, { changes, actorId = null }) {
   // И НЕ ПРИ КАЖДОМ КОММИТЕ. Раскладка зависит только от множества узлов и
   // пар «источник — цель»; правка описания, типа, веса, рубрик её не
   // задевает, и большинство коммитов пересчёта не требует вовсе.
-  let раскладка = null;
-  if (задеваетРаскладку(changes)) {
-    const прежняя = await currentLayout(client);
-    if (прежняя) {
-      const граф = await exportAll(client);
-      const { позиции, новых } = дорасклад(граф, прежняя.позиции);
-      const мера = расхождение(прежняя.позиции, позиции);
+  let layout = null;
+  if (touchesLayout(changes)) {
+    const previous = await currentLayout(client);
+    if (previous) {
+      const graph = await exportAll(client);
+      const { позиции, новых } = growLayout(graph, previous.позиции);
+      const measure = divergence(previous.позиции, позиции);
       const id = await saveLayout(client, {
-        версияГрафа: version, род: 'warm', изЧего: прежняя.id,
-        позиции, ктоId: actorId, расхождение: мера,
+        версияГрафа: version, род: 'warm', изЧего: previous.id,
+        позиции, ктоId: actorId, расхождение: measure,
       });
-      раскладка = { id, новых, ...мера };
+      layout = { id, новых, ...measure };
     }
     else {
       // Прежней раскладки нет — значит её ещё ни разу не считали. Полный
@@ -129,7 +129,7 @@ export async function applyCommit(client, { changes, actorId = null }) {
     }
   }
 
-  return { исход: 'applied', версия: version, применено: touched, раскладка };
+  return { исход: 'applied', версия: version, применено: touched, раскладка: layout };
 }
 
 /** Опись нужна разбору столкновений: показать поле по-человечески. */

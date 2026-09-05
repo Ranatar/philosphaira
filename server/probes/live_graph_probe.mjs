@@ -27,7 +27,7 @@ import { createServer } from '../src/http/server.js';
 import { withTransaction } from '../src/db/tx.js';
 import { importSet } from '../src/db/graph.js';
 import { currentLayout, saveLayout } from '../src/db/layout.js';
-import { полнаяРаскладка } from '../src/graph/layout.js';
+import { fullLayout } from '../src/graph/layout.js';
 import { exportAll, graphVersion } from '../src/db/graph.js';
 import { SET_NAMES } from '../src/graph/schema.js';
 import { register } from '../src/auth/service.js';
@@ -337,7 +337,7 @@ try {
     const граф0 = await exportAll(pool);
     const версия0 = await graphVersion(pool);
     await withTransaction(pool, client => saveLayout(client, {
-      версияГрафа: версия0, род: 'full', позиции: полнаяРаскладка(граф0),
+      версияГрафа: версия0, род: 'full', позиции: fullLayout(граф0),
     }));
   }
 
@@ -366,7 +366,7 @@ try {
     // сервер, а не там, куда её привела своя укладка.
     const хранимая = await currentLayout(pool);
     if (!хранимая) {
-      проверить('серверная раскладка есть', false, 'есть', 'НЕТ — дорасклад не сработал');
+      проверить('серверная раскладка есть', false, 'есть', 'НЕТ — growLayout не сработал');
     } else {
       const расхожд = Object.entries(сНовым.места)
         .filter(([id]) => хранимая.позиции[id])

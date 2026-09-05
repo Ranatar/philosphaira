@@ -18,11 +18,11 @@ export async function readGraph(pool, { actor }) {
   // Раскладка едет ВМЕСТЕ с графом, одним ответом. Порознь они разъезжаются:
   // страница получила бы новые связи со старыми координатами и на миг
   // показала бы картину, которой не было никогда.
-  const раскладка = await currentLayout(pool);
+  const layout = await currentLayout(pool);
   return {
     версия: version,
     наборы: await exportAll(pool),
-    раскладка: раскладка ? { версияГрафа: раскладка.версияГрафа, позиции: раскладка.позиции } : null,
+    раскладка: layout ? { версияГрафа: layout.версияГрафа, позиции: layout.позиции } : null,
   };
 }
 
@@ -40,12 +40,12 @@ export async function readGraphSince(pool, { actor, since }) {
   // одной-двух сущностей), и слать её на каждое обновление значило бы
   // отменить весь смысл приращения. Дорасклад случается лишь при правках,
   // задевающих состав узлов и связей, — это меньшинство коммитов.
-  const раскладка = await currentLayout(pool);
-  const нужнаРаскладка = раскладка && раскладка.версияГрафа > (Number(since) || 0);
+  const layout = await currentLayout(pool);
+  const layoutIsNewer = layout && layout.версияГрафа > (Number(since) || 0);
   return {
     версия: version, с: Number(since) || 0,
-    раскладка: нужнаРаскладка
-      ? { версияГрафа: раскладка.версияГрафа, позиции: раскладка.позиции }
+    раскладка: layoutIsNewer
+      ? { версияГрафа: layout.версияГрафа, позиции: layout.позиции }
       : null,
     изменения: rows.map(с => ({
       набор: SET_BY_KIND[с.kind],

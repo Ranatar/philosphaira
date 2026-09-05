@@ -31,20 +31,29 @@ import { listUsers, changeUserRole, banUser, unbanUser, allowedRoles }
   from '../users/service.js';
 import { can, assertCan } from '../access/access.js';
 import { readGraph, readGraphSince, readEntityHistory } from '../graph/read.js';
-import { планПерекладки, применитьПерекладку, вернутьРаскладку }
+import { relayoutPlan, applyRelayout, revertLayout }
   from '../graph/relayout-service.js';
 import { layoutHistory } from '../db/layout.js';
-import { unread, list, read, readAll, preferences, updatePreferences }
-  from '../notify/read.js';
+import { unread, list, read, readAll, preferences, updatePreferences,
+         unsubscribeByToken } from '../notify/read.js';
 import { P } from '../access/roles.js';
-import { errorHandler, Conflict, NotFound } from './errors.js';
+import { errorHandler, Conflict, NotFound, TooMany } from './errors.js';
+import { noteAttempt, overLimit, REGISTER_LIMIT } from '../auth/throttle.js';
 import { requireAuth } from './guards.js';
 import { checkCsrf, newCsrfToken, cookieСеанса, cookieCsrf,
          SESSION_COOKIE, CSRF_COOKIE } from './cookies.js';
 
 export function createApp({ pool, безопасныеCookie = true,
-                                    папкаПриложения = null }) {
+                                    папкаПриложения = null, trustProxy = 0 }) {
   const app = express();
+  // ДОВЕРИЕ ОБРАТНОМУ СТАВНЮ — ТОЛЬКО ПО ОБЪЯВЛЕНИЮ.
+  // За ставнем `req.ip` без этого равен 127.0.0.1 у всех и всегда: адреса в
+  // user_sessions и audit_log перестают отвечать на вопрос «откуда заходили»,
+  // а предел регистраций бьёт по всем разом. Но включать доверие всегда
+  // НЕЛЬЗЯ: без ставня любой присланный X-Forwarded-For станет «адресом
+  // человека», и журнал начнёт врать по чужой воле. Потому число ставней
+  // объявляется снаружи, а умолчание — не доверять.
+  if (trustProxy) app.set('trust proxy', trustProxy);
   app.use(express.json({ limit: '256kb' }));
   app.use(cookieParser());
 
@@ -61,6 +70,10 @@ export function createApp({ pool, безопасныеCookie = true,
   const WITHOUT_CSRF = new Set([
     '/api/auth/register', '/api/auth/login', '/api/auth/mfa',
     '/api/auth/verify-email',
+    // Отписку присылает ПОЧТОВАЯ СЛУЖБА, а не браузер человека: ни cookie,
+    // ни признака CSRF у неё нет и быть не может. Вместо них подпись в самой
+    // ссылке — и она же единственное, что этот ход принимает.
+    '/api/notifications/unsubscribe',
   ]);
   app.use((req, res, next) =>
     WITHOUT_CSRF.has(req.path) ? next() : checkCsrf(req, res, next));
@@ -75,6 +88,15 @@ export function createApp({ pool, безопасныеCookie = true,
   const wrap = fn => (req, res, next) => fn(req, res).catch(next);
 
   app.post('/api/auth/register', wrap(async (req, res) => {
+    // ПРЕДЕЛ ПО АДРЕСУ. При закрытом круге регистрация была ходом для
+    // оператора, при открытом — ходом для кого угодно, включая того, кто
+    // заведёт тысячу записей на несуществующие ящики. Каждая такая запись
+    // тянет письмо, а письма на мёртвые адреса портят доброе имя отправителя
+    // у почтовых служб. Считается ВСЯКАЯ попытка, а не только неудачная.
+    const netKey = 'register:' + req.ip;
+    if (overLimit(netKey, REGISTER_LIMIT))
+      throw new TooMany('Слишком много записей с одного адреса; попробуйте позже');
+    noteAttempt(netKey);
     const { username, email, password, displayName } = req.body ?? {};
     const result = await register(pool, { username, email, password, displayName,
       ip: req.ip, ua: req.get('user-agent') });
@@ -286,6 +308,18 @@ export function createApp({ pool, безопасныеCookie = true,
   // Счёт непрочитанного — СВОЙ ход, а не поле в ответе списка. В первой
   // редакции документа панель брала счётчик из пагинации, и при более чем
   // пятидесяти уведомлениях он врал.
+  // ОТПИСКА БЕЗ ВХОДА. Оба способа: POST — «одно действие» почтовой службы
+  // (Gmail и Yahoo шлют именно его), GET — человек, нажавший ссылку руками.
+  const unsubscribeHandler = wrap(async (req, res) => {
+    const userId = req.query.u ?? req.body?.u;
+    const token = req.query.t ?? req.body?.t;
+    await unsubscribeByToken(pool, { userId, token });
+    res.status(200).type('text/plain; charset=utf-8')
+      .send('Письма отключены. Включить обратно можно в настройках уведомлений.');
+  });
+  app.post('/api/notifications/unsubscribe', express.urlencoded({ extended: false }), unsubscribeHandler);
+  app.get('/api/notifications/unsubscribe', unsubscribeHandler);
+
   app.get('/api/notifications/unread-count', requireAuth, wrap(async (req, res) => {
     res.json({ data: { count: await unread(pool, req.user) } });
   }));
@@ -363,33 +397,33 @@ export function createApp({ pool, безопасныеCookie = true,
   // версия разошлась с той, по которой человек принимал решение.
   app.post('/api/layout/plan', requireAuth, wrap(async (req, res) => {
     assertCan(req.user, P.RELAYOUT_GRAPH);
-    const план = await планПерекладки(pool);
+    const plan = await relayoutPlan(pool);
     // Координаты наружу НЕ отдаются: их 453 пары, а решение принимается по
     // мере расхождения. Клиенту нужны числа, а не картина.
     res.json({ data: {
-      версия: план.версия,
-      прежняя: план.прежняя ? { id: план.прежняя.id, род: план.прежняя.род } : null,
-      мера: план.мера, дальние: план.дальние,
+      версия: plan.версия,
+      прежняя: plan.прежняя ? { id: plan.прежняя.id, род: plan.прежняя.род } : null,
+      мера: plan.мера, дальние: plan.дальние,
     } });
   }));
 
   app.post('/api/layout/apply', requireAuth, requireFreshMfa(), wrap(async (req, res) => {
     assertCan(req.user, P.RELAYOUT_GRAPH);
-    const план = await планПерекладки(pool);
-    const обещано = Number(req.body?.версия);
-    if (!Number.isFinite(обещано) || обещано !== план.версия) {
+    const plan = await relayoutPlan(pool);
+    const expectedVersion = Number(req.body?.версия);
+    if (!Number.isFinite(expectedVersion) || expectedVersion !== plan.версия) {
       throw new Conflict('граф изменился с тех пор, как вы смотрели меру ' +
-        `(было ${обещано || 'не указано'}, стало ${план.версия}) — посчитайте заново`);
+        `(было ${expectedVersion || 'не указано'}, стало ${plan.версия}) — посчитайте заново`);
     }
-    res.json({ data: await применитьПерекладку(pool, { план, actorId: req.user.userId }) });
+    res.json({ data: await applyRelayout(pool, { план: plan, actorId: req.user.userId }) });
   }));
 
   app.post('/api/layout/:id/revert', requireAuth, requireFreshMfa(), wrap(async (req, res) => {
     assertCan(req.user, P.RELAYOUT_GRAPH);
-    const итог = await вернутьРаскладку(pool, {
+    const reverted = await revertLayout(pool, {
       id: Number(req.params.id), actorId: req.user.userId });
-    if (!итог) throw new NotFound('такой раскладки нет');
-    res.json({ data: итог });
+    if (!reverted) throw new NotFound('такой раскладки нет');
+    res.json({ data: reverted });
   }));
 
   app.get('/api/layout/history', requireAuth, wrap(async (req, res) => {

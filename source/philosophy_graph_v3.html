@@ -14424,15 +14424,15 @@
     // записанное дважды, однажды разъедется, и прибор покажет полное согласие
     // при подложенной поломке.
     function graphFingerprint() {
-      const ид = concepts.map(c => c.id).sort();
-      const рёбра = relations
+      const conceptIds = concepts.map(c => c.id).sort();
+      const edgeKeys = relations
         .map(r => r.source + '|' + r.target + '|' + r.type).sort();
-      const строка = ид.join(',') + ';' + рёбра.join(',');
+      const fingerprintInput = conceptIds.join(',') + ';' + edgeKeys.join(',');
       // Двойной 32-битный FNV: одного мало для 1,6 тысячи рёбер, а
       // криптографический в браузере только асинхронный.
       let a = 0x811c9dc5, b = 0x01000193;
-      for (let i = 0; i < строка.length; i++) {
-        const c = строка.charCodeAt(i);
+      for (let i = 0; i < fingerprintInput.length; i++) {
+        const c = fingerprintInput.charCodeAt(i);
         a = Math.imul(a ^ c, 0x01000193) >>> 0;
         b = Math.imul(b + c, 0x85ebca6b) >>> 0;
       }
@@ -14443,27 +14443,27 @@
     // ОТКАЗ ГРОМКИЙ. Молчаливый откат означал бы, что о протухших позициях
     // узнают через месяц: человек видел бы «просто медленную загрузку».
     function applyStoredLayout() {
-      const н = nodePositions;
-      const свой = graphFingerprint();
-      if (!н || !н.fingerprint) {
+      const stored = nodePositions;
+      const ownFingerprint = graphFingerprint();
+      if (!stored || !stored.fingerprint) {
         console.warn('Раскладка: набор позиций пуст — считаю на месте.');
         return false;
       }
-      if (н.fingerprint !== свой) {
-        console.warn('Раскладка: позиции протухли (в наборе ' + н.fingerprint +
-          ', у базы ' + свой + ') — считаю на месте. Пересчитать: node tools/layout.mjs');
+      if (stored.fingerprint !== ownFingerprint) {
+        console.warn('Раскладка: позиции протухли (в наборе ' + stored.fingerprint +
+          ', у базы ' + ownFingerprint + ') — считаю на месте. Пересчитать: node tools/layout.mjs');
         storedLayoutComplaint = 'Позиции графа устарели — раскладка считается заново';
         return false;
       }
-      let поставлено = 0;
+      let placed = 0;
       for (const n of nodes) {
-        const p = н.nodes[n.id];
+        const p = stored.nodes[n.id];
         if (!p) continue;
         n.x = p[0]; n.y = p[1]; n.vx = 0; n.vy = 0;
-        поставлено++;
+        placed++;
       }
-      if (поставлено !== nodes.length) {
-        console.warn('Раскладка: координат ' + поставлено + ' из ' + nodes.length +
+      if (placed !== nodes.length) {
+        console.warn('Раскладка: координат ' + placed + ' из ' + nodes.length +
           ' — считаю на месте.');
         storedLayoutComplaint = 'Позиции графа неполны — раскладка считается заново';
         for (const n of nodes) { delete n.x; delete n.y; delete n.vx; delete n.vy; }
@@ -14479,15 +14479,15 @@
     // утверждённые правки, которых в наборе ещё нет.
     function applyServerLayout(позиции) {
       if (!позиции) return false;
-      let поставлено = 0;
+      let placed = 0;
       for (const n of nodes) {
         const p = позиции[n.id];
         if (!p) continue;
         n.x = p[0]; n.y = p[1]; n.vx = 0; n.vy = 0;
-        поставлено++;
+        placed++;
       }
-      if (поставлено !== nodes.length) {
-        console.warn('Раскладка с сервера неполна: ' + поставлено + ' из ' +
+      if (placed !== nodes.length) {
+        console.warn('Раскладка с сервера неполна: ' + placed + ' из ' +
           nodes.length + ' — раскладка считается на месте.');
         return false;
       }
@@ -30065,8 +30065,8 @@
     function cancelLayoutRevert() { layoutRevertTo = null; renderCommits(); }
 
     function askLayoutRevert(id) {
-      const цель = layoutHistoryItems.find(л => String(л.id) === String(id));
-      layoutRevertTo = цель || null;
+      const targetItem = layoutHistoryItems.find(л => String(л.id) === String(id));
+      layoutRevertTo = targetItem || null;
       renderCommits();
     }
 
@@ -30212,18 +30212,18 @@
 
     function layoutHistoryHtml() {
       if (!layoutHistoryItems.length) return '';
-      const строки = layoutHistoryItems.map((л, i) => {
-        const мера = л.расхождение && л.расхождение.медиана !== null
+      const historyRows = layoutHistoryItems.map((л, i) => {
+        const measure = л.расхождение && л.расхождение.медиана !== null
           ? `сдвиг ${л.расхождение.медиана} px` : 'первая';
-        const когда = л.когда ? new Date(л.когда).toLocaleString('ru-RU') : '';
+        const whenText = л.когда ? new Date(л.когда).toLocaleString('ru-RU') : '';
         // У действующей раскладки кнопки возврата нет: возвращать к самой себе
         // нечего, а кнопка, которая ничего не делает, учит не доверять кнопкам.
-        const кнопка = i === 0 ? '<span class="layout-current">действующая</span>'
+        const buttonHtml = i === 0 ? '<span class="layout-current">действующая</span>'
           : `<button class="layout-revert" onclick="askLayoutRevert('${escapeAttr(String(л.id))}')">Вернуть</button>`;
         return `<li>№${escapeAttr(String(л.id))} · ${LAYOUT_KINDS[л.род] || escapeAttr(л.род)}`
-             + ` · ${escapeAttr(мера)} · ${escapeAttr(когда)} ${кнопка}</li>`;
+             + ` · ${escapeAttr(measure)} · ${escapeAttr(whenText)} ${buttonHtml}</li>`;
       }).join('');
-      return `<div class="layout-history"><b>Прежние раскладки</b><ul>${строки}</ul></div>`;
+      return `<div class="layout-history"><b>Прежние раскладки</b><ul>${historyRows}</ul></div>`;
     }
 
     function layoutTabHtml() {
@@ -30232,11 +30232,11 @@
       // ВОЗВРАТ СПРАШИВАЕТ ПОДТВЕРЖДЕНИЯ, как и перекладка. Разница в том,
       // что здесь мера уже известна — она записана при создании раскладки.
       if (layoutRevertTo) {
-        const м = layoutRevertTo.расхождение;
+        const diffMeasure = layoutRevertTo.расхождение;
         return `<div class="commits-empty">Вернуть раскладку №${escapeAttr(String(layoutRevertTo.id))}`
           + ` (${LAYOUT_KINDS[layoutRevertTo.род] || escapeAttr(layoutRevertTo.род)})?<br><br>`
-          + (м && м.медиана !== null
-              ? `Когда её сменили, узлы сдвинулись на ${м.медиана} px по медиане.`
+          + (diffMeasure && diffMeasure.медиана !== null
+              ? `Когда её сменили, узлы сдвинулись на ${diffMeasure.медиана} px по медиане.`
                 + ` Возврат сдвинет их примерно настолько же — обратно.`
               : 'Это первая раскладка графа.')
           + `<br>Прежняя не пропадёт: возврат записывается новой строкой, и вернуться`
@@ -30253,18 +30253,18 @@
           + '<div class="modal-actions"><button onclick="planRelayout()">Посчитать</button></div>'
           + layoutHistoryHtml();
       }
-      const м = layoutPlan.мера;
-      if (!м) {
+      const diffMeasure = layoutPlan.мера;
+      if (!diffMeasure) {
         return '<div class="commits-empty">Раскладки ещё нет — эта будет первой,'
           + ' расходиться не с чем.</div>'
           + '<div class="modal-actions"><button onclick="applyRelayout()">Применить</button></div>';
       }
-      const дальние = (layoutPlan.дальние || [])
+      const farMoved = (layoutPlan.дальние || [])
         .map(у => `<li>${escapeAttr(у.id)} — ${у.сдвиг} px</li>`).join('');
       return `<div class="commits-empty">`
-        + `Медианный сдвиг узла: <b>${м.медиана} px</b><br>`
-        + `Узлов дальше 200 px: <b>${м.далеко}</b> из ${м.сверено}<br>`
-        + `<br>Дальше всех уедут:<ul>${дальние}</ul>`
+        + `Медианный сдвиг узла: <b>${diffMeasure.медиана} px</b><br>`
+        + `Узлов дальше 200 px: <b>${diffMeasure.далеко}</b> из ${diffMeasure.сверено}<br>`
+        + `<br>Дальше всех уедут:<ul>${farMoved}</ul>`
         + `<br>При медиане в сотню пикселей привычная картина графа перестанет`
         + ` узнаваться — у всех сразу. Прежняя раскладка сохранится, вернуть её`
         + ` можно, но ориентировку это вернёт не сразу.`

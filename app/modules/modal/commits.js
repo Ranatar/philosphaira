@@ -71,8 +71,8 @@ let layoutRevertTo = null;
 function cancelLayoutRevert() { layoutRevertTo = null; renderCommits(); }
 
 function askLayoutRevert(id) {
-      const цель = layoutHistoryItems.find(л => String(л.id) === String(id));
-      layoutRevertTo = цель || null;
+      const targetItem = layoutHistoryItems.find(л => String(л.id) === String(id));
+      layoutRevertTo = targetItem || null;
       renderCommits();
     }
 
@@ -193,18 +193,18 @@ const LAYOUT_KINDS = Object.freeze({ full: 'полная', warm: 'доращён
 
 function layoutHistoryHtml() {
       if (!layoutHistoryItems.length) return '';
-      const строки = layoutHistoryItems.map((л, i) => {
-        const мера = л.расхождение && л.расхождение.медиана !== null
+      const historyRows = layoutHistoryItems.map((л, i) => {
+        const measure = л.расхождение && л.расхождение.медиана !== null
           ? `сдвиг ${л.расхождение.медиана} px` : 'первая';
-        const когда = л.когда ? new Date(л.когда).toLocaleString('ru-RU') : '';
+        const whenText = л.когда ? new Date(л.когда).toLocaleString('ru-RU') : '';
         // У действующей раскладки кнопки возврата нет: возвращать к самой себе
         // нечего, а кнопка, которая ничего не делает, учит не доверять кнопкам.
-        const кнопка = i === 0 ? '<span class="layout-current">действующая</span>'
+        const buttonHtml = i === 0 ? '<span class="layout-current">действующая</span>'
           : `<button class="layout-revert" data-act-click="ask-layout-revert" data-a1="${escapeAttr(String(л.id))}">Вернуть</button>`;
         return `<li>№${escapeAttr(String(л.id))} · ${LAYOUT_KINDS[л.род] || escapeAttr(л.род)}`
-             + ` · ${escapeAttr(мера)} · ${escapeAttr(когда)} ${кнопка}</li>`;
+             + ` · ${escapeAttr(measure)} · ${escapeAttr(whenText)} ${buttonHtml}</li>`;
       }).join('');
-      return `<div class="layout-history"><b>Прежние раскладки</b><ul>${строки}</ul></div>`;
+      return `<div class="layout-history"><b>Прежние раскладки</b><ul>${historyRows}</ul></div>`;
     }
 
 function layoutTabHtml() {
@@ -213,11 +213,11 @@ function layoutTabHtml() {
       // ВОЗВРАТ СПРАШИВАЕТ ПОДТВЕРЖДЕНИЯ, как и перекладка. Разница в том,
       // что здесь мера уже известна — она записана при создании раскладки.
       if (layoutRevertTo) {
-        const м = layoutRevertTo.расхождение;
+        const diffMeasure = layoutRevertTo.расхождение;
         return `<div class="commits-empty">Вернуть раскладку №${escapeAttr(String(layoutRevertTo.id))}`
           + ` (${LAYOUT_KINDS[layoutRevertTo.род] || escapeAttr(layoutRevertTo.род)})?<br><br>`
-          + (м && м.медиана !== null
-              ? `Когда её сменили, узлы сдвинулись на ${м.медиана} px по медиане.`
+          + (diffMeasure && diffMeasure.медиана !== null
+              ? `Когда её сменили, узлы сдвинулись на ${diffMeasure.медиана} px по медиане.`
                 + ` Возврат сдвинет их примерно настолько же — обратно.`
               : 'Это первая раскладка графа.')
           + `<br>Прежняя не пропадёт: возврат записывается новой строкой, и вернуться`
@@ -234,18 +234,18 @@ function layoutTabHtml() {
           + '<div class="modal-actions"><button data-act-click="plan-relayout">Посчитать</button></div>'
           + layoutHistoryHtml();
       }
-      const м = layoutPlan.мера;
-      if (!м) {
+      const diffMeasure = layoutPlan.мера;
+      if (!diffMeasure) {
         return '<div class="commits-empty">Раскладки ещё нет — эта будет первой,'
           + ' расходиться не с чем.</div>'
           + '<div class="modal-actions"><button data-act-click="apply-relayout">Применить</button></div>';
       }
-      const дальние = (layoutPlan.дальние || [])
+      const farMoved = (layoutPlan.дальние || [])
         .map(у => `<li>${escapeAttr(у.id)} — ${у.сдвиг} px</li>`).join('');
       return `<div class="commits-empty">`
-        + `Медианный сдвиг узла: <b>${м.медиана} px</b><br>`
-        + `Узлов дальше 200 px: <b>${м.далеко}</b> из ${м.сверено}<br>`
-        + `<br>Дальше всех уедут:<ul>${дальние}</ul>`
+        + `Медианный сдвиг узла: <b>${diffMeasure.медиана} px</b><br>`
+        + `Узлов дальше 200 px: <b>${diffMeasure.далеко}</b> из ${diffMeasure.сверено}<br>`
+        + `<br>Дальше всех уедут:<ul>${farMoved}</ul>`
         + `<br>При медиане в сотню пикселей привычная картина графа перестанет`
         + ` узнаваться — у всех сразу. Прежняя раскладка сохранится, вернуть её`
         + ` можно, но ориентировку это вернёт не сразу.`

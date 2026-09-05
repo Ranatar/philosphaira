@@ -166,6 +166,20 @@ export const markDelivered = (client, id) => client.query(
   `UPDATE outbox SET delivered_at = NOW(), claimed_until = NULL, last_error = NULL
     WHERE outbox_id = $1`, [id]);
 
+/**
+ * Отказ навсегда: письмо закрывается, ошибка ОСТАЁТСЯ.
+ *
+ * `delivered_at` ставится не потому, что письмо ушло, а потому, что оно
+ * больше не в очереди: это же поле отбирает работу (`claimOutbox`) и по нему
+ * же считается отставание. Отличить безнадёжное от доставленного можно по
+ * `last_error`, который здесь нарочно не стирается:
+ *   SELECT count(*) FROM outbox WHERE delivered_at IS NOT NULL AND last_error IS NOT NULL;
+ */
+export const markDead = (client, { id, ошибка }) => client.query(
+  `UPDATE outbox SET delivered_at = NOW(), claimed_until = NULL,
+          attempts = attempts + 1, last_error = $2
+    WHERE outbox_id = $1`, [id, String(ошибка).slice(0, 500)]);
+
 /** Задержка растёт: не удалось — подождём вдвое дольше, но не больше часа. */
 export const markFailed = (client, { id, attempts, ошибка }) => client.query(
   `UPDATE outbox SET attempts = attempts + 1, claimed_until = NULL,
@@ -177,7 +191,8 @@ export async function notificationForDelivery(db, notificationId) {
   const { rows } = await db.query(`
     SELECT n.type, n.category, n.data, n.user_id AS "userId",
            u.email, u.username,
-           COALESCE(p.email_enabled, TRUE) AS "почтойХочет"
+           COALESCE(p.email_enabled, TRUE) AS "почтойХочет",
+           (u.email_verified_at IS NOT NULL) AS "почтаПодтверждена"
       FROM notifications n JOIN users u USING (user_id)
       LEFT JOIN notification_preferences p ON p.user_id = n.user_id
      WHERE n.notification_id = $1`, [notificationId]);
@@ -192,6 +207,7 @@ export async function digestRecipients(db, { категория, часов = 1 
            COALESCE(p.broadcast_seen_id, 0) AS "курсор"
       FROM users u LEFT JOIN notification_preferences p ON p.user_id = u.user_id
      WHERE u.is_active AND NOT u.is_banned AND u.deleted_at IS NULL
+       AND u.email_verified_at IS NOT NULL
        AND COALESCE(p.email_enabled, TRUE)
        AND COALESCE((p.categories ->> $1)::boolean, TRUE)
        AND COALESCE(p.last_digest_at, to_timestamp(0)) < NOW() - ($2 || ' hours')::interval`,

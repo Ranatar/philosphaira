@@ -1,11 +1,11 @@
 {
   "meta": {
     "file": "source/philosophy_graph_v3.html",
-    "bytes": 2223027,
+    "bytes": 2223241,
     "lines": 34340,
     "scriptFrom": 5620,
     "scriptTo": 34337,
-    "generated": "2026-09-01T10:11:49.359Z",
+    "generated": "2026-09-05T05:04:58.967Z",
     "counts": {
       "total": 972,
       "functions": 609,

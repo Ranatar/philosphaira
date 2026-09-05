@@ -3,16 +3,27 @@
 //
 //   node scripts/notify-worker.mjs [--once]
 //
-// Отправителя здесь нет нарочно: настоящий подставляется при развёртывании.
-// Умолчание не шлёт никуда и об этом говорит — молчаливая отправка «в никуда»
-// хуже отказа, потому что о ней узнают через неделю.
+// Отправитель СЛЕДУЕТ ИЗ ОКРУЖЕНИЯ: задан SMTP_URL — письма уходят по нему,
+// не задан — не уходят никуда. Прежде здесь стояло `nullSender` намертво, и
+// «настоящий подставляется при развёртывании» означало правку кода на боевой
+// машине.
+//
+// ОБ ЭТОМ ГОВОРИТСЯ ВСЛУХ И ПРИ ЗАПУСКЕ. Молчаливая отправка «в никуда» хуже
+// отказа: работник при этом исправен, живые обновления идут, регистрация
+// проходит — молчит только почта, и узнают об этом через неделю от человека,
+// который так и не дождался письма.
 
 import { createPool } from '../src/db/pool.js';
-import { deliverOnce, sendDigests, sweep, nullSender } from '../src/notify/worker.js';
+import { deliverOnce, sendDigests, sweep } from '../src/notify/worker.js';
+import { senderFromEnv } from '../src/notify/mail.js';
 
 const разово = process.argv.includes('--once');
 const pool = createPool();
-const отправитель = nullSender;
+const { sender: отправитель, source: откуда } = senderFromEnv();
+console.log(откуда === 'smtp'
+  ? `почта: ${new URL(process.env.SMTP_URL).host}, от ${process.env.MAIL_FROM}`
+  : 'ПОЧТА НЕ НАСТРОЕНА (нет SMTP_URL): письма уходить не будут, '
+    + 'подтверждение адреса и открытая регистрация не работают');
 
 async function заход() {
   const д = await deliverOnce(pool, { отправитель });

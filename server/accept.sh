@@ -41,6 +41,9 @@ echo
 echo "══ уведомления"
 node probes/notify_probe.mjs | tail -3; n=${PIPESTATUS[0]}
 echo
+echo "══ почта (чистые функции)"
+node probes/mail_probe.mjs | tail -3; e=${PIPESTATUS[0]}
+echo
 echo "══ доставка"
 node probes/worker_probe.mjs | tail -3; w=${PIPESTATUS[0]}
 echo
@@ -62,9 +65,9 @@ echo
 echo "══ штатный запуск"
 node probes/bootstrap_probe.mjs | tail -3; b=${PIPESTATUS[0]}
 echo
-[ $s -eq 0 ] && [ $r -eq 0 ] && [ $d -eq 0 ] && [ $a -eq 0 ] && [ $m -eq 0 ] \
+[ $e -eq 0 ] && [ $s -eq 0 ] && [ $r -eq 0 ] && [ $d -eq 0 ] && [ $a -eq 0 ] && [ $m -eq 0 ] \
   && [ $u -eq 0 ] && [ $g -eq 0 ] && [ $k -eq 0 ] && [ $f -eq 0 ] && [ $y -eq 0 ] \
   && [ $v -eq 0 ] && [ $n -eq 0 ] && [ $w -eq 0 ] && [ $c -eq 0 ] && [ $h -eq 0 ] \
   && [ $p -eq 0 ] && [ $q -eq 0 ] && [ $l -eq 0 ] && [ $b -eq 0 ] \
   && echo "ПРИЁМКА ЗЕЛЁНАЯ" || echo "ПРИЁМКА КРАСНАЯ"
-exit $(( s + r + d + a + m + u + g + k + f + y + v + n + w + c + h + p + b + l ))
+exit $(( e + s + r + d + a + m + u + g + k + f + y + v + n + w + c + h + p + b + l ))

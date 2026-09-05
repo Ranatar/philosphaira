@@ -13,6 +13,8 @@ import { createApp } from '../src/http/app.js';
 import { findById } from '../src/db/users.js';
 import { beginEnroll, confirmEnroll } from '../src/auth/mfa.js';
 import { totpCode as totpКод } from '../src/auth/totp.js';
+import { clearCounters, REGISTER_LIMIT } from '../src/auth/throttle.js';
+import { unsubscribeToken } from '../src/notify/unsubscribe.js';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -248,6 +250,110 @@ try {
   проверить('откат раскладки проходит', откат.код === 200, 200, откат.код);
   const нетТакой = await б2.зов('/api/layout/999999/revert', { method: 'POST' });
   проверить('откат к несуществующей — 404', нетТакой.код === 404, 404, нетТакой.код);
+
+  // ── ОТКРЫТАЯ РЕГИСТРАЦИЯ: ПРЕДЕЛ ПО АДРЕСУ ──────────────────────────────
+  //
+  // Раздел ставится последним нарочно: счётчик общий на процесс, и всё, что
+  // регистрировалось выше, тоже считалось. Обнуляем и считаем сами.
+  clearCounters();
+  {
+    const коды = [];
+    for (let i = 0; i < REGISTER_LIMIT; i++) {
+      const б = браузер();
+      коды.push((await б.зов('/api/auth/register', { method: 'POST',
+        body: { username: `предел${i}`, email: `предел${i}@e.рф`, password: ПАРОЛЬ } })).код);
+    }
+    проверить(`${REGISTER_LIMIT} записей с адреса проходят`,
+      коды.every(к => к === 201), 'все 201', коды.join(','));
+    const лишний = await браузер().зов('/api/auth/register', { method: 'POST',
+      body: { username: 'лишний', email: 'лишний@e.рф', password: ПАРОЛЬ } });
+    проверить('следующая отвергнута с 429', лишний.код === 429, 429, лишний.код);
+    проверить('и названа своим кодом', лишний.тело?.error?.code === 'too_many',
+      'too_many', лишний.тело?.error?.code);
+    проверить('лишняя запись НЕ ЗАВЕДЕНА',
+      (await pool.query(`SELECT count(*)::int AS n FROM users WHERE username='лишний'`))
+        .rows[0].n === 0, 0, 'заведена');
+    clearCounters();
+    const снова = await браузер().зов('/api/auth/register', { method: 'POST',
+      body: { username: 'после', email: 'после@e.рф', password: ПАРОЛЬ } });
+    проверить('после обнуления счётчика регистрация снова идёт',
+      снова.код === 201, 201, снова.код);
+  }
+
+  // ── ОТПИСКА ОДНИМ НАЖАТИЕМ, БЕЗ ВХОДА ──────────────────────────────────
+  //
+  // Ход принимает почтовая служба, а не браузер: ни cookie, ни признака CSRF
+  // у неё нет. Значит проверять надо ИМЕННО голым запросом.
+  {
+    clearCounters();
+    const б = браузер();
+    await б.зов('/api/auth/register', { method: 'POST',
+      body: { username: 'отписчик', email: 'отписчик@e.рф', password: ПАРОЛЬ } });
+    const кто = (await pool.query(
+      `SELECT user_id AS "id" FROM users WHERE username='отписчик'`)).rows[0].id;
+    const токен = unsubscribeToken(кто);
+    const почтаВключена = async () => (await pool.query(
+      `SELECT COALESCE(email_enabled, TRUE) AS "вкл" FROM users u
+         LEFT JOIN notification_preferences p USING (user_id)
+        WHERE u.user_id = $1`, [кто])).rows[0].вкл;
+
+    проверить('до отписки почта включена', await почтаВключена(), true, false);
+
+    const чужой = await fetch(`${БАЗА}/api/notifications/unsubscribe?u=${кто}&t=нетакой`,
+      { method: 'POST' });
+    проверить('ПОДДЕЛАННАЯ подпись отвергнута', чужой.status === 403, 403, чужой.status);
+    проверить('и почта осталась включена', await почтаВключена(), true, false);
+
+    const пустой = await fetch(`${БАЗА}/api/notifications/unsubscribe`, { method: 'POST' });
+    проверить('без подписи — тоже отказ', пустой.status === 403, 403, пустой.status);
+
+    const одноНажатие = await fetch(
+      `${БАЗА}/api/notifications/unsubscribe?u=${кто}&t=${токен}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'List-Unsubscribe=One-Click' });
+    проверить('ОДНО ДЕЙСТВИЕ БЕЗ COOKIE И БЕЗ CSRF проходит',
+      одноНажатие.status === 200, 200, одноНажатие.status);
+    проверить('и почта выключена', (await почтаВключена()) === false, false,
+      await почтаВключена());
+
+    const глазами = await fetch(`${БАЗА}/api/notifications/unsubscribe?u=${кто}&t=${токен}`);
+    проверить('ссылка работает и по нажатию человеком (GET)',
+      глазами.status === 200, 200, глазами.status);
+  }
+
+  // ── ДОВЕРИЕ ОБРАТНОМУ СТАВНЮ ────────────────────────────────────────────
+  //
+  // Два узла на одних данных, отличаются ОДНИМ доводом. Спрашиваем не код
+  // ответа, а то, ЧТО ЛЕГЛО В БАЗУ: адрес человека нужен именно там.
+  {
+    const адресСессии = имя => pool.query(
+      `SELECT host(s.ip_address) AS адрес FROM user_sessions s
+         JOIN users u USING (user_id) WHERE u.username = $1
+        ORDER BY s.session_id DESC LIMIT 1`, [имя]).then(r => r.rows[0]?.адрес);
+
+    clearCounters();
+    const наивный = http.createServer(createApp({ pool, безопасныеCookie: false }));
+    await new Promise(г => наивный.listen(8812, г));
+    await fetch('http://127.0.0.1:8812/api/auth/register', { method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': '203.0.113.9' },
+      body: JSON.stringify({ username: 'безставня', email: 'без@e.рф', password: ПАРОЛЬ }) });
+    наивный.close();
+    проверить('БЕЗ trustProxy заголовку не верят',
+      (await адресСессии('безставня')) === '127.0.0.1', '127.0.0.1',
+      await адресСессии('безставня'));
+
+    clearCounters();
+    const заСтавнем = http.createServer(
+      createApp({ pool, безопасныеCookie: false, trustProxy: 1 }));
+    await new Promise(г => заСтавнем.listen(8813, г));
+    await fetch('http://127.0.0.1:8813/api/auth/register', { method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': '203.0.113.9' },
+      body: JSON.stringify({ username: 'заставнем', email: 'за@e.рф', password: ПАРОЛЬ }) });
+    заСтавнем.close();
+    проверить('С trustProxy в базу ложится адрес человека',
+      (await адресСессии('заставнем')) === '203.0.113.9', '203.0.113.9',
+      await адресСессии('заставнем'));
+  }
 
 } catch (e) {
   проверить('проба дошла до конца', false, 'дошла', e.message.slice(0, 90));

@@ -10,7 +10,7 @@
 //   node scripts/relayout.mjs --откат N    вернуть раскладку номер N
 import { pool } from '../src/db/pool.js';
 import { layoutHistory } from '../src/db/layout.js';
-import { планПерекладки, применитьПерекладку, вернутьРаскладку }
+import { relayoutPlan, applyRelayout, revertLayout }
   from '../src/graph/relayout-service.js';
 
 const довод = имя => process.argv.includes(имя);
@@ -22,7 +22,7 @@ const значение = имя => {
 try {
   const кОткату = значение('--откат');
   if (кОткату) {
-    const итог = await вернутьРаскладку(pool, { id: Number(кОткату) });
+    const итог = await revertLayout(pool, { id: Number(кОткату) });
     if (!итог) { console.error(`раскладки ${кОткату} нет`); process.exit(2); }
     console.log(`возвращена раскладка ${итог.изЧего} как новая ${итог.id}; ` +
       `сдвиг от нынешней: медиана ${итог.мера.медиана} px, ` +
@@ -31,7 +31,7 @@ try {
   }
 
   const t0 = Date.now();
-  const план = await планПерекладки(pool);
+  const план = await relayoutPlan(pool);
   console.log(`граф версии ${план.версия}: концепций ${план.граф.concepts.length}, ` +
     `связей ${план.граф.relations.length}`);
   console.log(`отжиг занял ${((Date.now() - t0) / 1000).toFixed(1)} с`);
@@ -53,7 +53,7 @@ try {
     process.exit(0);
   }
 
-  const итог = await применитьПерекладку(pool, { план });
+  const итог = await applyRelayout(pool, { план });
   console.log(`\nзаписана раскладка ${итог.id}; о смене картины извещены все.`);
   if (план.прежняя)
     console.log(`откат — node scripts/relayout.mjs --откат ${план.прежняя.id}`);

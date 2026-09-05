@@ -26,7 +26,7 @@ export async function currentLayout(db) {
 
 /** Записать новую раскладку. Возвращает её идентификатор. */
 export async function saveLayout(client, {
-  версияГрафа, род, изЧего = null, позиции, ктоId = null, расхождение = null,
+  версияГрафа, род, изЧего = null, позиции, ктоId = null, расхождение: divergence = null,
   отпечаток = null,
 }) {
   const { rows } = await client.query(
@@ -35,7 +35,7 @@ export async function saveLayout(client, {
      VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8)
      RETURNING layout_id`,
     [версияГрафа, род, изЧего, JSON.stringify(позиции), ктоId,
-     расхождение?.медиана ?? null, расхождение?.далеко ?? null, отпечаток]);
+     divergence?.медиана ?? null, divergence?.далеко ?? null, отпечаток]);
   return Number(rows[0].layout_id);
 }
 

@@ -18,48 +18,48 @@ import { currentLayout, saveLayout, layoutById } from '../db/layout.js';
 import { audit } from '../db/users.js';
 import { notify } from '../notify/notify.js';
 import { N } from '../notify/catalog.js';
-import { полнаяРаскладка, расхождение } from './layout.js';
+import { fullLayout, divergence } from './layout.js';
 
 /**
  * Посчитать полную раскладку и оценить, насколько она разойдётся с нынешней.
  * НИЧЕГО НЕ ПИШЕТ. Возвращает и сами координаты, и меру, и список уехавших
  * дальше всех — это те числа, по которым человек принимает решение.
  */
-export async function планПерекладки(db) {
-  const версия = await graphVersion(db);
-  const прежняя = await currentLayout(db);
-  const граф = await exportAll(db);
-  const позиции = полнаяРаскладка(граф);
-  const мера = прежняя ? расхождение(прежняя.позиции, позиции) : null;
-  const дальние = прежняя
-    ? Object.keys(позиции)
-        .filter(id => прежняя.позиции[id])
+export async function relayoutPlan(db) {
+  const graphVer = await graphVersion(db);
+  const previous = await currentLayout(db);
+  const graph = await exportAll(db);
+  const positions = fullLayout(graph);
+  const measure = previous ? divergence(previous.позиции, positions) : null;
+  const farMoved = previous
+    ? Object.keys(positions)
+        .filter(id => previous.позиции[id])
         .map(id => ({ id, сдвиг: +Math.hypot(
-          позиции[id][0] - прежняя.позиции[id][0],
-          позиции[id][1] - прежняя.позиции[id][1]).toFixed(0) }))
+          positions[id][0] - previous.позиции[id][0],
+          positions[id][1] - previous.позиции[id][1]).toFixed(0) }))
         .sort((a, b) => b.сдвиг - a.сдвиг).slice(0, 5)
     : [];
-  return { версия, прежняя, позиции, мера, дальние, граф };
+  return { версия: graphVer, прежняя: previous, позиции: positions, мера: measure, дальние: farMoved, граф: graph };
 }
 
 /**
  * Применить перекладку. Журнал и извещение — В ТОЙ ЖЕ транзакции: порознь
  * они разъезжаются, и раскладка сменилась бы, а люди о ней не узнали.
  */
-export async function применитьПерекладку(pool, { план, actorId = null }) {
-  const { версия, прежняя, позиции, мера } = план;
+export async function applyRelayout(pool, { план, actorId = null }) {
+  const { версия: graphVer, прежняя: previous, позиции: positions, мера: measure } = план;
   return withTransaction(pool, async client => {
     const id = await saveLayout(client, {
-      версияГрафа: версия, род: 'full', изЧего: прежняя?.id ?? null,
-      позиции, расхождение: мера, ктоId: actorId,
+      версияГрафа: graphVer, род: 'full', изЧего: previous?.id ?? null,
+      позиции: positions, расхождение: measure, ктоId: actorId,
     });
     await audit(client, {
       actorId, action: 'layout.relayout', subjectType: 'graph_layout', subjectId: id,
-      payload: { версияГрафа: версия, изЧего: прежняя?.id ?? null, ...(мера ?? {}) },
+      payload: { версияГрафа: graphVer, изЧего: previous?.id ?? null, ...(measure ?? {}) },
     });
     // Первая раскладка никого не удивит: удивляет СМЕНА привычной картины.
-    if (мера) await notify(client, N.LAYOUT_CHANGED, мера);
-    return { id, мера };
+    if (measure) await notify(client, N.LAYOUT_CHANGED, measure);
+    return { id, мера: measure };
   });
 }
 
@@ -68,24 +68,24 @@ export async function применитьПерекладку(pool, { план, a
  * поздних: история раскладок есть история решений, и стирать её значит
  * терять ответ на вопрос «почему картина такая».
  */
-export async function вернутьРаскладку(pool, { id: кКакой, actorId = null }) {
-  const цель = await layoutById(pool, кКакой);
-  if (!цель) return null;
-  const нынешняя = await currentLayout(pool);
-  const мера = расхождение(нынешняя?.позиции ?? null, цель.позиции);
-  const версия = await graphVersion(pool);
+export async function revertLayout(pool, { id: кКакой, actorId = null }) {
+  const targetLayout = await layoutById(pool, кКакой);
+  if (!targetLayout) return null;
+  const currentPositions = await currentLayout(pool);
+  const measure = divergence(currentPositions?.позиции ?? null, targetLayout.позиции);
+  const graphVer = await graphVersion(pool);
   return withTransaction(pool, async client => {
     const id = await saveLayout(client, {
-      версияГрафа: версия, род: цель.род, изЧего: цель.id,
-      позиции: цель.позиции, расхождение: мера, ктоId: actorId,
+      версияГрафа: graphVer, род: targetLayout.род, изЧего: targetLayout.id,
+      позиции: targetLayout.позиции, расхождение: measure, ктоId: actorId,
     });
     await audit(client, {
       actorId, action: 'layout.revert', subjectType: 'graph_layout', subjectId: id,
-      payload: { вернулиК: цель.id, ...(мера ?? {}) },
+      payload: { вернулиК: targetLayout.id, ...(measure ?? {}) },
     });
     // Возврат — такая же смена картины, как и перекладка. Молчать о нём
     // значило бы решить за человека, что «вернули как было» его не касается.
-    if (мера?.медиана) await notify(client, N.LAYOUT_CHANGED, мера);
-    return { id, изЧего: цель.id, мера };
+    if (measure?.медиана) await notify(client, N.LAYOUT_CHANGED, measure);
+    return { id, изЧего: targetLayout.id, мера: measure };
   });
 }

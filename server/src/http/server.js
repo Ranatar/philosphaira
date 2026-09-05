@@ -11,8 +11,9 @@ import { startNode } from '../ws/node.js';
 
 export async function createServer({ pool, строкаПодключения,
                                       папкаПриложения = null,
-                                      безопасныеCookie = true, origins = null }) {
-  const app = createApp({ pool, безопасныеCookie, папкаПриложения });
+                                      безопасныеCookie = true, origins = null,
+                                      trustProxy = 0 }) {
+  const app = createApp({ pool, безопасныеCookie, папкаПриложения, trustProxy });
   const wsNode = await startNode({ db: pool, строкаПодключения, origins });
   const httpServer = http.createServer(app);
   httpServer.on('upgrade', (req, socket, head) => wsNode.handleUpgrade(req, socket, head));

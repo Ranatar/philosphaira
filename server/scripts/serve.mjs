@@ -33,6 +33,21 @@ try {
   process.exit(1);
 }
 
+// ЗАСЛОН: production без объявленного TRUST_PROXY.
+//
+// production значит «за ставнем с TLS» — иначе cookie с Secure не сохранится
+// и вход сломается. А за ставнем адрес человека приходит заголовком, и без
+// доверия ставню в журнале у всех окажется 127.0.0.1, предел регистраций
+// ударит по всем разом, и обе беды будут молчаливыми. Число ставней должен
+// назвать человек: обычно 1. Осознанное «ставня нет» — TRUST_PROXY=0.
+const заПрокси = process.env.TRUST_PROXY;
+if (process.env.NODE_ENV === 'production' && заПрокси === undefined) {
+  console.error('Запуск невозможен: при NODE_ENV=production задайте TRUST_PROXY'
+    + ' (сколько обратных ставней перед узлом; обычно 1, без ставня 0).');
+  process.exit(1);
+}
+const доверятьСтавню = Number(заПрокси ?? 0) || 0;
+
 const строкаПодключения = process.env.DATABASE_URL;
 const pool = createPool(строкаПодключения);
 let wsNode = null;
@@ -58,6 +73,7 @@ try {
     // philos-api, по которой клиент узнаёт, что сервер есть.
     папкаПриложения: path.resolve(КОРЕНЬ, '..', 'app'),
     безопасныеCookie: process.env.NODE_ENV === 'production',
+    trustProxy: доверятьСтавню,
     origins: process.env.WS_ORIGINS
       ? process.env.WS_ORIGINS.split(',').map(с => с.trim()).filter(Boolean)
       : null,

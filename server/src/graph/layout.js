@@ -25,13 +25,13 @@ import * as d3 from 'd3-force';
 // тиков, сколько нужно альфе дойти от начальной до alphaMin. Переписать его
 // числом значило бы завести второй ответ на тот же вопрос.
 const ALPHA_MIN = 0.001;
-const потолок = (alpha0, decay) => Math.ceil(Math.log(ALPHA_MIN / alpha0) / Math.log(1 - decay));
+const ceiling = (alpha0, decay) => Math.ceil(Math.log(ALPHA_MIN / alpha0) / Math.log(1 - decay));
 
 // Силы — те же, что в приложении (state/render.js). Здесь они переписаны, и
 // это единственное место, где правило записано дважды; стережёт согласие
 // проба layout_probe, сверяющая МЕРЫ обеих сторон. Побайтово сличать нельзя:
 // замерено, что один и тот же d3 в Chrome и в node даёт разные координаты.
-export const СИЛЫ = Object.freeze({
+export const FORCES = Object.freeze({
   distance: 160,
   charge: -350,
   collide: 45,
@@ -50,58 +50,58 @@ export const СИЛЫ = Object.freeze({
  * происхождение и всё прочее раскладку НЕ задевают, и пересчитывать при них
  * нечего: судя по составу коммитов, это большинство правок.
  */
-export function задеваетРаскладку(changes) {
+export function touchesLayout(changes) {
   for (const c of changes ?? []) {
-    const узловая = c.kind === 'concept';
-    const рёберная = c.kind === 'relation';
-    if (!узловая && !рёберная) continue;
+    const isConceptChange = c.kind === 'concept';
+    const isRelationChange = c.kind === 'relation';
+    if (!isConceptChange && !isRelationChange) continue;
     if (c.action === 'add' || c.action === 'delete') return true;
-    if (рёберная) {
-      const поля = Object.keys(c.fields ?? {});
-      if (поля.includes('source') || поля.includes('target')) return true;
+    if (isRelationChange) {
+      const changedFields = Object.keys(c.fields ?? {});
+      if (changedFields.includes('source') || changedFields.includes('target')) return true;
     }
   }
   return false;
 }
 
 /** Собрать узлы и связи в том виде, в каком их укладывает d3. */
-function телоГрафа({ concepts, relations }) {
+function graphBody({ concepts, relations }) {
   const nodes = concepts.map(c => ({ id: c.id }));
   const links = relations.map(r => ({ source: r.source, target: r.target }));
-  const степень = Object.create(null);
-  for (const n of nodes) степень[n.id] = 0;
+  const degree = Object.create(null);
+  for (const n of nodes) degree[n.id] = 0;
   for (const l of links) {
     if (l.source === l.target) continue;
-    if (степень[l.source] !== undefined) степень[l.source]++;
-    if (степень[l.target] !== undefined) степень[l.target]++;
+    if (degree[l.source] !== undefined) degree[l.source]++;
+    if (degree[l.target] !== undefined) degree[l.target]++;
   }
-  return { nodes, links, степень };
+  return { nodes, links, степень: degree };
 }
 
-function собрать({ nodes, links, степень }, { decay, alpha }) {
-  const тяга = n => СИЛЫ.pull / Math.max(1, степень[n.id] ?? 0);
+function runForces({ nodes, links, степень: degree }, { decay, alpha }) {
+  const pullOf = n => FORCES.pull / Math.max(1, degree[n.id] ?? 0);
   const sim = d3.forceSimulation(nodes)
-    .force('link', d3.forceLink(links).id(d => d.id).distance(СИЛЫ.distance))
-    .force('charge', d3.forceManyBody().strength(СИЛЫ.charge))
-    .force('center', d3.forceCenter(СИЛЫ.width / 2, СИЛЫ.height / 2))
-    .force('collision', d3.forceCollide().radius(СИЛЫ.collide))
+    .force('link', d3.forceLink(links).id(d => d.id).distance(FORCES.distance))
+    .force('charge', d3.forceManyBody().strength(FORCES.charge))
+    .force('center', d3.forceCenter(FORCES.width / 2, FORCES.height / 2))
+    .force('collision', d3.forceCollide().radius(FORCES.collide))
     .alphaDecay(decay)
     .stop();
   // Тяга ставится ОТДЕЛЬНЫМ шагом, после того как степени посчитаны: d3
   // запоминает силу при initialize, обходя узлы один раз. На странице эта
   // же мина стоила расхождения сторон на 291 px по медиане.
-  sim.force('pullX', d3.forceX(СИЛЫ.width / 2).strength(тяга));
-  sim.force('pullY', d3.forceY(СИЛЫ.height / 2).strength(тяга));
+  sim.force('pullX', d3.forceX(FORCES.width / 2).strength(pullOf));
+  sim.force('pullY', d3.forceY(FORCES.height / 2).strength(pullOf));
   sim.alpha(alpha);
-  sim.tick(потолок(alpha, decay));
-  const позиции = Object.create(null);
-  for (const n of nodes) позиции[n.id] = [+n.x.toFixed(1), +n.y.toFixed(1)];
-  return позиции;
+  sim.tick(ceiling(alpha, decay));
+  const positions = Object.create(null);
+  for (const n of nodes) positions[n.id] = [+n.x.toFixed(1), +n.y.toFixed(1)];
+  return positions;
 }
 
 /** Полный отжиг с нуля: медленное остывание, начальные положения от d3. */
-export function полнаяРаскладка(граф) {
-  return собрать(телоГрафа(граф), { decay: 0.005, alpha: 1 });
+export function fullLayout(граф) {
+  return runForces(graphBody(граф), { decay: 0.005, alpha: 1 });
 }
 
 /**
@@ -109,25 +109,25 @@ export function полнаяРаскладка(граф) {
  * (только что добавлен), ставится в середину с малым разбросом — как это
  * делает и приложение, — и дальше его растаскивают силы.
  */
-export function дорасклад(граф, прежние) {
-  const тело = телоГрафа(граф);
-  let без = 0;
-  for (const n of тело.nodes) {
+export function growLayout(граф, прежние) {
+  const graphData = graphBody(граф);
+  let withoutPrev = 0;
+  for (const n of graphData.nodes) {
     const p = прежние?.[n.id];
     if (p) { n.x = p[0]; n.y = p[1]; }
     else {
-      без++;
+      withoutPrev++;
       // Разброс детерминированный: тот же граф и та же прежняя раскладка
       // обязаны давать тот же результат, иначе два узла кластера не смогут
       // сверить свои раскладки.
       let h = 0;
       for (let i = 0; i < n.id.length; i++) h = (h * 31 + n.id.charCodeAt(i)) >>> 0;
-      n.x = СИЛЫ.width / 2 + ((h % 61) - 30);
-      n.y = СИЛЫ.height / 2 + (((h >>> 8) % 61) - 30);
+      n.x = FORCES.width / 2 + ((h % 61) - 30);
+      n.y = FORCES.height / 2 + (((h >>> 8) % 61) - 30);
     }
     n.vx = 0; n.vy = 0;
   }
-  return { позиции: собрать(тело, { decay: 0.02, alpha: 0.3 }), новых: без };
+  return { позиции: runForces(graphData, { decay: 0.02, alpha: 0.3 }), новых: withoutPrev };
 }
 
 /**
@@ -136,18 +136,18 @@ export function дорасклад(граф, прежние) {
  * 200 px» выбран не на глаз: при таком сдвиге узел уезжает за пределы своего
  * прежнего окружения (медиана расстояния до ближайшего соседа — 90).
  */
-export function расхождение(было, стало) {
-  const сдвиги = [];
+export function divergence(было, стало) {
+  const shifts = [];
   for (const id of Object.keys(стало)) {
     const a = было?.[id];
     if (!a) continue;
-    сдвиги.push(Math.hypot(стало[id][0] - a[0], стало[id][1] - a[1]));
+    shifts.push(Math.hypot(стало[id][0] - a[0], стало[id][1] - a[1]));
   }
-  if (!сдвиги.length) return { медиана: null, далеко: null, сверено: 0 };
-  сдвиги.sort((x, y) => x - y);
+  if (!shifts.length) return { медиана: null, далеко: null, сверено: 0 };
+  shifts.sort((x, y) => x - y);
   return {
-    медиана: +сдвиги[Math.floor(сдвиги.length / 2)].toFixed(1),
-    далеко: сдвиги.filter(d => d > 200).length,
-    сверено: сдвиги.length,
+    медиана: +shifts[Math.floor(shifts.length / 2)].toFixed(1),
+    далеко: shifts.filter(d => d > 200).length,
+    сверено: shifts.length,
   };
 }

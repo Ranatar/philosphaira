@@ -18,7 +18,7 @@ import { execFileSync } from 'node:child_process';
 import puppeteer from 'puppeteer-core';
 import { createPool } from '../src/db/pool.js';
 import { saveLayout } from '../src/db/layout.js';
-import { полнаяРаскладка } from '../src/graph/layout.js';
+import { fullLayout } from '../src/graph/layout.js';
 import { exportAll, graphVersion } from '../src/db/graph.js';
 import { createServer } from '../src/http/server.js';
 import { register } from '../src/auth/service.js';
@@ -592,7 +592,7 @@ try {
     const граф0 = await exportAll(pool);
     const версия0 = await graphVersion(pool);
     await withTransaction(pool, client => saveLayout(client, {
-      версияГрафа: версия0, род: 'full', позиции: полнаяРаскладка(граф0),
+      версияГрафа: версия0, род: 'full', позиции: fullLayout(граф0),
     }));
   }
 
@@ -623,7 +623,7 @@ try {
     const граф1 = await exportAll(pool);
     const версия1 = await graphVersion(pool);
     await withTransaction(pool, client => saveLayout(client, {
-      версияГрафа: версия1, род: 'warm', позиции: полнаяРаскладка(граф1),
+      версияГрафа: версия1, род: 'warm', позиции: fullLayout(граф1),
       расхождение: { медиана: 12.3, далеко: 0 },
     }));
   }

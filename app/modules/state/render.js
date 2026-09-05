@@ -6,15 +6,15 @@ import { emit } from '../core/events.js';
 import { linksByConcept } from '../core/graph-index.js';
 
 function graphFingerprint() {
-      const ид = DATA.concepts.map(c => c.id).sort();
-      const рёбра = DATA.relations
+      const conceptIds = DATA.concepts.map(c => c.id).sort();
+      const edgeKeys = DATA.relations
         .map(r => r.source + '|' + r.target + '|' + r.type).sort();
-      const строка = ид.join(',') + ';' + рёбра.join(',');
+      const fingerprintInput = conceptIds.join(',') + ';' + edgeKeys.join(',');
       // Двойной 32-битный FNV: одного мало для 1,6 тысячи рёбер, а
       // криптографический в браузере только асинхронный.
       let a = 0x811c9dc5, b = 0x01000193;
-      for (let i = 0; i < строка.length; i++) {
-        const c = строка.charCodeAt(i);
+      for (let i = 0; i < fingerprintInput.length; i++) {
+        const c = fingerprintInput.charCodeAt(i);
         a = Math.imul(a ^ c, 0x01000193) >>> 0;
         b = Math.imul(b + c, 0x85ebca6b) >>> 0;
       }
@@ -22,27 +22,27 @@ function graphFingerprint() {
     }
 
 function applyStoredLayout() {
-      const н = DATA.nodePositions;
-      const свой = graphFingerprint();
-      if (!н || !н.fingerprint) {
+      const stored = DATA.nodePositions;
+      const ownFingerprint = graphFingerprint();
+      if (!stored || !stored.fingerprint) {
         console.warn('Раскладка: набор позиций пуст — считаю на месте.');
         return false;
       }
-      if (н.fingerprint !== свой) {
-        console.warn('Раскладка: позиции протухли (в наборе ' + н.fingerprint +
-          ', у базы ' + свой + ') — считаю на месте. Пересчитать: node tools/layout.mjs');
+      if (stored.fingerprint !== ownFingerprint) {
+        console.warn('Раскладка: позиции протухли (в наборе ' + stored.fingerprint +
+          ', у базы ' + ownFingerprint + ') — считаю на месте. Пересчитать: node tools/layout.mjs');
         storedLayoutComplaint = 'Позиции графа устарели — раскладка считается заново';
         return false;
       }
-      let поставлено = 0;
+      let placed = 0;
       for (const n of DATA.nodes) {
-        const p = н.nodes[n.id];
+        const p = stored.nodes[n.id];
         if (!p) continue;
         n.x = p[0]; n.y = p[1]; n.vx = 0; n.vy = 0;
-        поставлено++;
+        placed++;
       }
-      if (поставлено !== DATA.nodes.length) {
-        console.warn('Раскладка: координат ' + поставлено + ' из ' + DATA.nodes.length +
+      if (placed !== DATA.nodes.length) {
+        console.warn('Раскладка: координат ' + placed + ' из ' + DATA.nodes.length +
           ' — считаю на месте.');
         storedLayoutComplaint = 'Позиции графа неполны — раскладка считается заново';
         for (const n of DATA.nodes) { delete n.x; delete n.y; delete n.vx; delete n.vy; }
@@ -53,15 +53,15 @@ function applyStoredLayout() {
 
 function applyServerLayout(позиции) {
       if (!позиции) return false;
-      let поставлено = 0;
+      let placed = 0;
       for (const n of DATA.nodes) {
         const p = позиции[n.id];
         if (!p) continue;
         n.x = p[0]; n.y = p[1]; n.vx = 0; n.vy = 0;
-        поставлено++;
+        placed++;
       }
-      if (поставлено !== DATA.nodes.length) {
-        console.warn('Раскладка с сервера неполна: ' + поставлено + ' из ' +
+      if (placed !== DATA.nodes.length) {
+        console.warn('Раскладка с сервера неполна: ' + placed + ' из ' +
           DATA.nodes.length + ' — раскладка считается на месте.');
         return false;
       }
