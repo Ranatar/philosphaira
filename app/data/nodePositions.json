@@ -1,1817 +1,2761 @@
 {
- "fingerprint": "dfef517cdbacd3de",
+ "fingerprint": "fe85fa7c12a78dec",
  "nodes": {
   "harmony_spheres": [
-   -624.3,
-   871.4
-  ],
-  "tetraktys": [
-   -794.2,
-   796.9
-  ],
-  "number_essence": [
-   -593.4,
-   658.8
-  ],
-  "music_mathematics": [
-   -72.2,
-   703.1
-  ],
-  "metempsychosis": [
-   -645.8,
-   585.6
-  ],
-  "logos_heraclitus": [
-   117.9,
-   900.5
-  ],
-  "fire": [
-   407.9,
-   957.5
-  ],
-  "panta_rhei": [
-   183.7,
-   839.1
-  ],
-  "war_father": [
-   787.7,
-   1362.5
-  ],
-  "unity_opposites": [
-   323.9,
-   1126
-  ],
-  "hidden_harmony": [
-   579.6,
-   1430.8
-  ],
-  "being_is": [
-   -265,
-   490.4
-  ],
-  "one_being": [
-   -185.6,
-   877.2
-  ],
-  "immutability": [
-   -360.1,
-   974.7
-  ],
-  "sphere_being": [
-   -474.1,
-   808.9
-  ],
-  "way_truth": [
-   -299.4,
-   136.1
-  ],
-  "way_opinion": [
-   -526.7,
-   271.6
-  ],
-  "know_nothing": [
-   229.8,
-   366.5
-  ],
-  "maieutics": [
-   -227.5,
-   190.3
-  ],
-  "daimonion": [
-   -291.5,
-   373.7
-  ],
-  "soul": [
-   -27.3,
-   625.1
-  ],
-  "virtue_knowledge": [
-   -357.9,
-   557.9
-  ],
-  "care_soul": [
-   -175.1,
-   386.2
-  ],
-  "the_one_plato": [
-   -545.6,
-   916.5
-  ],
-  "methexis": [
-   -469.1,
-   1010.1
-  ],
-  "mimesis": [
-   -446,
-   672.1
-  ],
-  "chora": [
-   -271.2,
-   960.6
-  ],
-  "anamnesis": [
-   -440.5,
-   370.3
-  ],
-  "ideas": [
-   -246.1,
-   737.4
-  ],
-  "cave": [
-   -512.9,
-   535.6
-  ],
-  "eidos": [
-   -92.6,
-   563.2
-  ],
-  "eros": [
-   -732,
-   559.7
-  ],
-  "tripartite_soul": [
-   -404.4,
-   752
-  ],
-  "ideal_state": [
-   145.7,
-   678.1
-  ],
-  "good": [
-   -569.5,
-   800.1
-  ],
-  "demiurge": [
-   -523.3,
-   1091.6
-  ],
-  "dialectic_plato": [
-   -71.4,
-   432.9
-  ],
-  "act_potency": [
-   -116.4,
-   1067.4
-  ],
-  "categories": [
-   18.8,
-   238.5
-  ],
-  "logos": [
-   -374.6,
-   836.9
-  ],
-  "matter_ar": [
-   -393.1,
-   1058.4
-  ],
-  "form": [
-   -314.1,
-   668.7
-  ],
-  "four_causes": [
-   -19.5,
-   811.9
-  ],
-  "entelechy": [
-   -3.2,
-   1086.2
-  ],
-  "theoria": [
-   -159.1,
-   760.4
-  ],
-  "nous_poietikos": [
-   -182.6,
-   562.1
-  ],
-  "nous_pathetikos": [
-   -259.9,
-   826.4
-  ],
-  "golden_mean": [
-   -170.8,
-   966
-  ],
-  "eudaimonia": [
-   -24,
-   901.8
-  ],
-  "phronesis": [
-   583,
-   651.5
-  ],
-  "unmoved_mover": [
-   -593.9,
-   1236.8
-  ],
-  "atoms_void": [
-   -120,
-   1292.4
-  ],
-  "clinamen": [
-   145.1,
-   1224.8
-  ],
-  "ataraxia": [
-   24.7,
-   1458.9
-  ],
-  "aponia": [
-   -183.8,
-   1460.3
-  ],
-  "pleasure_epicurus": [
-   -199.1,
-   1223.3
-  ],
-  "garden_epicurus": [
-   195.3,
-   1395.9
-  ],
-  "tetrapharmakos": [
-   -180.6,
-   1550.2
-  ],
-  "cosmic_sympathy": [
-   125.2,
-   1512.6
-  ],
-  "prohairesis": [
-   786.8,
-   1272.5
-  ],
-  "stoic_reason": [
-   397.3,
-   1289.1
-  ],
-  "amor_fati": [
-   309.4,
-   1269.8
-  ],
-  "logos_marcus": [
-   26.1,
-   1548.9
-  ],
-  "to_meditations": [
-   46.7,
-   957.5
-  ],
-  "the_one": [
-   -383.2,
-   1344.1
-  ],
-  "matter_plotinus": [
-   -279.6,
-   1477.8
-  ],
-  "world_soul": [
-   -207.6,
-   1312.9
-  ],
-  "nous": [
-   -305.4,
-   1078.3
-  ],
-  "emanation": [
-   57.5,
-   1285.2
-  ],
-  "contemplation": [
-   -455.7,
-   921.1
-  ],
-  "henosis": [
-   -695.8,
-   816.7
-  ],
-  "faith_reason": [
-   -69.2,
-   1218.1
-  ],
-  "confession": [
-   -270.8,
-   580.3
-  ],
-  "time_augustine": [
-   361.3,
-   487.1
-  ],
-  "original_sin": [
-   -106.8,
-   833.7
-  ],
-  "two_cities": [
-   -373.2,
-   1176.3
-  ],
-  "grace": [
-   -563.1,
-   1010.8
-  ],
-  "ontological_argument": [
-   169.1,
-   1107.7
-  ],
-  "faith_seeking_understanding": [
-   -281,
-   1260.7
-  ],
-  "id_quo_maius": [
-   130.2,
-   766.8
-  ],
-  "necessary_existence": [
-   -10.5,
-   1344.2
-  ],
-  "truth_as_rectitudo": [
-   -225,
-   1037.8
-  ],
-  "cur_deus_homo": [
-   -461.7,
-   1244.7
-  ],
-  "actual_being": [
-   -291.8,
-   1350.1
-  ],
-  "accidents": [
-   -179.1,
-   672.7
-  ],
-  "real_distinction": [
-   -287.6,
-   1586.8
-  ],
-  "essence_existence": [
-   -248.3,
-   1148
-  ],
-  "participatio": [
-   -461.7,
-   1405.4
-  ],
-  "intellectualism": [
-   105.5,
-   1361.3
-  ],
-  "thomistic_synthesis": [
-   -36.9,
-   990.9
-  ],
-  "natural_law": [
-   539.9,
-   1014.9
-  ],
-  "analogy": [
-   -94.1,
-   1525.4
-  ],
-  "five_ways": [
-   -146.1,
-   1378.6
-  ],
-  "common_nature": [
-   322.9,
-   1505.5
-  ],
-  "univocity_being": [
-   465.4,
-   1454.2
-  ],
-  "formal_distinction": [
-   351.7,
-   1366.7
-  ],
-  "haecceitas": [
-   370,
-   1203.3
-  ],
-  "infinity_scotus": [
-   196.5,
-   1667
-  ],
-  "voluntarism_scotus": [
-   552.5,
-   1344.9
-  ],
-  "contraction": [
-   134,
-   1602.2
-  ],
-  "possest": [
-   697.2,
-   1591.8
-  ],
-  "docta_ignorantia": [
-   946.9,
-   1356.2
-  ],
-  "enigma_cusanus": [
-   978.1,
-   1655.8
-  ],
-  "maximum_minimum": [
-   334.2,
-   1768.1
-  ],
-  "coincidentia_oppositorum": [
-   798.8,
-   1681.4
-  ],
-  "knowledge_power": [
-   1552.3,
-   -196.5
-  ],
-  "idols": [
-   1323.4,
-   -649
-  ],
-  "idols_tribe": [
-   1158.7,
-   -633.3
-  ],
-  "idols_cave": [
-   865,
-   -424.8
-  ],
-  "idols_marketplace": [
-   939.4,
-   -684
-  ],
-  "idols_theatre": [
-   1203.8,
-   -555.4
-  ],
-  "induction": [
-   1275.5,
-   94.8
-  ],
-  "new_organon": [
-   1747.7,
-   -215.7
-  ],
-  "dualism": [
-   624.6,
-   731.3
-  ],
-  "innate_ideas": [
-   699.9,
-   10
-  ],
-  "clear_distinct": [
-   536.7,
-   -64.1
-  ],
-  "cogito": [
-   679.1,
-   261.3
-  ],
-  "res_cogitans": [
-   495.3,
-   631.7
-  ],
-  "res_extensa": [
-   1003.3,
-   666.6
-  ],
-  "infinite_idea": [
-   331.1,
-   402.3
-  ],
-  "method": [
-   359.5,
-   239.4
-  ],
-  "modes": [
-   576.4,
-   1520.7
-  ],
-  "substance_spinoza": [
-   441.7,
-   1367.4
-  ],
-  "natura_naturata": [
-   536.4,
-   1838.1
-  ],
-  "determinism": [
-   868.1,
-   1311.1
-  ],
-  "adequate_ideas": [
-   665.5,
-   608.1
-  ],
-  "attributes": [
-   777.7,
-   1451.9
-  ],
-  "intellectual_love": [
-   365.5,
-   1036.9
-  ],
-  "deus_sive_natura": [
-   423.6,
-   1671.6
-  ],
-  "natura_naturans": [
-   547.3,
-   1605.9
-  ],
-  "conatus": [
-   946,
-   1266.2
-  ],
-  "substance_locke": [
-   1759.6,
-   -472.4
-  ],
-  "secondary_qualities": [
-   1511.8,
-   -58.3
-  ],
-  "primary_qualities": [
-   1400.1,
-   -197.2
-  ],
-  "simple_ideas": [
-   1546.5,
-   -505.1
-  ],
-  "complex_ideas": [
-   1900.4,
-   -367.2
-  ],
-  "tabula_rasa": [
-   1596.1,
-   8.3
-  ],
-  "personal_identity": [
-   2146.8,
-   4.1
-  ],
-  "reflection": [
-   1666,
-   -173
-  ],
-  "social_contract_locke": [
-   2228.9,
-   294.8
-  ],
-  "government_consent": [
-   2265.1,
-   481.5
-  ],
-  "property_theory": [
-   1895.4,
-   496.6
-  ],
-  "possible_worlds": [
-   343.9,
-   811.8
-  ],
-  "sufficient_reason": [
-   301.5,
-   891.1
-  ],
-  "monads": [
-   760.6,
-   834
-  ],
-  "preestablished": [
-   562.5,
-   1102
-  ],
-  "continuity": [
-   594,
-   815.9
-  ],
-  "identity_indiscernibles": [
-   896,
-   785
-  ],
-  "apperception": [
-   1175.7,
-   -41.6
-  ],
-  "perception_monad": [
-   984.1,
-   758.5
-  ],
-  "petites_perceptions": [
-   1092.1,
-   243.1
-  ],
-  "best_worlds": [
-   137.2,
-   1023.6
-  ],
-  "theodicy": [
-   235.9,
-   1217.8
-  ],
-  "immaterialism": [
-   1445.8,
-   -119.7
-  ],
-  "esse_percipi": [
-   1612.1,
-   -392.1
-  ],
-  "ideas_berkeley": [
-   1649.6,
-   -635.8
-  ],
-  "notions": [
-   1508.2,
-   -423.6
-  ],
-  "spirit": [
-   1526.6,
-   -617.9
-  ],
-  "god_perceiver": [
-   1727.6,
-   -591
-  ],
-  "association": [
-   1063.5,
-   -397.2
-  ],
-  "impressions": [
-   1276.4,
-   -456
-  ],
-  "ideas_hume": [
-   1450.2,
-   -667.6
-  ],
-  "causality_critique": [
-   1064.7,
-   -129.5
-  ],
-  "custom": [
-   1250.6,
-   8.3
-  ],
-  "bundle_theory": [
-   1817.7,
-   -331.9
-  ],
-  "is_ought": [
-   963.3,
-   239.3
-  ],
-  "noble_savage": [
-   1285.4,
-   1325.8
-  ],
-  "amour_de_soi": [
-   1728.4,
-   1243.4
-  ],
-  "amour_propre": [
-   1975,
-   846.1
-  ],
-  "natural_goodness": [
-   1378.6,
-   1529.2
-  ],
-  "pity_rousseau": [
-   1537.5,
-   1496.3
-  ],
-  "general_will": [
-   1842.9,
-   1011.7
-  ],
-  "social_contract": [
-   2238,
-   741.1
-  ],
-  "thing_itself": [
-   759.4,
-   684.1
-  ],
-  "phenomenon": [
-   999.6,
-   139.2
-  ],
-  "autonomy": [
-   1352.6,
-   1082.8
-  ],
-  "antinomies": [
-   954.7,
-   908.4
-  ],
-  "apriori": [
-   1041.9,
-   -42.4
-  ],
-  "synthetic_apriori": [
-   648.8,
-   157.3
-  ],
-  "schematism": [
-   804.1,
-   -161.2
-  ],
-  "transcendental": [
-   993.2,
-   389.2
-  ],
-  "aesthetic_judgment": [
-   556.3,
-   565.6
-  ],
-  "sublime": [
-   607,
-   905
-  ],
-  "categorical": [
-   1162.2,
-   987.4
-  ],
-  "postulates": [
-   1466.2,
-   1065.7
-  ],
-  "non_ego": [
-   1157.8,
-   1600.4
-  ],
-  "striving": [
-   1273,
-   1414.9
-  ],
-  "absolute_ego": [
-   1102.1,
-   1128.4
-  ],
-  "imagination": [
-   1076.5,
-   1448.3
-  ],
-  "tathandlung": [
-   1331.3,
-   1170.3
-  ],
-  "practical_primacy": [
-   1336.4,
-   852.2
-  ],
-  "wissenschaftslehre": [
-   1061.1,
-   1276.8
-  ],
-  "abstract": [
-   869,
-   1401.1
-  ],
-  "an_sich_fur_sich": [
-   1048.1,
-   930.9
-  ],
-  "concrete": [
-   882.9,
-   1051.5
-  ],
-  "sittlichkeit": [
-   845.8,
-   559.1
-  ],
-  "objective_spirit": [
-   1089.1,
-   639.2
-  ],
-  "absolute_idea": [
-   696.7,
-   897.3
-  ],
-  "weltgeist": [
-   536,
-   747.1
-  ],
-  "master_slave": [
-   1577.7,
-   693.8
-  ],
-  "dialectic": [
-   781.3,
-   1095.9
-  ],
-  "negative": [
-   1140.4,
-   1234.2
-  ],
-  "cunning_reason": [
-   959.5,
-   1004.2
-  ],
-  "aufhebung": [
-   864.7,
-   1531.2
-  ],
-  "entfremdung": [
-   1853.1,
-   774
-  ],
-  "absolute_identity": [
-   697.6,
-   1284
-  ],
-  "naturphilosophie": [
-   666.7,
-   1368.6
-  ],
-  "potencies": [
-   649.8,
-   1079.8
-  ],
-  "intellectual_intuition": [
-   881.5,
-   1141.4
-  ],
-  "transcendental_idealism_system": [
-   783.5,
-   921
-  ],
-  "aesthetic_production": [
-   714.2,
-   1163.4
-  ],
-  "philosophy_revelation": [
-   405.8,
-   621.9
-  ],
-  "individuation": [
-   872.5,
-   871.8
-  ],
-  "denial_will": [
-   1266.2,
+   -763.1,
    1108.1
   ],
-  "representation": [
-   466.7,
-   301.7
+  "tetraktys": [
+   -897.3,
+   1018.6
   ],
-  "compassion": [
-   1353.4,
-   1266.8
+  "number_essence": [
+   -704,
+   841.8
   ],
-  "suffering": [
-   1175.6,
-   1076.5
+  "music_mathematics": [
+   -313.6,
+   655.4
   ],
-  "aesthetics_schop": [
-   762.9,
-   594.2
+  "metempsychosis": [
+   -873.1,
+   911.7
   ],
-  "will_schop": [
-   918.4,
-   697
+  "logos_heraclitus": [
+   74.3,
+   1037.1
   ],
-  "three_stages": [
-   1022.4,
-   578.7
+  "fire": [
+   507.1,
+   1001.4
   ],
-  "hierarchy_sciences": [
-   1796.2,
-   143.2
+  "panta_rhei": [
+   149.5,
+   817
   ],
-  "positive_knowledge": [
-   1337.2,
-   345.5
+  "war_father": [
+   848.4,
+   1165.7
   ],
-  "social_physics": [
-   1809.4,
-   470.1
+  "unity_opposites": [
+   315.3,
+   976.7
   ],
-  "sociology": [
-   1946,
-   385.5
+  "hidden_harmony": [
+   420.1,
+   1171.9
   ],
-  "stages_existence": [
-   1259.5,
-   1224.5
+  "being_is": [
+   -308.3,
+   565.6
   ],
-  "leap_faith": [
-   1119,
-   1345.7
+  "one_being": [
+   -188.9,
+   1031
   ],
-  "anxiety": [
-   1391.4,
-   923.4
+  "immutability": [
+   -254.8,
+   1261.7
   ],
-  "absurd": [
-   1085.8,
-   1035
+  "sphere_being": [
+   -530.7,
+   915.2
   ],
-  "subjective_truth": [
-   809.9,
-   758.6
+  "way_truth": [
+   -418,
+   177.2
   ],
-  "individual": [
-   633.5,
+  "way_opinion": [
+   -681.8,
+   396.2
+  ],
+  "know_nothing": [
+   322.2,
+   342
+  ],
+  "maieutics": [
+   -285.3,
+   222.1
+  ],
+  "daimonion": [
+   -302.5,
+   475.8
+  ],
+  "soul": [
+   -174.4,
+   843.3
+  ],
+  "virtue_knowledge": [
+   -508.3,
+   797.7
+  ],
+  "care_soul": [
+   -388.8,
+   605.9
+  ],
+  "the_one_plato": [
+   -613.9,
+   1085.9
+  ],
+  "methexis": [
+   -473.3,
+   1266.9
+  ],
+  "mimesis": [
+   -70.2,
+   1014.9
+  ],
+  "chora": [
+   -350.3,
+   1230.5
+  ],
+  "anamnesis": [
+   -605.5,
+   579
+  ],
+  "ideas": [
+   -243.4,
+   901
+  ],
+  "cave": [
+   -599.9,
+   672
+  ],
+  "eidos": [
+   -114.9,
+   712.5
+  ],
+  "eros": [
+   -874.4,
+   821.7
+  ],
+  "tripartite_soul": [
+   -643.9,
+   1170.7
+  ],
+  "ideal_state": [
+   189.5,
+   1358
+  ],
+  "good": [
+   -611.3,
+   995.9
+  ],
+  "demiurge": [
+   -658.4,
+   1312.1
+  ],
+  "dialectic_plato": [
+   -167.3,
    391.5
   ],
+  "act_potency": [
+   -134.6,
+   1500.5
+  ],
+  "categories": [
+   -227.2,
+   526.4
+  ],
+  "logos": [
+   -492.7,
+   1179
+  ],
+  "matter_ar": [
+   -384.9,
+   1581.3
+  ],
+  "form": [
+   -297.6,
+   1152.7
+  ],
+  "four_causes": [
+   45.4,
+   1466.8
+  ],
+  "entelechy": [
+   -39.5,
+   1436.7
+  ],
+  "theoria": [
+   -138.5,
+   956.4
+  ],
+  "nous_poietikos": [
+   -249.3,
+   1506.9
+  ],
+  "nous_pathetikos": [
+   -211.5,
+   1735.9
+  ],
+  "golden_mean": [
+   -304.7,
+   1336.6
+  ],
+  "eudaimonia": [
+   -60.8,
+   1244.9
+  ],
+  "phronesis": [
+   326.1,
+   549.1
+  ],
+  "unmoved_mover": [
+   -663.1,
+   1596.7
+  ],
+  "atoms_void": [
+   -25.3,
+   1712.1
+  ],
+  "clinamen": [
+   479.3,
+   1624.6
+  ],
+  "ataraxia": [
+   312.4,
+   1844.4
+  ],
+  "aponia": [
+   181.2,
+   2010.5
+  ],
+  "pleasure_epicurus": [
+   214.2,
+   1724
+  ],
+  "garden_epicurus": [
+   290.7,
+   1673.1
+  ],
+  "tetrapharmakos": [
+   96.7,
+   1954
+  ],
+  "cosmic_sympathy": [
+   58.3,
+   1745.4
+  ],
+  "prohairesis": [
+   1064.8,
+   1713.4
+  ],
+  "stoic_reason": [
+   618.8,
+   1488.2
+  ],
+  "amor_fati": [
+   735.8,
+   1715.7
+  ],
+  "logos_marcus": [
+   224.6,
+   1824.6
+  ],
+  "to_meditations": [
+   101,
+   1130.5
+  ],
+  "the_one": [
+   -472.7,
+   1424.2
+  ],
+  "matter_plotinus": [
+   -297.2,
+   1708.4
+  ],
+  "world_soul": [
+   -288.3,
+   1425.1
+  ],
+  "nous": [
+   -215,
+   1344.1
+  ],
+  "emanation": [
+   183.2,
+   1465.7
+  ],
+  "contemplation": [
+   -524.4,
+   1094.7
+  ],
+  "henosis": [
+   -808.1,
+   1030.1
+  ],
+  "faith_reason": [
+   113.8,
+   1408.4
+  ],
+  "confession": [
+   -282.7,
+   739.9
+  ],
+  "time_augustine": [
+   372.8,
+   416.4
+  ],
+  "original_sin": [
+   10,
+   974.1
+  ],
+  "two_cities": [
+   -390.9,
+   1310.8
+  ],
+  "grace": [
+   -573.4,
+   1282.6
+  ],
+  "ontological_argument": [
+   19.2,
+   1194.6
+  ],
+  "faith_seeking_understanding": [
+   -339,
+   1499.4
+  ],
+  "id_quo_maius": [
+   160.5,
+   1062.9
+  ],
+  "necessary_existence": [
+   -51.1,
+   1534
+  ],
+  "truth_as_rectitudo": [
+   -404.9,
+   1158.9
+  ],
+  "cur_deus_homo": [
+   -546.7,
+   1475.4
+  ],
+  "actual_being": [
+   -488.4,
+   1920.6
+  ],
+  "accidents": [
+   -360.4,
+   1080.7
+  ],
+  "real_distinction": [
+   -456,
+   1836.6
+  ],
+  "essence_existence": [
+   -303,
+   1618.5
+  ],
+  "participatio": [
+   -657.6,
+   1700.6
+  ],
+  "intellectualism": [
+   255.5,
+   1959.7
+  ],
+  "thomistic_synthesis": [
+   128.9,
+   1689.7
+  ],
+  "natural_law": [
+   805.5,
+   1787
+  ],
+  "analogy": [
+   -543.6,
+   1566.5
+  ],
+  "five_ways": [
+   -97.4,
+   1942
+  ],
+  "common_nature": [
+   -429,
+   1502.8
+  ],
+  "univocity_being": [
+   108.7,
+   1318.5
+  ],
+  "formal_distinction": [
+   183.4,
+   1268.2
+  ],
+  "haecceitas": [
+   265.5,
+   1305.1
+  ],
+  "infinity_scotus": [
+   -207.6,
+   1646
+  ],
+  "voluntarism_scotus": [
+   826.8,
+   1699.6
+  ],
+  "contraction": [
+   45.3,
+   1656.4
+  ],
+  "possest": [
+   331.4,
+   1469.5
+  ],
+  "docta_ignorantia": [
+   30.6,
+   884.1
+  ],
+  "enigma_cusanus": [
+   -135.3,
+   1103.3
+  ],
+  "maximum_minimum": [
+   -121.8,
+   1589.6
+  ],
+  "coincidentia_oppositorum": [
+   25.4,
+   1284.4
+  ],
+  "knowledge_power": [
+   997,
+   255.3
+  ],
+  "idols": [
+   618.9,
+   -250.8
+  ],
+  "idols_tribe": [
+   473,
+   -94
+  ],
+  "idols_cave": [
+   435,
+   14.8
+  ],
+  "idols_marketplace": [
+   676.8,
+   -534.8
+  ],
+  "idols_theatre": [
+   434.3,
+   -175.3
+  ],
+  "induction": [
+   990.8,
+   579.7
+  ],
+  "new_organon": [
+   1385.7,
+   538.9
+  ],
+  "dualism": [
+   744.4,
+   782.7
+  ],
+  "innate_ideas": [
+   673.4,
+   172
+  ],
+  "clear_distinct": [
+   411.4,
+   330.3
+  ],
+  "cogito": [
+   693.1,
+   351.5
+  ],
+  "res_cogitans": [
+   448.4,
+   543.7
+  ],
+  "res_extensa": [
+   985.1,
+   757.6
+  ],
+  "infinite_idea": [
+   392,
+   613.8
+  ],
+  "method": [
+   181.9,
+   538.8
+  ],
+  "modes": [
+   745,
+   1588.1
+  ],
+  "substance_spinoza": [
+   443.6,
+   1468.3
+  ],
+  "natura_naturata": [
+   669.4,
+   1961.2
+  ],
+  "determinism": [
+   965.7,
+   1376.7
+  ],
+  "adequate_ideas": [
+   577.7,
+   835.8
+  ],
+  "attributes": [
+   825.7,
+   1420
+  ],
+  "intellectual_love": [
+   452.3,
+   1072.7
+  ],
+  "deus_sive_natura": [
+   452.5,
+   1839
+  ],
+  "natura_naturans": [
+   666.2,
+   1658.6
+  ],
+  "conatus": [
+   1091.5,
+   1352.8
+  ],
+  "substance_locke": [
+   1800.5,
+   -127.2
+  ],
+  "secondary_qualities": [
+   1432.6,
+   615.8
+  ],
+  "primary_qualities": [
+   1320.9,
+   113.6
+  ],
+  "simple_ideas": [
+   1543.9,
+   -87.7
+  ],
+  "complex_ideas": [
+   1856.6,
+   20.4
+  ],
+  "tabula_rasa": [
+   1540.4,
+   327.9
+  ],
+  "personal_identity": [
+   2274.6,
+   701
+  ],
+  "reflection": [
+   1715.4,
+   120
+  ],
+  "social_contract_locke": [
+   2392.2,
+   1145.1
+  ],
+  "government_consent": [
+   2310.4,
+   1460.2
+  ],
+  "property_theory": [
+   1966,
+   1109
+  ],
+  "possible_worlds": [
+   182.7,
+   733.3
+  ],
+  "sufficient_reason": [
+   237.7,
+   1111.8
+  ],
+  "monads": [
+   686.5,
+   986.3
+  ],
+  "preestablished": [
+   641,
+   1168.6
+  ],
+  "continuity": [
+   665.4,
+   739.6
+  ],
+  "identity_indiscernibles": [
+   864.8,
+   992.8
+  ],
+  "apperception": [
+   1359.4,
+   32.2
+  ],
+  "perception_monad": [
+   986.6,
+   934.3
+  ],
+  "petites_perceptions": [
+   1078.1,
+   327.7
+  ],
+  "best_worlds": [
+   102.5,
+   1228.7
+  ],
+  "theodicy": [
+   401.3,
+   1388.9
+  ],
+  "immaterialism": [
+   1239.1,
+   76
+  ],
+  "esse_percipi": [
+   1698.2,
+   -186.3
+  ],
+  "ideas_berkeley": [
+   1722.6,
+   -407.2
+  ],
+  "notions": [
+   1859.7,
+   -325.6
+  ],
+  "spirit": [
+   1843.2,
+   -546.5
+  ],
+  "god_perceiver": [
+   1946.5,
+   -394.9
+  ],
+  "association": [
+   1175.8,
+   -521.9
+  ],
+  "impressions": [
+   1274,
+   -215.4
+  ],
+  "ideas_hume": [
+   1472.4,
+   -439.1
+  ],
+  "causality_critique": [
+   697.3,
+   56.4
+  ],
+  "custom": [
+   1149.2,
+   79.5
+  ],
+  "bundle_theory": [
+   1936.7,
+   61.4
+  ],
+  "is_ought": [
+   1053.6,
+   816
+  ],
+  "noble_savage": [
+   1732.6,
+   1161
+  ],
+  "amour_de_soi": [
+   2110.3,
+   1025.6
+  ],
+  "amour_propre": [
+   2376.7,
+   720.5
+  ],
+  "natural_goodness": [
+   1625.8,
+   1302.3
+  ],
+  "pity_rousseau": [
+   1655.9,
+   1505.8
+  ],
+  "general_will": [
+   2051.5,
+   1450.3
+  ],
+  "social_contract": [
+   2520.6,
+   1336.9
+  ],
+  "thing_itself": [
+   630.9,
+   522
+  ],
+  "phenomenon": [
+   931.9,
+   20.7
+  ],
+  "autonomy": [
+   1523,
+   1104.3
+  ],
+  "antinomies": [
+   132.5,
+   615.7
+  ],
+  "apriori": [
+   1005.6,
+   159.3
+  ],
+  "synthetic_apriori": [
+   350.9,
+   -17.2
+  ],
+  "schematism": [
+   838.8,
+   -300.5
+  ],
+  "transcendental": [
+   872.9,
+   273.5
+  ],
+  "aesthetic_judgment": [
+   308.3,
+   253
+  ],
+  "sublime": [
+   474.6,
+   454.1
+  ],
+  "categorical": [
+   1288.9,
+   1027.9
+  ],
+  "postulates": [
+   1606.8,
+   934.6
+  ],
+  "non_ego": [
+   880.2,
+   1348.4
+  ],
+  "striving": [
+   1235.1,
+   1221.7
+  ],
+  "absolute_ego": [
+   985.8,
+   1080.5
+  ],
+  "imagination": [
+   772,
+   1213.4
+  ],
+  "tathandlung": [
+   812.4,
+   919.6
+  ],
+  "practical_primacy": [
+   968.8,
+   846.1
+  ],
+  "wissenschaftslehre": [
+   628,
+   1079.5
+  ],
+  "abstract": [
+   419.6,
+   980.6
+  ],
+  "an_sich_fur_sich": [
+   1030.9,
+   404.4
+  ],
+  "concrete": [
+   544.3,
+   919.4
+  ],
+  "sittlichkeit": [
+   859,
+   457.3
+  ],
+  "objective_spirit": [
+   1232.1,
+   832
+  ],
+  "absolute_idea": [
+   775.2,
+   1001.6
+  ],
+  "weltgeist": [
+   820.9,
+   830
+  ],
+  "master_slave": [
+   1889,
+   671.6
+  ],
+  "dialectic": [
+   667.5,
+   829.5
+  ],
+  "negative": [
+   1047.1,
+   1000.9
+  ],
+  "cunning_reason": [
+   1001.2,
+   1215.2
+  ],
+  "aufhebung": [
+   596.9,
+   995.1
+  ],
+  "entfremdung": [
+   2159.8,
+   1192.5
+  ],
+  "absolute_identity": [
+   364.7,
+   1051.9
+  ],
+  "naturphilosophie": [
+   727.3,
+   1295.2
+  ],
+  "potencies": [
+   634.1,
+   913.1
+  ],
+  "intellectual_intuition": [
+   486.6,
+   850.4
+  ],
+  "transcendental_idealism_system": [
+   215.9,
+   649.7
+  ],
+  "aesthetic_production": [
+   325.8,
+   847.2
+  ],
+  "philosophy_revelation": [
+   238.2,
+   309.5
+  ],
+  "individuation": [
+   1141.6,
+   797.1
+  ],
+  "denial_will": [
+   1517.2,
+   943.3
+  ],
+  "representation": [
+   583.4,
+   173
+  ],
+  "compassion": [
+   1512,
+   1269.7
+  ],
+  "suffering": [
+   1593.3,
+   793.9
+  ],
+  "aesthetics_schop": [
+   777.8,
+   414
+  ],
+  "will_schop": [
+   1106.1,
+   495.7
+  ],
+  "three_stages": [
+   611.2,
+   388.8
+  ],
+  "hierarchy_sciences": [
+   1317.5,
+   860.4
+  ],
+  "positive_knowledge": [
+   842.7,
+   545.8
+  ],
+  "social_physics": [
+   1522.4,
+   1401.7
+  ],
+  "sociology": [
+   1608.8,
+   1131.4
+  ],
+  "stages_existence": [
+   1431.2,
+   768.5
+  ],
+  "leap_faith": [
+   1342.7,
+   618
+  ],
+  "anxiety": [
+   1808.1,
+   302.2
+  ],
+  "absurd": [
+   1509.3,
+   453.3
+  ],
+  "subjective_truth": [
+   1195,
+   458
+  ],
+  "individual": [
+   925.6,
+   200.6
+  ],
   "despair": [
-   1420.4,
-   806.2
+   1772.5,
+   486.4
   ],
   "moment": [
-   1133.4,
-   902.2
+   1339.8,
+   385.2
   ],
   "repetition": [
-   1036.7,
-   1190.2
+   1214.1,
+   743.8
   ],
   "base_superstructure": [
-   1887.7,
-   690.9
+   1885.9,
+   842.7
   ],
   "ideology": [
-   1488.7,
-   680.3
+   1685.1,
+   573.8
   ],
   "historical_materialism": [
-   1636.7,
-   853.4
+   1482.4,
+   1184.7
   ],
   "class_struggle": [
-   2015.9,
-   926.3
+   2113.4,
+   935.6
   ],
   "alienation": [
-   2029.8,
-   747.1
+   2189.7,
+   983.3
   ],
   "praxis": [
-   1634.8,
-   763.4
+   1526.1,
+   853.8
   ],
   "surplus_value": [
-   1885.8,
-   857.8
+   1928.4,
+   763.3
   ],
   "commodity_fetish": [
-   2124.9,
-   1030.2
+   2197.2,
+   655
   ],
   "labor": [
-   2005.3,
-   521.1
+   1479.6,
+   692.6
   ],
   "leben_dilthey": [
-   280.8,
-   173.6
+   683.4,
+   -313.6
   ],
   "hermeneutics_life": [
-   114.1,
-   -82.3
+   724.2,
+   -829.8
   ],
   "historical_reason": [
-   716.9,
-   98.4
+   894.8,
+   -371
   ],
   "geisteswissenschaften": [
-   868.7,
-   6.5
+   871.7,
+   -216.8
   ],
   "verstehen": [
-   470.6,
-   -237.6
+   979.6,
+   -693.1
   ],
   "objective_spirit_dilthey": [
-   426.9,
-   171.9
+   790.3,
+   -178.5
   ],
   "erlebnis": [
-   714.4,
-   -168.4
+   1091.9,
+   -841.4
   ],
   "evidence_brentano": [
-   1081.2,
-   -504.2
+   1175.9,
+   -366.1
   ],
   "inner_perception": [
-   1199.1,
-   -270.4
+   1184,
+   -215.4
   ],
   "descriptive_psychology": [
-   954.9,
-   -419.3
+   1085.8,
+   -521.9
   ],
   "immanent_objectivity": [
-   281.2,
-   -365.6
+   490.6,
+   -425.1
   ],
   "intentionality_brentano": [
-   376,
-   -238.6
+   613.8,
+   -161
   ],
   "psychical_physical": [
-   941.7,
-   70.3
+   1098,
+   5.5
   ],
   "judgment_presentation": [
-   444.3,
-   -687.4
+   716.5,
+   -740.1
   ],
   "secondness": [
-   614.8,
-   -19.5
+   757.3,
+   -262.2
   ],
   "firstness": [
-   854,
-   -236.2
+   1130.9,
+   -444
   ],
   "synechism": [
-   716.8,
-   985
+   541.3,
+   514.5
   ],
   "thirdness": [
-   580.8,
-   318.6
+   602.2,
+   -6
   ],
   "fallibilism": [
-   1416.4,
-   -330
+   146.4,
+   -190.7
   ],
   "semiosis": [
-   585,
-   -402.9
+   642.7,
+   -791.6
   ],
   "abduction": [
-   828.8,
-   -675.7
+   563.8,
+   -843.4
   ],
   "pragmatic_maxim": [
-   954.9,
-   -595.4
+   384.9,
+   -695.6
   ],
   "perspectivism": [
-   732.1,
-   334
+   776.8,
+   14.1
   ],
   "eternal_return": [
-   627.2,
-   992.7
+   901.3,
+   905.6
   ],
   "master_morality": [
-   1196.6,
-   1462.5
+   1473,
+   1502.8
   ],
   "slave_morality": [
-   1503.1,
-   1176.5
+   1727.9,
+   1018.6
   ],
   "ressentiment": [
-   1356.4,
-   1381.1
+   1590.5,
+   1219.5
   ],
   "ubermensch": [
-   1198.3,
-   1303.1
+   1407.7,
+   1362.7
   ],
   "god_dead": [
-   1217.9,
-   843
+   1475.7,
+   536.8
   ],
   "apollonian": [
-   463.8,
-   800.8
+   594,
+   684.8
   ],
   "will_power": [
-   970.7,
-   1129
+   1198.4,
+   1034.5
   ],
   "dionysian": [
-   803.7,
-   1008.7
+   1069.9,
+   727.5
   ],
   "logicism": [
-   181.6,
-   -317.6
+   6.7,
+   -374.5
   ],
   "thought": [
-   411.5,
-   -803.3
+   -43.3,
+   -859.7
   ],
   "context_principle": [
-   321.5,
-   -806.7
+   66.5,
+   -948.2
   ],
   "begriffsschrift": [
-   -25.5,
-   -798.1
+   -175.7,
+   -1095
   ],
   "sense_reference": [
-   498.2,
-   -984.8
+   205,
+   -1051.8
   ],
   "function_argument": [
-   135.9,
-   -974
+   -49.7,
+   -1238.4
   ],
   "incomplete_objects": [
-   520.9,
-   -1102.8
+   387.3,
+   -1325.7
   ],
   "non_existent_objects": [
-   404.9,
-   -1082.5
+   460.8,
+   -1244.9
   ],
   "sosein": [
-   553.3,
-   -913.6
+   590.9,
+   -1083.5
   ],
   "object_theory": [
-   369.5,
-   -882.9
+   361,
+   -1018.8
   ],
   "assumptions": [
-   655,
-   -916.2
+   821.2,
+   -1106.5
   ],
   "unconscious": [
-   1250,
-   181.1
+   1697.1,
+   -277.6
   ],
   "repression": [
-   1596.9,
-   138
+   2061.6,
+   -67.8
   ],
   "id_ego_superego": [
-   1592.2,
-   272.9
+   1990.1,
+   -11.1
   ],
   "transference": [
-   1422.7,
-   378.1
+   1869,
+   -68.8
   ],
   "reality_principle": [
-   1775.6,
-   652.8
+   2254.2,
+   279.5
   ],
   "dream_work": [
-   955.1,
-   -18.7
+   1322.8,
+   -652.4
   ],
   "oedipus_complex": [
-   1581.2,
-   362.3
+   2044.3,
+   -156.1
   ],
   "death_drive": [
-   1419.5,
-   1143
+   1801.3,
+   811.9
   ],
   "pleasure_principle": [
-   1699,
-   1054.7
+   2275.7,
+   611
   ],
   "lifeworld": [
-   995,
-   -338.8
+   1144.3,
+   -675.8
   ],
   "eidetic": [
-   436.4,
-   -487.7
+   444.6,
+   -347.7
   ],
   "intentionality": [
-   836.8,
-   -581.1
+   1095.5,
+   -751.4
   ],
   "intersubjectivity": [
-   1306.9,
-   -180.4
+   1632.4,
+   -635.3
   ],
   "constitution": [
-   762.9,
-   -244.2
+   927.8,
+   -287.2
   ],
   "noesis_noema": [
-   580.6,
-   -827.8
+   463.4,
+   -888.2
   ],
   "evidence": [
-   747.1,
-   -574.7
+   922.6,
+   -526.8
   ],
   "transcendental_ego": [
-   1121.6,
-   -322.8
+   1364.8,
+   -418.3
   ],
   "phenomenology": [
-   824.3,
-   -765.6
+   1015.8,
+   -793.3
   ],
   "epoché": [
-   809.2,
-   -495.4
+   844.2,
+   -600.8
   ],
   "elan_vital": [
-   880.3,
-   961.5
+   1132,
+   971
   ],
   "image_bergson": [
-   855.3,
-   95.5
+   1362,
+   -234.1
   ],
   "creative_evolution": [
-   921.9,
-   607.1
+   1098.9,
+   585.4
   ],
   "intellect_spatialization": [
-   784.8,
-   261
+   1187.7,
+   -2
   ],
   "intuition_bergson": [
-   631.8,
-   68.9
+   1020.8,
+   -200.3
   ],
   "matter_memory": [
-   1131.4,
-   344.4
+   1384.7,
+   177.1
   ],
   "pure_perception": [
-   1108.4,
-   18.2
+   1545.8,
+   -387
   ],
   "duree": [
-   823.6,
-   179.8
+   1016.5,
+   -110.4
   ],
   "open_closed_morality": [
-   1027.4,
-   837.4
+   1156.7,
+   1114.2
   ],
   "laughter": [
-   842.3,
-   649
+   1180.2,
+   546.8
   ],
   "instrumentalism": [
-   1758.4,
-   392
+   788.9,
+   241.2
   ],
   "warranted_assertibility": [
-   1456.5,
-   221
+   849.2,
+   152.9
   ],
   "experience_dewey": [
-   1336.7,
-   -288.3
+   1228.9,
+   -293.3
   ],
   "democracy_education": [
-   1735.8,
-   251.3
+   1712.4,
+   825.7
   ],
   "inquiry": [
-   1703.3,
-   93.9
+   1116,
+   163.1
   ],
   "learning_doing": [
-   1476.4,
-   -244.9
+   1131,
+   -288.1
   ],
   "actual_occasion": [
-   425.5,
-   1104
+   582.1,
+   1318.8
   ],
   "eternal_objects": [
-   214.7,
-   735.8
+   336.9,
+   1137.5
   ],
   "process_reality": [
-   521.7,
-   869.6
+   723.7,
+   904.4
   ],
   "creativity_whitehead": [
-   484.6,
-   1267.2
+   567.8,
+   1229.9
   ],
   "prehension": [
-   610.3,
-   1178.3
+   735,
+   1384.9
   ],
   "concrescence": [
-   802,
-   1183.5
+   806.3,
+   1086.1
   ],
   "fallacy_misplaced_concreteness": [
-   1012.8,
-   477
+   1159.4,
+   885.3
   ],
   "external_world": [
-   1187,
-   -466.9
+   1490.5,
+   -527.2
   ],
   "logical_atomism": [
-   285.4,
-   -678.3
+   183,
+   -896
   ],
   "acquaintance_description": [
-   1055.5,
-   -959.9
+   899.9,
+   -929.8
   ],
   "russell_paradox": [
-   227.8,
-   -809.2
+   -134.1,
+   -857.9
   ],
   "sense_data": [
-   1027.7,
-   -729.5
+   1180.2,
+   -781.8
   ],
   "theory_descriptions": [
-   588.6,
-   -996.4
+   150.7,
+   -980
   ],
   "functional_concept": [
-   742.1,
-   -69.5
+   503.8,
+   -255.9
   ],
   "myth_cassirer": [
-   513.6,
-   378.5
+   452.6,
+   103.1
   ],
   "symbolic_pregnance": [
-   658.7,
-   -533.5
+   882.7,
+   -690.9
   ],
   "cultural_philosophy": [
-   563.8,
-   127.8
+   701.3,
+   -34.8
   ],
   "animal_symbolicum": [
-   733.8,
-   186.8
+   928.7,
+   110.6
   ],
   "symbolic_forms": [
-   673,
-   -248.3
+   764.9,
+   -351.9
   ],
   "limits_language": [
-   366.8,
-   -328.1
+   118.5,
+   -483.1
   ],
   "picture_theory": [
-   184.6,
-   -725.2
+   0.7,
+   -1009.7
   ],
   "private_language": [
-   617.1,
-   -318.8
+   619.9,
+   -613.2
   ],
   "logical_space": [
-   160,
-   -446.2
+   19.7,
+   -637.7
   ],
   "showing_saying": [
-   491.6,
-   -560.8
+   206,
+   -693.3
   ],
   "family_resemblance": [
-   363.6,
-   -727.1
+   484.6,
+   -800.7
   ],
   "rule_following": [
-   589,
-   -698.7
+   509,
+   -1120.7
   ],
   "form_of_life": [
-   914.7,
-   -499.9
+   950.6,
+   -855.3
   ],
   "language_game": [
-   362.8,
-   -539.5
+   261.7,
+   -803.4
   ],
   "being_in_world": [
-   559.8,
-   -249.4
+   748.7,
+   -476
   ],
   "dwelling": [
-   1260.5,
-   -336.2
+   1714.2,
+   -711
   ],
   "kehre": [
-   222.8,
-   -27.4
+   761.6,
+   -565
   ],
   "geviert": [
-   1050.4,
-   -267.8
+   1499,
+   -689.2
   ],
   "das_man": [
-   1297.4,
-   -90.9
+   1675.1,
+   -483.6
   ],
   "dasein": [
-   1000.7,
-   -192.8
+   1383.7,
+   -586.2
   ],
   "ereignis": [
-   576.3,
-   216.9
+   936.1,
+   -69.2
   ],
   "geworfenheit": [
-   931.6,
-   323.6
+   1339.1,
+   -71.2
   ],
   "sein": [
-   207.1,
-   120.8
+   524,
+   -168.1
   ],
   "sorge": [
-   1186.2,
-   71.1
+   1441.1,
+   -308.9
   ],
   "vorhanden": [
-   1024.9,
-   305
+   1008.7,
+   69.4
   ],
   "zuhanden": [
-   1213.4,
-   -123.3
+   1405.1,
+   -498.8
   ],
   "aletheia": [
-   322.4,
-   -16.1
+   358.2,
+   -372.9
   ],
   "sein_zum_tode": [
-   1284.9,
-   264
+   1525.9,
+   -232.6
   ],
   "verification_principle": [
-   137.9,
-   -813
+   -223,
+   -1018.4
   ],
   "protocol_sentences": [
-   409.3,
-   -970.4
+   322,
+   -1199.8
   ],
   "linguistic_framework": [
-   2.3,
-   -695.1
+   -180.3,
+   -939.1
   ],
   "logical_syntax": [
-   -4.7,
-   -560.4
+   22.4,
+   -798.3
   ],
   "internal_external": [
-   -37.4,
-   -972.5
+   -451.6,
+   -879.9
   ],
   "construction_world": [
-   349,
-   -1153.1
+   182.1,
+   -1306.8
   ],
   "sovereignty_bataille": [
-   1234.3,
-   678.6
+   1629.8,
+   317.6
   ],
   "inner_experience": [
-   1101.4,
-   535.5
+   1566.9,
+   72.6
   ],
   "transgression": [
-   1483,
-   965.1
+   1865.2,
+   537.9
   ],
   "general_economy": [
-   1246,
-   1020.4
+   1280.7,
+   683.2
   ],
   "sacred_profane": [
-   1709.4,
-   1144.1
+   2093,
+   707.9
   ],
   "expenditure": [
-   1596.3,
-   1247.1
+   1974,
+   878.8
   ],
   "heterology": [
-   1154.7,
-   757.5
+   927.5,
+   515.7
   ],
   "application": [
-   224.5,
-   243.8
+   173.5,
+   35.2
   ],
   "hermeneutic_circle": [
-   49.1,
-   -163.3
+   227.2,
+   -436.7
   ],
   "horizon_understanding": [
-   500.1,
-   -353.2
+   800.5,
+   -782
   ],
   "effective_history": [
-   138.9,
-   -168.8
+   561.2,
+   -753.4
   ],
   "prejudice_gadamer": [
-   -15.1,
-   -19.9
+   113.4,
+   -274.4
   ],
   "fusion_horizons": [
-   674.6,
-   -394.3
+   811.9,
+   -1221.2
   ],
   "tradition_gadamer": [
-   424.4,
-   -160.3
+   541,
+   -656.5
   ],
   "big_other": [
-   1425.8,
-   -32
+   1586.6,
+   -467.2
   ],
   "lack": [
-   1685.7,
-   628.9
+   2128.4,
+   129.3
   ],
   "mirror_stage": [
-   1507.3,
-   146.7
+   1855.2,
+   -198.7
   ],
   "three_registers": [
-   1667.6,
-   336.9
+   1965.3,
+   -97.6
   ],
   "signifier": [
-   905.2,
-   -344.3
+   929.5,
+   -767.8
   ],
   "desire_other": [
-   1421.8,
-   620.1
+   1702.5,
+   256
   ],
   "objet_petit_a": [
-   1685.9,
-   965.6
+   2102.9,
+   572
   ],
   "in_itself": [
-   1190.8,
-   546.1
+   1483.1,
+   37
   ],
   "existence": [
-   1219.4,
-   325.7
+   1630.3,
+   -127.3
   ],
   "bad_faith": [
-   1438.2,
-   496
+   1954.2,
+   206.4
   ],
   "project": [
-   1327.7,
-   435
+   1654.8,
+   53.4
   ],
   "freedom_sartre": [
-   1317.2,
-   731.4
+   1618.9,
+   420.2
   ],
   "look": [
-   1364.2,
-   79.9
+   1769.9,
+   -330.6
   ],
   "for_itself": [
-   1184.4,
-   242.8
+   1482.7,
+   -153.7
   ],
   "nothingness": [
-   1163.6,
-   460.3
+   1594.3,
+   -13.2
   ],
   "engagement": [
-   1378.3,
-   265.4
+   1829.4,
+   106.2
   ],
   "trace": [
-   546.8,
-   39.4
+   1040.9,
+   -443.9
   ],
   "other_levinas": [
-   874.5,
-   254
+   1251.5,
+   -91.6
   ],
   "face": [
-   657.1,
-   -98.9
+   1085.9,
+   -366
   ],
   "responsibility": [
-   1240.3,
-   413.2
+   1627.4,
+   139.2
   ],
   "ethics_first_philosophy": [
-   635.7,
-   523.2
+   880.6,
+   363.2
   ],
   "saying_said": [
-   535.5,
-   -482.2
+   675,
+   -905.1
   ],
   "infinity_levinas": [
-   339.5,
-   682.7
+   663.8,
+   627.6
   ],
   "visible_invisible": [
-   1603.2,
-   537.4
+   1865.3,
+   399.3
   ],
   "wild_being": [
-   831.9,
-   -75.6
+   950.9,
+   -441.4
   ],
   "chiasm": [
-   1497.4,
-   428.2
+   1767.3,
+   193.5
   ],
   "reversibility": [
-   1270.7,
-   504.7
+   1584.2,
+   503.2
   ],
   "perception_phenomenology": [
-   913.9,
-   -169
+   1266,
+   -582.6
   ],
   "lived_body": [
-   945.3,
-   -263.8
+   1273.8,
+   -747.3
   ],
   "flesh": [
-   1339.4,
-   -6.7
+   1635.1,
+   -375.7
   ],
   "ontological_commitment": [
-   222.3,
-   -999.3
+   -305.2,
+   -437.1
   ],
   "two_dogmas": [
-   -72.5,
-   -624.4
+   -429.6,
+   -1019.8
   ],
   "naturalized_epistemology": [
-   100.7,
-   -692.8
+   42,
+   -1118
   ],
   "web_belief": [
-   107,
-   -267.2
+   -167.1,
+   -669.5
   ],
   "indeterminacy_translation": [
-   348.9,
-   -450.6
+   432.1,
+   -1074
   ],
   "inscrutability_reference": [
-   228.3,
-   -608.7
+   135.4,
+   -819.7
   ],
   "assemblage": [
-   977.9,
-   -105.7
+   1220.9,
+   -444
   ],
   "virtual_actual": [
-   725.1,
-   512.5
+   974.4,
+   668.2
   ],
   "multiplicity": [
-   453.4,
-   711.4
+   737.1,
+   679.8
   ],
   "fold": [
-   1069.9,
-   727.1
+   1254.9,
+   597
   ],
   "event": [
-   532.7,
-   478.7
+   943.9,
+   427.2
   ],
   "body_without_organs": [
-   1405.6,
-   714.8
+   1709.6,
+   398
   ],
   "deterritorialization": [
-   1266.6,
-   594.6
+   1464,
+   375.5
   ],
   "difference": [
-   710.1,
-   759.4
+   819,
+   642.5
   ],
   "rhizome": [
-   871.1,
-   432
+   1127.3,
+   252.4
   ],
   "desiring_machines": [
-   1297.3,
-   946.5
+   1669.8,
+   746.4
   ],
   "care_self": [
-   1111.2,
-   151.5
+   1428.5,
+   -81.8
   ],
   "biopower": [
-   1710.9,
-   715.3
+   1815.1,
+   723
   ],
   "power_knowledge": [
-   1513.5,
-   545.2
+   1682.5,
+   483.8
   ],
   "heterotopia": [
-   1479.2,
-   308.1
+   1467.6,
+   212.4
   ],
   "dispositif": [
-   1518.6,
-   54.1
+   1715.4,
+   -98
   ],
   "discipline": [
-   1719.4,
-   473
+   1984.4,
+   444.7
   ],
   "panopticon": [
-   1846,
-   371
+   2004,
+   292.6
   ],
   "episteme": [
-   912.4,
-   165.1
+   779.2,
+   -79.8
   ],
   "archaeology": [
-   395.7,
-   36.2
+   645.4,
+   -417.6
   ],
   "problematization": [
-   784.9,
-   39.5
+   1041,
+   -288
   ],
   "trace_derrida": [
-   525.4,
-   -166.2
+   792.8,
+   -692.3
   ],
   "differance": [
-   478.7,
-   98.3
+   820.9,
+   -422.3
   ],
   "iterability": [
-   329.8,
-   -105.8
+   396,
+   -784.9
   ],
   "logocentrism": [
-   314.3,
-   74.5
+   327.7,
+   -288.2
   ],
   "arche_writing": [
-   722.8,
-   -470.3
+   975.1,
+   -979.3
   ],
   "pharmakon": [
-   110.3,
-   494.2
+   100,
+   403.3
   ],
   "supplement": [
-   455,
-   524.1
+   591.9,
+   83.4
   ],
   "deconstruction": [
-   212.4,
-   -116.8
+   398.4,
+   -600.8
   ],
   "contingency_rorty": [
-   717.8,
-   422.8
+   772.9,
+   105.2
   ],
   "anti_representationalism": [
-   422.5,
-   -398.8
+   363,
+   -877.1
   ],
   "ironism": [
-   380.3,
-   326.9
+   383.3,
+   -101.2
   ],
   "solidarity": [
-   1502.5,
-   769.2
+   1611.4,
+   628.3
   ],
   "conversation_mankind": [
-   923.1,
-   505.4
+   521.6,
+   238.5
   ],
   "vocabularies": [
-   286,
-   -238.3
+   206.1,
+   -603.3
   ],
   "edifying_philosophy": [
-   615.7,
-   -178.9
+   487,
+   -584.6
+  ],
+  "razor_ockham": [
+   8.7,
+   484.6
+  ],
+  "nominalism_ockham": [
+   -445.4,
+   944.1
+  ],
+  "suppositio": [
+   -499.2,
+   708.2
+  ],
+  "intuitive_cognition": [
+   -117.9,
+   1392.7
+  ],
+  "potentia_absoluta": [
+   399.1,
+   1764.5
+  ],
+  "two_powers": [
+   1263.1,
+   1778.7
+  ],
+  "mechanism_hobbes": [
+   1393.5,
+   1171
+  ],
+  "conatus_hobbes": [
+   1318.4,
+   1461
+  ],
+  "natural_state": [
+   1875.6,
+   1402.4
+  ],
+  "war_of_all": [
+   2214,
+   1394.2
+  ],
+  "natural_right_law": [
+   2301.1,
+   1651.9
+  ],
+  "social_contract_hobbes": [
+   2531.4,
+   1591.1
+  ],
+  "sovereign": [
+   2038.3,
+   1607.7
+  ],
+  "stream_of_consciousness": [
+   932.9,
+   -616.2
+  ],
+  "radical_empiricism": [
+   821.2,
+   -994.6
+  ],
+  "pure_experience": [
+   1040.3,
+   -1079.5
+  ],
+  "truth_workability": [
+   706.9,
+   -636.5
+  ],
+  "will_to_believe": [
+   1161.5,
+   -89.5
+  ],
+  "religious_experience": [
+   1006.5,
+   -564.4
+  ],
+  "falsifiability": [
+   -223.7,
+   -475.2
+  ],
+  "conjecture_refutation": [
+   168.1,
+   125
+  ],
+  "demarcation": [
+   -309.6,
+   -627.1
+  ],
+  "third_world": [
+   -448.1,
+   -456.4
+  ],
+  "historicism_critique": [
+   1232.8,
+   1329.4
+  ],
+  "open_society": [
+   947.5,
+   1288.6
+  ],
+  "limit_situation": [
+   940.8,
+   -159.1
+  ],
+  "encompassing": [
+   854.7,
+   -30.9
+  ],
+  "existential_communication": [
+   983.8,
+   -357.6
+  ],
+  "ciphers": [
+   588,
+   301.9
+  ],
+  "axial_age": [
+   1198.4,
+   361.2
+  ],
+  "philosophical_faith": [
+   1199,
+   197.9
+  ],
+  "identity_thinking": [
+   1539.5,
+   158.3
+  ],
+  "non_identical": [
+   852.4,
+   62.9
+  ],
+  "negative_dialectics": [
+   501.3,
+   326.2
+  ],
+  "constellation": [
+   859.3,
+   -120.8
+  ],
+  "culture_industry": [
+   2060.7,
+   492.5
+  ],
+  "after_auschwitz": [
+   579.6,
+   595.9
+  ],
+  "vita_activa": [
+   304.9,
+   636.6
+  ],
+  "natality": [
+   -224.9,
+   670.9
+  ],
+  "public_space": [
+   -67.5,
+   87.4
+  ],
+  "banality_evil": [
+   -65.4,
+   -181.2
+  ],
+  "totalitarianism": [
+   -306.9,
+   -92.1
+  ],
+  "thoughtlessness": [
+   333.4,
+   -176.1
+  ],
+  "conflict_interpretations": [
+   1154.4,
+   -1093.8
+  ],
+  "hermeneutics_suspicion": [
+   1353.4,
+   -329.1
+  ],
+  "symbol_gives": [
+   1000.4,
+   -1195.6
+  ],
+  "narrative_identity": [
+   710.1,
+   -137.6
+  ],
+  "living_metaphor": [
+   860.9,
+   -848.7
+  ],
+  "oneself_as_another": [
+   1233.9,
+   -666.6
+  ],
+  "anthropological_principle": [
+   1303.8,
+   1163.5
+  ],
+  "religious_alienation": [
+   1950.9,
+   1226.8
+  ],
+  "gattungswesen": [
+   1480,
+   1025.3
+  ],
+  "sensuousness": [
+   900.3,
+   787.6
+  ],
+  "i_and_thou": [
+   1306.4,
+   468.8
+  ],
+  "total_unity": [
+   543.2,
+   1543.6
+  ],
+  "abstract_principles": [
+   834.7,
+   1595.9
+  ],
+  "godmanhood": [
+   1106.1,
+   1624
+  ],
+  "sophia": [
+   564.6,
+   1745.9
+  ],
+  "integral_knowledge": [
+   895.9,
+   1077.3
+  ],
+  "justification_good": [
+   1000,
+   1607.2
+  ],
+  "unfathomable": [
+   177.6,
+   448.9
+  ],
+  "metalogical": [
+   -49.5,
+   1334.2
+  ],
+  "antinomic_monodualism": [
+   -198.6,
+   1432.6
+  ],
+  "living_knowledge": [
+   1065.6,
+   -632.2
+  ],
+  "reality_actuality": [
+   1275.1,
+   -931.6
+  ],
+  "we_frank": [
+   1468.7,
+   -928.6
+  ],
+  "concrete_metaphysics": [
+   14.8,
+   1104.7
+  ],
+  "antinomism": [
+   -194,
+   755.4
+  ],
+  "symbol_florensky": [
+   -145.9,
+   627.9
+  ],
+  "reverse_perspective": [
+   408.9,
+   732.3
+  ],
+  "pillar_truth": [
+   252.1,
+   398.4
+  ],
+  "name_worship": [
+   -240.8,
+   -153.1
+  ],
+  "myth_losev": [
+   -134.9,
+   -123.3
+  ],
+  "name_losev": [
+   -344.1,
+   -10.1
+  ],
+  "eidos_losev": [
+   -249.7,
+   132.7
+  ],
+  "expression": [
+   9.4,
+   -71.9
+  ],
+  "absolute_mythology": [
+   -297.5,
+   -526.8
+  ],
+  "number_losev": [
+   -601.1,
+   466
+  ],
+  "atom_democritus": [
+   379.8,
+   1660.6
+  ],
+  "void_democritus": [
+   29,
+   1378.3
+  ],
+  "necessity_democritus": [
+   649.9,
+   1873.3
+  ],
+  "eidola": [
+   654.1,
+   1755.3
+  ],
+  "by_convention": [
+   888.3,
+   1484.7
+  ],
+  "euthymia": [
+   479.2,
+   2052.2
+  ],
+  "pneuma": [
+   626.4,
+   1577.9
+  ],
+  "kataleptic": [
+   96.7,
+   950
+  ],
+  "oikeiosis": [
+   831.8,
+   2066.4
+  ],
+  "adiaphora": [
+   780,
+   1987.5
+  ],
+  "homologia": [
+   652.6,
+   2130.3
+  ],
+  "passion_judgment": [
+   404.8,
+   1574.1
+  ],
+  "harm_principle": [
+   1893.3,
+   1812.6
+  ],
+  "higher_pleasures": [
+   1038,
+   1857.5
+  ],
+  "liberty_thought": [
+   2060.1,
+   1230.7
+  ],
+  "tyranny_majority": [
+   2128,
+   1614.6
+  ],
+  "mill_methods": [
+   1368.2,
+   704.3
+  ],
+  "subjection_women": [
+   1405,
+   881.4
+  ],
+  "rigid_designator": [
+   -133,
+   -1015.7
+  ],
+  "causal_reference": [
+   94,
+   -1346.3
+  ],
+  "necessary_aposteriori": [
+   -310.6,
+   -345.9
+  ],
+  "identity_necessity": [
+   -387.4,
+   -522.9
+  ],
+  "rule_paradox": [
+   305.4,
+   -1363
+  ],
+  "sign_value": [
+   2060.5,
+   854.1
+  ],
+  "symbolic_exchange": [
+   2271.7,
+   901.5
+  ],
+  "simulacrum": [
+   1071.4,
+   904.2
+  ],
+  "hyperreality": [
+   1407,
+   445.1
+  ],
+  "seduction": [
+   1977.5,
+   687.9
+  ],
+  "spirit_of_laws": [
+   2422.2,
+   1721.9
+  ],
+  "forms_government": [
+   2255.8,
+   1898.3
+  ],
+  "separation_powers": [
+   1841.2,
+   1725.1
+  ],
+  "climate_mores": [
+   1948.1,
+   1567.2
+  ],
+  "political_liberty": [
+   2051,
+   1988.4
+  ],
+  "collective_unconscious": [
+   1277.6,
+   -5.5
+  ],
+  "archetype": [
+   669.9,
+   264.6
+  ],
+  "shadow_persona": [
+   2219.2,
+   196.6
+  ],
+  "individuation_jung": [
+   2096.5,
+   376.8
+  ],
+  "self_jung": [
+   1374.1,
+   302
+  ],
+  "synchronicity": [
+   889.6,
+   698.3
+  ],
+  "absurd_camus": [
+   1947.5,
+   362.7
+  ],
+  "philosophical_suicide": [
+   1456.7,
+   123.1
+  ],
+  "sisyphus": [
+   1857.3,
+   191.7
+  ],
+  "revolt": [
+   2240.6,
+   478.5
+  ],
+  "mediterranean_measure": [
+   1905.3,
+   937
+  ],
+  "communicative_action": [
+   103.8,
+   -605.6
+  ],
+  "ideal_speech": [
+   167,
+   -369.8
+  ],
+  "discourse_ethics": [
+   1120.9,
+   406.9
+  ],
+  "lifeworld_system": [
+   833.9,
+   -511.4
+  ],
+  "colonization": [
+   1616.8,
+   228.5
+  ],
+  "public_sphere": [
+   -102.6,
+   -300.9
+  ],
+  "universal_grammar": [
+   635,
+   -701.9
+  ],
+  "generative_grammar": [
+   165.9,
+   -1132.8
+  ],
+  "deep_surface": [
+   251.1,
+   -954.9
+  ],
+  "poverty_stimulus": [
+   1409.9,
+   -677
+  ],
+  "innate_faculty": [
+   1273.9,
+   -371.3
+  ],
+  "universals_question": [
+   -718.4,
+   1426.3
+  ],
+  "person_definition": [
+   -800.7,
+   1735.4
+  ],
+  "eternity_tota_simul": [
+   -271.6,
+   1066.5
+  ],
+  "foreknowledge_freedom": [
+   -38.3,
+   1623.1
+  ],
+  "wheel_fortune": [
+   389.5,
+   2045.1
+  ],
+  "quadrivium": [
+   -406.1,
+   767.6
+  ],
+  "logic_grammar": [
+   -521.8,
+   1004.8
+  ],
+  "harmony_two": [
+   -411.9,
+   1729
+  ],
+  "active_intellect": [
+   -606.9,
+   2095.5
+  ],
+  "prophecy_imagination": [
+   -594.7,
+   2418.9
+  ],
+  "virtuous_city": [
+   -581.9,
+   2267.6
+  ],
+  "essence_distinction": [
+   -364.1,
+   1868.3
+  ],
+  "necessary_being": [
+   -290.4,
+   2101.6
+  ],
+  "essence_indifferent": [
+   -631.7,
+   1895.5
+  ],
+  "flying_man": [
+   177.2,
+   1178.5
+  ],
+  "ten_intellects": [
+   -128.2,
+   1777.8
+  ],
+  "intention_avicenna": [
+   238.5,
+   803.9
+  ],
+  "unity_intellect": [
+   -209,
+   1863.1
+  ],
+  "eternity_world": [
+   -445.4,
+   2245.8
+  ],
+  "demonstration_religion": [
+   -345.2,
+   2404.3
+  ],
+  "three_classes": [
+   -99.5,
+   2032
+  ],
+  "commentary_method": [
+   -192.3,
+   2110
+  ],
+  "negative_theology": [
+   -134.3,
+   1304.2
+  ],
+  "allegory_scripture": [
+   137.2,
+   1788.7
+  ],
+  "creation_undecidable": [
+   -61.6,
+   1154.9
+  ],
+  "reasons_commandments": [
+   501.7,
+   1926.4
+  ],
+  "epistemological_obstacle": [
+   255.1,
+   -351.2
+  ],
+  "epistemological_break": [
+   26.2,
+   -252.1
+  ],
+  "phenomenotechnique": [
+   367.3,
+   74.2
+  ],
+  "material_imagination": [
+   562.7,
+   -86.9
+  ],
+  "poetic_image": [
+   587,
+   -529.4
+  ],
+  "dialectic_duration": [
+   534.3,
+   -340.5
+  ],
+  "isostheneia": [
+   -315.8,
+   336.4
+  ],
+  "epoche_sextus": [
+   245.7,
+   -110
+  ],
+  "tropes_sextus": [
+   -582.4,
+   320.8
+  ],
+  "criterion_critique": [
+   -370.6,
+   416.9
+  ],
+  "ou_mallon": [
+   50,
+   266.4
+  ],
+  "virtu": [
+   1261.1,
+   2045.6
+  ],
+  "fortuna_machiavelli": [
+   873.7,
+   2166
+  ],
+  "separation_politics_morals": [
+   2057,
+   1323.3
+  ],
+  "necessity_state": [
+   1982.1,
+   1827.7
+  ],
+  "tumult_liberty": [
+   2187.3,
+   1682.2
+  ],
+  "intuitivism": [
+   1011.8,
+   -20.6
+  ],
+  "gnoseological_coordination": [
+   1096.5,
+   -151.7
+  ],
+  "substantial_agents": [
+   505.9,
+   1145
+  ],
+  "hierarchical_personalism": [
+   717.6,
+   1070.8
+  ],
+  "ideal_being": [
+   271.7,
+   720.2
+  ],
+  "groundlessness": [
+   1299.5,
+   772.3
+  ],
+  "critique_selfevidence": [
+   967.6,
+   340.4
+  ],
+  "athens_jerusalem": [
+   1052.3,
+   1141.1
+  ],
+  "daring": [
+   1522.6,
+   613.6
+  ],
+  "second_dimension": [
+   1278.2,
+   319.6
+  ],
+  "objectification": [
+   1797.1,
+   1519.5
+  ],
+  "ungrund_freedom": [
+   1349.8,
+   1754.1
+  ],
+  "creativity_anthropodicy": [
+   1222.9,
+   1653.1
+  ],
+  "person_vs_individual": [
+   1335.2,
+   1256.5
+  ],
+  "eschatology_berdyaev": [
+   1111.3,
+   1440.6
+  ],
+  "category_mistake": [
+   -191.9,
+   -267.6
+  ],
+  "ghost_in_machine": [
+   248,
+   166.4
+  ],
+  "dispositional": [
+   414.1,
+   -263
+  ],
+  "knowing_how": [
+   44.3,
+   47.7
+  ],
+  "performative": [
+   -488.2,
+   -1088.9
+  ],
+  "felicity_conditions": [
+   -384.5,
+   -816.7
+  ],
+  "speech_act": [
+   -270.2,
+   -941.8
+  ],
+  "ordinary_language": [
+   -212,
+   -812.8
+  ],
+  "radical_interpretation": [
+   19.1,
+   -1296.3
+  ],
+  "charity_principle": [
+   152,
+   -1222
+  ],
+  "third_dogma": [
+   -74.8,
+   -1151.1
+  ],
+  "anomalous_monism": [
+   -59,
+   -499.4
+  ],
+  "event_davidson": [
+   -90.3,
+   -936.5
+  ],
+  "paradigm": [
+   -138,
+   -584.3
+  ],
+  "normal_science": [
+   -536,
+   -475.7
+  ],
+  "anomaly_crisis": [
+   -518.2,
+   -174.6
+  ],
+  "scientific_revolution": [
+   -894.2,
+   -370
+  ],
+  "incommensurability": [
+   -573.4,
+   -319
+  ],
+  "disciplinary_matrix": [
+   -475.3,
+   -542.2
+  ],
+  "research_programme": [
+   -567.6,
+   -590
+  ],
+  "hard_core": [
+   -646.5,
+   -885.7
+  ],
+  "protective_belt": [
+   -695.3,
+   -736.1
+  ],
+  "progressive_degenerating": [
+   -1032.2,
+   -622.1
+  ],
+  "rational_reconstruction": [
+   -834.3,
+   -589
+  ],
+  "value_feeling": [
+   1580.7,
+   -304
+  ],
+  "value_hierarchy": [
+   1568.3,
+   707.4
+  ],
+  "material_ethics": [
+   1569.6,
+   1016.5
+  ],
+  "sympathy_forms": [
+   1615.1,
+   -220.9
+  ],
+  "person_scheler": [
+   1720.5,
+   -8.1
+  ],
+  "spirit_impotent": [
+   1407.9,
+   971.3
+  ],
+  "layers_being": [
+   745.7,
+   590.3
+  ],
+  "categorial_laws": [
+   906,
+   609.8
+  ],
+  "strength_height": [
+   1136.7,
+   667.1
+  ],
+  "new_ontology": [
+   434.2,
+   217
+  ],
+  "aporetics": [
+   -20.8,
+   339.5
+  ],
+  "real_modality": [
+   1014.6,
+   492.9
+  ],
+  "surplus_repression": [
+   2475.9,
+   105.3
+  ],
+  "repressive_desublimation": [
+   2578.1,
+   396.2
+  ],
+  "one_dimensional": [
+   2374.5,
+   336.2
+  ],
+  "repressive_tolerance": [
+   2316.5,
+   802.2
+  ],
+  "great_refusal": [
+   2496.1,
+   462.4
+  ],
+  "metanarrative": [
+   509.8,
+   652.8
+  ],
+  "postmodern_condition": [
+   -193.1,
+   -54.6
+  ],
+  "heterogeneity_phrases": [
+   -78.8,
+   -652.1
+  ],
+  "differend": [
+   -228,
+   -583.9
+  ],
+  "unpresentable": [
+   80.2,
+   144.4
   ]
  }
 }

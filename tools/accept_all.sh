@@ -9,7 +9,10 @@ TREE_DIR="${1:-app}"
 SNAPS="${2:-/tmp/приёмка}"
 mkdir -p "$SNAPS"
 
-python3 tools/make_ref.py philosophy_graph_v3.html "$TREE_DIR"
+# Эталон кладётся ПОСЛЕ последней сборки: пересборка стирает _ref-orig.html
+# из дерева, и прибор молча грузит 404. Путь — с папкой: без неё make_ref
+# ищет файл в корне и падает на чистом клоне.
+python3 tools/make_ref.py source/philosophy_graph_v3.html "$TREE_DIR"
 bash tools/serve.sh "$TREE_DIR"
 
 echo "== полный обход (три части на сторону)"

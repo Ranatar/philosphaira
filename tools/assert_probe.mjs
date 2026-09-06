@@ -25,7 +25,9 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 
 // ── ожидаемое. Меняется ОСОЗНАННО, по одному числу ──────────────────
 const ЖДЁМ = {
-  концепций: 453, связей: 1624, философов: 57, традиций: 22, рубрик: 15, типовСвязей: 21,
+  // Переучреждено 2026-09-06 после заходов 1–9 (43 философа, 236 концепций,
+  // 545 связей, 3 традиции). Прежние: 453 / 1624 / 57 / 22.
+  концепций: 689, связей: 2169, философов: 100, традиций: 25, рубрик: 15, типовСвязей: 21,
   вкладокСтатистики: 40,
   таблицСтилей: 11,   // с 11-multiuser (глава стилей многопользовательского режима)
   порогКонтраста: 4.5,
@@ -385,7 +387,23 @@ if (модуль) {
   проверить('исходно все связи в полную силу',
     исходно.прозрачность['0.40'] === исходно.связей, исходно.связей, исходно.прозрачность['0.40']);
 
-  const id = await page.evaluate(() => window.__t.DATA.nodes[5].id);
+  // М1-исправление 2026-09-06. Прежде здесь стоял nodes[5] — узел по НОМЕРУ,
+  // а порог «карта сходства строится» относительный: степень не ниже медианной.
+  // Прирост базы опустил медиану с 6 до 5, и logos_heraclitus (степень 5, сам
+  // не изменившийся) оказался НА пороге — прибор покраснел, не сообщив ничего
+  // о правке. Берём узел строго ниже медианы, вычисляя её на месте.
+  const id = await page.evaluate(() => {
+    const D = window.__t.DATA, ст = {};
+    D.nodes.forEach(n => ст[n.id] = 0);
+    D.links.forEach(l => {
+      const s = l.source.id || l.source, t = l.target.id || l.target;
+      if (ст[s] != null) ст[s]++; if (ст[t] != null) ст[t]++;
+    });
+    const v = Object.values(ст).sort((a, b) => a - b);
+    const мед = v[Math.floor(v.length / 2)];
+    const слабый = D.nodes.find(n => ст[n.id] > 0 && ст[n.id] < мед);
+    return (слабый || D.nodes[5]).id;
+  });
   await page.evaluate(i => {
     const n = window.__t.DATA.nodes.find(x => x.id === i);
     window.__t.highlightConnected([n]);
@@ -774,16 +792,17 @@ if (модуль) {
 
   await page.evaluate(() => window.__t.openAboutModal());
   await wait(600);
-  const о = await page.evaluate(() => {
+  const ЧИСЛА = [ЖДЁМ.концепций, ЖДЁМ.связей, ЖДЁМ.философов].map(String);
+  const о = await page.evaluate((ЧИСЛА) => {
     const t = document.getElementById('aboutContent').textContent;
     return {
       открыто: document.getElementById('aboutModal').classList.contains('show'),
       разделов: document.querySelectorAll('#aboutContent h3').length,
-      числаИзДанных: ['453', '1624', '57'].every(n => t.includes(n)),
+      числаИзДанных: ЧИСЛА.every(n => t.includes(n)),
       проПравку: /едактир/.test(t),
       знаков: t.length,
     };
-  });
+  }, ЧИСЛА);
   проверить('окно «О проекте» открывается', о.открыто, true, о.открыто);
   проверить('в нём есть разделы управления', о.разделов >= 5, '≥5', о.разделов);
   проверить('числа взяты из данных', о.числаИзДанных, true, о.числаИзДанных);
