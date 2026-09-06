@@ -37,8 +37,8 @@ function analyzePath(path, mode = CHRONOLOGY_MODES.STRICT) {
                 to: toNode.label,
                 fromPhil: fromNode.concept,
                 toPhil: toNode.concept,
-                fromYears: `${fromPhil.birth}-${fromPhil.death}`,
-                toYears: `${toPhil.birth}-${toPhil.death}`
+                fromYears: fromPhil.years,
+                toYears: toPhil.years
               });
             }
           }

@@ -25,9 +25,9 @@ function stepWithoutGap(fromId, toId, step, last) {
 function strictChronologyCheck(fromPhil, toPhil) {
       // Периоды активной деятельности (с MATURITY_AGE лет до смерти)
       const fromActiveStart = fromPhil.birth + MATURITY_AGE;
-      const fromActiveEnd = fromPhil.death;
+      const fromActiveEnd = fromPhil.death != null ? fromPhil.death : fromPhil.birth + 80;
       const toActiveStart = toPhil.birth + MATURITY_AGE;
-      const toActiveEnd = toPhil.death;
+      const toActiveEnd = toPhil.death != null ? toPhil.death : toPhil.birth + 80;
       
       // Случай 1: fromPhil умер до начала активности toPhil
       // Посмертное влияние через тексты и идеи
@@ -116,8 +116,8 @@ function isChronologicallyValid(fromNodeId, toNodeId, mode = S.currentChronology
         } else if (temporal === 'contemporary') {
           // Полемика предполагает пересечение периодов активности;
           // при отсутствии пересечения читается ретроспективно
-          const fs = fromPhil.birth + MATURITY_AGE, fe = fromPhil.death;
-          const ts = toPhil.birth + MATURITY_AGE, te = toPhil.death;
+          const fs = fromPhil.birth + MATURITY_AGE, fe = (fromPhil.death != null ? fromPhil.death : fromPhil.birth + 80);
+          const ts = toPhil.birth + MATURITY_AGE, te = (toPhil.death != null ? toPhil.death : toPhil.birth + 80);
           if (fs <= te && ts <= fe) return true;
           const t = fromPhil; fromPhil = toPhil; toPhil = t;
         }
