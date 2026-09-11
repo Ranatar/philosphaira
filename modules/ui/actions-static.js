@@ -1,4 +1,4 @@
-// Сгенерировано tools/delegate.mjs — правки вносить туда.
+// Сгенерировано tools/build/delegate.mjs — правки вносить туда.
 import { registerActions } from './actions.js';
 import { downloadData, saveToFolder } from '../data/save.js';
 import { resetBeyondFilter } from '../filters/beyond-filter.js';
