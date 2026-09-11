@@ -21,7 +21,7 @@ import { changeFilterMode, deselectAllPhilosophers, deselectAllRelations, desele
 import { markAllNotificationsRead, toggleNotifyPanel } from './notifications.js';
 import { togglePanel } from './panels.js';
 import { clearLegendSearch, handleLegendSearch, setSearchKind, toggleLegendSearch } from './search-legend.js';
-import { handleLegendLinkSearch } from './search-link.js';
+import { handleLegendLinkSearch, openLegendLinkSearch } from './search-link.js';
 import { clearLegendPhilSearch, handleLegendPhilSearch } from './search-philosopher.js';
 import { filterCustomSelect, showCustomSelectDropdown } from '../widgets/custom-select.js';
 
@@ -41,9 +41,9 @@ registerActions({
   "handle-legend-phil-search-focus": (el, ev) => { handleLegendPhilSearch(el.value); },
   "clear-legend-phil-search": (el, ev) => { clearLegendPhilSearch(); },
   "handle-legend-link-search-input": (el, ev) => { handleLegendLinkSearch('from', el.value); },
-  "handle-legend-link-search-focus": (el, ev) => { handleLegendLinkSearch('from', el.value); },
+  "open-legend-link-search-focus": (el, ev) => { openLegendLinkSearch('from'); },
   "handle-legend-link-search-input-2": (el, ev) => { handleLegendLinkSearch('to', el.value); },
-  "handle-legend-link-search-focus-2": (el, ev) => { handleLegendLinkSearch('to', el.value); },
+  "open-legend-link-search-focus-2": (el, ev) => { openLegendLinkSearch('to'); },
   "open-stats-modal": (el, ev) => { openStatsModal(); },
   "reset-beyond-filter": (el, ev) => { resetBeyondFilter(); },
   "reset-node-sizes": (el, ev) => { resetNodeSizes(); },

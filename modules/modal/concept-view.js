@@ -3,7 +3,7 @@ import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
 import { conceptById, rubricById } from '../core/graph-index.js';
 import { medianNodeDegree, nodeDegreeOf } from '../metrics/network.js';
-import { nearestConcepts } from '../metrics/similarity-concepts.js';
+import { nearestConcepts, profileIsMeaningful } from '../metrics/similarity-concepts.js';
 import { linkArrow } from './connection-view.js';
 
 import { getContrastColor } from '../util/color.js';
@@ -39,15 +39,36 @@ function similarConceptsBlock(conceptId) {
       };
       const asPct = v => Math.round(v * 100) + ' %';
 
+      // КНОПКА ЗНАЕТ О ВЫРОЖДЕННОСТИ. Прежде она всегда звала вид «по профилю»,
+      // а showSimilarityOverlay у малосвязной концепции отказывался и советовал
+      // «попробуйте вид по структуре» — вид, к которому из окна не вело ничего:
+      // панель с переключателем рисуется только при уже открытом наложении.
+      // Совет указывал на дверь, которой нет.
+      const profileWorks = profileIsMeaningful(conceptId);
+      const mapKind = profileWorks ? 'profile' : 'structure';
+      const mapLabel = profileWorks
+        ? '🗺️ Показать на графе'
+        : '🗺️ Показать на графе (по структуре)';
+      const mapTip = profileWorks
+        ? 'Раскрасить граф по сходству с этой концепцией'
+        : 'Профиль метрик здесь непоказателен (связей ' + nodeDegreeOf(conceptId)
+          + ', порог ' + medianNodeDegree() + '), поэтому граф раскрасится '
+          + 'по структуре связей. Вид переключается в панели наложения';
+      // Если и структура пуста, звать не к чему: обе колонки в этом случае
+      // пусты, а такой блок вовсе не строится (см. проверку выше).
+      const mapButton = (profileWorks || byStructure.length)
+        ? `<button class="similar-map-btn"
+                data-act-click="show-similarity-overlay" data-a1="${conceptId}" data-a2="${mapKind}"
+                data-tip="${mapTip}">
+              ${mapLabel}
+            </button>`
+        : '';
+
       return `
         <div class="rubric-section similar-section">
           <div class="similar-title">
             Похожие концепции
-            <button class="similar-map-btn"
-                data-act-click="show-similarity-overlay" data-a1="${conceptId}"
-                data-tip="Раскрасить граф по сходству с этой концепцией">
-              🗺️ Показать на графе
-            </button>
+            ${mapButton}
           </div>
           <div class="similar-columns">
             <div class="similar-col">

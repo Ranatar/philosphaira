@@ -46,7 +46,7 @@ registerActions({
   "plan-relayout": (el, ev) => { planRelayout(); },
   "apply-relayout": (el, ev) => { applyRelayout(); },
   "open-concept-by-id": (el, ev) => { openConceptById(el.dataset.a1); },
-  "show-similarity-overlay": (el, ev) => { showSimilarityOverlay(el.dataset.a1,'profile'); },
+  "show-similarity-overlay": (el, ev) => { showSimilarityOverlay(el.dataset.a1,el.dataset.a2); },
   "handle-modal-search-input": (el, ev) => { handleModalSearch(el.value); },
   "handle-modal-search-focus": (el, ev) => { handleModalSearch(el.value); },
   "clear-modal-search": (el, ev) => { clearModalSearch(); },

@@ -3,7 +3,7 @@ import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
 import { conceptById } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
-import { WEIGHT_OPTIONS, relationHint } from '../core/relation-types.js';
+import { LAYER_NAMES, WEIGHT_OPTIONS, relationHint } from '../core/relation-types.js';
 import { emptyList, pickConcepts, rowInner } from '../core/search.js';
 import { connectionsBetween } from '../graph/graph-data.js';
 import { modalActions } from './assembly.js';
@@ -30,7 +30,9 @@ function onConnTypeChange() {
                ? 'начальная концепция обосновывает конечную'
                : 'конечная концепция обосновывает начальную') + '.');
         }
-        if (t.layer) parts.push('Слой: ' + t.layer + '.');
+        // Слой называется тем же словарём, что и в легенде: здесь стояло
+        // `t.layer` как есть, и форма правки печатала «Слой: logical».
+        if (t.layer) parts.push('Слой: ' + (LAYER_NAMES[t.layer] || t.layer) + '.');
         const n = DATA.links.filter(l => l.type === sel.value).length;
         if (sel.value) parts.push('Рёбер этого типа в базе: ' + n + '.');
         note.innerHTML = parts.join(' ');

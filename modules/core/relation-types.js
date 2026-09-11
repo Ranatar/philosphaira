@@ -45,7 +45,7 @@ function relationHint(typeId) {
       return parts.join('\n');
     }
 
-const WEIGHT_WORDS = { 1: 'слабая связь', 2: 'обычная связь', 3: 'сильная связь' };
+const WEIGHT_WORDS = { 1: 'побочная связь', 2: 'обычная связь', 3: 'несущая связь' };
 
 const WEIGHT_OPTIONS = [
       [1, '1 — слабая связь'],
@@ -55,4 +55,4 @@ const WEIGHT_OPTIONS = [
 
 const CONN_WEIGHT_WORDS = { 1: 'слабая', 2: 'обычная', 3: 'сильная' };
 
-export { CONN_WEIGHT_WORDS, WEIGHT_OPTIONS, WEIGHT_WORDS, relationHint };
+export { CONN_WEIGHT_WORDS, LAYER_NAMES, WEIGHT_OPTIONS, WEIGHT_WORDS, relationHint };
