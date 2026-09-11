@@ -1,17 +1,17 @@
 {
  "меры": {
   "модулей": 127,
-  "строк": 20135,
-  "объявлений": 801,
-  "вывозов": 564,
-  "рёбер": 786,
+  "строк": 20191,
+  "объявлений": 804,
+  "вывозов": 567,
+  "рёбер": 788,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
   "вывозовДляПриборов": 22,
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-09-11 06:18:10"
+  "составлено": "2026-09-11 11:37:08"
  },
  "модули": [
   {
@@ -1512,13 +1512,14 @@
    "путь": "modules/core/relation-types.js",
    "строк": 59,
    "объявлений": 6,
-   "вывозит": 4,
+   "вывозит": 5,
    "ввозитИз": 2,
    "вНС": {
     "DATA": 2
    },
    "вывоз": [
     "CONN_WEIGHT_WORDS",
+    "LAYER_NAMES",
     "WEIGHT_OPTIONS",
     "WEIGHT_WORDS",
     "relationHint"
@@ -5459,7 +5460,7 @@
   },
   {
    "путь": "modules/modal/concept-view.js",
-   "строк": 338,
+   "строк": 359,
    "объявлений": 1,
    "вывозит": 0,
    "ввозитИз": 8,
@@ -5497,7 +5498,8 @@
     {
      "откуда": "modules/metrics/similarity-concepts.js",
      "имена": [
-      "nearestConcepts"
+      "nearestConcepts",
+      "profileIsMeaningful"
      ]
     },
     {
@@ -5523,7 +5525,7 @@
     {
      "имя": "similarConceptsBlock",
      "вид": "function",
-     "строк": 58
+     "строк": 79
     }
    ],
    "чащеВсего": [
@@ -5543,13 +5545,13 @@
      "откуда": "modules/core/graph-index.js"
     },
     {
-     "имя": "linkArrow",
+     "имя": "nodeDegreeOf",
      "раз": 2,
-     "откуда": "modules/modal/connection-view.js"
+     "откуда": "modules/metrics/network.js"
     },
     {
-     "имя": "nodeDegreeOf",
-     "раз": 1,
+     "имя": "medianNodeDegree",
+     "раз": 2,
      "откуда": "modules/metrics/network.js"
     }
    ]
@@ -5670,7 +5672,7 @@
   },
   {
    "путь": "modules/modal/connection-edit.js",
-   "строк": 286,
+   "строк": 288,
    "объявлений": 9,
    "вывозит": 5,
    "ввозитИз": 13,
@@ -5712,6 +5714,7 @@
     {
      "откуда": "modules/core/relation-types.js",
      "имена": [
+      "LAYER_NAMES",
       "WEIGHT_OPTIONS",
       "relationHint"
      ]
@@ -5771,7 +5774,7 @@
     {
      "имя": "onConnTypeChange",
      "вид": "function",
-     "строк": 37
+     "строк": 39
     },
     {
      "имя": "updateConnEditPairNote",
@@ -12651,7 +12654,8 @@
     {
      "откуда": "modules/ui/search-link.js",
      "имена": [
-      "handleLegendLinkSearch"
+      "handleLegendLinkSearch",
+      "openLegendLinkSearch"
      ]
     },
     {
@@ -12677,11 +12681,6 @@
      "откуда": "modules/stats/modal.js"
     },
     {
-     "имя": "handleLegendLinkSearch",
-     "раз": 4,
-     "откуда": "modules/ui/search-link.js"
-    },
-    {
      "имя": "toggleSection",
      "раз": 4,
      "откуда": "modules/ui/legend.js"
@@ -12695,6 +12694,11 @@
      "имя": "switchCommitTab",
      "раз": 3,
      "откуда": "modules/modal/commits.js"
+    },
+    {
+     "имя": "handleLegendSearch",
+     "раз": 2,
+     "откуда": "modules/ui/search-legend.js"
     }
    ]
   },
@@ -13531,10 +13535,10 @@
   },
   {
    "путь": "modules/ui/search-link.js",
-   "строк": 118,
-   "объявлений": 6,
-   "вывозит": 4,
-   "ввозитИз": 10,
+   "строк": 129,
+   "объявлений": 7,
+   "вывозит": 5,
+   "ввозитИз": 11,
    "вНС": {
     "DATA": 3,
     "S": 2
@@ -13543,6 +13547,7 @@
     "clearLinkSearch",
     "handleLegendLinkSearch",
     "highlightLinkOnGraph",
+    "openLegendLinkSearch",
     "pickLinkEnd"
    ],
    "ввоз": [
@@ -13605,6 +13610,12 @@
       "selectedEdges",
       "selectedNodes"
      ]
+    },
+    {
+     "откуда": "modules/util/html.js",
+     "имена": [
+      "scrollToPickedRow"
+     ]
     }
    ],
    "свои": [
@@ -13616,7 +13627,12 @@
     {
      "имя": "handleLegendLinkSearch",
      "вид": "function",
-     "строк": 24
+     "строк": 26
+    },
+    {
+     "имя": "openLegendLinkSearch",
+     "вид": "function",
+     "строк": 7
     },
     {
      "имя": "pickLinkEnd",
@@ -13796,17 +13812,23 @@
   },
   {
    "путь": "modules/util/html.js",
-   "строк": 34,
-   "объявлений": 2,
-   "вывозит": 2,
+   "строк": 41,
+   "объявлений": 3,
+   "вывозит": 3,
    "ввозитИз": 0,
    "вНС": {},
    "вывоз": [
     "escapeAttr",
-    "provenanceBlock"
+    "provenanceBlock",
+    "scrollToPickedRow"
    ],
    "ввоз": [],
    "свои": [
+    {
+     "имя": "scrollToPickedRow",
+     "вид": "function",
+     "строк": 6
+    },
     {
      "имя": "provenanceBlock",
      "вид": "function",
@@ -13938,10 +13960,10 @@
   },
   {
    "путь": "modules/widgets/custom-select.js",
-   "строк": 88,
-   "объявлений": 5,
+   "строк": 103,
+   "объявлений": 6,
    "вывозит": 4,
-   "ввозитИз": 4,
+   "ввозитИз": 5,
    "вНС": {
     "S": 4
    },
@@ -13977,6 +13999,12 @@
       "pickConcepts",
       "rowInner"
      ]
+    },
+    {
+     "откуда": "modules/util/html.js",
+     "имена": [
+      "scrollToPickedRow"
+     ]
     }
    ],
    "свои": [
@@ -13986,14 +14014,19 @@
      "строк": 16
     },
     {
+     "имя": "pickedConceptOf",
+     "вид": "function",
+     "строк": 7
+    },
+    {
      "имя": "populateCustomSelect",
      "вид": "function",
-     "строк": 14
+     "строк": 16
     },
     {
      "имя": "showCustomSelectDropdown",
      "вид": "function",
-     "строк": 10
+     "строк": 14
     },
     {
      "имя": "filterCustomSelect",
@@ -14009,7 +14042,7 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 4,
+     "раз": 8,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -14028,9 +14061,9 @@
      "откуда": "modules/core/search.js"
     },
     {
-     "имя": "conceptById",
+     "имя": "scrollToPickedRow",
      "раз": 1,
-     "откуда": "modules/core/graph-index.js"
+     "откуда": "modules/util/html.js"
     }
    ]
   }
@@ -14163,15 +14196,15 @@
    "ввозятИзНего": 18
   },
   {
+   "модуль": "modules/util/html.js",
+   "ввозятИзНего": 15
+  },
+  {
    "модуль": "modules/metrics/link-indexes.js",
    "ввозятИзНего": 13
   },
   {
    "модуль": "modules/render/selection.js",
-   "ввозятИзНего": 13
-  },
-  {
-   "модуль": "modules/util/html.js",
    "ввозятИзНего": 13
   },
   {

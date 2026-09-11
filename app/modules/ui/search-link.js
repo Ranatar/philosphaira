@@ -9,6 +9,7 @@ import { gfxZoom } from '../render/d3-layer.js';
 import { requestDraw } from '../render/loop.js';
 import { highlightCombined } from '../render/selection.js';
 import { selectedEdges, selectedNodes } from '../state/render.js';
+import { scrollToPickedRow } from '../util/html.js';
 
 const linkSearch = { from: null, to: null };
 
@@ -28,13 +29,23 @@ function handleLegendLinkSearch(end, query) {
         set = DATA.nodes.filter(n => neighbours.has(n.id));
       }
       const found = pickConcepts(query, set);
+      const picked = linkSearch[end] ? linkSearch[end].id : null;
       box.innerHTML = found.length
         ? found.map(n => `
-            <div class="concept-row" data-act-click="pick-link-end" data-a1="${end}" data-a2="${n.id}">
+            <div class="concept-row${n.id === picked ? ' concept-row-picked' : ''}"
+                 data-act-click="pick-link-end" data-a1="${end}" data-a2="${n.id}">
               ${rowInner(n)}
             </div>`).join('')
         : emptyList(other ? 'Среди связанных ничего не найдено' : 'Ничего не найдено');
       box.classList.add('show');
+    }
+
+function openLegendLinkSearch(end) {
+      handleLegendLinkSearch(end, '');
+      const field = document.getElementById(end === 'from' ? 'legendLinkFrom' : 'legendLinkTo');
+      const box = document.getElementById(end === 'from' ? 'legendLinkFromResults' : 'legendLinkToResults');
+      scrollToPickedRow(box);
+      if (field && typeof field.select === 'function' && field.value) field.select();
     }
 
 function pickLinkEnd(end, id) {
@@ -114,4 +125,4 @@ function clearLinkSearch() {
       });
     }
 
-export { clearLinkSearch, handleLegendLinkSearch, highlightLinkOnGraph, pickLinkEnd };
+export { clearLinkSearch, handleLegendLinkSearch, highlightLinkOnGraph, openLegendLinkSearch, pickLinkEnd };

@@ -2020,6 +2020,12 @@
     }
     .concept-row:last-child { border-bottom: none; }
     .concept-row:hover { background: var(--surface-hover); }
+    /* Выбранное видно в списке, а не только в строке ввода: поле с текстом
+       «Метка (Философ)» само по себе не говорит, где эта строка в списке. */
+    .concept-row-picked {
+      background: var(--surface-hover);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
 
     .concept-row-color {
       width: 12px; height: 12px; border-radius: 50%; flex: none;
@@ -4966,7 +4972,7 @@
                 <input type="text" class="legend-search-input" id="legendLinkFrom"
                      placeholder="Связь: откуда..."
                      oninput="handleLegendLinkSearch('from', this.value)"
-                     onfocus="handleLegendLinkSearch('from', this.value)">
+                     onfocus="openLegendLinkSearch('from')">
                 <div class="search-results" id="legendLinkFromResults"></div>
               </div>
             </div>
@@ -4976,7 +4982,7 @@
                 <input type="text" class="legend-search-input" id="legendLinkTo"
                      placeholder="Связь: куда..."
                      oninput="handleLegendLinkSearch('to', this.value)"
-                     onfocus="handleLegendLinkSearch('to', this.value)">
+                     onfocus="openLegendLinkSearch('to')">
                 <div class="search-results" id="legendLinkToResults"></div>
               </div>
             </div>
@@ -25139,13 +25145,26 @@
         set = nodes.filter(n => neighbours.has(n.id));
       }
       const found = pickConcepts(query, set);
+      const picked = linkSearch[end] ? linkSearch[end].id : null;
       box.innerHTML = found.length
         ? found.map(n => `
-            <div class="concept-row" onclick="pickLinkEnd('${end}', '${n.id}')">
+            <div class="concept-row${n.id === picked ? ' concept-row-picked' : ''}"
+                 onclick="pickLinkEnd('${end}', '${n.id}')">
               ${rowInner(n)}
             </div>`).join('')
         : emptyList(other ? 'Среди связанных ничего не найдено' : 'Ничего не найдено');
       box.classList.add('show');
+    }
+
+    // По фокусу — весь список и прокрутка к выбранному концу, как в панели
+    // поиска пути. Поле здесь тоже хранит текст «Метка (Философ)», и подача
+    // его обратно в отбор давала пустоту (см. showCustomSelectDropdown).
+    function openLegendLinkSearch(end) {
+      handleLegendLinkSearch(end, '');
+      const field = document.getElementById(end === 'from' ? 'legendLinkFrom' : 'legendLinkTo');
+      const box = document.getElementById(end === 'from' ? 'legendLinkFromResults' : 'legendLinkToResults');
+      scrollToPickedRow(box);
+      if (field && typeof field.select === 'function' && field.value) field.select();
     }
 
     function pickLinkEnd(end, id) {
@@ -32012,7 +32031,11 @@
     // Ноль у такой метрики означает «нет связей нужного типа», а не
     // «измерено и получилось ноль», и это должно быть видно.
     // D7: словесное пояснение веса для подсказок
-    const WEIGHT_WORDS = { 1: 'слабая связь', 2: 'обычная связь', 3: 'сильная связь' };
+    // ОДИН СЛОВАРЬ ВЕСА НА ВСЮ СТРАНИЦУ. Легенда называла ступени «побочная —
+    // обычная — несущая», а окно пути и ярлык стрелки — «слабая — обычная —
+    // сильная»: один предмет, два языка. Слова взяты легендины, потому что там
+    // же стоит и подсказка, разъясняющая вес по трём слоям.
+    const WEIGHT_WORDS = { 1: 'побочная связь', 2: 'обычная связь', 3: 'несущая связь' };
 
     // ЕДИНАЯ СТРЕЛКА СВЯЗИ со своим ярлыком. Прежде в пяти местах разметка
     // писалась заново, и у стрелки было ДВЕ подсказки разом: собственный
@@ -35187,6 +35210,31 @@
       });
     }
 
+    // ВЫБРАННОЕ ПОМНИТСЯ ОТДЕЛЬНО ОТ ТЕКСТА ПОЛЯ.
+    //
+    // Поля этих списков показывают выбранное своим текстом — «Метка (Философ)».
+    // Прежде фокус подавал ЭТОТ ТЕКСТ обратно в отбор как запрос, а pickConcepts
+    // бьёт запрос на слова и требует, чтобы каждое нашло себе слово-начало:
+    // слово «(философ)» начинается со скобки, которой в данных нет, и список
+    // выходил ПУСТОЙ. Единственным способом снова его увидеть было стереть имя
+    // руками. Теперь по фокусу список выпадает весь и встаёт на выбранной строке.
+    function pickedConceptOf(type) {
+      if (type === 'source') return selectedSourceNode;
+      if (type === 'target') return selectedTargetNode;
+      if (type === 'cmpA')   return _cmpA;
+      if (type === 'cmpB')   return _cmpB;
+      return null;
+    }
+
+    // Прокрутка ВНУТРИ списка, а не scrollIntoView: тот уводит и саму страницу,
+    // а список живёт в панели, которую двигать нельзя.
+    function scrollToPickedRow(box) {
+      if (!box) return;
+      const row = box.querySelector('.concept-row-picked');
+      if (!row) { box.scrollTop = 0; return; }
+      box.scrollTop = Math.max(0, row.offsetTop - (box.clientHeight - row.offsetHeight) / 2);
+    }
+
     function populateCustomSelect(type, query = '') {
       const dropdown = document.getElementById(`${type}SelectDropdown`);
       if (!dropdown) return;
@@ -35194,9 +35242,11 @@
       // Тот же отбор и та же строка, что везде: прежде здесь список
       // выпадал весь, но без цветного кружка философа.
       const nodes = pickConcepts(query);
+      const picked = pickedConceptOf(type);
       dropdown.innerHTML = nodes.length
         ? nodes.map(n => `
-            <div class="concept-row" onclick="selectCustomOption('${type}', '${n.id}')">
+            <div class="concept-row${n.id === picked ? ' concept-row-picked' : ''}"
+                 onclick="selectCustomOption('${type}', '${n.id}')">
               ${rowInner(n)}
             </div>`).join('')
         : emptyList();
@@ -35208,9 +35258,13 @@
       
       if (!dropdown || !input) return;
       
-      // Показываем все опции при фокусе
-      populateCustomSelect(type, input.value);
+      // По фокусу — ВЕСЬ список, а не отбор по тексту поля.
+      populateCustomSelect(type, '');
       dropdown.classList.add('show');
+      scrollToPickedRow(dropdown);
+      // Имя выбранного выделяется целиком: набор поверх него заменяет текст,
+      // а не дописывается к нему.
+      if (typeof input.select === 'function' && input.value) input.select();
     }
 
     function filterCustomSelect(type, query) {
@@ -37393,15 +37447,36 @@
       };
       const asPct = v => Math.round(v * 100) + ' %';
 
+      // КНОПКА ЗНАЕТ О ВЫРОЖДЕННОСТИ. Прежде она всегда звала вид «по профилю»,
+      // а showSimilarityOverlay у малосвязной концепции отказывался и советовал
+      // «попробуйте вид по структуре» — вид, к которому из окна не вело ничего:
+      // панель с переключателем рисуется только при уже открытом наложении.
+      // Совет указывал на дверь, которой нет.
+      const profileWorks = profileIsMeaningful(conceptId);
+      const mapKind = profileWorks ? 'profile' : 'structure';
+      const mapLabel = profileWorks
+        ? '🗺️ Показать на графе'
+        : '🗺️ Показать на графе (по структуре)';
+      const mapTip = profileWorks
+        ? 'Раскрасить граф по сходству с этой концепцией'
+        : 'Профиль метрик здесь непоказателен (связей ' + nodeDegreeOf(conceptId)
+          + ', порог ' + medianNodeDegree() + '), поэтому граф раскрасится '
+          + 'по структуре связей. Вид переключается в панели наложения';
+      // Если и структура пуста, звать не к чему: обе колонки в этом случае
+      // пусты, а такой блок вовсе не строится (см. проверку выше).
+      const mapButton = (profileWorks || byStructure.length)
+        ? `<button class="similar-map-btn"
+                onclick="showSimilarityOverlay('${conceptId}','${mapKind}')"
+                data-tip="${mapTip}">
+              ${mapLabel}
+            </button>`
+        : '';
+
       return `
         <div class="rubric-section similar-section">
           <div class="similar-title">
             Похожие концепции
-            <button class="similar-map-btn"
-                onclick="showSimilarityOverlay('${conceptId}','profile')"
-                data-tip="Раскрасить граф по сходству с этой концепцией">
-              🗺️ Показать на графе
-            </button>
+            ${mapButton}
           </div>
           <div class="similar-columns">
             <div class="similar-col">
@@ -41443,7 +41518,9 @@
                ? 'начальная концепция обосновывает конечную'
                : 'конечная концепция обосновывает начальную') + '.');
         }
-        if (t.layer) parts.push('Слой: ' + t.layer + '.');
+        // Слой называется тем же словарём, что и в легенде: здесь стояло
+        // `t.layer` как есть, и форма правки печатала «Слой: logical».
+        if (t.layer) parts.push('Слой: ' + (LAYER_NAMES[t.layer] || t.layer) + '.');
         const n = links.filter(l => l.type === sel.value).length;
         if (sel.value) parts.push('Рёбер этого типа в базе: ' + n + '.');
         note.innerHTML = parts.join(' ');

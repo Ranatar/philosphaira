@@ -3,6 +3,7 @@ import { S } from '../core/ns.js';
 import { emit } from '../core/events.js';
 import { conceptById } from '../core/graph-index.js';
 import { emptyList, pickConcepts, rowInner } from '../core/search.js';
+import { scrollToPickedRow } from '../util/html.js';
 
 function initializeCustomSelects() {
       // Инициализация выпадающих списков с полным списком узлов
@@ -21,6 +22,14 @@ function initializeCustomSelects() {
       });
     }
 
+function pickedConceptOf(type) {
+      if (type === 'source') return S.selectedSourceNode;
+      if (type === 'target') return S.selectedTargetNode;
+      if (type === 'cmpA')   return S._cmpA;
+      if (type === 'cmpB')   return S._cmpB;
+      return null;
+    }
+
 function populateCustomSelect(type, query = '') {
       const dropdown = document.getElementById(`${type}SelectDropdown`);
       if (!dropdown) return;
@@ -28,9 +37,11 @@ function populateCustomSelect(type, query = '') {
       // Тот же отбор и та же строка, что везде: прежде здесь список
       // выпадал весь, но без цветного кружка философа.
       const nodes = pickConcepts(query);
+      const picked = pickedConceptOf(type);
       dropdown.innerHTML = nodes.length
         ? nodes.map(n => `
-            <div class="concept-row" data-act-click="select-custom-option" data-a1="${type}" data-a2="${n.id}">
+            <div class="concept-row${n.id === picked ? ' concept-row-picked' : ''}"
+                 data-act-click="select-custom-option" data-a1="${type}" data-a2="${n.id}">
               ${rowInner(n)}
             </div>`).join('')
         : emptyList();
@@ -42,9 +53,13 @@ function showCustomSelectDropdown(type) {
       
       if (!dropdown || !input) return;
       
-      // Показываем все опции при фокусе
-      populateCustomSelect(type, input.value);
+      // По фокусу — ВЕСЬ список, а не отбор по тексту поля.
+      populateCustomSelect(type, '');
       dropdown.classList.add('show');
+      scrollToPickedRow(dropdown);
+      // Имя выбранного выделяется целиком: набор поверх него заменяет текст,
+      // а не дописывается к нему.
+      if (typeof input.select === 'function' && input.value) input.select();
     }
 
 function filterCustomSelect(type, query) {

@@ -21,7 +21,7 @@ const ROOT = process.argv[2] || ДЕРЕВО;
 // роняло прибор (probe6 сорвался на переезде findConnection, delegate.mjs — на
 // переименовании edit-common). Теперь путь знает только эта программа, а она
 // его вычисляет.
-const ИМЕНА = `selectedNodes selectedEdges authLogout cancelGraphSelection changeFilterMode
+const ИМЕНА = `WEIGHT_WORDS selectedNodes selectedEdges authLogout cancelGraphSelection changeFilterMode
 clearLegendSearch clearPhilosopherSearch clearSimilarityOverlay closeAboutModal closeAuthModal
 closeConceptProfileModal closePathDescriptionsModal closePhilosopherProfileModal closeStatsModal
 closeUniversalModal collectData deselectAllPhilosophers deselectAllRubrics exportToPNG exportToSVG

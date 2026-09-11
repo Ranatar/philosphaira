@@ -104,10 +104,10 @@
   "аргументов": 0,
   "откуда": "index.html"
  },
- "handle-legend-link-search-focus": {
-  "код": "handleLegendLinkSearch('from', this.value)",
+ "open-legend-link-search-focus": {
+  "код": "openLegendLinkSearch('from')",
   "attr": "onfocus",
-  "тело": "handleLegendLinkSearch('from', el.value)",
+  "тело": "openLegendLinkSearch('from')",
   "аргументов": 0,
   "откуда": "index.html"
  },
@@ -118,10 +118,10 @@
   "аргументов": 0,
   "откуда": "index.html"
  },
- "handle-legend-link-search-focus-2": {
-  "код": "handleLegendLinkSearch('to', this.value)",
+ "open-legend-link-search-focus-2": {
+  "код": "openLegendLinkSearch('to')",
   "attr": "onfocus",
-  "тело": "handleLegendLinkSearch('to', el.value)",
+  "тело": "openLegendLinkSearch('to')",
   "аргументов": 0,
   "откуда": "index.html"
  },
@@ -833,10 +833,10 @@
   "откуда": "modules/modal/concept-view.js"
  },
  "show-similarity-overlay": {
-  "код": "showSimilarityOverlay('${conceptId}','profile')",
+  "код": "showSimilarityOverlay('${conceptId}','${mapKind}')",
   "attr": "onclick",
-  "тело": "showSimilarityOverlay(el.dataset.a1,'profile')",
-  "аргументов": 1,
+  "тело": "showSimilarityOverlay(el.dataset.a1,el.dataset.a2)",
+  "аргументов": 2,
   "откуда": "modules/modal/concept-view.js"
  },
  "handle-modal-search-input": {

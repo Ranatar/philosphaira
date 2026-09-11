@@ -1,5 +1,12 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 
+function scrollToPickedRow(box) {
+      if (!box) return;
+      const row = box.querySelector('.concept-row-picked');
+      if (!row) { box.scrollTop = 0; return; }
+      box.scrollTop = Math.max(0, row.offsetTop - (box.clientHeight - row.offsetHeight) / 2);
+    }
+
 function provenanceBlock(value, status) {
       const text = String(value == null ? '' : value).trim();
       // Старое соглашение читается на входе: записи, не прошедшие перевод
@@ -30,4 +37,4 @@ function escapeAttr(s) {
         .replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-export { escapeAttr, provenanceBlock };
+export { escapeAttr, provenanceBlock, scrollToPickedRow };

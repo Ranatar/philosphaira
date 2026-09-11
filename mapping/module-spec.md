@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 127 модулей, 20135 строк.
+Составлено из готовой сборки: 127 модулей, 20191 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -55,7 +55,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/core/ns.js` | 33 | 4 | 0 |
 | `modules/core/perms.js` | 21 | 3 | 0 |
 | `modules/core/ready.js` | 15 | 2 | 0 |
-| `modules/core/relation-types.js` | 59 | 4 | 2 |
+| `modules/core/relation-types.js` | 59 | 5 | 2 |
 | `modules/core/search.js` | 68 | 4 | 3 |
 | `modules/core/session.js` | 23 | 4 | 1 |
 | `modules/core/time.js` | 13 | 2 | 0 |
@@ -94,9 +94,9 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/assembly.js` | 56 | 3 | 2 |
 | `modules/modal/auth.js` | 215 | 4 | 8 |
 | `modules/modal/commits.js` | 420 | 19 | 7 |
-| `modules/modal/concept-view.js` | 338 | 0 | 8 |
+| `modules/modal/concept-view.js` | 359 | 0 | 8 |
 | `modules/modal/conflict.js` | 88 | 5 | 7 |
-| `modules/modal/connection-edit.js` | 286 | 5 | 13 |
+| `modules/modal/connection-edit.js` | 288 | 5 | 13 |
 | `modules/modal/connection-view.js` | 416 | 5 | 11 |
 | `modules/modal/context.js` | 11 | 1 | 0 |
 | `modules/modal/core.js` | 154 | 5 | 9 |
@@ -163,13 +163,13 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/ui/notifications.js` | 99 | 8 | 2 |
 | `modules/ui/panels.js` | 40 | 2 | 0 |
 | `modules/ui/search-legend.js` | 141 | 6 | 16 |
-| `modules/ui/search-link.js` | 118 | 4 | 9 |
+| `modules/ui/search-link.js` | 129 | 5 | 10 |
 | `modules/ui/search-philosopher.js` | 98 | 6 | 5 |
 | `modules/util/color.js` | 23 | 1 | 0 |
-| `modules/util/html.js` | 34 | 2 | 0 |
+| `modules/util/html.js` | 41 | 3 | 0 |
 | `modules/util/philosopher-label.js` | 40 | 5 | 3 |
 | `modules/util/ru.js` | 49 | 3 | 0 |
-| `modules/widgets/custom-select.js` | 88 | 4 | 4 |
+| `modules/widgets/custom-select.js` | 103 | 4 | 5 |
 
 ## Состав, вывоз и ввоз по модулям
 
@@ -505,7 +505,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 Строк 59.
 
-**Вывозит:** `CONN_WEIGHT_WORDS`, `WEIGHT_OPTIONS`, `WEIGHT_WORDS`, `relationHint`
+**Вывозит:** `CONN_WEIGHT_WORDS`, `LAYER_NAMES`, `WEIGHT_OPTIONS`, `WEIGHT_WORDS`, `relationHint`
 
 **Ввозит:**
 
@@ -1077,7 +1077,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/concept-view.js`
 
-Строк 338.
+Строк 359.
 
 **Вывозит:** _ничего_
 
@@ -1086,7 +1086,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/ns.js`: `DATA`, `VIEWS`
 - из `../core/graph-index.js`: `conceptById`, `rubricById`
 - из `../metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
-- из `../metrics/similarity-concepts.js`: `nearestConcepts`
+- из `../metrics/similarity-concepts.js`: `nearestConcepts`, `profileIsMeaningful`
 - из `./connection-view.js`: `linkArrow`
 - из `../util/color.js`: `getContrastColor`
 - из `../util/html.js`: `provenanceBlock`
@@ -1114,7 +1114,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/connection-edit.js`
 
-Строк 286.
+Строк 288.
 
 **Вывозит:** `createNewConceptForPhilosopher`, `createNewConnectionForConcept`, `onConnTypeChange`, `selectConnectionEditConcept`, `swapConnectionConcepts`
 
@@ -1123,7 +1123,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/ns.js`: `DATA`, `VIEWS`
 - из `../core/graph-index.js`: `conceptById`
 - из `../core/link-facts.js`: `isReflexiveLink`
-- из `../core/relation-types.js`: `WEIGHT_OPTIONS`, `relationHint`
+- из `../core/relation-types.js`: `LAYER_NAMES`, `WEIGHT_OPTIONS`, `relationHint`
 - из `../core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
 - из `../graph/graph-data.js`: `connectionsBetween`
 - из `./assembly.js`: `modalActions`
@@ -2147,7 +2147,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./notifications.js`: `markAllNotificationsRead`, `toggleNotifyPanel`
 - из `./panels.js`: `togglePanel`
 - из `./search-legend.js`: `clearLegendSearch`, `handleLegendSearch`, `setSearchKind`, `toggleLegendSearch`
-- из `./search-link.js`: `handleLegendLinkSearch`
+- из `./search-link.js`: `handleLegendLinkSearch`, `openLegendLinkSearch`
 - из `./search-philosopher.js`: `clearLegendPhilSearch`, `handleLegendPhilSearch`
 - из `../widgets/custom-select.js`: `filterCustomSelect`, `showCustomSelectDropdown`
 
@@ -2280,9 +2280,9 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/search-link.js`
 
-Строк 118.
+Строк 129.
 
-**Вывозит:** `clearLinkSearch`, `handleLegendLinkSearch`, `highlightLinkOnGraph`, `pickLinkEnd`
+**Вывозит:** `clearLinkSearch`, `handleLegendLinkSearch`, `highlightLinkOnGraph`, `openLegendLinkSearch`, `pickLinkEnd`
 
 **Ввозит:**
 
@@ -2294,9 +2294,10 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../render/loop.js`: `requestDraw`
 - из `../render/selection.js`: `highlightCombined`
 - из `../state/render.js`: `selectedEdges`, `selectedNodes`
+- из `../util/html.js`: `scrollToPickedRow`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `clearLinkSearch`, `handleLegendLinkSearch`, `highlightLinkOnGraph`, `linkSearch`, `pickLinkEnd`, `showFoundLinks`
+**Содержит:** `clearLinkSearch`, `handleLegendLinkSearch`, `highlightLinkOnGraph`, `linkSearch`, `openLegendLinkSearch`, `pickLinkEnd`, `showFoundLinks`
 
 ### `modules/ui/search-philosopher.js`
 
@@ -2326,13 +2327,13 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/util/html.js`
 
-Строк 34.
+Строк 41.
 
-**Вывозит:** `escapeAttr`, `provenanceBlock`
+**Вывозит:** `escapeAttr`, `provenanceBlock`, `scrollToPickedRow`
 
 **Ввозит:** _ничего_
 
-**Содержит:** `escapeAttr`, `provenanceBlock`
+**Содержит:** `escapeAttr`, `provenanceBlock`, `scrollToPickedRow`
 
 ### `modules/util/philosopher-label.js`
 
@@ -2360,7 +2361,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/widgets/custom-select.js`
 
-Строк 88.
+Строк 103.
 
 **Вывозит:** `filterCustomSelect`, `initializeCustomSelects`, `selectCustomOption`, `showCustomSelectDropdown`
 
@@ -2370,5 +2371,6 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/events.js`: `emit`
 - из `../core/graph-index.js`: `conceptById`
 - из `../core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
+- из `../util/html.js`: `scrollToPickedRow`
 
-**Содержит:** `filterCustomSelect`, `initializeCustomSelects`, `populateCustomSelect`, `selectCustomOption`, `showCustomSelectDropdown`
+**Содержит:** `filterCustomSelect`, `initializeCustomSelects`, `pickedConceptOf`, `populateCustomSelect`, `selectCustomOption`, `showCustomSelectDropdown`

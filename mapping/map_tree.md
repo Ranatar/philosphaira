@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-127 модулей, 20135 строк, 801 объявлений,
-564 вывозов, 786 рёбер ввоза. Составлено 2026-09-11 06:18:10.
+127 модулей, 20191 строк, 804 объявлений,
+567 вывозов, 788 рёбер ввоза. Составлено 2026-09-11 11:37:08.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -23,9 +23,9 @@
 | `modules/core/link-facts.js` | 20 |
 | `modules/render/canvas-core.js` | 19 |
 | `modules/state/render.js` | 18 |
+| `modules/util/html.js` | 15 |
 | `modules/metrics/link-indexes.js` | 13 |
 | `modules/render/selection.js` | 13 |
-| `modules/util/html.js` | 13 |
 | `modules/core/api.js` | 12 |
 | `modules/modal/core.js` | 12 |
 | `modules/render/d3-layer.js` | 12 |
@@ -97,7 +97,7 @@
 | `modules/core/ns.js` | 33 | 2 | 4 | 0 | — |
 | `modules/core/perms.js` | 21 | 4 | 3 | 0 | — |
 | `modules/core/ready.js` | 15 | 0 | 2 | 0 | — |
-| `modules/core/relation-types.js` | 59 | 6 | 4 | 2 | DATA:2 |
+| `modules/core/relation-types.js` | 59 | 6 | 5 | 2 | DATA:2 |
 | `modules/core/search.js` | 68 | 4 | 4 | 3 | DATA:3 |
 | `modules/core/session.js` | 23 | 4 | 4 | 1 | — |
 | `modules/core/time.js` | 13 | 2 | 2 | 0 | — |
@@ -136,9 +136,9 @@
 | `modules/modal/assembly.js` | 56 | 3 | 3 | 2 | — |
 | `modules/modal/auth.js` | 215 | 9 | 4 | 8 | S:1 |
 | `modules/modal/commits.js` | 420 | 31 | 19 | 7 | — |
-| `modules/modal/concept-view.js` | 338 | 1 | 0 | 8 | DATA:5, VIEWS:1 |
+| `modules/modal/concept-view.js` | 359 | 1 | 0 | 8 | DATA:5, VIEWS:1 |
 | `modules/modal/conflict.js` | 88 | 5 | 5 | 7 | — |
-| `modules/modal/connection-edit.js` | 286 | 9 | 5 | 13 | DATA:2, VIEWS:1 |
+| `modules/modal/connection-edit.js` | 288 | 9 | 5 | 13 | DATA:2, VIEWS:1 |
 | `modules/modal/connection-view.js` | 416 | 11 | 5 | 11 | DATA:5, VIEWS:1 |
 | `modules/modal/context.js` | 11 | 1 | 1 | 0 | — |
 | `modules/modal/core.js` | 154 | 7 | 5 | 9 | S:1 |
@@ -205,13 +205,13 @@
 | `modules/ui/notifications.js` | 99 | 10 | 8 | 2 | — |
 | `modules/ui/panels.js` | 40 | 2 | 2 | 0 | — |
 | `modules/ui/search-legend.js` | 141 | 7 | 6 | 17 | S:2 |
-| `modules/ui/search-link.js` | 118 | 6 | 4 | 10 | DATA:3, S:2 |
+| `modules/ui/search-link.js` | 129 | 7 | 5 | 11 | DATA:3, S:2 |
 | `modules/ui/search-philosopher.js` | 98 | 7 | 6 | 5 | DATA:3 |
 | `modules/util/color.js` | 23 | 1 | 1 | 0 | — |
-| `modules/util/html.js` | 34 | 2 | 2 | 0 | — |
+| `modules/util/html.js` | 41 | 3 | 3 | 0 | — |
 | `modules/util/philosopher-label.js` | 40 | 7 | 5 | 3 | DATA:1 |
 | `modules/util/ru.js` | 49 | 3 | 3 | 0 | — |
-| `modules/widgets/custom-select.js` | 88 | 5 | 4 | 4 | S:4 |
+| `modules/widgets/custom-select.js` | 103 | 6 | 4 | 5 | S:4 |
 
 ## Состав модулей
 
@@ -305,7 +305,7 @@
 |---|---|---|---|
 | `relationHint` | function | 11 | да |
 | `RELATION_HINTS` | const | 1 | — |
-| `LAYER_NAMES` | const | 1 | — |
+| `LAYER_NAMES` | const | 1 | да |
 | `WEIGHT_WORDS` | const | 1 | да |
 | `WEIGHT_OPTIONS` | const | 1 | да |
 | `CONN_WEIGHT_WORDS` | const | 1 | да |
@@ -779,11 +779,11 @@
 | `COMMIT_STATES` | const | 1 | — |
 | `LAYOUT_KINDS` | const | 1 | — |
 
-### `modules/modal/concept-view.js` — 338 строк, объявлений 1
+### `modules/modal/concept-view.js` — 359 строк, объявлений 1
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `similarConceptsBlock` | function | 58 | — |
+| `similarConceptsBlock` | function | 79 | — |
 
 ### `modules/modal/conflict.js` — 88 строк, объявлений 5
 
@@ -795,11 +795,11 @@
 | `closeConflictModal` | function | 4 | да |
 | `lastConflict` | let | 1 | да |
 
-### `modules/modal/connection-edit.js` — 286 строк, объявлений 9
+### `modules/modal/connection-edit.js` — 288 строк, объявлений 9
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `onConnTypeChange` | function | 37 | да |
+| `onConnTypeChange` | function | 39 | да |
 | `handleConnectionEditSearch` | function | 29 | — |
 | `updateConnEditPairNote` | function | 25 | — |
 | `swapConnectionConcepts` | function | 20 | да |
@@ -1540,15 +1540,16 @@
 | `handleLegendSearch` | function | 12 | да |
 | `searchKind` | let | 1 | — |
 
-### `modules/ui/search-link.js` — 118 строк, объявлений 6
+### `modules/ui/search-link.js` — 129 строк, объявлений 7
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `showFoundLinks` | function | 28 | — |
-| `handleLegendLinkSearch` | function | 24 | да |
+| `handleLegendLinkSearch` | function | 26 | да |
 | `highlightLinkOnGraph` | function | 23 | да |
 | `clearLinkSearch` | function | 12 | да |
 | `pickLinkEnd` | function | 10 | да |
+| `openLegendLinkSearch` | function | 7 | да |
 | `linkSearch` | const | 1 | — |
 
 ### `modules/ui/search-philosopher.js` — 98 строк, объявлений 7
@@ -1569,11 +1570,12 @@
 |---|---|---|---|
 | `getContrastColor` | function | 18 | да |
 
-### `modules/util/html.js` — 34 строк, объявлений 2
+### `modules/util/html.js` — 41 строк, объявлений 3
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `provenanceBlock` | function | 24 | да |
+| `scrollToPickedRow` | function | 6 | да |
 | `escapeAttr` | function | 4 | да |
 
 ### `modules/util/philosopher-label.js` — 40 строк, объявлений 7
@@ -1596,15 +1598,16 @@
 | `conjugateVerb` | function | 9 | да |
 | `pluralRu` | function | 7 | да |
 
-### `modules/widgets/custom-select.js` — 88 строк, объявлений 5
+### `modules/widgets/custom-select.js` — 103 строк, объявлений 6
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `selectCustomOption` | function | 24 | да |
 | `initializeCustomSelects` | function | 16 | да |
-| `populateCustomSelect` | function | 14 | — |
+| `populateCustomSelect` | function | 16 | — |
+| `showCustomSelectDropdown` | function | 14 | да |
 | `filterCustomSelect` | function | 11 | да |
-| `showCustomSelectDropdown` | function | 10 | да |
+| `pickedConceptOf` | function | 7 | — |
 
 ## Ввоз по модулям
 
@@ -2184,12 +2187,12 @@
 - из `modules/core/graph-index.js`: _ради побочного действия_
 - из `modules/core/graph-index.js`: `conceptById`, `rubricById`
 - из `modules/metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
-- из `modules/metrics/similarity-concepts.js`: `nearestConcepts`
+- из `modules/metrics/similarity-concepts.js`: `nearestConcepts`, `profileIsMeaningful`
 - из `modules/modal/connection-view.js`: `linkArrow`
 - из `modules/util/color.js`: `getContrastColor`
 - из `modules/util/html.js`: `provenanceBlock`
 
-Чаще всего поминает: `DATA`×13, `nearestConcepts`×2, `conceptById`×2, `linkArrow`×2, `nodeDegreeOf`×1
+Чаще всего поминает: `DATA`×13, `nearestConcepts`×2, `conceptById`×2, `nodeDegreeOf`×2, `medianNodeDegree`×2
 
 ### `modules/modal/conflict.js`
 
@@ -2209,7 +2212,7 @@
 - из `modules/core/graph-index.js`: _ради побочного действия_
 - из `modules/core/graph-index.js`: `conceptById`
 - из `modules/core/link-facts.js`: `isReflexiveLink`
-- из `modules/core/relation-types.js`: `WEIGHT_OPTIONS`, `relationHint`
+- из `modules/core/relation-types.js`: `LAYER_NAMES`, `WEIGHT_OPTIONS`, `relationHint`
 - из `modules/core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
 - из `modules/graph/graph-data.js`: `connectionsBetween`
 - из `modules/modal/assembly.js`: `modalActions`
@@ -2878,11 +2881,11 @@
 - из `modules/ui/notifications.js`: `markAllNotificationsRead`, `toggleNotifyPanel`
 - из `modules/ui/panels.js`: `togglePanel`
 - из `modules/ui/search-legend.js`: `clearLegendSearch`, `handleLegendSearch`, `setSearchKind`, `toggleLegendSearch`
-- из `modules/ui/search-link.js`: `handleLegendLinkSearch`
+- из `modules/ui/search-link.js`: `handleLegendLinkSearch`, `openLegendLinkSearch`
 - из `modules/ui/search-philosopher.js`: `clearLegendPhilSearch`, `handleLegendPhilSearch`
 - из `modules/widgets/custom-select.js`: `filterCustomSelect`, `showCustomSelectDropdown`
 
-Чаще всего поминает: `switchStatsView`×40, `handleLegendLinkSearch`×4, `toggleSection`×4, `setSearchKind`×3, `switchCommitTab`×3
+Чаще всего поминает: `switchStatsView`×40, `toggleSection`×4, `setSearchKind`×3, `switchCommitTab`×3, `handleLegendSearch`×2
 
 ### `modules/ui/delegation.js`
 
@@ -2966,6 +2969,7 @@
 - из `modules/render/loop.js`: `requestDraw`
 - из `modules/render/selection.js`: `highlightCombined`
 - из `modules/state/render.js`: `selectedEdges`, `selectedNodes`
+- из `modules/util/html.js`: `scrollToPickedRow`
 
 Чаще всего поминает: `DATA`×6, `emptyList`×2, `selectedEdges`×2, `S`×2, `pickConcepts`×1
 
@@ -2993,5 +2997,6 @@
 - из `modules/core/events.js`: `emit`
 - из `modules/core/graph-index.js`: `conceptById`
 - из `modules/core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
+- из `modules/util/html.js`: `scrollToPickedRow`
 
-Чаще всего поминает: `S`×4, `pickConcepts`×1, `rowInner`×1, `emptyList`×1, `conceptById`×1
+Чаще всего поминает: `S`×8, `pickConcepts`×1, `rowInner`×1, `emptyList`×1, `scrollToPickedRow`×1
