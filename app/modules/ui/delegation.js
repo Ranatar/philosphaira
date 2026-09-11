@@ -1,4 +1,4 @@
-// Сгенерировано tools/delegate.mjs — правки вносить туда.
+// Сгенерировано tools/build/delegate.mjs — правки вносить туда.
 
 import { runAction } from './actions.js';
 

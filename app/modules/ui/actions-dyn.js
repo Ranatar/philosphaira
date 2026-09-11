@@ -1,4 +1,4 @@
-// Сгенерировано tools/delegate.mjs — правки вносить туда.
+// Сгенерировано tools/build/delegate.mjs — правки вносить туда.
 import { registerActions } from './actions.js';
 import { DATA, S } from '../core/ns.js';
 import { findConnection } from '../graph/graph-data.js';

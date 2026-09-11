@@ -11,9 +11,10 @@
 import { assertCan } from '../access/access.js';
 import { Unauthorized } from './errors.js';
 
-export const requirePermission = permission => (req, _res, next) => {
-  try { assertCan(req.user, permission); next(); } catch (e) { next(e); }
-};
+// requirePermission (застава-обёртка над assertCan) снята 10 сентября 2026:
+// её не звал ни один маршрут — они проверяют право прямо в теле, где рядом
+// видно, ЧТО именно защищается. Вывезенная и никем не взятая застава — это
+// обещание хода, которого нет.
 
 export const requireAuth = (req, _res, next) =>
   req.user ? next() : next(new Unauthorized());

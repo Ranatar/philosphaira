@@ -40,8 +40,11 @@ cp -r "$ROOT/server/node_modules" server/ 2>/dev/null
 test -d node_modules && test -d server/node_modules; verdict "зависимости на месте" $?
 
 step "сборка дерева из исходника"
-node tools/remap.mjs собрать > /tmp/развёрт_сборка.log 2>&1; verdict "сборка" $?
-node tools/check_modules.mjs > /dev/null 2>&1; verdict "строение" $?
+# ПУТИ ПРОГРАММ БЕРУТСЯ ИЗ КЛОНА, А НЕ ОТСЮДА: развёртывание проверяет то,
+# что приехало в репозитории, включая раскладку самой папки tools/.
+clone_tool() { node -e "import('$DEST/tools/paths.mjs').then(p=>console.log(p.программа('$1')))"; }
+node "$(clone_tool remap.mjs)" собрать > /tmp/развёрт_сборка.log 2>&1; verdict "сборка" $?
+node "$(clone_tool check_modules.mjs)" > /dev/null 2>&1; verdict "строение" $?
 
 step "база с нуля"
 psql "${DBURL%%\?*}" -c '' > /dev/null 2>&1 || true

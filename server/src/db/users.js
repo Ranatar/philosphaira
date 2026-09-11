@@ -131,8 +131,6 @@ export const auditEntries = async (db, { actorId = null, action = null,
   return rows;
 };
 
-export { toSelf as userForSelf };
-
 /**
  * Сериализовать заведение первого администратора МЕЖДУ ПРОЦЕССАМИ и
  * вернуть число живых пользователей.

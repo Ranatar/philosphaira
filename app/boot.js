@@ -111,6 +111,8 @@ export async function boot() {
   
   installSimulationTick();
   
+  S.simulation.on("end.settled", () => { S.layoutSettled = true; });
+  
   installSimulationStatsEnd();
   
   initGraphEventHandlers();

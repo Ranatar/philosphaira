@@ -48,4 +48,5 @@ export function decrypt(буфер) {
   return Buffer.concat([decipher.update(payloadBuf), decipher.final()]).toString('utf8');
 }
 
-export const newKey = () => crypto.randomBytes(32).toString('base64');
+// Ключ заводится строкой из README (node -e … randomBytes), а не отсюда:
+// вывоз newKey не звал никто, включая пробы. Снят 10 сентября 2026.

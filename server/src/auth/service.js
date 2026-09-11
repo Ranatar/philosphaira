@@ -24,7 +24,8 @@ import { notify } from '../notify/notify.js';
 import { N } from '../notify/catalog.js';
 import { hashPassword, verifyPassword, assertPasswordPolicy, DUMMY_HASH }
   from './password.js';
-import { Forbidden, Conflict, Unauthorized, NotFound } from '../http/errors.js';
+import { Forbidden, Conflict, Unauthorized, NotFound, TooMany } from '../http/errors.js';
+import { noteFailure, resetCounter, isBruteForce, delayMs } from './throttle.js';
 
 const registrationReply = () => Object.assign(
   new Error('Если такой адрес свободен, письмо для подтверждения отправлено'),
@@ -78,12 +79,32 @@ export async function register(pool, { username, email, password,
 }
 
 export async function login(pool, { email, password, ip = null, ua = null }) {
+  // ПЕРЕБОР ПО УЧЁТНОЙ ЗАПИСИ. Счётчик в throttle.js был написан, проверен
+  // своей пробой — и НЕ ЗВАЛСЯ ОТСЮДА НИ РАЗУ: шапка throttle.js обещала
+  // «второй счёт по адресу учётной записи, с растущей задержкой», а по IP
+  // считалась только регистрация. То есть перебор пароля по одной записи не
+  // был ограничен ничем. Найдено аудитом 10 сентября 2026.
+  //
+  // Ключ — адрес, а не IP: перебор с множества адресов бьёт по одной записи,
+  // а счёт по IP заодно наказывает всех за одним NAT.
+  const failKey = 'login:' + String(email ?? '').trim().toLowerCase();
+  if (isBruteForce(failKey)) {
+    throw new TooMany('Слишком много неудачных попыток; попробуйте позже');
+  }
+  // Задержка растёт с пятой неудачи и ставится ДО сверки: она стоит на пути
+  // у следующей попытки, а не наказывает уже случившуюся.
+  const waitMs = delayMs(failKey);
+  if (waitMs) await new Promise(r => setTimeout(r, waitMs));
+
   const found = await findByEmailWithSecret(pool, email);
 
   // Сверка идёт ВСЕГДА — с холостым хешем, если записи нет: иначе ответ на
   // неизвестный адрес приходит заметно быстрее, и это само по себе ответ.
   const matched = await verifyPassword(found?.passwordHash ?? DUMMY_HASH, password);
-  if (!found || !matched) throw new Unauthorized('Неверный адрес или пароль');
+  if (!found || !matched) {
+    noteFailure(failKey);
+    throw new Unauthorized('Неверный адрес или пароль');
+  }
 
   const { user } = found;
 
@@ -92,6 +113,9 @@ export async function login(pool, { email, password, ip = null, ua = null }) {
     throw new Forbidden('Учётная запись заблокирована: ' + (user.banReason ?? ''));
   }
   if (!user.isActive) throw new Forbidden('Учётная запись отключена');
+
+  // Удачный вход обнуляет счёт: считаются неудачи подряд, а не за всю жизнь.
+  resetCounter(failKey);
 
   return withTransaction(pool, async client => {
     // У кого второй шаг заведён, тот получает ЧАСТИЧНУЮ сессию: она не даёт

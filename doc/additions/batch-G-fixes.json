@@ -1,0 +1,139 @@
+{
+ "meta": {
+  "batch": "G",
+  "title": "Заход G: поправки характеристик существующих связей",
+  "spec": "doc/db-additions-spec.md",
+  "target": "source/philosophy_graph_v3.html",
+  "created": "2026-09-11",
+  "layer": "relations-fix",
+  "count": 20
+ },
+ "fixes": [
+  {
+   "source": "adiaphora",
+   "target": "pleasure_epicurus",
+   "type": "oppose",
+   "bidirectional": true
+  },
+  {
+   "source": "passion_judgment",
+   "target": "ataraxia",
+   "type": "oppose",
+   "bidirectional": true
+  },
+  {
+   "source": "mechanism_hobbes",
+   "target": "dualism",
+   "type": "critique",
+   "bidirectional": true
+  },
+  {
+   "source": "individuation_jung",
+   "target": "pleasure_principle",
+   "type": "critique",
+   "bidirectional": true
+  },
+  {
+   "source": "existential_communication",
+   "target": "sein_zum_tode",
+   "type": "oppose",
+   "bidirectional": true
+  },
+  {
+   "source": "revolt",
+   "target": "engagement",
+   "type": "critique",
+   "bidirectional": true
+  },
+  {
+   "source": "falsifiability",
+   "target": "normal_science",
+   "type": "critique",
+   "bidirectional": true
+  },
+  {
+   "source": "scientific_revolution",
+   "target": "progressive_degenerating",
+   "type": "critique",
+   "bidirectional": true
+  },
+  {
+   "source": "communicative_action",
+   "target": "tradition_gadamer",
+   "type": "critique",
+   "bidirectional": true
+  },
+  {
+   "source": "differend",
+   "target": "communicative_action",
+   "type": "critique",
+   "bidirectional": true
+  },
+  {
+   "source": "third_dogma",
+   "target": "two_dogmas",
+   "type": "critique",
+   "bidirectional": true
+  },
+  {
+   "source": "universal_grammar",
+   "target": "indeterminacy_translation",
+   "type": "critique",
+   "bidirectional": true
+  },
+  {
+   "source": "person_vs_individual",
+   "target": "athens_jerusalem",
+   "type": "dialogue",
+   "bidirectional": true
+  },
+  {
+   "source": "fusion_horizons",
+   "target": "conflict_interpretations",
+   "type": "dialogue",
+   "bidirectional": true
+  },
+  {
+   "source": "universal_grammar",
+   "target": "episteme",
+   "type": "dialogue",
+   "bidirectional": true
+  },
+  {
+   "source": "absolute_mythology",
+   "target": "verification_principle",
+   "type": "oppose",
+   "newType": "typological_opposition",
+   "weight": 2,
+   "description": "Прямого столкновения не было: один писал по-русски и вне всякой связи с венским кружком, другой о нём не знал. Противоположность сложилась сама — здесь всякая система признаётся стоящей на невыводимом сказании, а там осмысленным объявлено лишь проверяемое, и оба приговора выносятся одному и тому же остатку."
+  },
+  {
+   "source": "archetype",
+   "target": "hermeneutics_suspicion",
+   "type": "critique",
+   "swap": true,
+   "description": "Учение о врождённой готовности производить образ берётся как толкование, отказавшееся от подозрения: образ читается прямо, а не против себя. Отвергнуто именно это — где смысл скрыт не темнотой, а интересом, прямое чтение возвращает толкователя к тому, что он и так знал."
+  },
+  {
+   "source": "verification_principle",
+   "target": "performative",
+   "type": "critique",
+   "swap": true,
+   "description": "Способ проверки, объявленный самим смыслом предложения, судит речь по одной мерке. Здесь показано, что мерка частная: обещание и наименование не описывают положения дел и потому не истинны и не ложны, а удачны или нет, — и осмысленным оказывается то, что проверке не подлежит."
+  },
+  {
+   "source": "identity_thinking",
+   "target": "vocabularies",
+   "type": "critique",
+   "swap": true,
+   "description": "Мышление, выдающее за предмет отнятое у него, разбирается здесь как ещё один словарь среди прочих, не имеющий преимущества перед соседним. Отвергнуто притязание такой разборки быть глубже прочих: удержать можно иронию к собственному словарю, но не суд над тождеством вообще."
+  },
+  {
+   "source": "one_dimensional",
+   "target": "communicative_action",
+   "type": "critique",
+   "swap": true,
+   "description": "Утрата измерения, в котором можно возразить, описана как судьба общества целиком. Отвергнута именно эта сплошность: возражение живёт там, где действие направлено на согласие, и потому беда не в одномерности, а в том, что обмен и управление переходят границу своей области."
+  }
+ ]
+}

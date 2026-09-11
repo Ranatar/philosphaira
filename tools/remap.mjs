@@ -22,13 +22,14 @@
 // Любая правка сперва показывается и требует подтверждения ключом --да,
 // иначе только сообщает, что сделала бы.
 import fs from 'node:fs';
-import { ДЕРЕВО, ИСХОДНИК, КАРТА_ИМЁН, РАСКЛАДКА } from './paths.mjs';
+import { ДЕРЕВО, ИСХОДНИК, КАРТА_ИМЁН, КОРЕНЬ, РАСКЛАДКА, программа } from './paths.mjs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 
 // корень — от самой программы: набор должен работать из любой папки
-const КОРЕНЬ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// КОРЕНЬ спрашивается у paths.mjs, а не считается своим счётом: после
+// разнесения программ по подпапкам (10 сентября 2026) «папка выше моей» —
+// это уже tools/, а не корень проекта. Место, знающее раскладку, одно.
 // Пути ищутся сперва в корне набора, потом в build/ — так одинаково
 // работает и разложенный архив, и рабочая папка, где сборка лежит в build/.
 const найти = (...варианты) => {
@@ -165,18 +166,17 @@ if (команда === 'где') {
     ['delegate.mjs', [ДЕРЕВО, 'static']],
     ['delegate.mjs', [ДЕРЕВО, 'dyn']],
     ['rig.mjs', [ДЕРЕВО]],
-    ['unbridge.mjs', [ДЕРЕВО]],
     ['prune_imports.mjs', [ДЕРЕВО]],
     ['prune_exports.mjs', [ДЕРЕВО]],
     ['split_css.mjs', [ДЕРЕВО]],
   ];
   fs.rmSync(ДЕРЕВО, { recursive: true, force: true });
-  for (const [программа, доводы] of шаги) {
-    const out = execFileSync('node', [path.join(КОРЕНЬ, 'tools', программа), ...доводы],
+  for (const [шаг, доводы] of шаги) {
+    const out = execFileSync('node', [программа(шаг), ...доводы],
       { encoding: 'utf8' });
     console.log(out.trim().split('\n').pop());
   }
-  console.log(execFileSync('node', [path.join(КОРЕНЬ, 'tools/check_modules.mjs')],
+  console.log(execFileSync('node', [программа('check_modules.mjs')],
     { encoding: 'utf8' }).trim().split('\n').pop());
   console.log('\nдальше — приёмка: приборы sweep_all, compare, graph_probe, probe4…probe8');
 

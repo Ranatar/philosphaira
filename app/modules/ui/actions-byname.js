@@ -1,4 +1,4 @@
-// Сгенерировано tools/delegate.mjs — правки вносить туда.
+// Сгенерировано tools/build/delegate.mjs — правки вносить туда.
 import { registerActions } from './actions.js';
 import { deleteConcept, deleteConnection, deletePhilosopher, saveConceptData, saveConnectionData, savePhilosopherData } from '../modal/persist.js';
 

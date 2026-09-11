@@ -124,4 +124,5 @@ export function renderDigest(events) {
   };
 }
 
-export const NOTIFY_CATEGORIES = CATEGORIES;
+// Псевдоним NOTIFY_CATEGORIES снят 10 сентября 2026: никто не ввозил ни его,
+// ни через него CATEGORIES — два имени одной вещи ради одного из них.
