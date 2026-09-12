@@ -366,10 +366,10 @@ function generateTensionContent() {
                     <span class="tension-detail-label">Признанные ограничения:</span>
                     <span class="tension-detail-value">${details.immanent.acknowledgedLimits}</span>
                   </div>` : ''}
-                ${details.immanent.conditionalDependencies > 0 ? 
+                ${details.immanent.correlativePairs > 0 ? 
                   `<div class="tension-detail-item">
-                    <span class="tension-detail-label">Условные зависимости:</span>
-                    <span class="tension-detail-value">${details.immanent.conditionalDependencies}</span>
+                    <span class="tension-detail-label">Соотносительные пары:</span>
+                    <span class="tension-detail-value">${details.immanent.correlativePairs}</span>
                   </div>` : ''}
                 ${details.immanent.mediations > 0 ? 
                   `<div class="tension-detail-item">

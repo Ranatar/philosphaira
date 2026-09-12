@@ -26,7 +26,15 @@ async function calculateBetweennessAsync(progressCallback) {
       for (let sourceIdx = 0; sourceIdx < DATA.nodes.length; sourceIdx++) {
         const source = DATA.nodes[sourceIdx];
         
-        const S = []; // Стек узлов в порядке невозрастающего расстояния
+        // ИМЯ СТЕКА. Прежде он звался S — и затенял пространство имён S,
+        // в котором живут useWeightedPaths и respectDirection. Строки
+        // `if (S.useWeightedPaths)` и `if (S.respectDirection)` спрашивали
+        // не приложение, а этот массив, получали undefined и всегда шли
+        // в ненаправленную невзвешенную ветку. Замерено: посредничество
+        // не менялось от галочки весов ВООБЩЕ, а от галочки направленности
+        // менялось ровно вдвое — то есть обход был один и тот же, а разный
+        // был только делитель normFactor, стоящий ниже цикла, вне тени.
+        const stack = []; // Стек узлов в порядке невозрастающего расстояния
         const P = {}; // Предшественники на кратчайших путях
         const sigma = {}; // Количество кратчайших путей
         const d = {}; // Расстояния
@@ -54,7 +62,7 @@ async function calculateBetweennessAsync(progressCallback) {
             
             if (visited.has(v)) continue;
             visited.add(v);
-            S.push(v);
+            stack.push(v);
             
             // Получаем соседей из предпостроенного графа
             let neighbors;
@@ -67,15 +75,21 @@ async function calculateBetweennessAsync(progressCallback) {
             neighbors.forEach(({ node: w, distance }) => {
               const weight = distance;
               const newDist = d[v] + weight;
-              
-              // Путь к w найден впервые или улучшен?
-              if (d[w] === Infinity) {
+
+              // РЕЛАКСАЦИЯ, А НЕ ПЕРВОЕ ОБНАРУЖЕНИЕ. Прежде расстояние
+              // ставилось один раз, при первой встрече (`if (d[w] === Infinity)`),
+              // и найденный позже более короткий путь молча отбрасывался —
+              // вместе с ним портились sigma и список предшественников.
+              // Ветка была недостижима из-за затенённого имени S, поэтому
+              // изъян и не вскрывался; открыть её, не починив, значило бы
+              // заменить заведомо чужие числа на неверные.
+              if (newDist < d[w] - 1e-10) {
                 d[w] = newDist;
+                sigma[w] = sigma[v];
+                P[w] = [v];
                 pq.push([newDist, w]);
-              }
-              
-              // Кратчайший путь к w через v?
-              if (Math.abs(d[w] - newDist) < 1e-10) {  // Учитываем погрешность float
+              } else if (Math.abs(d[w] - newDist) < 1e-10) {
+                // Ещё один кратчайший путь той же длины
                 sigma[w] += sigma[v];
                 P[w].push(v);
               }
@@ -87,7 +101,7 @@ async function calculateBetweennessAsync(progressCallback) {
           
           while (Q.length > 0) {
             const v = Q.shift();
-            S.push(v);
+            stack.push(v);
             
             // Получаем соседей из предпостроенного графа
             let neighbors;
@@ -116,8 +130,8 @@ async function calculateBetweennessAsync(progressCallback) {
         }
         
         // Накопление (обратный проход) - одинаково для обоих случаев
-        while (S.length > 0) {
-          const w = S.pop();
+        while (stack.length > 0) {
+          const w = stack.pop();
           P[w].forEach(v => {
             delta[v] += (sigma[v] / sigma[w]) * (1 + delta[w]);
           });
@@ -200,11 +214,24 @@ MET.calculatePageRank = function calculatePageRank(iterations = 20, dampingFacto
         let normalizationStrategy;
         
         if (S.respectDirection) {
-          // СТРАТЕГИЯ 1: НАПРАВЛЕННЫЙ ГРАФ (стандартный PageRank) - Нормализация по количеству исходящих ребер
+          // СТРАТЕГИЯ 1: НАПРАВЛЕННЫЙ ГРАФ. Нормировка по СУММЕ ВЕСОВ исходящих,
+          // а не по их числу. Прежде знаменателем было число рёбер, а вес
+          // входил в числитель делением на 3 — получалась не нормировка,
+          // а утечка: связь веса 1 передавала треть массы, и сумма всех
+          // значений оседала на 0,43 вместо единицы. Убрать деление на 3,
+          // оставив знаменателем число рёбер, было бы хуже утечки: средний
+          // вес связи в базе 2,32, узел раздавал бы вдвое больше, чем получил,
+          // и за двадцать итераций значения уходили в 10^6 (замерено).
+          // Сумма весов в знаменателе делает матрицу стохастической: сколько
+          // узел получил, столько и раздал, как бы ни были распределены веса.
           normalizationStrategy = {};
           DATA.nodes.forEach(node => {
+            let weightSum = 0;
             const outNeighbors = graph.outNeighbors[node.id] || [];
-            normalizationStrategy[node.id] = outNeighbors.length > 0 ? outNeighbors.length : 1;
+            outNeighbors.forEach(({ weight }) => {
+              weightSum += S.useWeightedPaths ? weight : 1;
+            });
+            normalizationStrategy[node.id] = weightSum > 0 ? weightSum : 1;
           });
           
         } else {
@@ -223,31 +250,36 @@ MET.calculatePageRank = function calculatePageRank(iterations = 20, dampingFacto
           });
         }
         
+        // ВИСЯЧИЕ УЗЛЫ. Узел без исходящих связей никому не передаёт свою
+        // массу, и она просто пропадала: семь таких узлов в базе. Канонический
+        // PageRank раздаёт их массу поровну всем — это и делает столбец
+        // матрицы стохастическим там, где ссылок нет вовсе.
+        const danglingNodes = S.respectDirection
+          ? DATA.nodes.filter(n => (graph.outNeighbors[n.id] || []).length === 0)
+          : DATA.nodes.filter(n => (graph.allNeighbors[n.id] || []).length === 0);
+
         // ОБЩИЙ ИТЕРАТИВНЫЙ АЛГОРИТМ         
         for (let iter = 0; iter < iterations; iter++) {
           const newPageRank = {};
-          
+
+          const danglingMass = danglingNodes
+            .reduce((s, n) => s + pageRank[n.id], 0) / DATA.nodes.length;
+
           DATA.nodes.forEach(node => {
-            let sum = 0;
+            let sum = danglingMass;
             
             // Получаем входящих соседей в зависимости от режима
             const incomingNeighbors = S.respectDirection 
               ? (graph.inNeighbors[node.id] || [])
               : (graph.allNeighbors[node.id] || []);
             
-            // Суммируем вклады от всех входящих соседей
+            // Суммируем вклады от всех входящих соседей. Ветка у обоих
+            // режимов теперь одна: вес ребра стоит в числителе как есть,
+            // а сумма весов соседа — в знаменателе.
             incomingNeighbors.forEach(({ node: neighbor, weight }) => {
               const normalizationFactor = normalizationStrategy[neighbor];
-              
-              if (S.respectDirection) {
-                // Для направленного: вес ребра учитывается через деление на 3 (нормализация к диапазону [0.33, 0.67, 1.0] для весов 1-3)
-                const edgeWeight = S.useWeightedPaths ? weight / 3.0 : 1.0;
-                sum += (pageRank[neighbor] * edgeWeight) / normalizationFactor;
-              } else {
-                // Для ненаправленного: вес ребра используется в нормализации (создает асимметрию даже при симметричной структуре)
-                const edgeWeight = S.useWeightedPaths ? weight : 1;
-                sum += (pageRank[neighbor] * edgeWeight) / normalizationFactor;
-              }
+              const edgeWeight = S.useWeightedPaths ? weight : 1;
+              sum += (pageRank[neighbor] * edgeWeight) / normalizationFactor;
             });
             
             // Формула PageRank: (1-d)/N + d × sum
@@ -266,8 +298,12 @@ MET.calculatePageRank = function calculatePageRank(iterations = 20, dampingFacto
           }
         }
         
-        // ФИНАЛЬНАЯ НОРМАЛИЗАЦИЯ - Для ненаправленного графа нормализуем сумму к 1 для лучшей читаемости
-        if (!S.respectDirection) {
+        // ФИНАЛЬНАЯ НОРМАЛИЗАЦИЯ — теперь в ОБОИХ режимах. После раздачи
+        // массы висячих узлов сумма и так держится около единицы, и деление
+        // снимает лишь накопленную погрешность; прежде же направленный режим
+        // оставался ненормированным, и его числа нельзя было сравнивать
+        // с ненаправленными.
+        {
           const totalPR = Object.values(pageRank).reduce((a, b) => a + b, 0);
           if (totalPR > 0) {
             Object.keys(pageRank).forEach(key => {
@@ -477,6 +513,8 @@ let localCohesionCache = null;
 
 let richClubCache = null;
 
+const WEIGHTED_CLUSTERING_MIN_DEGREE = 5;
+
 MET.calculateWeightedClustering = function calculateWeightedClustering() {
       if (weightedClusteringCache) return weightedClusteringCache;
       
@@ -533,9 +571,41 @@ MET.calculateWeightedClustering = function calculateWeightedClustering() {
           }
         }
         
-        // Нормализация
+        // ОТСЕЧЕНИЕ ПО СТЕПЕНИ. Коэффициент кластеризации вырожден при малом
+        // числе соседей: при k = 2 знаменатель равен ЕДИНИЦЕ, и один
+        // треугольник даёт сразу максимум. Прежде верхушку занимали
+        // исключительно такие узлы (среднее число соседей в первой
+        // тридцатке — 4,2 против 7,2 по графу), и вид отвечал не на вопрос
+        // «где плотная окрестность», а на вопрос «у кого окрестность мала
+        // настолько, что замкнулась целиком».
+        // Порог назван числом, а не долей: он говорит о СВОЙСТВЕ ФОРМУЛЫ
+        // (сколько нужно соседей, чтобы знаменатель перестал быть вырожден),
+        // а не о составе базы. При k = 5 возможных треугольников десять —
+        // этого довольно, чтобы доля что-то значила.
+        // Узел ниже порога не выбрасывается из списка: он получает нулевое
+        // значение и пометку, чтобы карточка могла объяснить, почему.
+        if (k < WEIGHTED_CLUSTERING_MIN_DEGREE) {
+          clustering[node.id] = {
+            node: node,
+            value: 0,
+            triangles: 0,
+            neighbors: k,
+            maxTriangles: (k * (k - 1)) / 2,
+            belowDegreeThreshold: true,
+            degreeThreshold: WEIGHTED_CLUSTERING_MIN_DEGREE
+          };
+          return;
+        }
+
+        // Нормализация. Делитель — не только ЧИСЛО возможных треугольников,
+        // но и наибольший вес связи: в числителе стоит средний вес
+        // треугольника, а он доходит до 3. Прежде коэффициент выходил
+        // за единицу (максимум по базе был ровно 3,0, выше единицы —
+        // 35 узлов), то есть «доля» доходила до 300 %.
+        // Веса в базе принимают ровно три значения (1, 2, 3), поэтому
+        // делитель точен, а не приблизителен.
         const maxPossibleTriangles = (k * (k - 1)) / 2;
-        const normalizedValue = weightedTriangles / maxPossibleTriangles;
+        const normalizedValue = weightedTriangles / maxPossibleTriangles / 3.0;
         
         clustering[node.id] = {
           value: normalizedValue,
@@ -601,6 +671,12 @@ MET.calculateRichClubCoefficient = function calculateRichClubCoefficient() {
         const neighborCount = (graph.adjacency[node.id] || []).length;
         degrees.set(node.id, neighborCount);
       });
+
+      // Порог клуба: верхний дециль по степени
+      const sortedDegrees = [...degrees.values()].sort((a, b) => b - a);
+      const clubIndex = Math.max(0, Math.floor(sortedDegrees.length * 0.1) - 1);
+      const clubThreshold = sortedDegrees.length ? sortedDegrees[clubIndex] : 0;
+      const clubSize = sortedDegrees.filter(d => d >= clubThreshold).length;
       
       const richClub = DATA.nodes.map(node => {
         const neighbors = graph.adjacency[node.id] || [];
@@ -611,39 +687,42 @@ MET.calculateRichClubCoefficient = function calculateRichClubCoefficient() {
             node: node,
             value: 0,
             degree: 0,
-            avgNeighborDegree: 0
+            avgNeighborDegree: 0,
+            clubNeighbors: 0,
+            clubShare: 0,
+            clubThreshold: clubThreshold,
+            clubSize: clubSize,
+            inClub: false
           };
         }
         
         // Средняя степень соседей
         let neighborDegreeSum = 0;
-        let highDegreeNeighbors = 0;
+        let clubNeighbors = 0;
         
         neighbors.forEach(({ node: neighborId }) => {
           const neighborDegree = degrees.get(neighborId) || 0;
           neighborDegreeSum += neighborDegree;
           
-          // Считаем "богатых" соседей (степень выше или равна моей)
-          if (neighborDegree >= myDegree) {
-            highDegreeNeighbors++;
+          // Член клуба — сосед из верхнего дециля по степени
+          if (neighborDegree >= clubThreshold) {
+            clubNeighbors++;
           }
         });
         
         const avgNeighborDegree = neighborDegreeSum / neighbors.length;
-        
-        // Rich-club score: отношение богатых соседей к общему числу
-        const richClubRatio = highDegreeNeighbors / neighbors.length;
-        
-        // Комбинированная метрика
-        const combinedScore = richClubRatio * Math.log(1 + avgNeighborDegree);
+        const clubShare = clubNeighbors / neighbors.length;
         
         return {
           node: node,
-          value: combinedScore,
-          richClubRatio: richClubRatio,
+          value: myDegree * clubShare,
+          clubShare: clubShare,
+          clubNeighbors: clubNeighbors,
           degree: myDegree,
           avgNeighborDegree: avgNeighborDegree,
-          highDegreeNeighbors: highDegreeNeighbors
+          clubThreshold: clubThreshold,
+          clubSize: clubSize,
+          inClub: myDegree >= clubThreshold
         };
       });
       

@@ -1,19 +1,19 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, MET, S } from '../core/ns.js';
 import '../core/graph-index.js';
-import { isSymmetricLink, otherPhilosopher, reflexiveLinkOf, sumWeight } from '../core/link-facts.js';
+import { isSymmetricLink, linksBothWays, otherPhilosopher, reflexiveLinkOf, sumWeight } from '../core/link-facts.js';
 import { generativity, linkInInfluenceScope } from './generativity.js';
 
 const FORMULA_VERSIONS = Object.freeze({
       abstractionIndex: 1,
-      calculateBetweenness: 1,
+      calculateBetweenness: 2,
       calculateClosenessCentrality: 1,
       calculateClusteringCoefficient: 1,
       calculateEigenvectorCentrality: 1,
       calculateLocalCohesion: 1,
-      calculatePageRank: 1,
-      calculateRichClubCoefficient: 1,
-      calculateWeightedClustering: 1,
+      calculatePageRank: 2,
+      calculateRichClubCoefficient: 2,
+      calculateWeightedClustering: 2,
       calculateWeightedDegree: 1,
       conceptualComplexityIndex: 1,
       conceptualContinuityIndex: 1,
@@ -21,21 +21,21 @@ const FORMULA_VERSIONS = Object.freeze({
       criticalPowerIndex: 1,
       deductiveDepth: 1,
       deductiveIndex: 1,
-      dialogicalIndex: 1,
+      dialogicalIndex: 2,
       foundationalIndex: 1,
       generativeIndex: 1,
       influenceIndex: 1,
       instrumentalIndex: 1,
-      internalCoherenceIndex: 1,
+      internalCoherenceIndex: 2,
       paradigmShiftIndex: 1,
       philosopherHistoricalReachIndex: 1,
       philosopherInterdisciplinaryIndex: 1,
       philosopherSystematicIndex: 1,
-      problemGenerationIndex: 1,
-      revolutionaryIndex: 1,
-      syntheticIndex: 1,
+      problemGenerationIndex: 2,
+      revolutionaryIndex: 2,
+      syntheticIndex: 2,
       temporalInfluencePattern: 1,
-      tensionIndex: 1,
+      tensionIndex: 2,
       traditionBridgingIndex: 1,
       transformationIndex: 1
     });
@@ -49,14 +49,17 @@ MET.problemGenerationIndex = function problemGenerationIndex(conceptId) {
       // ============================================
       // 1. ИММАНЕНТНЫЕ ПРОТИВОРЕЧИЯ (исходный подход верен!)
       // ============================================
-      const internalContradictions = incoming.filter(r => 
-        r.type === 'internal_contradiction'
-      ).reduce((sum, r) => sum + (r.weight || 1), 0);
-      
-      // Также учитываем противоречия, которые эта концепция порождает
-      const outgoingContradictions = outgoing.filter(r => 
-        r.type === 'internal_contradiction'
-      ).reduce((sum, r) => sum + (r.weight || 1), 0);
+      // СИММЕТРИЧНАЯ СВЯЗЬ ЛЕЖИТ В ОБОИХ СПИСКАХ, и прежде эти два
+      // слагаемых складывали одно и то же дважды: тип
+      // 'internal_contradiction' помечен symmetric, значит исходящая связь
+      // зеркалится во входящие того же конца. Разделение на «полученные»
+      // и «порождённые» для симметричного типа бессмысленно по существу:
+      // противоречие внутри системы не имеет направления. Считаем один раз
+      // и раскладываем пополам, чтобы сохранить оба слагаемых формулы.
+      const contradictionWeight = sumWeight(
+        linksBothWays(conceptId).filter(r => r.type === 'internal_contradiction'));
+      const internalContradictions = contradictionWeight / 2;
+      const outgoingContradictions = contradictionWeight / 2;
       
       // ============================================
       // 2. ПОРОЖДЕНИЕ ПРОБЛЕМАТИЗАЦИИ (новое!)
@@ -393,9 +396,11 @@ MET.revolutionaryIndex = function revolutionaryIndex(conceptId) {
       // 4. ДИСКУССИОННОСТЬ (новое)
       // ============================================
       // Двунаправленные диалоги - признак спорной новизны
-      const bidirectionalDialogues = [...incoming, ...outgoing].filter(r => 
+      // Деление на два убрано: linksBothWays уже отдаёт каждую связь
+      // однажды. Правило записано в одном месте, а не пересказано здесь.
+      const bidirectionalDialogues = linksBothWays(conceptId).filter(r => 
         r.type === 'dialogue' && r.bidirectional
-      ).length / 2; // Делим на 2, т.к. каждая связь учитывается дважды
+      ).length;
 
       // ============================================
       // 5. МЕЖДИСЦИПЛИНАРНОСТЬ (новое)
@@ -707,7 +712,8 @@ MET.syntheticIndex = function syntheticIndex(conceptId) {
             .filter(Boolean));
       const syntheses   = synthesizedFrom.size >= 2 ? synthesizedFrom.size * 2 : 0;
       const mediations  = sumWeight(outgoing.filter(r => r.type === 'mediate'));
-      const complements = sumWeight(incoming.concat(outgoing).filter(r => r.type === 'complement'));
+      // 'complement' симметричен: incoming.concat(outgoing) считал его дважды.
+      const complements = sumWeight(linksBothWays(conceptId).filter(r => r.type === 'complement'));
       // М1.3: тип связи 'reconcile' не существует ни в relationTypes, ни в данных
       // (0 рёбер), поэтому слагаемое reconciliations*2 всегда было нулевым.
 
@@ -759,6 +765,8 @@ function invalidateSyntheticIndexCache() {
 
 let dialogicalIndexCache = null;
 
+const MUTUAL_DIALOGUE_BONUS = 1.5;
+
 MET.dialogicalIndex = function dialogicalIndex(conceptId) {
 
       const incoming = S._incomingLinks.get(conceptId) || [];
@@ -770,9 +778,27 @@ MET.dialogicalIndex = function dialogicalIndex(conceptId) {
       //   двунаправленный диалог засчитывался дважды. Теперь только диалоги.
       // М10: 'complement' суммировался в обе стороны, а 'dialogue' — в одну.
       //   Теперь единый подход ко всем компонентам.
-      const all = incoming.concat(outgoing);
+      // М11: 'complement' симметричен, а 'dialogue' бывает двунаправленным —
+      // и то и другое зеркалится в оба списка. Единый подход ко всем
+      // слагаемым теперь означает единый ОДНОКРАТНЫЙ счёт, а не единое удвоение.
+      // М12: НАДБАВКА ЗА ВЗАИМНОСТЬ СТАЛА МНОЖИТЕЛЬНОЙ. Плоская прибавка
+      // mutualDialogues * 3 не согласовывалась со шкалой: объём диалогов
+      // растёт с весом связи, а цена взаимности стояла постоянной, и
+      // взаимный диалог оказывался дороже одностороннего в 2,5 раза при
+      // весе 1 и всего в 1,5 раза при весе 3. Теперь взаимность — множитель
+      // на вес, как в tensionIndex (bidirectionalBonus), и отношение
+      // постоянно при любом весе.
+      // Двойной счёт через зеркало снят отдельно (см. linksBothWays): цена
+      // взаимности назначается ЗДЕСЬ и видна в формуле, а не берётся из
+      // устройства списков за две тысячи строк отсюда. Прежде она бралась
+      // трижды разом — удвоением dialogues, удвоением mutualDialogues
+      // и коэффициентом 3.
+      const all = linksBothWays(conceptId);
       const dialogueLinks = all.filter(r => r.type === 'dialogue');
-      const dialogues = sumWeight(dialogueLinks);
+      const dialogues = dialogueLinks.reduce(
+        (sum, r) => sum + (r.weight || 1) * (r.bidirectional ? MUTUAL_DIALOGUE_BONUS : 1), 0);
+      // Остаётся ПОКАЗЫВАЕМЫМ числом: сколько собеседников отвечали, —
+      // но в итог уже не входит отдельным слагаемым.
       const mutualDialogues = dialogueLinks.filter(r => r.bidirectional).length;
       const complements = sumWeight(all.filter(r => r.type === 'complement'));
 
@@ -790,7 +816,7 @@ MET.dialogicalIndex = function dialogicalIndex(conceptId) {
       });
 
       return {
-      total: dialogues * 2 + mutualDialogues * 3 + complements + interlocutors.size * 1.5,
+      total: dialogues * 2 + complements + interlocutors.size * 1.5,
       dialogues,
       dialoguesIn,
       dialoguesOut,
@@ -814,7 +840,9 @@ MET.internalCoherenceIndex = function internalCoherenceIndex(conceptId) {
       const incoming = S._incomingLinks.get(conceptId) || [];
       const outgoing = S._outgoingLinks.get(conceptId) || [];
 
-      const internalLinks = incoming.concat(outgoing).filter(r => {
+      // 'complement', 'correlative' и 'internal_contradiction' симметричны:
+      // прежде удваивались обе чаши весов разом.
+      const internalLinks = linksBothWays(conceptId).filter(r => {
       const other = S._conceptMap.get(r.source === conceptId ? r.target : r.source);
       return other && other.philosopher === concept.philosopher;
       });
@@ -871,42 +899,67 @@ MET.tensionIndex = function tensionIndex(conceptId) {
       // (внутренняя противоречивость концепции)
       // ============================================
       
+      // Связи в обе стороны, каждая по одному разу: 'internal_contradiction'
+      // и 'complement' симметричны и лежат в обоих списках, и прежний
+      // [...incoming, ...outgoing] считал их дважды. У «Мировой воли»
+      // выходило 18 вместо 9, и обе верхние позиции вида были удвоены.
+      const bothWays = linksBothWays(conceptId);
+
       // 1.1 Внутренние противоречия (главный источник)
-      // Самоопровержение и самоограничение. Формула уже берёт
-      // противоречия с обеих сторон разом и уже даёт надбавку
-      // за взаимность; петля есть предельный случай взаимности,
-      // и надбавка 1.5 причитается ей по построению.
+      // ПЕТЛЯ ВЕРНУЛА СВОЙ ВКЛАД. Прежний комментарий обещал, что петля
+      // учтётся общей формулой как предельный случай взаимности, — но
+      // buildIncomingLinks и buildOutgoingLinks отсеивают петли ещё при
+      // построении, и слагаемые selfContradiction/selfLimit вычислялись
+      // и никуда не подставлялись. У шести концепций (Знаю, что ничего
+      // не знаю; Антиномии; Объективация; Теория изображения; Принцип
+      // верификации; Негативная диалектика; Метарассказ) внутреннее
+      // противоречие не учитывалось вовсе — при том что понятие,
+      // противоречащее самому себе, и есть чистейший случай имманентного
+      // напряжения.
       const _rflT = reflexiveLinkOf(conceptId);
       const selfContradiction = (_rflT && _rflT.type === 'internal_contradiction')
         ? (_rflT.weight || 2) * 1.5 : 0;
       const selfLimit = (_rflT && _rflT.type === 'limit') ? (_rflT.weight || 2) : 0;
 
-      const internalContradictions = [...incoming, ...outgoing].filter(r => 
+      const internalContradictions = bothWays.filter(r => 
         r.type === 'internal_contradiction'
       ).reduce((sum, r) => {
         // Симметричность и есть взаимность: у internal_contradiction
         // она свойство типа, поэтому надбавка полагается всем.
         const bidirectionalBonus = isSymmetricLink(r) ? 1.5 : 1;
         return sum + (r.weight || 1) * bidirectionalBonus;
-      }, 0);
+      }, selfContradiction);
       
       // 1.2 Ограничения (напряжение границ)
-      const acknowledgedLimits = [...incoming, ...outgoing].filter(r => 
+      const acknowledgedLimits = bothWays.filter(r => 
         r.type === 'limit'
-      ).length;
+      ).length + (selfLimit ? 1 : 0);
       
-      // 1.3 Условность (зависимость от предпосылок)
-      const conditionalDependencies = incoming.filter(r => 
-        r.type === 'condition'
+      // 1.3 Соотносительность (понятие без опоры вне своей пары)
+      // C8: на этом месте стояла УСЛОВНОСТЬ — входящие связи 'condition',
+      // «X есть условие Y». Обусловленность не есть напряжённость:
+      // понятие с аккуратно прописанными предпосылками построено хорошо,
+      // а не разрываемо изнутри. Выбор был вдобавок непоследователен —
+      // рядом живёт 'presuppose' (212 рёбер), та же зависимость, записанная
+      // с другого конца, и в напряжение она не входила. А замер показывал,
+      // что из 214 концепций с ненулевым имманентным напряжением 135
+      // получали его ТОЛЬКО через 'condition': вид мерил густоту разметки
+      // условий, а не свойство понятий.
+      // Взамен взято 'correlative' — «X и Y определимы только друг через
+      // друга, обоснования нет ни в одну сторону». Вот это напряжение
+      // по самому устройству: понятие, не имеющее опоры вне своей пары.
+      // Тип симметричен, и bothWays отдаёт его однажды.
+      const correlativePairs = bothWays.filter(r => 
+        r.type === 'correlative'
       ).length;
       
       // 1.4 Опосредование (стоять между противоположностями)
-      const mediations = [...incoming, ...outgoing].filter(r => 
+      const mediations = bothWays.filter(r => 
         r.type === 'mediate'
       ).length;
       
       // 1.5 Потребность в дополнении (неполнота)
-      const complementarityNeeds = [...incoming, ...outgoing].filter(r => 
+      const complementarityNeeds = bothWays.filter(r => 
         r.type === 'complement'
       ).length;
       
@@ -915,10 +968,12 @@ MET.tensionIndex = function tensionIndex(conceptId) {
       // и обе метрики измеряли одно. Теперь tensionIndex целиком лежит
       // в логическом слое (A9) и распадается на противоречие,
       // опосредование и разрешение.
+      // C8: коэффициент соотносительности равен коэффициенту ограничения:
+      // и то и другое — напряжение границы, а не разрыв внутри.
       const immanentTension = 
         internalContradictions * 3.0 +
         acknowledgedLimits * 1.5 +
-        conditionalDependencies * 1.2;
+        correlativePairs * 1.5;
       
       // ============================================
       // УРОВЕНЬ 2: ПОЛЕМИЧЕСКОЕ НАПРЯЖЕНИЕ
@@ -1014,10 +1069,10 @@ MET.tensionIndex = function tensionIndex(conceptId) {
       
       // Интенсивность (средний вес связей)
       // C7: интенсивность считается по тем же типам, что и сам индекс
-      const allTensionLinks = [
-        ...incoming.filter(r => ['internal_contradiction', 'limit', 'condition', 'mediate', 'complement'].includes(r.type)),
-        ...outgoing.filter(r => ['internal_contradiction', 'limit', 'mediate', 'complement'].includes(r.type))
-      ];
+      // C8: список приведён в согласие с самим индексом ('condition' вышел,
+      // 'correlative' вошёл) и считается однократно, как и слагаемые.
+      const allTensionLinks = bothWays.filter(r =>
+        ['internal_contradiction', 'limit', 'correlative', 'mediate', 'complement'].includes(r.type));
       const averageIntensity = allTensionLinks.length > 0
         ? allTensionLinks.reduce((sum, r) => sum + (r.weight || 1), 0) / allTensionLinks.length
         : 0;
@@ -1035,7 +1090,7 @@ MET.tensionIndex = function tensionIndex(conceptId) {
         immanent: {
           internalContradictions,
           acknowledgedLimits,
-          conditionalDependencies
+          correlativePairs
         },
         
         // C7: ярус опосредования (прежде — полемического напряжения)

@@ -66,6 +66,10 @@ const ast = acorn.parse(code, { ecmaVersion: 'latest', sourceType: 'script', ran
 const sm = eslintScope.analyze(ast, { ecmaVersion: 2023, sourceType: 'script' });
 const gs = sm.globalScope;
 
+// Номер строки ИСХОДНОГО ФАЙЛА по смещению внутри <script> — только для
+// сообщений об ошибке. Раскладка ведётся по именам, а не по строкам.
+const строкаПо = поз => src.slice(0, codeStart + поз).split('\n').length;
+
 // РАСКЛАДКА ПО ИМЕНАМ, а не по строкам. Имена устойчивы, номера строк —
 // нет: одна вставка в исходник сдвигает всё после себя, и тридцать чужих
 // сущностей молча уезжают в соседние модули (замерено). Диапазоны нужны
@@ -328,16 +332,56 @@ const shorthandKeys = new Set();
   }
 })(ast);
 
+// ЗАСЛОН ОТ ЗАХВАТА ИМЕНИ. Подстановка `S.имя` — это переписывание ссылки,
+// а всякое переписывание обязано быть гигиеничным: приставка обязана
+// разрешаться в ввоз пространства имён, а не в чьё-то местное связывание.
+// Повод: в calculateBetweennessAsync стек звался `S`, и подставленные
+// `S.useWeightedPaths` с `S.respectDirection` прилипли к массиву. Сборка
+// не заругалась, страница не упала, метрика молча считала не то, что
+// исходник: посредничество перестало отвечать на обе галочки, а числа
+// выросли вдвое. Сличение сторон поймало это только полгода спустя.
+// Здесь останов ГРОМКИЙ и на первом же случае.
+function захваченоЛи(ref, ns) {
+  for (let sc = ref.from; sc && sc !== gs; sc = sc.upper)
+    if (sc.variables.some(v => v.name === ns)) return sc;
+  return null;
+}
+const захваты = [];
+
 for (const v of gs.variables) {
   const ns = nsOf(v.name);
   if (!ns) continue;
   for (const ref of v.references) {
     const id = ref.identifier;
     if (declIdRanges.has(id.range.join(':'))) continue;
+    const плен = захваченоЛи(ref, ns);
+    if (плен) {
+      захваты.push({ имя: v.name, ns, строка: строкаПо(id.range[0]),
+                     область: плен.block && плен.block.type });
+      continue;
+    }
     const key = id.range.join(':');
     const text = shorthandKeys.has(key) ? `${v.name}: ${ns}.${v.name}` : `${ns}.${v.name}`;
     edits.push({ start: id.range[0], end: id.range[1], text });
   }
+}
+
+if (захваты.length) {
+  const свод = new Map();
+  for (const з of захваты) {
+    const ключ = `${з.ns} @ строка ${з.строка}`;
+    if (!свод.has(ключ)) свод.set(ключ, { ns: з.ns, строка: з.строка, имена: new Set(), область: з.область });
+    свод.get(ключ).имена.add(з.имя);
+  }
+  console.error('\nЗАХВАТ ИМЕНИ ПРОСТРАНСТВА. Подстановка приставки попала бы');
+  console.error('на МЕСТНОЕ связывание, а не на ввоз пространства имён:');
+  for (const з of свод.values())
+    console.error(`  строка ${з.строка}: местное «${з.ns}» (${з.область}) перехватило бы `
+      + `${з.ns}.${[...з.имена].join(`, ${з.ns}.`)}`);
+  console.error('\nЛечить в ИСХОДНИКЕ: переименовать местное связывание. Имена');
+  console.error('DATA, S, MET, VIEWS заняты сборкой и местными быть не могут.');
+  console.error('Проверять отдельно: node tools/checks/ns_capture.mjs\n');
+  process.exit(1);
 }
 edits.sort((a, b) => a.start - b.start);
 

@@ -11,7 +11,10 @@ function selectConceptOnGraph(type, mode = 'edit') {
       // Подложка лежит выше канвы и съела бы клик. На время выбора
       // пропускаем сквозь неё.
       const overlay = document.getElementById('modalOverlay');
-      if (overlay) overlay.style.pointerEvents = 'none';
+      if (overlay) {
+        overlay.style.pointerEvents = 'none';
+        overlay.classList.add('graph-picking');
+      }
 
       // Окно занимает середину экрана — приглушаем, но не прячем:
       // должно быть видно и граф, и что форма никуда не делась.
@@ -37,7 +40,10 @@ function cancelGraphSelection() {
 
       gfxCanvas.style.cursor = '';
       const overlay = document.getElementById('modalOverlay');
-      if (overlay) overlay.style.pointerEvents = '';
+      if (overlay) {
+        overlay.style.pointerEvents = '';
+        overlay.classList.remove('graph-picking');
+      }
       const modal = document.getElementById('universalModal');
       if (modal) modal.classList.remove('graph-picking');
       const hint = document.getElementById('graph-selection-hint');

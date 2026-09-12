@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// ЗАВЕДЕНИЕ НОВЫХ СВЯЗЕЙ В ИСХОДНИК по файлам правок doc/additions/*.json.
+// ЗАВЕДЕНИЕ НОВЫХ СВЯЗЕЙ В ИСХОДНИК по файлам правок (JSON).
 //
-//   node tools/edit/add_links.mjs doc/additions/batch-A1-antiquity.json [...]
+//   node tools/edit/add_links.mjs <файл-правок.json> [ещё файлы …]
 //                                 [--проба] [--исходник путь]
 //
 // Почему свой, а не тот, что в рабочей папке ревизии описаний: там проверка
@@ -134,7 +134,7 @@ const строка = (e) => `      { source: "${e.source}", target: "${e.target}
 const нуженЗапятой = /\}\s*$/.test(body);
 const вставка = ready.length
   ? (нуженЗапятой ? ',' : '') + '\n'
-    + `      // Заведено по doc/db-additions-spec.md (${batches.map(b => path.basename(b)).join(', ')}).\n`
+    + `      // Заведено по файлам правок: ${batches.map(b => path.basename(b)).join(', ')}.\n`
     + ready.map(строка).join('\n').replace(/,$/, '') + '\n'
   : '';
 

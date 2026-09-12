@@ -1,17 +1,17 @@
 {
  "меры": {
   "модулей": 127,
-  "строк": 20191,
-  "объявлений": 804,
-  "вывозов": 567,
+  "строк": 20380,
+  "объявлений": 807,
+  "вывозов": 569,
   "рёбер": 788,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
-  "вывозовДляПриборов": 22,
+  "вывозовДляПриборов": 23,
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-09-11 11:37:08"
+  "составлено": "2026-09-11 20:40:48"
  },
  "модули": [
   {
@@ -417,8 +417,8 @@
      "имена": [
       "initFilters",
       "markChosenInLegend",
-      "updateFilterStats",
-      "updatePhilosopherDimming"
+      "syncTraditionRows",
+      "updateFilterStats"
      ]
     },
     {
@@ -1316,19 +1316,20 @@
   },
   {
    "путь": "modules/core/link-facts.js",
-   "строк": 48,
-   "объявлений": 7,
-   "вывозит": 7,
+   "строк": 54,
+   "объявлений": 8,
+   "вывозит": 8,
    "ввозитИз": 2,
    "вНС": {
     "DATA": 1,
-    "S": 4
+    "S": 6
    },
    "вывоз": [
     "buildReflexiveMap",
     "isReflexiveLink",
     "isSymmetricLink",
     "isTypologicalLink",
+    "linksBothWays",
     "otherPhilosopher",
     "reflexiveLinkOf",
     "sumWeight"
@@ -1378,6 +1379,11 @@
      "строк": 3
     },
     {
+     "имя": "linksBothWays",
+     "вид": "function",
+     "строк": 5
+    },
+    {
      "имя": "otherPhilosopher",
      "вид": "function",
      "строк": 4
@@ -1386,7 +1392,7 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 6,
+     "раз": 8,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -2501,18 +2507,17 @@
   },
   {
    "путь": "modules/filters/filters.js",
-   "строк": 454,
-   "объявлений": 14,
-   "вывозит": 3,
-   "ввозитИз": 13,
+   "строк": 445,
+   "объявлений": 12,
+   "вывозит": 2,
+   "ввозитИз": 14,
    "вНС": {
     "DATA": 4,
-    "S": 8
+    "S": 7
    },
    "вывоз": [
     "applyFilters",
-    "applyFiltersImmediate",
-    "philosopherPassesTraditions"
+    "applyFiltersImmediate"
    ],
    "ввоз": [
     {
@@ -2581,6 +2586,12 @@
      ]
     },
     {
+     "откуда": "modules/render/picking.js",
+     "имена": [
+      "refreshHitMaps"
+     ]
+    },
+    {
      "откуда": "modules/render/selection.js",
      "имена": [
       "highlightConnected",
@@ -2608,17 +2619,7 @@
      "строк": 11
     },
     {
-     "имя": "philTraditionsSelected",
-     "вид": "function",
-     "строк": 4
-    },
-    {
-     "имя": "philosopherPassesTraditions",
-     "вид": "function",
-     "строк": 5
-    },
-    {
-     "имя": "linkPassesTraditions",
+     "имя": "sharesTradition",
      "вид": "function",
      "строк": 5
     },
@@ -2630,12 +2631,12 @@
     {
      "имя": "applyBasicFilter",
      "вид": "function",
-     "строк": 52
+     "строк": 53
     },
     {
      "имя": "applyChainVisibility",
      "вид": "function",
-     "строк": 7
+     "строк": 8
     },
     {
      "имя": "handleChainsMode",
@@ -2676,7 +2677,7 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 62,
+     "раз": 60,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -3005,7 +3006,7 @@
   },
   {
    "путь": "modules/graph/graph-selection.js",
-   "строк": 55,
+   "строк": 61,
    "объявлений": 3,
    "вывозит": 3,
    "ввозитИз": 3,
@@ -3041,12 +3042,12 @@
     {
      "имя": "selectConceptOnGraph",
      "вид": "function",
-     "строк": 28
+     "строк": 31
     },
     {
      "имя": "cancelGraphSelection",
      "вид": "function",
-     "строк": 11
+     "строк": 14
     },
     {
      "имя": "handleConceptSelection",
@@ -3466,7 +3467,7 @@
   },
   {
    "путь": "modules/metrics/graph-cache.js",
-   "строк": 117,
+   "строк": 129,
    "объявлений": 3,
    "вывозит": 2,
    "ввозитИз": 3,
@@ -3502,7 +3503,7 @@
     {
      "имя": "buildGlobalGraphCache",
      "вид": "function",
-     "строк": 105
+     "строк": 117
     },
     {
      "имя": "graphCache",
@@ -3637,13 +3638,13 @@
   },
   {
    "путь": "modules/metrics/network.js",
-   "строк": 871,
-   "объявлений": 25,
+   "строк": 950,
+   "объявлений": 26,
    "вывозит": 18,
    "ввозитИз": 4,
    "вНС": {
     "DATA": 1,
-    "S": 8,
+    "S": 5,
     "MET": 9
    },
    "вывоз": [
@@ -3706,7 +3707,7 @@
     {
      "имя": "calculateBetweennessAsync",
      "вид": "async function",
-     "строк": 152
+     "строк": 166
     },
     {
      "имя": "invalidateBetweennessCache",
@@ -3774,6 +3775,11 @@
      "строк": 1
     },
     {
+     "имя": "WEIGHTED_CLUSTERING_MIN_DEGREE",
+     "вид": "const",
+     "строк": 1
+    },
+    {
      "имя": "invalidateWeightedClusteringCache",
      "вид": "function",
      "строк": 3
@@ -3822,12 +3828,12 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 37,
+     "раз": 31,
      "откуда": "modules/core/ns.js"
     },
     {
      "имя": "DATA",
-     "раз": 25,
+     "раз": 28,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -3973,8 +3979,8 @@
   },
   {
    "путь": "modules/metrics/philosophical.js",
-   "строк": 1075,
-   "объявлений": 24,
+   "строк": 1130,
+   "объявлений": 25,
    "вывозит": 14,
    "ввозитИз": 4,
    "вНС": {
@@ -4015,6 +4021,7 @@
      "откуда": "modules/core/link-facts.js",
      "имена": [
       "isSymmetricLink",
+      "linksBothWays",
       "otherPhilosopher",
       "reflexiveLinkOf",
       "sumWeight"
@@ -4120,6 +4127,11 @@
      "строк": 1
     },
     {
+     "имя": "MUTUAL_DIALOGUE_BONUS",
+     "вид": "const",
+     "строк": 1
+    },
+    {
      "имя": "invalidateDialogicalIndexCache",
      "вид": "function",
      "строк": 3
@@ -4167,14 +4179,14 @@
      "откуда": "modules/core/ns.js"
     },
     {
+     "имя": "linksBothWays",
+     "раз": 6,
+     "откуда": "modules/core/link-facts.js"
+    },
+    {
      "имя": "linkInInfluenceScope",
      "раз": 2,
      "откуда": "modules/metrics/generativity.js"
-    },
-    {
-     "имя": "reflexiveLinkOf",
-     "раз": 2,
-     "откуда": "modules/core/link-facts.js"
     }
    ]
   },
@@ -6344,7 +6356,7 @@
   },
   {
    "путь": "modules/modal/edit-forms.js",
-   "строк": 292,
+   "строк": 295,
    "объявлений": 2,
    "вывозит": 2,
    "ввозитИз": 12,
@@ -6970,7 +6982,7 @@
   },
   {
    "путь": "modules/modal/persist.js",
-   "строк": 441,
+   "строк": 450,
    "объявлений": 11,
    "вывозит": 6,
    "ввозитИз": 14,
@@ -7126,7 +7138,7 @@
     {
      "имя": "deleteConcept",
      "вид": "function",
-     "строк": 22
+     "строк": 31
     },
     {
      "имя": "saveConnectionData",
@@ -7152,7 +7164,7 @@
     },
     {
      "имя": "ModalContext",
-     "раз": 17,
+     "раз": 21,
      "откуда": "modules/modal/context.js"
     },
     {
@@ -9371,9 +9383,9 @@
   },
   {
    "путь": "modules/render/picking.js",
-   "строк": 79,
-   "объявлений": 6,
-   "вывозит": 4,
+   "строк": 84,
+   "объявлений": 7,
+   "вывозит": 5,
    "ввозитИз": 8,
    "вНС": {
     "DATA": 2,
@@ -9383,6 +9395,7 @@
     "pickLink",
     "pickNode",
     "rebuildQuadtree",
+    "refreshHitMaps",
     "toGraph"
    ],
    "ввоз": [
@@ -9444,6 +9457,11 @@
    ],
    "свои": [
     {
+     "имя": "refreshHitMaps",
+     "вид": "function",
+     "строк": 4
+    },
+    {
      "имя": "quadtree",
      "вид": "let",
      "строк": 1
@@ -9496,9 +9514,9 @@
      "откуда": "modules/render/canvas-core.js"
     },
     {
-     "имя": "renderState",
+     "имя": "S",
      "раз": 3,
-     "откуда": "modules/render/canvas-core.js"
+     "откуда": "modules/core/ns.js"
     }
    ]
   },
@@ -10333,13 +10351,13 @@
   },
   {
    "путь": "modules/state/filters.js",
-   "строк": 22,
+   "строк": 20,
    "объявлений": 3,
    "вывозит": 3,
    "ввозитИз": 2,
    "вНС": {
-    "DATA": 4,
-    "S": 5
+    "DATA": 3,
+    "S": 4
    },
    "вывоз": [
     "chosenPhilosophers",
@@ -10379,12 +10397,12 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 5,
+     "раз": 4,
      "откуда": "modules/core/ns.js"
     },
     {
      "имя": "DATA",
-     "раз": 4,
+     "раз": 3,
      "откуда": "modules/core/ns.js"
     }
    ]
@@ -12176,7 +12194,7 @@
   },
   {
    "путь": "modules/ui/actions-dyn.js",
-   "строк": 164,
+   "строк": 165,
    "объявлений": 0,
    "вывозит": 0,
    "ввозитИз": 35,
@@ -12301,6 +12319,7 @@
     {
      "откуда": "modules/modal/persist.js",
      "имена": [
+      "deleteConcept",
       "deleteConnection"
      ]
     },
@@ -12415,8 +12434,8 @@
     {
      "откуда": "modules/ui/legend.js",
      "имена": [
-      "addTradition",
       "onlyTradition",
+      "resetTradition",
       "togglePhilosopher",
       "toggleRelation",
       "toggleRubric",
@@ -12966,16 +12985,15 @@
   },
   {
    "путь": "modules/ui/legend.js",
-   "строк": 363,
-   "объявлений": 28,
-   "вывозит": 23,
-   "ввозитИз": 8,
+   "строк": 387,
+   "объявлений": 29,
+   "вывозит": 24,
+   "ввозитИз": 7,
    "вНС": {
     "DATA": 9,
-    "S": 10
+    "S": 9
    },
    "вывоз": [
-    "addTradition",
     "changeFilterMode",
     "deselectAllPhilosophers",
     "deselectAllRelations",
@@ -12984,20 +13002,22 @@
     "initFilters",
     "markChosenInLegend",
     "onlyTradition",
+    "resetTradition",
     "selectAllPhilosophers",
     "selectAllRelations",
     "selectAllRubrics",
     "selectAllTraditions",
     "syncLegendDirectionToggle",
     "syncLegendWeightsToggle",
+    "syncTraditionRows",
     "togglePhilosopher",
     "toggleRelation",
     "toggleRubric",
     "toggleSection",
     "toggleTradition",
     "toggleUniformLinkWidth",
-    "updateFilterStats",
-    "updatePhilosopherDimming"
+    "traditionMembers",
+    "updateFilterStats"
    ],
    "ввоз": [
     {
@@ -13020,14 +13040,7 @@
     {
      "откуда": "modules/filters/filters.js",
      "имена": [
-      "applyFilters",
-      "philosopherPassesTraditions"
-     ]
-    },
-    {
-     "откуда": "modules/modal/edit-rights.js",
-     "имена": [
-      "philRowTip"
+      "applyFilters"
      ]
     },
     {
@@ -13058,7 +13071,7 @@
     {
      "имя": "initFilters",
      "вид": "function",
-     "строк": 79
+     "строк": 89
     },
     {
      "имя": "togglePhilosopher",
@@ -13066,24 +13079,34 @@
      "строк": 8
     },
     {
+     "имя": "WITHOUT_TRADITION",
+     "вид": "const",
+     "строк": 1
+    },
+    {
      "имя": "toggleTradition",
+     "вид": "function",
+     "строк": 8
+    },
+    {
+     "имя": "resetTradition",
      "вид": "function",
      "строк": 5
     },
     {
      "имя": "selectAllTraditions",
      "вид": "function",
-     "строк": 8
+     "строк": 5
     },
     {
      "имя": "deselectAllTraditions",
      "вид": "function",
-     "строк": 8
+     "строк": 5
     },
     {
      "имя": "traditionMembers",
      "вид": "function",
-     "строк": 4
+     "строк": 7
     },
     {
      "имя": "syncPhilosopherCheckboxes",
@@ -13091,12 +13114,12 @@
      "строк": 6
     },
     {
-     "имя": "onlyTradition",
+     "имя": "syncTraditionRows",
      "вид": "function",
-     "строк": 5
+     "строк": 28
     },
     {
-     "имя": "addTradition",
+     "имя": "onlyTradition",
      "вид": "function",
      "строк": 5
     },
@@ -13156,11 +13179,6 @@
      "строк": 8
     },
     {
-     "имя": "updatePhilosopherDimming",
-     "вид": "function",
-     "строк": 15
-    },
-    {
      "имя": "updateFilterStats",
      "вид": "function",
      "строк": 12
@@ -13194,12 +13212,12 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 31,
+     "раз": 33,
      "откуда": "modules/core/ns.js"
     },
     {
      "имя": "DATA",
-     "раз": 28,
+     "раз": 27,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -14331,6 +14349,11 @@
    "внутри": 1
   },
   {
+   "имя": "traditionMembers",
+   "модуль": "modules/ui/legend.js",
+   "внутри": 6
+  },
+  {
    "имя": "loadNotifications",
    "модуль": "modules/ui/notifications.js",
    "внутри": 1
@@ -14397,7 +14420,7 @@
    "самые": [
     {
      "поле": "nodes",
-     "раз": 136,
+     "раз": 139,
      "модулей": 35
     },
     {
@@ -14417,7 +14440,7 @@
     },
     {
      "поле": "philosopherConcepts",
-     "раз": 49,
+     "раз": 48,
      "модулей": 19
     },
     {
@@ -14448,7 +14471,7 @@
    ]
   },
   "S": {
-   "полей": 71,
+   "полей": 67,
    "самые": [
     {
      "поле": "_concepts",
@@ -14457,7 +14480,7 @@
     },
     {
      "поле": "respectDirection",
-     "раз": 45,
+     "раз": 44,
      "модулей": 13
     },
     {
@@ -14486,18 +14509,18 @@
      "модулей": 9
     },
     {
+     "поле": "_incomingLinks",
+     "раз": 23,
+     "модулей": 9
+    },
+    {
+     "поле": "_outgoingLinks",
+     "раз": 25,
+     "модулей": 9
+    },
+    {
      "поле": "similarityOverlay",
      "раз": 59,
-     "модулей": 8
-    },
-    {
-     "поле": "_philosopherMap",
-     "раз": 29,
-     "модулей": 8
-    },
-    {
-     "поле": "_incomingLinks",
-     "раз": 22,
      "модулей": 8
     }
    ]

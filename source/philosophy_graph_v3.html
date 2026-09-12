@@ -654,6 +654,16 @@
       display: block;
     }
 
+    /* Пока идёт выбор концепции на графе, подложка перестаёт затенять.
+       Прежде снималась только её проницаемость для нажатий
+       (pointer-events: none), а чернота rgba(0,0,0,0.7) оставалась — и
+       граф, по которому предлагается выбирать, был виден сквозь
+       семидесятипроцентную вуаль. Подсказку и приглушённое окно видно и без
+       затенения, а выбирать по затенённому графу нельзя. */
+    #modalOverlay.graph-picking {
+      background: transparent;
+    }
+
     .detail-modal h2 {
       margin: 0 0 8px 0;
       color: var(--accent-text);
@@ -23962,7 +23972,6 @@
     // Состояние фильтров
     let selectedPhilosophers = new Set(Object.keys(philosopherConcepts));
     let selectedRelations = new Set(Object.keys(relationTypesObj));
-    let selectedTraditions = new Set(traditions.map(t => t.id));
 
     // Указатель имя философа -> его традиции, по образцу conceptToRubrics.
     const philosopherTraditions = {};
@@ -25940,21 +25949,32 @@
     // философов. Поэтому она соединяется с нею через «и», как рубрики,
     // и НИКОГДА не переписывает набор философов: галочки там меняют
     // только кнопки «только эти» и «+».
-    function philTraditionsSelected(name) {
-      const tl = philosopherTraditions[name] || [];
-      return tl.filter(t => selectedTraditions.has(t));
-    }
-    function philosopherPassesTraditions(name) {
-      const tl = philosopherTraditions[name] || [];
-      // Философ без традиций проходит всегда — иначе он исчезает молча.
-      return tl.length === 0 || tl.some(t => selectedTraditions.has(t));
-    }
-    // both === true — оба конца (режимы, где и философы соединены «и»);
-    // both === false — хотя бы один (режимы «с соседними» и «внешние»).
-    function linkPassesTraditions(l, both) {
-      const s = philosopherPassesTraditions(l.source.concept);
-      const t = philosopherPassesTraditions(l.target.concept);
-      return both ? (s && t) : (s || t);
+    /**
+     * ОТБОР ТРАДИЦИЕЙ БОЛЬШЕ НЕ СУЩЕСТВУЕТ ОТДЕЛЬНО ОТ ОТБОРА ФИЛОСОФАМИ.
+     *
+     * Было два независимых набора: selectedPhilosophers решал, чьи узлы
+     * участвуют, а selectedTraditions накладывался поверх третьим запретом —
+     * и о нём не знал ни список философов, ни режимы «Связанные сети» и
+     * «Сквозные цепочки». Те идут мимо linkFilter (строят свой граф в
+     * buildAdjacencyGraph и ставят видимость через applyChainVisibility),
+     * учитывают типы связей и рубрики — и теряли ровно традиции. Замер:
+     * выбран один Гегель, сняты ВСЕ галочки традиций; режим «Только
+     * выбранные» показывал 0 узлов, «Связанные сети» — 13.
+     *
+     * Сверх того два пути к одному итогу друг о друге не знали: все
+     * философы плюс одна традиция давали те же 44 узла и 106 связей, что
+     * и пятеро философов этой традиции при всех отмеченных традициях, —
+     * но в первом случае список философов оставался нетронутым.
+     *
+     * Теперь набор ОДИН. Строка традиции — показатель состояния набора
+     * философов и оптовый переключатель над ним (см. syncTraditionRows);
+     * «своя традиция» значит просто «общая традиция», без оглядки на то,
+     * что отмечено.
+     */
+    function sharesTradition(nameA, nameB) {
+      const a = philosopherTraditions[nameA] || [];
+      const b = philosopherTraditions[nameB] || [];
+      return a.some(x => b.includes(x));
     }
 
     const FilterModes = {
@@ -25968,7 +25988,6 @@
           
           if (!baseCheck) return false;
 
-          if (!linkPassesTraditions(l, true)) return false;
           
           // Проверка рубрик
           const sourceId = l.source.id || l.source;
@@ -25996,7 +26015,6 @@
           
           if (!baseCheck) return false;
 
-          if (!linkPassesTraditions(l, true)) return false;
           
           // Проверка рубрик
           const sourceId = l.source.id || l.source;
@@ -26022,7 +26040,6 @@
           
           if (!baseCheck) return false;
 
-          if (!linkPassesTraditions(l, false)) return false;
           
           // Проверка рубрик
           const sourceId = l.source.id || l.source;
@@ -26049,7 +26066,6 @@
           
           if (!baseCheck) return false;
 
-          if (!linkPassesTraditions(l, false)) return false;
           
           // Проверка рубрик
           const sourceId = l.source.id || l.source;
@@ -26072,9 +26088,13 @@
           if (!selectedPhilosophers.has(l.source.concept)) return false;
           if (!selectedPhilosophers.has(l.target.concept)) return false;
           if (l.source.concept === l.target.concept) return false;
-          const s = philTraditionsSelected(l.source.concept);
-          const t = philTraditionsSelected(l.target.concept);
-          if (!s.some(x => t.includes(x))) return false;
+          // «Своя традиция» = ОБЩАЯ традиция. Прежде сравнивались традиции,
+          // пересечённые с отмеченными, и философ, у которого ни одной
+          // отмеченной не осталось, выпадал ИЗ ОБОИХ режимов сразу: замер на
+          // пятёрке Хайдеггер—Гуссерль—Кузанский—Кант—Сартр при снятой
+          // феноменологии давал 1 + 3 пары вместо 3 + 4, и три пары
+          // проваливались между режимами, которые обязаны делить всё пополам.
+          if (!sharesTradition(l.source.concept, l.target.concept)) return false;
           const sr = conceptToRubrics[l.source.id || l.source] || [];
           const tr = conceptToRubrics[l.target.id || l.target] || [];
           return (sr.length === 0 || sr.some(r => selectedRubrics.has(r)))
@@ -26088,10 +26108,10 @@
           if (!selectedPhilosophers.has(l.source.concept)) return false;
           if (!selectedPhilosophers.has(l.target.concept)) return false;
           if (l.source.concept === l.target.concept) return false;
-          const s = philTraditionsSelected(l.source.concept);
-          const t = philTraditionsSelected(l.target.concept);
-          if (!s.length || !t.length) return false;
-          if (s.some(x => t.includes(x))) return false;
+          // Дополнение к within_traditions: общей традиции нет. Условие
+          // «у обоих есть хоть одна отмеченная» снято вместе с набором
+          // отмеченных — теперь два режима строго дополнительны.
+          if (sharesTradition(l.source.concept, l.target.concept)) return false;
           const sr = conceptToRubrics[l.source.id || l.source] || [];
           const tr = conceptToRubrics[l.target.id || l.target] || [];
           return (sr.length === 0 || sr.some(r => selectedRubrics.has(r)))
@@ -26111,7 +26131,6 @@
           
           if (!baseCheck) return false;
 
-          if (!linkPassesTraditions(l, true)) return false;
           
           // Проверка рубрик
           const sourceId = l.source.id || l.source;
@@ -26196,6 +26215,7 @@
       // Применяем видимость к узлам и связям (базовый фильтр)
       gfxNode.style("display", d => isNodeVisible(d) ? null : "none");
       gfxLinkAll.style("display", l => isLinkVisible(l) ? null : "none");
+      refreshHitMaps();
     }
 
     /**
@@ -26207,6 +26227,32 @@
       visibleLinkSet = chainLinks;
       gfxNode.style("display", d => isNodeVisible(d) ? null : "none");
       gfxLinkAll.style("display", l => isLinkVisible(l) ? null : "none");
+      refreshHitMaps();
+    }
+
+    /**
+     * КАРТЫ ПОПАДАНИЙ ПОСЛЕ СМЕНЫ ВИДИМОСТИ.
+     *
+     * rebuildQuadtree отбирает узлы по isNodeVisible, но звался только из
+     * тика симуляции, из перетаскивания узла и из updateGraphData. Отбор
+     * ни одного из трёх не задевает: раскладка приходит готовой
+     * (nodePositions), симуляция стоит, и дерево попаданий остаётся тем,
+     * каким его построили ДО отбора — вместе со скрытыми узлами.
+     *
+     * Отсюда жалоба «иногда граф нельзя перетаскивать»: d3.drag берёт
+     * субъекта через pickNode, тот возвращает НЕВИДИМЫЙ узел,
+     * перетаскивание начинается на нём — и камера стоит, потому что
+     * до gfxZoom нажатие уже не доходит. Закономерности не видно
+     * потому, что она пространственная: мешает ровно то место, где под
+     * курсором лежит скрытый узел. Тем же путём скрытый узел ловит
+     * наведение, подсказку и щелчок.
+     *
+     * Замер (одна точка холста, отбор оставляет 13 узлов из 718):
+     * без пересборки сдвиг камеры 0/0, с пересборкой 120/60.
+     */
+    function refreshHitMaps() {
+      rebuildQuadtree();   // хит-тест узлов
+      pickDirty = true;    // хит-тест связей (карта выбора)
     }
 
     /**
@@ -26486,23 +26532,33 @@
       // Создаем фильтры традиций
       const tradContainer = document.getElementById('traditionFilters');
       if (tradContainer) {
-        traditions.forEach(tr => {
-          const members = philosophers.filter(p => (p.traditions || []).includes(tr.id));
+        // Кнопки «+» больше нет: галочка сама добавляет всю традицию, когда
+        // выбраны не все, и снимает её, когда выбраны все. Держать рядом два
+        // управления с одним смыслом — то самое, из-за чего строка и была
+        // непонятна. Осталось три: галочка (вся традиция), «=» (только эти),
+        // сброс (снять этих).
+        // Число в строке ставит syncTraditionRows: при сборке набор ещё не
+        // известен, а писать сюда общее число членов значило бы завести
+        // второй ответ на тот же вопрос.
+        const traditionRow = (id, имя, подсказка) => {
           const item = document.createElement('div');
           item.className = 'legend-item';
-          const hint = (tr.description || '').replace(/"/g, '&quot;');
           item.innerHTML = `
-            <input type="checkbox" id="trad-${tr.id}" checked onchange="toggleTradition('${tr.id}')">
-            <label for="trad-${tr.id}" data-tip="${hint}" style="flex:1;">
-              <span>${tr.name}<small style="color: var(--fg-muted);font-size:9px;"> (${members.length})</small></span>
+            <input type="checkbox" id="trad-${id}" onchange="toggleTradition('${id}')">
+            <label for="trad-${id}" data-tip="${подсказка}" style="flex:1;">
+              <span>${имя}<small id="trad-count-${id}" style="color: var(--fg-muted);font-size:9px;"></small></span>
             </label>
             <button class="tradition-pick" data-tip="Оставить в отборе только этих философов"
-                onclick="onlyTradition('${tr.id}')">=</button>
-            <button class="tradition-pick" data-tip="Добавить этих к выбранным философам"
-                onclick="addTradition('${tr.id}')">+</button>
+                onclick="onlyTradition('${id}')">=</button>
+            <button class="tradition-pick" id="trad-reset-${id}"
+                onclick="resetTradition('${id}')">⌫</button>
           `;
           tradContainer.appendChild(item);
-        });
+        };
+        traditions.forEach(tr => traditionRow(
+          tr.id, tr.name, (tr.description || '').replace(/"/g, '&quot;')));
+        traditionRow(WITHOUT_TRADITION, 'Вне традиций',
+          'Философы, которым традиция не проставлена');
       }
 
       // Создаем фильтры рубрик
@@ -26531,28 +26587,68 @@
       applyFilters();
     }
     
-    // Переключение традиции: сужает показ, набор философов НЕ трогает
+    // Строка «вне традиций»: философ без разметки иначе управляем только из
+    // общего списка. Сейчас таких НЕТ (0 из 100), но правило нужно заранее —
+    // иначе заведённый завтра философ без традиции молча выпадет из панели.
+    // Строка прячется, пока пуста, и показывается сама, как только появится
+    // кто-то без традиции: syncTraditionRows решает это на каждом отборе,
+    // а не пересборка легенды.
+    const WITHOUT_TRADITION = 'no_tradition';
+
+    /**
+     * ПЕРЕКЛЮЧЕНИЕ ТРАДИЦИИ — ОПТОМ ПО НАБОРУ ФИЛОСОФОВ.
+     *
+     * Галочка больше не хранит своего состояния: она ЧИТАЕТСЯ из набора
+     * философов (все члены выбраны — стоит; часть — неполный выбор; никого —
+     * снята). Поэтому нажатие имеет ровно два исхода: было «все» — снять
+     * всех, иначе — выбрать всех. При неполном выборе браузер сам ведёт
+     * флажок в «отмечен», и это совпадает с нашим правилом.
+     *
+     * Снять оставшихся при неполном выборе галочкой нельзя — для этого
+     * заведена отдельная кнопка (resetTradition).
+     */
     function toggleTradition(traditionId) {
-      if (selectedTraditions.has(traditionId)) selectedTraditions.delete(traditionId);
-      else selectedTraditions.add(traditionId);
+      const members = traditionMembers(traditionId);
+      const allSelected = members.length > 0 && members.every(n => selectedPhilosophers.has(n));
+      if (allSelected) members.forEach(n => selectedPhilosophers.delete(n));
+      else members.forEach(n => selectedPhilosophers.add(n));
+      syncPhilosopherCheckboxes();
       applyFilters();
     }
 
+    /**
+     * СБРОС ТРАДИЦИИ — БЕЗУСЛОВНЫЙ.
+     *
+     * Снимаются ВСЕ члены традиции, даже те, кто состоит и в другой, где
+     * выбор остаётся частичным. Условное правило («оставить того, у кого
+     * есть другая живая традиция») воспроизводило бы прежнее поведение, но
+     * опереться ему в новой модели не на что: «отмечена» теперь значит «все
+     * члены выбраны», а так почти никогда не бывает; пришлось бы считать
+     * традицию живой по «остался хоть кто-то», и тогда итог зависел бы от
+     * ПОРЯДКА нажатий — ровно та непредсказуемость, ради избавления от
+     * которой всё и затевалось.
+     *
+     * Взамен безусловность сделана предсказуемой заранее: подсказка кнопки
+     * называет поимённо, кого снимет (см. syncTraditionRows).
+     */
+    function resetTradition(traditionId) {
+      traditionMembers(traditionId).forEach(n => selectedPhilosophers.delete(n));
+      syncPhilosopherCheckboxes();
+      applyFilters();
+    }
+
+    // Кнопки над списком традиций правят тот же набор философов, что и всё
+    // прочее в этой панели. Прежде они правили набор ОТМЕЧЕННЫХ традиций,
+    // которого больше нет.
     function selectAllTraditions() {
-      selectedTraditions = new Set(traditions.map(t => t.id));
-      traditions.forEach(t => {
-        const cb = document.getElementById('trad-' + t.id);
-        if (cb) cb.checked = true;
-      });
+      traditions.forEach(t => traditionMembers(t.id).forEach(n => selectedPhilosophers.add(n)));
+      syncPhilosopherCheckboxes();
       applyFilters();
     }
 
     function deselectAllTraditions() {
-      selectedTraditions.clear();
-      traditions.forEach(t => {
-        const cb = document.getElementById('trad-' + t.id);
-        if (cb) cb.checked = false;
-      });
+      traditions.forEach(t => traditionMembers(t.id).forEach(n => selectedPhilosophers.delete(n)));
+      syncPhilosopherCheckboxes();
       applyFilters();
     }
 
@@ -26560,6 +26656,9 @@
     // поэтому порядок нажатий безразличен, а философ, состоящий в двух
     // традициях, просто попадает в набор от каждой из них.
     function traditionMembers(traditionId) {
+      if (traditionId === WITHOUT_TRADITION) {
+        return philosophers.filter(p => !(p.traditions || []).length).map(p => p.nameRu);
+      }
       return philosophers.filter(p => (p.traditions || []).includes(traditionId))
                  .map(p => p.nameRu);
     }
@@ -26571,14 +26670,54 @@
       });
     }
 
-    function onlyTradition(traditionId) {
-      selectedPhilosophers = new Set(traditionMembers(traditionId));
-      syncPhilosopherCheckboxes();
-      applyFilters();
+    /**
+     * СТРОКИ ТРАДИЦИЙ ЧИТАЮТСЯ ИЗ НАБОРА ФИЛОСОФОВ.
+     *
+     * Три состояния несёт сам флажок: отмечен — выбраны все члены, неполный
+     * выбор (indeterminate) — выбрана часть, снят — никого. Цветовой подсветки
+     * строки нет намеренно: она сообщала бы ровно то же, что неполный выбор.
+     * А вот НАСКОЛЬКО неполный, флажок сказать не умеет — это несёт число
+     * «3 из 10», и оно же сообщает размер традиции.
+     *
+     * indeterminate — СВОЙСТВО DOM, а не атрибут разметки: в HTML его при
+     * сборке строк не выставить, и обновлять его надо при КАЖДОМ изменении
+     * набора. Путей к набору семь (галочка философа, «Все», «Сбросить», «=»,
+     * галочка традиции, сброс традиции, правка философа), и запоминать их
+     * все — верный способ однажды забыть. Поэтому вызов ОДИН и висит на
+     * событии 'filters-applied', как и счётчики: набор меняют только через
+     * applyFilters.
+     */
+    function syncTraditionRows() {
+      const rowIds = [...traditions.map(t => t.id), WITHOUT_TRADITION];
+      rowIds.forEach(id => {
+        const cb = document.getElementById('trad-' + id);
+        if (!cb) return;
+        const members = traditionMembers(id);
+        const selected = members.filter(n => selectedPhilosophers.has(n)).length;
+        cb.checked = members.length > 0 && selected === members.length;
+        cb.indeterminate = selected > 0 && selected < members.length;
+
+        const countEl = document.getElementById('trad-count-' + id);
+        if (countEl) countEl.textContent = ' (' + selected + ' из ' + members.length + ')';
+
+        const row = cb.closest('.legend-item');
+        if (row && id === WITHOUT_TRADITION) row.style.display = members.length ? '' : 'none';
+
+        // Безусловный сброс назван поимённо ДО нажатия: кого именно снимет.
+        const resetBtn = document.getElementById('trad-reset-' + id);
+        if (resetBtn) {
+          const willDrop = members.filter(n => selectedPhilosophers.has(n));
+          resetBtn.disabled = willDrop.length === 0;
+          resetBtn.setAttribute('data-tip', willDrop.length
+            ? 'Снять философов этой традиции: ' + willDrop.slice(0, 6).join(', ')
+              + (willDrop.length > 6 ? ' и ещё ' + (willDrop.length - 6) : '')
+            : 'Из этой традиции никто не выбран');
+        }
+      });
     }
 
-    function addTradition(traditionId) {
-      traditionMembers(traditionId).forEach(name => selectedPhilosophers.add(name));
+    function onlyTradition(traditionId) {
+      selectedPhilosophers = new Set(traditionMembers(traditionId));
       syncPhilosopherCheckboxes();
       applyFilters();
     }
@@ -26718,25 +26857,6 @@
       // Ф0.4: маркеры масштабировались stroke-width, теперь размер считаем сами
       uniformLinkWidthActive = isUniform;
       updateArrows();
-    }
-
-    // Философ, выбранный галочкой, но отсечённый традициями, не исчезает
-    // из панели и не теряет галочки — он приглушается. Так видно и что
-    // выбрано, и что из выбранного сейчас действует.
-    function updatePhilosopherDimming() {
-      Object.keys(philosopherConcepts).forEach(name => {
-        const cb = document.getElementById('phil-' + name);
-        if (!cb) return;
-        const row = cb.closest('.legend-item');
-        if (!row) return;
-        const dim = cb.checked && !philosopherPassesTraditions(name);
-        row.style.opacity = dim ? '0.35' : '';
-        if (dim) row.setAttribute('data-tip', 'Отсечён отбором по традициям');
-        // Не removeAttribute: подсказку строки ставит и makeLegendsEditable, и
-        // снимать чужое здесь значило бы стирать её на каждом отборе — что и
-        // происходило. Возвращаем ту же, из общего места.
-        else row.setAttribute('data-tip', philRowTip());
-      });
     }
 
     // Обновление статистики фильтров
@@ -26917,14 +27037,14 @@
      */
     const FORMULA_VERSIONS = Object.freeze({
       abstractionIndex: 1,
-      calculateBetweenness: 1,
+      calculateBetweenness: 2,
       calculateClosenessCentrality: 1,
       calculateClusteringCoefficient: 1,
       calculateEigenvectorCentrality: 1,
       calculateLocalCohesion: 1,
-      calculatePageRank: 1,
-      calculateRichClubCoefficient: 1,
-      calculateWeightedClustering: 1,
+      calculatePageRank: 2,
+      calculateRichClubCoefficient: 2,
+      calculateWeightedClustering: 2,
       calculateWeightedDegree: 1,
       conceptualComplexityIndex: 1,
       conceptualContinuityIndex: 1,
@@ -26932,21 +27052,21 @@
       criticalPowerIndex: 1,
       deductiveDepth: 1,
       deductiveIndex: 1,
-      dialogicalIndex: 1,
+      dialogicalIndex: 2,
       foundationalIndex: 1,
       generativeIndex: 1,
       influenceIndex: 1,
       instrumentalIndex: 1,
-      internalCoherenceIndex: 1,
+      internalCoherenceIndex: 2,
       paradigmShiftIndex: 1,
       philosopherHistoricalReachIndex: 1,
       philosopherInterdisciplinaryIndex: 1,
       philosopherSystematicIndex: 1,
-      problemGenerationIndex: 1,
-      revolutionaryIndex: 1,
-      syntheticIndex: 1,
+      problemGenerationIndex: 2,
+      revolutionaryIndex: 2,
+      syntheticIndex: 2,
       temporalInfluencePattern: 1,
-      tensionIndex: 1,
+      tensionIndex: 2,
       traditionBridgingIndex: 1,
       transformationIndex: 1
     });
@@ -27125,6 +27245,18 @@
         const src = link.source.id || link.source;
         const tgt = link.target.id || link.target;
         const weight = link.weight || 2;
+
+        // ПЕТЛЯ НЕ ЕСТЬ СВЯЗЬ ДВУХ УЗЛОВ. Списки смежности строились без этой
+        // проверки, и 35 петель базы попадали во все восемь сетевых метрик:
+        // узел становился собственным соседом (+1 к степени и к знаменателю
+        // кластеризации), а в PageRank петля с единственной исходящей связью
+        // превращалась в сток — «Идеальная речевая ситуация» брала 94 % своего
+        // значения у самой себя и стояла первой.
+        // Философских метрик правка не касается: у них петли уже отсеяны
+        // в buildIncomingLinks/buildOutgoingLinks, а те, кому петля нужна
+        // по существу (conceptualComplexityIndex, foundationalIndex,
+        // tensionIndex), берут её поимённо через reflexiveLinkOf.
+        if (src === tgt) return;
         
         // КРИТИЧНО: учитываем useWeightedPaths при построении!
         // Когда источник подменён, учёт уже сделан в данных, и эти
@@ -27227,7 +27359,15 @@
       for (let sourceIdx = 0; sourceIdx < nodes.length; sourceIdx++) {
         const source = nodes[sourceIdx];
         
-        const S = []; // Стек узлов в порядке невозрастающего расстояния
+        // ИМЯ СТЕКА. Прежде он звался S — и затенял пространство имён S,
+        // в котором живут useWeightedPaths и respectDirection. Строки
+        // `if (S.useWeightedPaths)` и `if (S.respectDirection)` спрашивали
+        // не приложение, а этот массив, получали undefined и всегда шли
+        // в ненаправленную невзвешенную ветку. Замерено: посредничество
+        // не менялось от галочки весов ВООБЩЕ, а от галочки направленности
+        // менялось ровно вдвое — то есть обход был один и тот же, а разный
+        // был только делитель normFactor, стоящий ниже цикла, вне тени.
+        const stack = []; // Стек узлов в порядке невозрастающего расстояния
         const P = {}; // Предшественники на кратчайших путях
         const sigma = {}; // Количество кратчайших путей
         const d = {}; // Расстояния
@@ -27255,7 +27395,7 @@
             
             if (visited.has(v)) continue;
             visited.add(v);
-            S.push(v);
+            stack.push(v);
             
             // Получаем соседей из предпостроенного графа
             let neighbors;
@@ -27268,15 +27408,21 @@
             neighbors.forEach(({ node: w, distance }) => {
               const weight = distance;
               const newDist = d[v] + weight;
-              
-              // Путь к w найден впервые или улучшен?
-              if (d[w] === Infinity) {
+
+              // РЕЛАКСАЦИЯ, А НЕ ПЕРВОЕ ОБНАРУЖЕНИЕ. Прежде расстояние
+              // ставилось один раз, при первой встрече (`if (d[w] === Infinity)`),
+              // и найденный позже более короткий путь молча отбрасывался —
+              // вместе с ним портились sigma и список предшественников.
+              // Ветка была недостижима из-за затенённого имени S, поэтому
+              // изъян и не вскрывался; открыть её, не починив, значило бы
+              // заменить заведомо чужие числа на неверные.
+              if (newDist < d[w] - 1e-10) {
                 d[w] = newDist;
+                sigma[w] = sigma[v];
+                P[w] = [v];
                 pq.push([newDist, w]);
-              }
-              
-              // Кратчайший путь к w через v?
-              if (Math.abs(d[w] - newDist) < 1e-10) {  // Учитываем погрешность float
+              } else if (Math.abs(d[w] - newDist) < 1e-10) {
+                // Ещё один кратчайший путь той же длины
                 sigma[w] += sigma[v];
                 P[w].push(v);
               }
@@ -27288,7 +27434,7 @@
           
           while (Q.length > 0) {
             const v = Q.shift();
-            S.push(v);
+            stack.push(v);
             
             // Получаем соседей из предпостроенного графа
             let neighbors;
@@ -27317,8 +27463,8 @@
         }
         
         // Накопление (обратный проход) - одинаково для обоих случаев
-        while (S.length > 0) {
-          const w = S.pop();
+        while (stack.length > 0) {
+          const w = stack.pop();
           P[w].forEach(v => {
             delta[v] += (sigma[v] / sigma[w]) * (1 + delta[w]);
           });
@@ -27407,11 +27553,24 @@
         let normalizationStrategy;
         
         if (respectDirection) {
-          // СТРАТЕГИЯ 1: НАПРАВЛЕННЫЙ ГРАФ (стандартный PageRank) - Нормализация по количеству исходящих ребер
+          // СТРАТЕГИЯ 1: НАПРАВЛЕННЫЙ ГРАФ. Нормировка по СУММЕ ВЕСОВ исходящих,
+          // а не по их числу. Прежде знаменателем было число рёбер, а вес
+          // входил в числитель делением на 3 — получалась не нормировка,
+          // а утечка: связь веса 1 передавала треть массы, и сумма всех
+          // значений оседала на 0,43 вместо единицы. Убрать деление на 3,
+          // оставив знаменателем число рёбер, было бы хуже утечки: средний
+          // вес связи в базе 2,32, узел раздавал бы вдвое больше, чем получил,
+          // и за двадцать итераций значения уходили в 10^6 (замерено).
+          // Сумма весов в знаменателе делает матрицу стохастической: сколько
+          // узел получил, столько и раздал, как бы ни были распределены веса.
           normalizationStrategy = {};
           nodes.forEach(node => {
+            let weightSum = 0;
             const outNeighbors = graph.outNeighbors[node.id] || [];
-            normalizationStrategy[node.id] = outNeighbors.length > 0 ? outNeighbors.length : 1;
+            outNeighbors.forEach(({ weight }) => {
+              weightSum += useWeightedPaths ? weight : 1;
+            });
+            normalizationStrategy[node.id] = weightSum > 0 ? weightSum : 1;
           });
           
         } else {
@@ -27430,31 +27589,36 @@
           });
         }
         
+        // ВИСЯЧИЕ УЗЛЫ. Узел без исходящих связей никому не передаёт свою
+        // массу, и она просто пропадала: семь таких узлов в базе. Канонический
+        // PageRank раздаёт их массу поровну всем — это и делает столбец
+        // матрицы стохастическим там, где ссылок нет вовсе.
+        const danglingNodes = respectDirection
+          ? nodes.filter(n => (graph.outNeighbors[n.id] || []).length === 0)
+          : nodes.filter(n => (graph.allNeighbors[n.id] || []).length === 0);
+
         // ОБЩИЙ ИТЕРАТИВНЫЙ АЛГОРИТМ         
         for (let iter = 0; iter < iterations; iter++) {
           const newPageRank = {};
-          
+
+          const danglingMass = danglingNodes
+            .reduce((s, n) => s + pageRank[n.id], 0) / nodes.length;
+
           nodes.forEach(node => {
-            let sum = 0;
+            let sum = danglingMass;
             
             // Получаем входящих соседей в зависимости от режима
             const incomingNeighbors = respectDirection 
               ? (graph.inNeighbors[node.id] || [])
               : (graph.allNeighbors[node.id] || []);
             
-            // Суммируем вклады от всех входящих соседей
+            // Суммируем вклады от всех входящих соседей. Ветка у обоих
+            // режимов теперь одна: вес ребра стоит в числителе как есть,
+            // а сумма весов соседа — в знаменателе.
             incomingNeighbors.forEach(({ node: neighbor, weight }) => {
               const normalizationFactor = normalizationStrategy[neighbor];
-              
-              if (respectDirection) {
-                // Для направленного: вес ребра учитывается через деление на 3 (нормализация к диапазону [0.33, 0.67, 1.0] для весов 1-3)
-                const edgeWeight = useWeightedPaths ? weight / 3.0 : 1.0;
-                sum += (pageRank[neighbor] * edgeWeight) / normalizationFactor;
-              } else {
-                // Для ненаправленного: вес ребра используется в нормализации (создает асимметрию даже при симметричной структуре)
-                const edgeWeight = useWeightedPaths ? weight : 1;
-                sum += (pageRank[neighbor] * edgeWeight) / normalizationFactor;
-              }
+              const edgeWeight = useWeightedPaths ? weight : 1;
+              sum += (pageRank[neighbor] * edgeWeight) / normalizationFactor;
             });
             
             // Формула PageRank: (1-d)/N + d × sum
@@ -27473,8 +27637,12 @@
           }
         }
         
-        // ФИНАЛЬНАЯ НОРМАЛИЗАЦИЯ - Для ненаправленного графа нормализуем сумму к 1 для лучшей читаемости
-        if (!respectDirection) {
+        // ФИНАЛЬНАЯ НОРМАЛИЗАЦИЯ — теперь в ОБОИХ режимах. После раздачи
+        // массы висячих узлов сумма и так держится около единицы, и деление
+        // снимает лишь накопленную погрешность; прежде же направленный режим
+        // оставался ненормированным, и его числа нельзя было сравнивать
+        // с ненаправленными.
+        {
           const totalPR = Object.values(pageRank).reduce((a, b) => a + b, 0);
           if (totalPR > 0) {
             Object.keys(pageRank).forEach(key => {
@@ -27705,6 +27873,11 @@
      * Взвешенный коэффициент кластеризации (Barrat et al., 2004)
      * Учитывает силу связей в треугольниках
      */
+    // Наименьшее число соседей, при котором доля замкнутых пар что-то
+    // значит. Замер по базе: узлов со степенью >= 5 — 524 из 718, медиана
+    // степени 6, то есть порог отсекает хвост, а не половину графа.
+    const WEIGHTED_CLUSTERING_MIN_DEGREE = 5;
+
     function calculateWeightedClustering() {
       if (weightedClusteringCache) return weightedClusteringCache;
       
@@ -27761,9 +27934,41 @@
           }
         }
         
-        // Нормализация
+        // ОТСЕЧЕНИЕ ПО СТЕПЕНИ. Коэффициент кластеризации вырожден при малом
+        // числе соседей: при k = 2 знаменатель равен ЕДИНИЦЕ, и один
+        // треугольник даёт сразу максимум. Прежде верхушку занимали
+        // исключительно такие узлы (среднее число соседей в первой
+        // тридцатке — 4,2 против 7,2 по графу), и вид отвечал не на вопрос
+        // «где плотная окрестность», а на вопрос «у кого окрестность мала
+        // настолько, что замкнулась целиком».
+        // Порог назван числом, а не долей: он говорит о СВОЙСТВЕ ФОРМУЛЫ
+        // (сколько нужно соседей, чтобы знаменатель перестал быть вырожден),
+        // а не о составе базы. При k = 5 возможных треугольников десять —
+        // этого довольно, чтобы доля что-то значила.
+        // Узел ниже порога не выбрасывается из списка: он получает нулевое
+        // значение и пометку, чтобы карточка могла объяснить, почему.
+        if (k < WEIGHTED_CLUSTERING_MIN_DEGREE) {
+          clustering[node.id] = {
+            node: node,
+            value: 0,
+            triangles: 0,
+            neighbors: k,
+            maxTriangles: (k * (k - 1)) / 2,
+            belowDegreeThreshold: true,
+            degreeThreshold: WEIGHTED_CLUSTERING_MIN_DEGREE
+          };
+          return;
+        }
+
+        // Нормализация. Делитель — не только ЧИСЛО возможных треугольников,
+        // но и наибольший вес связи: в числителе стоит средний вес
+        // треугольника, а он доходит до 3. Прежде коэффициент выходил
+        // за единицу (максимум по базе был ровно 3,0, выше единицы —
+        // 35 узлов), то есть «доля» доходила до 300 %.
+        // Веса в базе принимают ровно три значения (1, 2, 3), поэтому
+        // делитель точен, а не приблизителен.
         const maxPossibleTriangles = (k * (k - 1)) / 2;
-        const normalizedValue = weightedTriangles / maxPossibleTriangles;
+        const normalizedValue = weightedTriangles / maxPossibleTriangles / 3.0;
         
         clustering[node.id] = {
           value: normalizedValue,
@@ -27823,8 +28028,21 @@
     }
 
     /**
-     * Rich-Club коэффициент
-     * Показывает степень связности узла с другими высокостепенными узлами
+     * Rich-Club: участие узла в клубе самых связных.
+     *
+     * ПРЕЖНЯЯ ФОРМУЛА СЧИТАЛА ОБРАТНОЕ. Она брала долю соседей, чья степень
+     * не ниже собственной, — а у узла степени 2 таковы почти все соседи,
+     * и отношение равнялось единице даром. Замер: значение коррелировало
+     * со степенью узла с коэффициентом −0,73; узлов с отношением 1 набралось
+     * 267; «Диалектика», самая связная концепция графа, стояла 717-й из 718.
+     * Вид показывал не элиту, а периферию, подвешенную к хабам.
+     *
+     * Клуб задан ВЕРХНИМ ДЕЦИЛЕМ по степени — порог считается по самому графу,
+     * а не назначен числом, и потому переживает рост базы. Значение узла есть
+     * его собственная степень, умноженная на долю связей, ведущих в клуб:
+     * множитель на степень снимает вырождение листьев, доля отвечает за то,
+     * с кем именно узел связан. Величина растёт и от того, и от другого,
+     * и обнуляется у того, кто с клубом не связан вовсе.
      */
     function calculateRichClubCoefficient() {
       if (richClubCache) return richClubCache;
@@ -27837,6 +28055,12 @@
         const neighborCount = (graph.adjacency[node.id] || []).length;
         degrees.set(node.id, neighborCount);
       });
+
+      // Порог клуба: верхний дециль по степени
+      const sortedDegrees = [...degrees.values()].sort((a, b) => b - a);
+      const clubIndex = Math.max(0, Math.floor(sortedDegrees.length * 0.1) - 1);
+      const clubThreshold = sortedDegrees.length ? sortedDegrees[clubIndex] : 0;
+      const clubSize = sortedDegrees.filter(d => d >= clubThreshold).length;
       
       const richClub = nodes.map(node => {
         const neighbors = graph.adjacency[node.id] || [];
@@ -27847,39 +28071,42 @@
             node: node,
             value: 0,
             degree: 0,
-            avgNeighborDegree: 0
+            avgNeighborDegree: 0,
+            clubNeighbors: 0,
+            clubShare: 0,
+            clubThreshold: clubThreshold,
+            clubSize: clubSize,
+            inClub: false
           };
         }
         
         // Средняя степень соседей
         let neighborDegreeSum = 0;
-        let highDegreeNeighbors = 0;
+        let clubNeighbors = 0;
         
         neighbors.forEach(({ node: neighborId }) => {
           const neighborDegree = degrees.get(neighborId) || 0;
           neighborDegreeSum += neighborDegree;
           
-          // Считаем "богатых" соседей (степень выше или равна моей)
-          if (neighborDegree >= myDegree) {
-            highDegreeNeighbors++;
+          // Член клуба — сосед из верхнего дециля по степени
+          if (neighborDegree >= clubThreshold) {
+            clubNeighbors++;
           }
         });
         
         const avgNeighborDegree = neighborDegreeSum / neighbors.length;
-        
-        // Rich-club score: отношение богатых соседей к общему числу
-        const richClubRatio = highDegreeNeighbors / neighbors.length;
-        
-        // Комбинированная метрика
-        const combinedScore = richClubRatio * Math.log(1 + avgNeighborDegree);
+        const clubShare = clubNeighbors / neighbors.length;
         
         return {
           node: node,
-          value: combinedScore,
-          richClubRatio: richClubRatio,
+          value: myDegree * clubShare,
+          clubShare: clubShare,
+          clubNeighbors: clubNeighbors,
           degree: myDegree,
           avgNeighborDegree: avgNeighborDegree,
-          highDegreeNeighbors: highDegreeNeighbors
+          clubThreshold: clubThreshold,
+          clubSize: clubSize,
+          inClub: myDegree >= clubThreshold
         };
       });
       
@@ -28249,14 +28476,17 @@
       // ============================================
       // 1. ИММАНЕНТНЫЕ ПРОТИВОРЕЧИЯ (исходный подход верен!)
       // ============================================
-      const internalContradictions = incoming.filter(r => 
-        r.type === 'internal_contradiction'
-      ).reduce((sum, r) => sum + (r.weight || 1), 0);
-      
-      // Также учитываем противоречия, которые эта концепция порождает
-      const outgoingContradictions = outgoing.filter(r => 
-        r.type === 'internal_contradiction'
-      ).reduce((sum, r) => sum + (r.weight || 1), 0);
+      // СИММЕТРИЧНАЯ СВЯЗЬ ЛЕЖИТ В ОБОИХ СПИСКАХ, и прежде эти два
+      // слагаемых складывали одно и то же дважды: тип
+      // 'internal_contradiction' помечен symmetric, значит исходящая связь
+      // зеркалится во входящие того же конца. Разделение на «полученные»
+      // и «порождённые» для симметричного типа бессмысленно по существу:
+      // противоречие внутри системы не имеет направления. Считаем один раз
+      // и раскладываем пополам, чтобы сохранить оба слагаемых формулы.
+      const contradictionWeight = sumWeight(
+        linksBothWays(conceptId).filter(r => r.type === 'internal_contradiction'));
+      const internalContradictions = contradictionWeight / 2;
+      const outgoingContradictions = contradictionWeight / 2;
       
       // ============================================
       // 2. ПОРОЖДЕНИЕ ПРОБЛЕМАТИЗАЦИИ (новое!)
@@ -28597,9 +28827,11 @@
       // 4. ДИСКУССИОННОСТЬ (новое)
       // ============================================
       // Двунаправленные диалоги - признак спорной новизны
-      const bidirectionalDialogues = [...incoming, ...outgoing].filter(r => 
+      // Деление на два убрано: linksBothWays уже отдаёт каждую связь
+      // однажды. Правило записано в одном месте, а не пересказано здесь.
+      const bidirectionalDialogues = linksBothWays(conceptId).filter(r => 
         r.type === 'dialogue' && r.bidirectional
-      ).length / 2; // Делим на 2, т.к. каждая связь учитывается дважды
+      ).length;
 
       // ============================================
       // 5. МЕЖДИСЦИПЛИНАРНОСТЬ (новое)
@@ -28919,6 +29151,30 @@
       return links.reduce((s, r) => s + (r.weight || 1), 0);
     }
 
+    /**
+     * Связи концепции в обе стороны, КАЖДАЯ ПО ОДНОМУ РАЗУ.
+     *
+     * buildIncomingLinks и buildOutgoingLinks зеркалят симметричную связь
+     * в ОБА списка — иначе концепция, стоящая на её дальнем конце, не увидела
+     * бы связи вовсе. Поэтому `incoming.concat(outgoing)` считает симметричную
+     * связь дважды, а несимметричную — один раз, и слагаемое одного типа
+     * оказывается вдвое весомее слагаемого другого без всякого основания.
+     * Проверяется арифметикой: у «Мировой воли» две исходящие связи
+     * внутреннего противоречия веса 3, честная сумма 2 × 3 × 1,5 = 9,
+     * а индекс напряжения показывал 18.
+     *
+     * Правило простое и записано здесь ОДИН раз: симметричная связь уже
+     * лежит во входящих у обоих концов, значит из исходящих её надо
+     * исключить. revolutionaryIndex прежде делил итог на два вручную —
+     * то есть знал о двойном счёте, но знание не разошлось по остальным
+     * пяти местам.
+     */
+    function linksBothWays(conceptId) {
+      const incoming = _incomingLinks.get(conceptId) || [];
+      const outgoing = _outgoingLinks.get(conceptId) || [];
+      return incoming.concat(outgoing.filter(r => !isSymmetricLink(r)));
+    }
+
     // Философ другого конца связи относительно заданного концепта
     function otherPhilosopher(r, conceptId) {
       const other = _conceptMap.get(r.source === conceptId ? r.target : r.source);
@@ -28996,7 +29252,8 @@
             .filter(Boolean));
       const syntheses   = synthesizedFrom.size >= 2 ? synthesizedFrom.size * 2 : 0;
       const mediations  = sumWeight(outgoing.filter(r => r.type === 'mediate'));
-      const complements = sumWeight(incoming.concat(outgoing).filter(r => r.type === 'complement'));
+      // 'complement' симметричен: incoming.concat(outgoing) считал его дважды.
+      const complements = sumWeight(linksBothWays(conceptId).filter(r => r.type === 'complement'));
       // М1.3: тип связи 'reconcile' не существует ни в relationTypes, ни в данных
       // (0 рёбер), поэтому слагаемое reconciliations*2 всегда было нулевым.
 
@@ -29049,6 +29306,11 @@
     // Кеш для dialogicalIndex
     let dialogicalIndexCache = null;
 
+    // Во сколько раз взаимный диалог весомее одностороннего. Значение взято
+    // из уже принятого в проекте образца: tensionIndex даёт за взаимность
+    // ровно столько же.
+    const MUTUAL_DIALOGUE_BONUS = 1.5;
+
     function dialogicalIndex(conceptId) {
 
       const incoming = _incomingLinks.get(conceptId) || [];
@@ -29060,9 +29322,27 @@
       //   двунаправленный диалог засчитывался дважды. Теперь только диалоги.
       // М10: 'complement' суммировался в обе стороны, а 'dialogue' — в одну.
       //   Теперь единый подход ко всем компонентам.
-      const all = incoming.concat(outgoing);
+      // М11: 'complement' симметричен, а 'dialogue' бывает двунаправленным —
+      // и то и другое зеркалится в оба списка. Единый подход ко всем
+      // слагаемым теперь означает единый ОДНОКРАТНЫЙ счёт, а не единое удвоение.
+      // М12: НАДБАВКА ЗА ВЗАИМНОСТЬ СТАЛА МНОЖИТЕЛЬНОЙ. Плоская прибавка
+      // mutualDialogues * 3 не согласовывалась со шкалой: объём диалогов
+      // растёт с весом связи, а цена взаимности стояла постоянной, и
+      // взаимный диалог оказывался дороже одностороннего в 2,5 раза при
+      // весе 1 и всего в 1,5 раза при весе 3. Теперь взаимность — множитель
+      // на вес, как в tensionIndex (bidirectionalBonus), и отношение
+      // постоянно при любом весе.
+      // Двойной счёт через зеркало снят отдельно (см. linksBothWays): цена
+      // взаимности назначается ЗДЕСЬ и видна в формуле, а не берётся из
+      // устройства списков за две тысячи строк отсюда. Прежде она бралась
+      // трижды разом — удвоением dialogues, удвоением mutualDialogues
+      // и коэффициентом 3.
+      const all = linksBothWays(conceptId);
       const dialogueLinks = all.filter(r => r.type === 'dialogue');
-      const dialogues = sumWeight(dialogueLinks);
+      const dialogues = dialogueLinks.reduce(
+        (sum, r) => sum + (r.weight || 1) * (r.bidirectional ? MUTUAL_DIALOGUE_BONUS : 1), 0);
+      // Остаётся ПОКАЗЫВАЕМЫМ числом: сколько собеседников отвечали, —
+      // но в итог уже не входит отдельным слагаемым.
       const mutualDialogues = dialogueLinks.filter(r => r.bidirectional).length;
       const complements = sumWeight(all.filter(r => r.type === 'complement'));
 
@@ -29080,7 +29360,7 @@
       });
 
       return {
-      total: dialogues * 2 + mutualDialogues * 3 + complements + interlocutors.size * 1.5,
+      total: dialogues * 2 + complements + interlocutors.size * 1.5,
       dialogues,
       dialoguesIn,
       dialoguesOut,
@@ -29105,7 +29385,9 @@
       const incoming = _incomingLinks.get(conceptId) || [];
       const outgoing = _outgoingLinks.get(conceptId) || [];
 
-      const internalLinks = incoming.concat(outgoing).filter(r => {
+      // 'complement', 'correlative' и 'internal_contradiction' симметричны:
+      // прежде удваивались обе чаши весов разом.
+      const internalLinks = linksBothWays(conceptId).filter(r => {
       const other = _conceptMap.get(r.source === conceptId ? r.target : r.source);
       return other && other.philosopher === concept.philosopher;
       });
@@ -29214,42 +29496,67 @@
       // (внутренняя противоречивость концепции)
       // ============================================
       
+      // Связи в обе стороны, каждая по одному разу: 'internal_contradiction'
+      // и 'complement' симметричны и лежат в обоих списках, и прежний
+      // [...incoming, ...outgoing] считал их дважды. У «Мировой воли»
+      // выходило 18 вместо 9, и обе верхние позиции вида были удвоены.
+      const bothWays = linksBothWays(conceptId);
+
       // 1.1 Внутренние противоречия (главный источник)
-      // Самоопровержение и самоограничение. Формула уже берёт
-      // противоречия с обеих сторон разом и уже даёт надбавку
-      // за взаимность; петля есть предельный случай взаимности,
-      // и надбавка 1.5 причитается ей по построению.
+      // ПЕТЛЯ ВЕРНУЛА СВОЙ ВКЛАД. Прежний комментарий обещал, что петля
+      // учтётся общей формулой как предельный случай взаимности, — но
+      // buildIncomingLinks и buildOutgoingLinks отсеивают петли ещё при
+      // построении, и слагаемые selfContradiction/selfLimit вычислялись
+      // и никуда не подставлялись. У шести концепций (Знаю, что ничего
+      // не знаю; Антиномии; Объективация; Теория изображения; Принцип
+      // верификации; Негативная диалектика; Метарассказ) внутреннее
+      // противоречие не учитывалось вовсе — при том что понятие,
+      // противоречащее самому себе, и есть чистейший случай имманентного
+      // напряжения.
       const _rflT = reflexiveLinkOf(conceptId);
       const selfContradiction = (_rflT && _rflT.type === 'internal_contradiction')
         ? (_rflT.weight || 2) * 1.5 : 0;
       const selfLimit = (_rflT && _rflT.type === 'limit') ? (_rflT.weight || 2) : 0;
 
-      const internalContradictions = [...incoming, ...outgoing].filter(r => 
+      const internalContradictions = bothWays.filter(r => 
         r.type === 'internal_contradiction'
       ).reduce((sum, r) => {
         // Симметричность и есть взаимность: у internal_contradiction
         // она свойство типа, поэтому надбавка полагается всем.
         const bidirectionalBonus = isSymmetricLink(r) ? 1.5 : 1;
         return sum + (r.weight || 1) * bidirectionalBonus;
-      }, 0);
+      }, selfContradiction);
       
       // 1.2 Ограничения (напряжение границ)
-      const acknowledgedLimits = [...incoming, ...outgoing].filter(r => 
+      const acknowledgedLimits = bothWays.filter(r => 
         r.type === 'limit'
-      ).length;
+      ).length + (selfLimit ? 1 : 0);
       
-      // 1.3 Условность (зависимость от предпосылок)
-      const conditionalDependencies = incoming.filter(r => 
-        r.type === 'condition'
+      // 1.3 Соотносительность (понятие без опоры вне своей пары)
+      // C8: на этом месте стояла УСЛОВНОСТЬ — входящие связи 'condition',
+      // «X есть условие Y». Обусловленность не есть напряжённость:
+      // понятие с аккуратно прописанными предпосылками построено хорошо,
+      // а не разрываемо изнутри. Выбор был вдобавок непоследователен —
+      // рядом живёт 'presuppose' (212 рёбер), та же зависимость, записанная
+      // с другого конца, и в напряжение она не входила. А замер показывал,
+      // что из 214 концепций с ненулевым имманентным напряжением 135
+      // получали его ТОЛЬКО через 'condition': вид мерил густоту разметки
+      // условий, а не свойство понятий.
+      // Взамен взято 'correlative' — «X и Y определимы только друг через
+      // друга, обоснования нет ни в одну сторону». Вот это напряжение
+      // по самому устройству: понятие, не имеющее опоры вне своей пары.
+      // Тип симметричен, и bothWays отдаёт его однажды.
+      const correlativePairs = bothWays.filter(r => 
+        r.type === 'correlative'
       ).length;
       
       // 1.4 Опосредование (стоять между противоположностями)
-      const mediations = [...incoming, ...outgoing].filter(r => 
+      const mediations = bothWays.filter(r => 
         r.type === 'mediate'
       ).length;
       
       // 1.5 Потребность в дополнении (неполнота)
-      const complementarityNeeds = [...incoming, ...outgoing].filter(r => 
+      const complementarityNeeds = bothWays.filter(r => 
         r.type === 'complement'
       ).length;
       
@@ -29258,10 +29565,12 @@
       // и обе метрики измеряли одно. Теперь tensionIndex целиком лежит
       // в логическом слое (A9) и распадается на противоречие,
       // опосредование и разрешение.
+      // C8: коэффициент соотносительности равен коэффициенту ограничения:
+      // и то и другое — напряжение границы, а не разрыв внутри.
       const immanentTension = 
         internalContradictions * 3.0 +
         acknowledgedLimits * 1.5 +
-        conditionalDependencies * 1.2;
+        correlativePairs * 1.5;
       
       // ============================================
       // УРОВЕНЬ 2: ПОЛЕМИЧЕСКОЕ НАПРЯЖЕНИЕ
@@ -29357,10 +29666,10 @@
       
       // Интенсивность (средний вес связей)
       // C7: интенсивность считается по тем же типам, что и сам индекс
-      const allTensionLinks = [
-        ...incoming.filter(r => ['internal_contradiction', 'limit', 'condition', 'mediate', 'complement'].includes(r.type)),
-        ...outgoing.filter(r => ['internal_contradiction', 'limit', 'mediate', 'complement'].includes(r.type))
-      ];
+      // C8: список приведён в согласие с самим индексом ('condition' вышел,
+      // 'correlative' вошёл) и считается однократно, как и слагаемые.
+      const allTensionLinks = bothWays.filter(r =>
+        ['internal_contradiction', 'limit', 'correlative', 'mediate', 'complement'].includes(r.type));
       const averageIntensity = allTensionLinks.length > 0
         ? allTensionLinks.reduce((sum, r) => sum + (r.weight || 1), 0) / allTensionLinks.length
         : 0;
@@ -29378,7 +29687,7 @@
         immanent: {
           internalContradictions,
           acknowledgedLimits,
-          conditionalDependencies
+          correlativePairs
         },
         
         // C7: ярус опосредования (прежде — полемического напряжения)
@@ -32349,7 +32658,7 @@
       outgoingContradictions: 'Исходящих противоречий',
       incomingCritiques: 'Полученной критики', incomingOppositions: 'Полученных оппозиций',
       acknowledgedLimits: 'Признанных ограничений',
-      conditionalDependencies: 'Условных зависимостей',
+      correlativePairs: 'Соотносительных пар',
       conceptsEmergedFrom: 'Порождённых концептов',
       independenceScore: 'Независимость от традиции', rubricDiversity: 'Разнообразие рубрик',
       futureImpact: 'Влияние в будущее',
@@ -32862,13 +33171,13 @@
     function generateRichClubContent() {
       if (!richClubCache || richClubCache.length === 0) {
         return generateCalculateButton('Rich-Club', 'rich-club',
-          'Степень связности узла с другими высокостепенными узлами');
+          'Собственная степень узла, умноженная на долю связей с верхним децилем по степени');
       }
       
       return generateMetricResults(
         richClubCache.slice(0, 30),
         '👑 Rich-Club',
-        'Философская элита сети',
+        'Участие в клубе самых связных концепций',
         'rich-club',
         'value',
         true
@@ -33189,10 +33498,10 @@
                     <span class="tension-detail-label">Признанные ограничения:</span>
                     <span class="tension-detail-value">${details.immanent.acknowledgedLimits}</span>
                   </div>` : ''}
-                ${details.immanent.conditionalDependencies > 0 ? 
+                ${details.immanent.correlativePairs > 0 ? 
                   `<div class="tension-detail-item">
-                    <span class="tension-detail-label">Условные зависимости:</span>
-                    <span class="tension-detail-value">${details.immanent.conditionalDependencies}</span>
+                    <span class="tension-detail-label">Соотносительные пары:</span>
+                    <span class="tension-detail-value">${details.immanent.correlativePairs}</span>
                   </div>` : ''}
                 ${details.immanent.mediations > 0 ? 
                   `<div class="tension-detail-item">
@@ -38318,10 +38627,13 @@
     // заслоны). Здесь снимается и возвращается только ВИД нажимаемого:
     // невошедшему о правке не сообщается ничем.
     // Подсказка строки философа в легенде. ОДНО МЕСТО, где написан её текст:
-    // ставят её двое — makeLegendsEditable при сборке строк и
-    // updatePhilosopherDimming, когда снимает своё «Отсечён отбором». Пока
-    // текст был написан у первого, второй не мог его вернуть и просто удалял
-    // атрибут — подсказки пропадали у всех 57 строк на первом же отборе.
+    // ставит её makeLegendsEditable при сборке строк. Второй хозяин у
+    // атрибута был — updatePhilosopherDimming, снимавшая своё «Отсечён
+    // отбором»; пока текст был написан у первого, второй не мог его вернуть
+    // и просто удалял атрибут — подсказки пропадали у всех строк на первом
+    // же отборе. Приглушения больше нет (отбор традицией слит с отбором
+    // философами), но одно место для текста осталось: хозяин должен быть
+    // один и тогда, когда он один.
     function philRowTip() {
       return can(PERM.CREATE_COMMIT)
         ? 'Щелчок — выбрать на графе, Ctrl+щелчок — добавить к выбору, двойной — окно философа, Shift+щелчок — правка'
@@ -40252,7 +40564,10 @@
       // Подложка лежит выше канвы и съела бы клик. На время выбора
       // пропускаем сквозь неё.
       const overlay = document.getElementById('modalOverlay');
-      if (overlay) overlay.style.pointerEvents = 'none';
+      if (overlay) {
+        overlay.style.pointerEvents = 'none';
+        overlay.classList.add('graph-picking');
+      }
 
       // Окно занимает середину экрана — приглушаем, но не прячем:
       // должно быть видно и граф, и что форма никуда не делась.
@@ -40278,7 +40593,10 @@
 
       gfxCanvas.style.cursor = '';
       const overlay = document.getElementById('modalOverlay');
-      if (overlay) overlay.style.pointerEvents = '';
+      if (overlay) {
+        overlay.style.pointerEvents = '';
+        overlay.classList.remove('graph-picking');
+      }
       const modal = document.getElementById('universalModal');
       if (modal) modal.classList.remove('graph-picking');
       const hint = document.getElementById('graph-selection-hint');
@@ -40905,6 +41223,20 @@
       openUniversalModal('concept', nodes[ni], 'view', { noPush: true });
     }
 
+    /**
+     * Удаление концепции. Зовётся из трёх мест: из подвала формы самой
+     * концепции, из перечня концепций в форме философа и из окна просмотра.
+     *
+     * В перечне философа кнопки не было вовсе, хотя в перечне связей формы
+     * концепции удаление стояло. Асимметрия была не умыслом, а упущением:
+     * довод conceptId функция принимала и раньше, не хватало кнопки и
+     * развилки в конце — deleteConcept закрывал окно БЕЗУСЛОВНО и захлопнул
+     * бы заодно форму философа, из которой его позвали. deleteConnection
+     * такую развилку имеет с самого начала; здесь она сделана по её образцу.
+     *
+     * Подтверждение не усиливали: оно и так называет, сколько связей уйдёт
+     * вместе с концепцией.
+     */
     function deleteConcept(conceptId) {
       const id = conceptId
           || (ModalContext.currentData && ModalContext.currentData.id);
@@ -40925,7 +41257,16 @@
           removeConceptEverywhere(id);
           afterDataChange({ nodes: true, links: true });
         });
-      closeUniversalModal();
+
+      // Если окно открыто на этой концепции — закрываем; если на философе,
+      // перерисовываем, чтобы перечень концепций не врал. Развилка та же,
+      // что в deleteConnection.
+      if (ModalContext.currentEntity === 'philosopher' && ModalContext.currentData) {
+        openUniversalModal('philosopher', ModalContext.currentData,
+                   ModalContext.currentMode, { noPush: true });
+      } else {
+        closeUniversalModal();
+      }
     }
 
     // ============================================
@@ -41339,6 +41680,9 @@
               <button class="modal-btn-secondary" style="flex:none;padding:6px 10px;"
                   data-tip="Редактировать"
                   onclick="openEditConceptModal('${c.id}')">✏️</button>
+              <button class="modal-edit-list-btn" style="flex:none;"
+                  data-tip="Удалить концепцию"
+                  onclick="deleteConcept('${c.id}')">🗑️</button>
             </div>`;
         });
         html += `
@@ -43355,9 +43699,9 @@
           
           // Обновляем подсказку. Про shift — только правщику.
           //
-          // ДЕФЕКТ: у атрибута data-tip оказалось ДВА хозяина. Здесь ставится
-          // подсказка строки, а updatePhilosopherDimming ставит свою («Отсечён
-          // отбором по традициям») и в противном случае СНИМАЛА атрибут вовсе.
+          // ДЕФЕКТ (снят вместе с приглушением): у атрибута data-tip было ДВА
+          // хозяина. Здесь ставится подсказка строки, а updatePhilosopherDimming
+          // ставила свою («Отсечён отбором по традициям») и иначе СНИМАЛА атрибут.
           // Она зовётся на каждое «filters-applied», то есть первый же отбор
           // стирал подсказки у всех 57 строк — и до следующего входа или
           // выхода они не возвращались. Замер: 57 из 57 подсказок пропадали
@@ -43448,7 +43792,11 @@
     // Подписки ставит СБОРКА: только здесь позволено знать и о фильтрах, и о
     // легенде разом. Нижние слои лишь извещают (см. шину событий).
     subscribe('filters-applied', updateFilterStats);
-    subscribe('filters-applied', updatePhilosopherDimming);
+    // Приглушение философов, отсечённых традициями, снято вместе с самим
+    // отсечением: отдельного запрета традиций больше нет, и приглушать
+    // стало нечего. На его место встала синхронизация строк традиций —
+    // одно событие, один вызов.
+    subscribe('filters-applied', syncTraditionRows);
     // Метрики: и данные движка, и все кэши. Одного вызова довольно —
     // invalidateEverythingForScope через invalidateAllMetricsCaches покрывает
     // все 38 функций сброса (проверено замером). Подписан ПЕРВЫМ: прочие

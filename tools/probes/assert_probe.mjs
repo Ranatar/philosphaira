@@ -180,7 +180,12 @@ if (модуль) {
     философы: document.querySelectorAll('#philosopherFilters input').length,
     связи: document.querySelectorAll('#relationFilters input').length,
     рубрики: document.querySelectorAll('#rubricFilters input').length,
-    традиции: document.querySelectorAll('#traditionFilters input').length,
+    // Строк на одну больше, чем традиций: последняя — «вне традиций»,
+    // и она спрятана, пока философов без разметки нет. Считаем ОТДЕЛЬНО,
+    // иначе показатель ответил бы «26 вместо 25» и не сказал, почему.
+    традиции: document.querySelectorAll('#traditionFilters input').length
+              - (document.getElementById('trad-no_tradition') ? 1 : 0),
+    внеТрадиций: !!document.getElementById('trad-no_tradition'),
     источник: document.querySelectorAll('#sourceSelectDropdown .concept-row').length,
     цель: document.querySelectorAll('#targetSelectDropdown .concept-row').length,
     вкладок: document.querySelectorAll('.stats-nav-item').length,
@@ -189,6 +194,7 @@ if (модуль) {
   проверить('легенда: галочек типов связей', п.связи === ЖДЁМ.типовСвязей, ЖДЁМ.типовСвязей, п.связи);
   проверить('легенда: галочек рубрик', п.рубрики === ЖДЁМ.рубрик, ЖДЁМ.рубрик, п.рубрики);
   проверить('легенда: галочек традиций', п.традиции === ЖДЁМ.традиций, ЖДЁМ.традиций, п.традиции);
+  проверить('в легенде есть строка «вне традиций»', п.внеТрадиций === true, true, п.внеТрадиций);
   проверить('поиск пути: список источника полон', п.источник === ЖДЁМ.концепций, ЖДЁМ.концепций, п.источник);
   проверить('поиск пути: список цели полон', п.цель === ЖДЁМ.концепций, ЖДЁМ.концепций, п.цель);
   проверить('статистика: вкладок', п.вкладок === ЖДЁМ.вкладокСтатистики, ЖДЁМ.вкладокСтатистики, п.вкладок);
@@ -1415,6 +1421,86 @@ if (модуль) {
   проверить('вес назван словами легенды',
     о.словарьВеса === 'побочная связь|обычная связь|несущая связь',
     'побочная|обычная|несущая', о.словарьВеса);
+}
+
+// ── 10-трет. строки традиций отвечают набору философов ─────────────
+//
+// Прежде отбор держался на ДВУХ независимых наборах: selectedPhilosophers
+// и selectedTraditions. Второй накладывался поверх третьим запретом, о
+// котором не знали ни список философов, ни режимы «Связанные сети» и
+// «Сквозные цепочки» — те теряли традиции молча. Набор слит в один,
+// строка традиции стала показателем состояния; согласованность показателя
+// с набором не проверял никто, поэтому расхождение и жило.
+{
+  const состояние = async () => page.evaluate(() => {
+    const A = window.__t;
+    const выбр = A.S.selectedPhilosophers;
+    const все = A.DATA.traditions.map(t => t.id);
+    const плохо = [];
+    for (const id of [...все, 'no_tradition']) {
+      const cb = document.getElementById('trad-' + id);
+      if (!cb) { плохо.push(id + ': нет строки'); continue; }
+      const члены = A.traditionMembers(id);
+      const n = члены.filter(x => выбр.has(x)).length;
+      const ждёмОтмечен = члены.length > 0 && n === члены.length;
+      const ждёмНеполный = n > 0 && n < члены.length;
+      if (cb.checked !== ждёмОтмечен) плохо.push(id + ': отмечен ' + cb.checked);
+      if (cb.indeterminate !== ждёмНеполный) плохо.push(id + ': неполный ' + cb.indeterminate);
+      const c = document.getElementById('trad-count-' + id);
+      if (!c || c.textContent.trim() !== '(' + n + ' из ' + члены.length + ')')
+        плохо.push(id + ': счёт «' + (c ? c.textContent.trim() : '—') + '»');
+    }
+    return { плохо, выбрано: выбр.size };
+  });
+
+  await page.evaluate(() => window.__t.deselectAllPhilosophers());
+  await wait(900);
+  let с = await состояние();
+  проверить('строки традиций отвечают пустому набору', с.плохо.length === 0, 0, с.плохо[0] || 0);
+
+  await page.evaluate(() => window.__t.selectAllPhilosophers());
+  await wait(900);
+  с = await состояние();
+  проверить('строки традиций отвечают полному набору', с.плохо.length === 0, 0, с.плохо[0] || 0);
+
+  // Частичный набор: неполный выбор и счёт должны его показать.
+  await page.evaluate(() => window.__t.onlyTradition('existentialism'));
+  await wait(900);
+  с = await состояние();
+  проверить('строки традиций отвечают частичному набору', с.плохо.length === 0, 0, с.плохо[0] || 0);
+
+  const ч = await page.evaluate(() => {
+    const cb = document.getElementById('trad-phenomenology');
+    const c = document.getElementById('trad-count-phenomenology');
+    return { неполный: cb.indeterminate, счёт: c.textContent.trim() };
+  });
+  проверить('пересекающаяся традиция показана неполной', ч.неполный === true, true, ч.неполный);
+
+  // БЕЗУСЛОВНЫЙ СБРОС: снимает всех членов, даже состоящих в другой
+  // традиции с частичным выбором. Порядок нажатий на итог не влияет.
+  const до = await page.evaluate(() => window.__t.S.selectedPhilosophers.size);
+  await page.evaluate(() => window.__t.resetTradition('existentialism'));
+  await wait(900);
+  const после = await page.evaluate(() => ({
+    осталось: window.__t.S.selectedPhilosophers.size,
+    хайдеггер: window.__t.S.selectedPhilosophers.has('Хайдеггер'),
+    феноменология: document.getElementById('trad-count-phenomenology').textContent.trim(),
+  }));
+  проверить('сброс традиции снимает всех её членов', после.осталось === 0, 0, после.осталось);
+  проверить('снимает и того, кто состоит в другой традиции',
+    после.хайдеггер === false, false, после.хайдеггер);
+  проверить('пересекающаяся традиция опустела следом',
+    после.феноменология === '(0 из 10)', '(0 из 10)', после.феноменология);
+
+  // Строка «вне традиций» спрятана, пока таких философов нет.
+  const вне = await page.evaluate(() => {
+    const cb = document.getElementById('trad-no_tradition');
+    return cb ? cb.closest('.legend-item').style.display : 'нет строки';
+  });
+  проверить('строка «вне традиций» скрыта, пока таких нет', вне === 'none', 'none', вне);
+
+  await page.evaluate(() => window.__t.selectAllPhilosophers());
+  await wait(700);
 }
 
 // ── 11. страница не ругалась ────────────────────────────────────────

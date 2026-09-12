@@ -2,9 +2,17 @@
 # Превращает globals_map.json в md-таблицы.
 import json, sys, re
 from collections import defaultdict
+import os.path as _p
+# УМОЛЧАНИЯ БЫЛИ ЛОЖНЫМИ: 'globals_map.json' и 'globals_map.md' — имена из
+# времён, когда карта лежала в корне. Запуск без доводов падал на
+# FileNotFoundError, а maps_fresh.mjs советовал ровно такой запуск. Совет,
+# обходящий изъян, живёт дольше изъяна: путь берётся из paths.py, как у
+# соседней map_tree_to_md.py.
+sys.path.insert(0, _p.dirname(_p.dirname(_p.abspath(__file__))))
+from paths import КАРТА_ИМЁН, КАРТА_ИМЁН_MD  # пути — из одного места
 
-src = sys.argv[1] if len(sys.argv) > 1 else 'globals_map.json'
-dst = sys.argv[2] if len(sys.argv) > 2 else 'globals_map.md'
+src = sys.argv[1] if len(sys.argv) > 1 else КАРТА_ИМЁН
+dst = sys.argv[2] if len(sys.argv) > 2 else КАРТА_ИМЁН_MD
 d = json.load(open(src, encoding='utf-8'))
 E = {e['id']: e for e in d['entities']}
 

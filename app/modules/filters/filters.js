@@ -9,6 +9,7 @@ import { initializePhilosophyMetrics } from '../metrics/link-indexes.js';
 import { invalidateEverythingForScope } from '../metrics/scope-reset.js';
 import { updateMetricsScopeHint } from '../metrics/scope.js';
 import { gfxLinkAll, gfxNode } from '../render/d3-layer.js';
+import { refreshHitMaps } from '../render/picking.js';
 import { highlightConnected, resetHighlight } from '../render/selection.js';
 import { pinnedDespiteFilter, pinnedVisibleNodes } from '../state/filters.js';
 import { selectedNodes } from '../state/render.js';
@@ -25,21 +26,10 @@ function debounce(func, wait) {
       };
     }
 
-function philTraditionsSelected(name) {
-      const tl = DATA.philosopherTraditions[name] || [];
-      return tl.filter(t => S.selectedTraditions.has(t));
-    }
-
-function philosopherPassesTraditions(name) {
-      const tl = DATA.philosopherTraditions[name] || [];
-      // Философ без традиций проходит всегда — иначе он исчезает молча.
-      return tl.length === 0 || tl.some(t => S.selectedTraditions.has(t));
-    }
-
-function linkPassesTraditions(l, both) {
-      const s = philosopherPassesTraditions(l.source.concept);
-      const t = philosopherPassesTraditions(l.target.concept);
-      return both ? (s && t) : (s || t);
+function sharesTradition(nameA, nameB) {
+      const a = DATA.philosopherTraditions[nameA] || [];
+      const b = DATA.philosopherTraditions[nameB] || [];
+      return a.some(x => b.includes(x));
     }
 
 const FilterModes = {
@@ -53,7 +43,6 @@ const FilterModes = {
           
           if (!baseCheck) return false;
 
-          if (!linkPassesTraditions(l, true)) return false;
           
           // Проверка рубрик
           const sourceId = l.source.id || l.source;
@@ -81,7 +70,6 @@ const FilterModes = {
           
           if (!baseCheck) return false;
 
-          if (!linkPassesTraditions(l, true)) return false;
           
           // Проверка рубрик
           const sourceId = l.source.id || l.source;
@@ -107,7 +95,6 @@ const FilterModes = {
           
           if (!baseCheck) return false;
 
-          if (!linkPassesTraditions(l, false)) return false;
           
           // Проверка рубрик
           const sourceId = l.source.id || l.source;
@@ -134,7 +121,6 @@ const FilterModes = {
           
           if (!baseCheck) return false;
 
-          if (!linkPassesTraditions(l, false)) return false;
           
           // Проверка рубрик
           const sourceId = l.source.id || l.source;
@@ -157,9 +143,13 @@ const FilterModes = {
           if (!S.selectedPhilosophers.has(l.source.concept)) return false;
           if (!S.selectedPhilosophers.has(l.target.concept)) return false;
           if (l.source.concept === l.target.concept) return false;
-          const s = philTraditionsSelected(l.source.concept);
-          const t = philTraditionsSelected(l.target.concept);
-          if (!s.some(x => t.includes(x))) return false;
+          // «Своя традиция» = ОБЩАЯ традиция. Прежде сравнивались традиции,
+          // пересечённые с отмеченными, и философ, у которого ни одной
+          // отмеченной не осталось, выпадал ИЗ ОБОИХ режимов сразу: замер на
+          // пятёрке Хайдеггер—Гуссерль—Кузанский—Кант—Сартр при снятой
+          // феноменологии давал 1 + 3 пары вместо 3 + 4, и три пары
+          // проваливались между режимами, которые обязаны делить всё пополам.
+          if (!sharesTradition(l.source.concept, l.target.concept)) return false;
           const sr = DATA.conceptToRubrics[l.source.id || l.source] || [];
           const tr = DATA.conceptToRubrics[l.target.id || l.target] || [];
           return (sr.length === 0 || sr.some(r => S.selectedRubrics.has(r)))
@@ -173,10 +163,10 @@ const FilterModes = {
           if (!S.selectedPhilosophers.has(l.source.concept)) return false;
           if (!S.selectedPhilosophers.has(l.target.concept)) return false;
           if (l.source.concept === l.target.concept) return false;
-          const s = philTraditionsSelected(l.source.concept);
-          const t = philTraditionsSelected(l.target.concept);
-          if (!s.length || !t.length) return false;
-          if (s.some(x => t.includes(x))) return false;
+          // Дополнение к within_traditions: общей традиции нет. Условие
+          // «у обоих есть хоть одна отмеченная» снято вместе с набором
+          // отмеченных — теперь два режима строго дополнительны.
+          if (sharesTradition(l.source.concept, l.target.concept)) return false;
           const sr = DATA.conceptToRubrics[l.source.id || l.source] || [];
           const tr = DATA.conceptToRubrics[l.target.id || l.target] || [];
           return (sr.length === 0 || sr.some(r => S.selectedRubrics.has(r)))
@@ -196,7 +186,6 @@ const FilterModes = {
           
           if (!baseCheck) return false;
 
-          if (!linkPassesTraditions(l, true)) return false;
           
           // Проверка рубрик
           const sourceId = l.source.id || l.source;
@@ -265,6 +254,7 @@ function applyBasicFilter(mode) {
       // Применяем видимость к узлам и связям (базовый фильтр)
       gfxNode.style("display", d => isNodeVisible(d) ? null : "none");
       gfxLinkAll.style("display", l => isLinkVisible(l) ? null : "none");
+      refreshHitMaps();
     }
 
 function applyChainVisibility(chainNodes, chainLinks) {
@@ -273,6 +263,7 @@ function applyChainVisibility(chainNodes, chainLinks) {
       S.visibleLinkSet = chainLinks;
       gfxNode.style("display", d => isNodeVisible(d) ? null : "none");
       gfxLinkAll.style("display", l => isLinkVisible(l) ? null : "none");
+      refreshHitMaps();
     }
 
 async function handleChainsMode() {
@@ -450,4 +441,4 @@ const debouncedApplyFilters = debounce(applyFiltersImmediate, 150);
 
 function applyFilters() { debouncedApplyFilters(); }
 
-export { applyFilters, applyFiltersImmediate, philosopherPassesTraditions };
+export { applyFilters, applyFiltersImmediate };

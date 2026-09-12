@@ -2,8 +2,7 @@
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
 import { relationHint } from '../core/relation-types.js';
-import { applyFilters, philosopherPassesTraditions } from '../filters/filters.js';
-import { philRowTip } from '../modal/edit-rights.js';
+import { applyFilters } from '../filters/filters.js';
 import { renderState } from '../render/canvas-core.js';
 import { updateArrows } from '../render/d3-layer.js';
 import { chosenPhilosophers } from '../state/filters.js';
@@ -60,23 +59,33 @@ function initFilters() {
       // Создаем фильтры традиций
       const tradContainer = document.getElementById('traditionFilters');
       if (tradContainer) {
-        DATA.traditions.forEach(tr => {
-          const members = DATA.philosophers.filter(p => (p.traditions || []).includes(tr.id));
+        // Кнопки «+» больше нет: галочка сама добавляет всю традицию, когда
+        // выбраны не все, и снимает её, когда выбраны все. Держать рядом два
+        // управления с одним смыслом — то самое, из-за чего строка и была
+        // непонятна. Осталось три: галочка (вся традиция), «=» (только эти),
+        // сброс (снять этих).
+        // Число в строке ставит syncTraditionRows: при сборке набор ещё не
+        // известен, а писать сюда общее число членов значило бы завести
+        // второй ответ на тот же вопрос.
+        const traditionRow = (id, имя, подсказка) => {
           const item = document.createElement('div');
           item.className = 'legend-item';
-          const hint = (tr.description || '').replace(/"/g, '&quot;');
           item.innerHTML = `
-            <input type="checkbox" id="trad-${tr.id}" checked data-act-change="toggle-tradition-change" data-a1="${tr.id}">
-            <label for="trad-${tr.id}" data-tip="${hint}" style="flex:1;">
-              <span>${tr.name}<small style="color: var(--fg-muted);font-size:9px;"> (${members.length})</small></span>
+            <input type="checkbox" id="trad-${id}" data-act-change="toggle-tradition-change" data-a1="${id}">
+            <label for="trad-${id}" data-tip="${подсказка}" style="flex:1;">
+              <span>${имя}<small id="trad-count-${id}" style="color: var(--fg-muted);font-size:9px;"></small></span>
             </label>
             <button class="tradition-pick" data-tip="Оставить в отборе только этих философов"
-                data-act-click="only-tradition" data-a1="${tr.id}">=</button>
-            <button class="tradition-pick" data-tip="Добавить этих к выбранным философам"
-                data-act-click="add-tradition" data-a1="${tr.id}">+</button>
+                data-act-click="only-tradition" data-a1="${id}">=</button>
+            <button class="tradition-pick" id="trad-reset-${id}"
+                data-act-click="reset-tradition" data-a1="${id}">⌫</button>
           `;
           tradContainer.appendChild(item);
-        });
+        };
+        DATA.traditions.forEach(tr => traditionRow(
+          tr.id, tr.name, (tr.description || '').replace(/"/g, '&quot;')));
+        traditionRow(WITHOUT_TRADITION, 'Вне традиций',
+          'Философы, которым традиция не проставлена');
       }
 
       // Создаем фильтры рубрик
@@ -104,31 +113,39 @@ function togglePhilosopher(philosopher) {
       applyFilters();
     }
 
+const WITHOUT_TRADITION = 'no_tradition';
+
 function toggleTradition(traditionId) {
-      if (S.selectedTraditions.has(traditionId)) S.selectedTraditions.delete(traditionId);
-      else S.selectedTraditions.add(traditionId);
+      const members = traditionMembers(traditionId);
+      const allSelected = members.length > 0 && members.every(n => S.selectedPhilosophers.has(n));
+      if (allSelected) members.forEach(n => S.selectedPhilosophers.delete(n));
+      else members.forEach(n => S.selectedPhilosophers.add(n));
+      syncPhilosopherCheckboxes();
+      applyFilters();
+    }
+
+function resetTradition(traditionId) {
+      traditionMembers(traditionId).forEach(n => S.selectedPhilosophers.delete(n));
+      syncPhilosopherCheckboxes();
       applyFilters();
     }
 
 function selectAllTraditions() {
-      S.selectedTraditions = new Set(DATA.traditions.map(t => t.id));
-      DATA.traditions.forEach(t => {
-        const cb = document.getElementById('trad-' + t.id);
-        if (cb) cb.checked = true;
-      });
+      DATA.traditions.forEach(t => traditionMembers(t.id).forEach(n => S.selectedPhilosophers.add(n)));
+      syncPhilosopherCheckboxes();
       applyFilters();
     }
 
 function deselectAllTraditions() {
-      S.selectedTraditions.clear();
-      DATA.traditions.forEach(t => {
-        const cb = document.getElementById('trad-' + t.id);
-        if (cb) cb.checked = false;
-      });
+      DATA.traditions.forEach(t => traditionMembers(t.id).forEach(n => S.selectedPhilosophers.delete(n)));
+      syncPhilosopherCheckboxes();
       applyFilters();
     }
 
 function traditionMembers(traditionId) {
+      if (traditionId === WITHOUT_TRADITION) {
+        return DATA.philosophers.filter(p => !(p.traditions || []).length).map(p => p.nameRu);
+      }
       return DATA.philosophers.filter(p => (p.traditions || []).includes(traditionId))
                  .map(p => p.nameRu);
     }
@@ -140,14 +157,37 @@ function syncPhilosopherCheckboxes() {
       });
     }
 
-function onlyTradition(traditionId) {
-      S.selectedPhilosophers = new Set(traditionMembers(traditionId));
-      syncPhilosopherCheckboxes();
-      applyFilters();
+function syncTraditionRows() {
+      const rowIds = [...DATA.traditions.map(t => t.id), WITHOUT_TRADITION];
+      rowIds.forEach(id => {
+        const cb = document.getElementById('trad-' + id);
+        if (!cb) return;
+        const members = traditionMembers(id);
+        const selected = members.filter(n => S.selectedPhilosophers.has(n)).length;
+        cb.checked = members.length > 0 && selected === members.length;
+        cb.indeterminate = selected > 0 && selected < members.length;
+
+        const countEl = document.getElementById('trad-count-' + id);
+        if (countEl) countEl.textContent = ' (' + selected + ' из ' + members.length + ')';
+
+        const row = cb.closest('.legend-item');
+        if (row && id === WITHOUT_TRADITION) row.style.display = members.length ? '' : 'none';
+
+        // Безусловный сброс назван поимённо ДО нажатия: кого именно снимет.
+        const resetBtn = document.getElementById('trad-reset-' + id);
+        if (resetBtn) {
+          const willDrop = members.filter(n => S.selectedPhilosophers.has(n));
+          resetBtn.disabled = willDrop.length === 0;
+          resetBtn.setAttribute('data-tip', willDrop.length
+            ? 'Снять философов этой традиции: ' + willDrop.slice(0, 6).join(', ')
+              + (willDrop.length > 6 ? ' и ещё ' + (willDrop.length - 6) : '')
+            : 'Из этой традиции никто не выбран');
+        }
+      });
     }
 
-function addTradition(traditionId) {
-      traditionMembers(traditionId).forEach(name => S.selectedPhilosophers.add(name));
+function onlyTradition(traditionId) {
+      S.selectedPhilosophers = new Set(traditionMembers(traditionId));
       syncPhilosopherCheckboxes();
       applyFilters();
     }
@@ -275,22 +315,6 @@ function toggleUniformLinkWidth() {
       updateArrows();
     }
 
-function updatePhilosopherDimming() {
-      Object.keys(DATA.philosopherConcepts).forEach(name => {
-        const cb = document.getElementById('phil-' + name);
-        if (!cb) return;
-        const row = cb.closest('.legend-item');
-        if (!row) return;
-        const dim = cb.checked && !philosopherPassesTraditions(name);
-        row.style.opacity = dim ? '0.35' : '';
-        if (dim) row.setAttribute('data-tip', 'Отсечён отбором по традициям');
-        // Не removeAttribute: подсказку строки ставит и makeLegendsEditable, и
-        // снимать чужое здесь значило бы стирать её на каждом отборе — что и
-        // происходило. Возвращаем ту же, из общего места.
-        else row.setAttribute('data-tip', philRowTip());
-      });
-    }
-
 function updateFilterStats() {
       // Б11: счётчики берутся из JS-состояния, а не обходом 2008 элементов
       const visibleNodesCount = S.visibleNodeIds ? S.visibleNodeIds.size : DATA.nodes.length;
@@ -359,4 +383,4 @@ function syncLegendDirectionToggle() {
 if (legendDirectionToggle) legendDirectionToggle.checked = S.respectDirection;
 }
 
-export { addTradition, changeFilterMode, deselectAllPhilosophers, deselectAllRelations, deselectAllRubrics, deselectAllTraditions, initFilters, markChosenInLegend, onlyTradition, selectAllPhilosophers, selectAllRelations, selectAllRubrics, selectAllTraditions, syncLegendDirectionToggle, syncLegendWeightsToggle, togglePhilosopher, toggleRelation, toggleRubric, toggleSection, toggleTradition, toggleUniformLinkWidth, updateFilterStats, updatePhilosopherDimming };
+export { changeFilterMode, deselectAllPhilosophers, deselectAllRelations, deselectAllRubrics, deselectAllTraditions, initFilters, markChosenInLegend, onlyTradition, resetTradition, selectAllPhilosophers, selectAllRelations, selectAllRubrics, selectAllTraditions, syncLegendDirectionToggle, syncLegendWeightsToggle, syncTraditionRows, togglePhilosopher, toggleRelation, toggleRubric, toggleSection, toggleTradition, toggleUniformLinkWidth, traditionMembers, updateFilterStats };

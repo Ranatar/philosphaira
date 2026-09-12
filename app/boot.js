@@ -60,7 +60,7 @@ import { pinnedDespiteFilter } from './modules/state/filters.js';
 import { installLayoutPull, layoutFromStore, storedLayoutComplaint } from './modules/state/render.js';
 import { closeStatsModal, loadStatsContent, switchStatsView } from './modules/stats/modal.js';
 import { renderComparison } from './modules/stats/views/comparison.js';
-import { initFilters, markChosenInLegend, updateFilterStats, updatePhilosopherDimming } from './modules/ui/legend.js';
+import { initFilters, markChosenInLegend, syncTraditionRows, updateFilterStats } from './modules/ui/legend.js';
 import { markNotificationRead, refreshUnread, renderBell } from './modules/ui/notifications.js';
 import { restorePanelStates } from './modules/ui/panels.js';
 import { initializeCustomSelects } from './modules/widgets/custom-select.js';
@@ -203,7 +203,7 @@ export async function boot() {
   
   subscribe('filters-applied', updateFilterStats);
   
-  subscribe('filters-applied', updatePhilosopherDimming);
+  subscribe('filters-applied', syncTraditionRows);
   
   subscribe('data-changed', () => {
         initializePhilosophyMetrics();

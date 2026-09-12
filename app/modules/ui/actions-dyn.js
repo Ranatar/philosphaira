@@ -13,7 +13,7 @@ import { toggleAllConnectionDescriptions, toggleAllPhilosopherConceptDescription
 import { syncPhilColorFromPicker, updatePhilColorSample } from '../modal/edit-forms.js';
 import { gotoNodeFromModal, openConceptById, openEditConceptModal, openEditConnectionModal, showAllConcepts, showPhilosopherDetailModal } from '../modal/entry.js';
 import { refreshProvenanceField } from '../modal/forms.js';
-import { deleteConnection } from '../modal/persist.js';
+import { deleteConcept, deleteConnection } from '../modal/persist.js';
 import { closeConceptProfileModal, showConceptProfileModal, toggleProfileOrder } from '../modal/profile-concept.js';
 import { closePhilosopherProfileModal, showPhilosopherProfileModal } from '../modal/profile-philosopher.js';
 import { clearModalSearch, handleModalSearch } from '../modal/search.js';
@@ -29,7 +29,7 @@ import { toggleMetricDetails, toggleMetricLayout } from '../stats/results.js';
 import { calculateMetricFromModal } from '../stats/run.js';
 import { openPairInComparison, openPhilosopherPair, renderClosestPairs, renderPhilosopherComparison, renderPhilosopherPairs } from '../stats/views/comparison.js';
 import { setInfluenceScope } from '../stats/views/philosophical.js';
-import { addTradition, onlyTradition, togglePhilosopher, toggleRelation, toggleRubric, toggleTradition } from './legend.js';
+import { onlyTradition, resetTradition, togglePhilosopher, toggleRelation, toggleRubric, toggleTradition } from './legend.js';
 import { selectSearchResult } from './search-legend.js';
 import { highlightLinkOnGraph, pickLinkEnd } from './search-link.js';
 import { clearPhilosopherSearch, handlePhilosopherSearch, pickPhilosopherFromSearch, selectPhilosopherResult } from './search-philosopher.js';
@@ -76,6 +76,7 @@ registerActions({
   "sync-phil-color-from-picker-input": (el, ev) => { syncPhilColorFromPicker(); },
   "open-universal-modal-7": (el, ev) => { openUniversalModal('concept', DATA.nodes.find(n => n.id === el.dataset.a1), 'view'); },
   "open-edit-concept-modal": (el, ev) => { openEditConceptModal(el.dataset.a1); },
+  "delete-concept": (el, ev) => { deleteConcept(el.dataset.a1); },
   "create-new-concept-for-philosopher": (el, ev) => { createNewConceptForPhilosopher(el.dataset.a1); },
   "open-universal-modal-8": (el, ev) => { openUniversalModal('connection', findConnection(el.dataset.a1, el.dataset.a2, false), 'view'); },
   "open-edit-connection-modal": (el, ev) => { openEditConnectionModal(el.dataset.a1, el.dataset.a2); },
@@ -153,7 +154,7 @@ registerActions({
   "toggle-relation-change": (el, ev) => { toggleRelation(el.dataset.a1); },
   "toggle-tradition-change": (el, ev) => { toggleTradition(el.dataset.a1); },
   "only-tradition": (el, ev) => { onlyTradition(el.dataset.a1); },
-  "add-tradition": (el, ev) => { addTradition(el.dataset.a1); },
+  "reset-tradition": (el, ev) => { resetTradition(el.dataset.a1); },
   "toggle-rubric-change": (el, ev) => { toggleRubric(el.dataset.a1); },
   "pick-link-end": (el, ev) => { pickLinkEnd(el.dataset.a1, el.dataset.a2); },
   "highlight-link-on-graph": (el, ev) => { highlightLinkOnGraph(el.dataset.a1, el.dataset.a2, el.dataset.a3); },

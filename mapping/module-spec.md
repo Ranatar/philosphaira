@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 127 модулей, 20191 строк.
+Составлено из готовой сборки: 127 модулей, 20380 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -50,7 +50,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
 | `modules/core/events.js` | 65 | 2 | 0 |
 | `modules/core/graph-index.js` | 160 | 10 | 1 |
-| `modules/core/link-facts.js` | 48 | 7 | 2 |
+| `modules/core/link-facts.js` | 54 | 8 | 2 |
 | `modules/core/long-task.js` | 120 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
 | `modules/core/perms.js` | 21 | 3 | 0 |
@@ -69,20 +69,20 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/dead.js` | 86 | 6 | 5 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 |
 | `modules/filters/chains.js` | 273 | 3 | 4 |
-| `modules/filters/filters.js` | 454 | 3 | 13 |
+| `modules/filters/filters.js` | 445 | 2 | 14 |
 | `modules/graph/click-actions.js` | 201 | 2 | 8 |
 | `modules/graph/graph-data.js` | 118 | 10 | 9 |
-| `modules/graph/graph-selection.js` | 55 | 3 | 3 |
+| `modules/graph/graph-selection.js` | 61 | 3 | 3 |
 | `modules/metrics/by-link-type.js` | 116 | 3 | 2 |
 | `modules/metrics/concept-dynamics.js` | 224 | 4 | 2 |
 | `modules/metrics/descriptions.js` | 478 | 1 | 3 |
 | `modules/metrics/format.js` | 32 | 2 | 2 |
 | `modules/metrics/generativity.js` | 110 | 3 | 1 |
-| `modules/metrics/graph-cache.js` | 117 | 2 | 3 |
+| `modules/metrics/graph-cache.js` | 129 | 2 | 3 |
 | `modules/metrics/link-indexes.js` | 122 | 1 | 5 |
-| `modules/metrics/network.js` | 871 | 18 | 4 |
+| `modules/metrics/network.js` | 950 | 18 | 4 |
 | `modules/metrics/philosopher.js` | 308 | 6 | 2 |
-| `modules/metrics/philosophical.js` | 1075 | 14 | 4 |
+| `modules/metrics/philosophical.js` | 1130 | 14 | 4 |
 | `modules/metrics/rankings.js` | 141 | 4 | 3 |
 | `modules/metrics/scope-reset.js` | 64 | 1 | 12 |
 | `modules/metrics/scope-select.js` | 99 | 6 | 2 |
@@ -102,12 +102,12 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/core.js` | 154 | 5 | 9 |
 | `modules/modal/descriptions.js` | 162 | 6 | 0 |
 | `modules/modal/dirty.js` | 112 | 1 | 5 |
-| `modules/modal/edit-forms.js` | 292 | 2 | 12 |
+| `modules/modal/edit-forms.js` | 295 | 2 | 12 |
 | `modules/modal/edit-rights.js` | 61 | 4 | 4 |
 | `modules/modal/entry.js` | 124 | 12 | 10 |
 | `modules/modal/forms.js` | 81 | 5 | 2 |
 | `modules/modal/integrity.js` | 265 | 7 | 7 |
-| `modules/modal/persist.js` | 441 | 6 | 14 |
+| `modules/modal/persist.js` | 450 | 6 | 14 |
 | `modules/modal/philosopher-view.js` | 633 | 1 | 13 |
 | `modules/modal/profile-concept.js` | 182 | 4 | 8 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
@@ -127,7 +127,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/render/interactions.js` | 308 | 4 | 18 |
 | `modules/render/loop.js` | 20 | 2 | 0 |
 | `modules/render/metric-visualization.js` | 371 | 3 | 5 |
-| `modules/render/picking.js` | 79 | 4 | 7 |
+| `modules/render/picking.js` | 84 | 5 | 7 |
 | `modules/render/render-state.js` | 17 | 6 | 1 |
 | `modules/render/scene.js` | 350 | 7 | 13 |
 | `modules/render/selection.js` | 261 | 7 | 10 |
@@ -135,7 +135,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/render/simulation.js` | 131 | 8 | 11 |
 | `modules/render/tooltip-el.js` | 7 | 1 | 0 |
 | `modules/state/edit.js` | 12 | 1 | 0 |
-| `modules/state/filters.js` | 22 | 3 | 2 |
+| `modules/state/filters.js` | 20 | 3 | 2 |
 | `modules/state/metrics-scope.js` | 13 | 0 | 1 |
 | `modules/state/paths.js` | 18 | 0 | 2 |
 | `modules/state/render.js` | 141 | 11 | 4 |
@@ -153,13 +153,13 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/stats/views/rankings.js` | 141 | 2 | 5 |
 | `modules/ui/about.js` | 102 | 3 | 1 |
 | `modules/ui/actions-byname.js` | 20 | 0 | 2 |
-| `modules/ui/actions-dyn.js` | 164 | 0 | 35 |
+| `modules/ui/actions-dyn.js` | 165 | 0 | 35 |
 | `modules/ui/actions-static.js` | 137 | 0 | 25 |
 | `modules/ui/actions.js` | 27 | 3 | 0 |
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
 | `modules/ui/export.js` | 126 | 2 | 11 |
 | `modules/ui/hint.js` | 60 | 4 | 1 |
-| `modules/ui/legend.js` | 363 | 23 | 8 |
+| `modules/ui/legend.js` | 387 | 24 | 7 |
 | `modules/ui/notifications.js` | 99 | 8 | 2 |
 | `modules/ui/panels.js` | 40 | 2 | 0 |
 | `modules/ui/search-legend.js` | 141 | 6 | 16 |
@@ -242,7 +242,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./modules/state/render.js`: `installLayoutPull`, `layoutFromStore`, `storedLayoutComplaint`
 - из `./modules/stats/modal.js`: `closeStatsModal`, `loadStatsContent`, `switchStatsView`
 - из `./modules/stats/views/comparison.js`: `renderComparison`
-- из `./modules/ui/legend.js`: `initFilters`, `markChosenInLegend`, `updateFilterStats`, `updatePhilosopherDimming`
+- из `./modules/ui/legend.js`: `initFilters`, `markChosenInLegend`, `syncTraditionRows`, `updateFilterStats`
 - из `./modules/ui/notifications.js`: `markNotificationRead`, `refreshUnread`, `renderBell`
 - из `./modules/ui/panels.js`: `restorePanelStates`
 - из `./modules/widgets/custom-select.js`: `initializeCustomSelects`
@@ -450,16 +450,16 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/link-facts.js`
 
-Строк 48.
+Строк 54.
 
-**Вывозит:** `buildReflexiveMap`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+**Вывозит:** `buildReflexiveMap`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 
 **Ввозит:**
 
 - из `./ns.js`: `DATA`, `S`
 - из `./graph-index.js`: _ради побочного действия_
 
-**Содержит:** `buildReflexiveMap`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+**Содержит:** `buildReflexiveMap`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 
 ### `modules/core/long-task.js`
 
@@ -691,9 +691,9 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/filters/filters.js`
 
-Строк 454.
+Строк 445.
 
-**Вывозит:** `applyFilters`, `applyFiltersImmediate`, `philosopherPassesTraditions`
+**Вывозит:** `applyFilters`, `applyFiltersImmediate`
 
 **Ввозит:**
 
@@ -706,12 +706,13 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../metrics/scope-reset.js`: `invalidateEverythingForScope`
 - из `../metrics/scope.js`: `updateMetricsScopeHint`
 - из `../render/d3-layer.js`: `gfxLinkAll`, `gfxNode`
+- из `../render/picking.js`: `refreshHitMaps`
 - из `../render/selection.js`: `highlightConnected`, `resetHighlight`
 - из `../state/filters.js`: `pinnedDespiteFilter`, `pinnedVisibleNodes`
 - из `../state/render.js`: `selectedNodes`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `FilterModes`, `applyBasicFilter`, `applyChainVisibility`, `applyFilters`, `applyFiltersImmediate`, `cleanupInvisibleSelections`, `debounce`, `debouncedApplyFilters`, `handleChainsMode`, `handleUniqueChainsMode`, `linkPassesTraditions`, `philTraditionsSelected`, `philosopherPassesTraditions`, `refreshMetricsIfScoped`
+**Содержит:** `FilterModes`, `applyBasicFilter`, `applyChainVisibility`, `applyFilters`, `applyFiltersImmediate`, `cleanupInvisibleSelections`, `debounce`, `debouncedApplyFilters`, `handleChainsMode`, `handleUniqueChainsMode`, `refreshMetricsIfScoped`, `sharesTradition`
 
 ### `modules/graph/click-actions.js`
 
@@ -754,7 +755,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/graph/graph-selection.js`
 
-Строк 55.
+Строк 61.
 
 **Вывозит:** `cancelGraphSelection`, `handleConceptSelection`, `selectConceptOnGraph`
 
@@ -833,7 +834,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/metrics/graph-cache.js`
 
-Строк 117.
+Строк 129.
 
 **Вывозит:** `buildGlobalGraphCache`, `invalidateGraphCache`
 
@@ -863,7 +864,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/metrics/network.js`
 
-Строк 871.
+Строк 950.
 
 **Вывозит:** `betweennessCache`, `calculateBetweennessAsync`, `closenessCache`, `eigenvectorCache`, `invalidateBetweennessCache`, `invalidateClosenessCache`, `invalidateClusteringCache`, `invalidateEigenvectorCache`, `invalidateLocalCohesionCache`, `invalidatePageRankCache`, `invalidateRichClubCache`, `invalidateWeightedClusteringCache`, `localCohesionCache`, `medianNodeDegree`, `nodeDegreeOf`, `pageRankCache`, `richClubCache`, `weightedClusteringCache`
 
@@ -874,7 +875,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./graph-cache.js`: `buildGlobalGraphCache`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `MET.calculateBetweenness`, `MET.calculateClosenessCentrality`, `MET.calculateClusteringCoefficient`, `MET.calculateEigenvectorCentrality`, `MET.calculateLocalCohesion`, `MET.calculatePageRank`, `MET.calculateRichClubCoefficient`, `MET.calculateWeightedClustering`, `MET.calculateWeightedDegree`, `S._medianDegreeCache`, `betweennessCache`, `betweennessCalculating`, `bfsFromSource`, `calculateBetweennessAsync`, `closenessCache`, `closenessCalculating`, `clusteringCache`, `dijkstraFromSource`, `eigenvectorCache`, `eigenvectorCalculating`, `invalidateBetweennessCache`, `invalidateClosenessCache`, `invalidateClusteringCache`, `invalidateEigenvectorCache`, `invalidateLocalCohesionCache`, `invalidatePageRankCache`, `invalidateRichClubCache`, `invalidateWeightedClusteringCache`, `localCohesionCache`, `medianNodeDegree`, `nodeDegreeOf`, `pageRankCache`, `pageRankCalculating`, `richClubCache`, `weightedClusteringCache`
+**Содержит:** `MET.calculateBetweenness`, `MET.calculateClosenessCentrality`, `MET.calculateClusteringCoefficient`, `MET.calculateEigenvectorCentrality`, `MET.calculateLocalCohesion`, `MET.calculatePageRank`, `MET.calculateRichClubCoefficient`, `MET.calculateWeightedClustering`, `MET.calculateWeightedDegree`, `S._medianDegreeCache`, `WEIGHTED_CLUSTERING_MIN_DEGREE`, `betweennessCache`, `betweennessCalculating`, `bfsFromSource`, `calculateBetweennessAsync`, `closenessCache`, `closenessCalculating`, `clusteringCache`, `dijkstraFromSource`, `eigenvectorCache`, `eigenvectorCalculating`, `invalidateBetweennessCache`, `invalidateClosenessCache`, `invalidateClusteringCache`, `invalidateEigenvectorCache`, `invalidateLocalCohesionCache`, `invalidatePageRankCache`, `invalidateRichClubCache`, `invalidateWeightedClusteringCache`, `localCohesionCache`, `medianNodeDegree`, `nodeDegreeOf`, `pageRankCache`, `pageRankCalculating`, `richClubCache`, `weightedClusteringCache`
 
 ### `modules/metrics/philosopher.js`
 
@@ -891,18 +892,18 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/metrics/philosophical.js`
 
-Строк 1075.
+Строк 1130.
 
 **Вывозит:** `DISRUPTIVE_TYPES`, `FORMULA_VERSIONS`, `INFLUENCE_SCOPE_LABELS`, `SYSTEMATIC_TYPES`, `invalidateCriticalPowerIndexCache`, `invalidateDialogicalIndexCache`, `invalidateFoundationalIndexCache`, `invalidateInfluenceIndexCache`, `invalidateInternalCoherenceIndexCache`, `invalidateParadigmShiftIndexCache`, `invalidateProblemGenerationIndexCache`, `invalidateRevolutionaryIndexCache`, `invalidateSyntheticIndexCache`, `invalidateTensionIndexCache`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `MET`, `S`
-- из `../core/link-facts.js`: `isSymmetricLink`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+- из `../core/link-facts.js`: `isSymmetricLink`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 - из `./generativity.js`: `generativity`, `linkInInfluenceScope`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `DISRUPTIVE_TYPES`, `FORMULA_VERSIONS`, `INFLUENCE_SCOPE_LABELS`, `MET.criticalPowerIndex`, `MET.dialogicalIndex`, `MET.foundationalIndex`, `MET.influenceIndex`, `MET.internalCoherenceIndex`, `MET.paradigmShiftIndex`, `MET.problemGenerationIndex`, `MET.revolutionaryIndex`, `MET.syntheticIndex`, `MET.tensionIndex`, `SYSTEMATIC_TYPES`, `criticalPowerIndexCache`, `dialogicalIndexCache`, `foundationalIndexCache`, `influenceIndexCache`, `internalCoherenceIndexCache`, `invalidateCriticalPowerIndexCache`, `invalidateDialogicalIndexCache`, `invalidateFoundationalIndexCache`, `invalidateInfluenceIndexCache`, `invalidateInternalCoherenceIndexCache`, `invalidateParadigmShiftIndexCache`, `invalidateProblemGenerationIndexCache`, `invalidateRevolutionaryIndexCache`, `invalidateSyntheticIndexCache`, `invalidateTensionIndexCache`, `paradigmShiftIndexCache`, `problemGenerationIndexCache`, `revolutionaryIndexCache`, `syntheticIndexCache`, `tensionIndexCache`
+**Содержит:** `DISRUPTIVE_TYPES`, `FORMULA_VERSIONS`, `INFLUENCE_SCOPE_LABELS`, `MET.criticalPowerIndex`, `MET.dialogicalIndex`, `MET.foundationalIndex`, `MET.influenceIndex`, `MET.internalCoherenceIndex`, `MET.paradigmShiftIndex`, `MET.problemGenerationIndex`, `MET.revolutionaryIndex`, `MET.syntheticIndex`, `MET.tensionIndex`, `MUTUAL_DIALOGUE_BONUS`, `SYSTEMATIC_TYPES`, `criticalPowerIndexCache`, `dialogicalIndexCache`, `foundationalIndexCache`, `influenceIndexCache`, `internalCoherenceIndexCache`, `invalidateCriticalPowerIndexCache`, `invalidateDialogicalIndexCache`, `invalidateFoundationalIndexCache`, `invalidateInfluenceIndexCache`, `invalidateInternalCoherenceIndexCache`, `invalidateParadigmShiftIndexCache`, `invalidateProblemGenerationIndexCache`, `invalidateRevolutionaryIndexCache`, `invalidateSyntheticIndexCache`, `invalidateTensionIndexCache`, `paradigmShiftIndexCache`, `problemGenerationIndexCache`, `revolutionaryIndexCache`, `syntheticIndexCache`, `tensionIndexCache`
 
 ### `modules/metrics/rankings.js`
 
@@ -1216,7 +1217,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/edit-forms.js`
 
-Строк 292.
+Строк 295.
 
 **Вывозит:** `syncPhilColorFromPicker`, `updatePhilColorSample`
 
@@ -1306,7 +1307,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/persist.js`
 
-Строк 441.
+Строк 450.
 
 **Вывозит:** `deleteConcept`, `deleteConnection`, `deletePhilosopher`, `saveConceptData`, `saveConnectionData`, `savePhilosopherData`
 
@@ -1655,9 +1656,9 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/picking.js`
 
-Строк 79.
+Строк 84.
 
-**Вывозит:** `pickLink`, `pickNode`, `rebuildQuadtree`, `toGraph`
+**Вывозит:** `pickLink`, `pickNode`, `rebuildQuadtree`, `refreshHitMaps`, `toGraph`
 
 **Ввозит:**
 
@@ -1669,7 +1670,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./render-state.js`: `nodeRadius`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `pickLink`, `pickNode`, `quadtree`, `rebuildQuadtree`, `repaintPickCanvas`, `toGraph`
+**Содержит:** `pickLink`, `pickNode`, `quadtree`, `rebuildQuadtree`, `refreshHitMaps`, `repaintPickCanvas`, `toGraph`
 
 ### `modules/render/render-state.js`
 
@@ -1791,7 +1792,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/state/filters.js`
 
-Строк 22.
+Строк 20.
 
 **Вывозит:** `chosenPhilosophers`, `pinnedDespiteFilter`, `pinnedVisibleNodes`
 
@@ -1800,7 +1801,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `S.filterMode`, `S.selectedPhilosophers`, `S.selectedRelations`, `S.selectedRubrics`, `S.selectedTraditions`, `chosenPhilosophers`, `pinnedDespiteFilter`, `pinnedVisibleNodes`
+**Содержит:** `S.filterMode`, `S.selectedPhilosophers`, `S.selectedRelations`, `S.selectedRubrics`, `chosenPhilosophers`, `pinnedDespiteFilter`, `pinnedVisibleNodes`
 
 ### `modules/state/metrics-scope.js`
 
@@ -2073,7 +2074,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/actions-dyn.js`
 
-Строк 164.
+Строк 165.
 
 **Вывозит:** _ничего_
 
@@ -2093,7 +2094,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../modal/edit-forms.js`: `syncPhilColorFromPicker`, `updatePhilColorSample`
 - из `../modal/entry.js`: `gotoNodeFromModal`, `openConceptById`, `openEditConceptModal`, `openEditConnectionModal`, `showAllConcepts`, `showPhilosopherDetailModal`
 - из `../modal/forms.js`: `refreshProvenanceField`
-- из `../modal/persist.js`: `deleteConnection`
+- из `../modal/persist.js`: `deleteConcept`, `deleteConnection`
 - из `../modal/profile-concept.js`: `closeConceptProfileModal`, `showConceptProfileModal`, `toggleProfileOrder`
 - из `../modal/profile-philosopher.js`: `closePhilosopherProfileModal`, `showPhilosopherProfileModal`
 - из `../modal/search.js`: `clearModalSearch`, `handleModalSearch`
@@ -2109,7 +2110,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../stats/run.js`: `calculateMetricFromModal`
 - из `../stats/views/comparison.js`: `openPairInComparison`, `openPhilosopherPair`, `renderClosestPairs`, `renderPhilosopherComparison`, `renderPhilosopherPairs`
 - из `../stats/views/philosophical.js`: `setInfluenceScope`
-- из `./legend.js`: `addTradition`, `onlyTradition`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleTradition`
+- из `./legend.js`: `onlyTradition`, `resetTradition`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleTradition`
 - из `./search-legend.js`: `selectSearchResult`
 - из `./search-link.js`: `highlightLinkOnGraph`, `pickLinkEnd`
 - из `./search-philosopher.js`: `clearPhilosopherSearch`, `handlePhilosopherSearch`, `pickPhilosopherFromSearch`, `selectPhilosopherResult`
@@ -2211,22 +2212,21 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/legend.js`
 
-Строк 363.
+Строк 387.
 
-**Вывозит:** `addTradition`, `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `markChosenInLegend`, `onlyTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `updateFilterStats`, `updatePhilosopherDimming`
+**Вывозит:** `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `markChosenInLegend`, `onlyTradition`, `resetTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `syncTraditionRows`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `traditionMembers`, `updateFilterStats`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/relation-types.js`: `relationHint`
-- из `../filters/filters.js`: `applyFilters`, `philosopherPassesTraditions`
-- из `../modal/edit-rights.js`: `philRowTip`
+- из `../filters/filters.js`: `applyFilters`
 - из `../render/canvas-core.js`: `renderState`
 - из `../render/d3-layer.js`: `updateArrows`
 - из `../state/filters.js`: `chosenPhilosophers`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `addTradition`, `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `legendDirectionToggle`, `legendWeightsToggle`, `markChosenInLegend`, `onlyTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `syncPhilosopherCheckboxes`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `traditionMembers`, `updateFilterStats`, `updatePhilosopherDimming`, `updateProvenanceCoverage`
+**Содержит:** `WITHOUT_TRADITION`, `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `legendDirectionToggle`, `legendWeightsToggle`, `markChosenInLegend`, `onlyTradition`, `resetTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `syncPhilosopherCheckboxes`, `syncTraditionRows`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `traditionMembers`, `updateFilterStats`, `updateProvenanceCoverage`
 
 ### `modules/ui/notifications.js`
 

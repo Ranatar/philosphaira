@@ -33,6 +33,18 @@ function buildGlobalGraphCache() {
         const src = link.source.id || link.source;
         const tgt = link.target.id || link.target;
         const weight = link.weight || 2;
+
+        // ПЕТЛЯ НЕ ЕСТЬ СВЯЗЬ ДВУХ УЗЛОВ. Списки смежности строились без этой
+        // проверки, и 35 петель базы попадали во все восемь сетевых метрик:
+        // узел становился собственным соседом (+1 к степени и к знаменателю
+        // кластеризации), а в PageRank петля с единственной исходящей связью
+        // превращалась в сток — «Идеальная речевая ситуация» брала 94 % своего
+        // значения у самой себя и стояла первой.
+        // Философских метрик правка не касается: у них петли уже отсеяны
+        // в buildIncomingLinks/buildOutgoingLinks, а те, кому петля нужна
+        // по существу (conceptualComplexityIndex, foundationalIndex,
+        // tensionIndex), берут её поимённо через reflexiveLinkOf.
+        if (src === tgt) return;
         
         // КРИТИЧНО: учитываем useWeightedPaths при построении!
         // Когда источник подменён, учёт уже сделан в данных, и эти

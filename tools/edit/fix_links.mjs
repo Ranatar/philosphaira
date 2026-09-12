@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// ПРАВКА ХАРАКТЕРИСТИК СУЩЕСТВУЮЩИХ СВЯЗЕЙ по файлам правок doc/additions/*.json.
+// ПРАВКА ХАРАКТЕРИСТИК СУЩЕСТВУЮЩИХ СВЯЗЕЙ по файлу правок (JSON).
 //
-//   node tools/edit/fix_links.mjs doc/additions/batch-G-fixes.json
+//   node tools/edit/fix_links.mjs <файл-правок.json>
 //                                 [--проба] [--исходник путь]
 //
 // Третий применяющий скрипт: add_concepts заводит записи, add_links заводит

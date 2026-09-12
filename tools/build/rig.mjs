@@ -43,7 +43,9 @@ isSymmetricLink similarityData renderState gfxCanvas lastSubmitted serverMode la
 can PERM authSession authLogout openAuthModal submitAuth openEditConceptModal refreshProvenanceField provenanceValue closeUniversalModal saveConceptData rebuildOverCurrent showConflict lastConflict pullGraphSince knownGraphVersion refreshUnread loadNotifications toggleNotifyPanel markAllNotificationsRead notifyItems unreadCount openCommitsPanel switchCommitTab loadCommits commitItems commitTab commitError closeCommitsPanel openUsersPanel loadUsers userItems usersError closeUsersPanel
 saveConceptData saveConnectionData deleteConnection
 addLinkToGraph graphFingerprint applyStoredLayout layoutFromStore resetSimulation planRelayout applyRelayout layoutPlan loadLayoutHistory askLayoutRevert doLayoutRevert layoutHistoryItems layoutRevertTo
-philosopherSimilarity philosopherSimilarityData initializePhilosophyMetrics`.split(/\s+/).filter(Boolean);
+philosopherSimilarity philosopherSimilarityData initializePhilosophyMetrics
+selectConceptOnGraph rebuildQuadtree applyFiltersImmediate calculateBetweennessAsync
+traditionMembers resetTradition syncTraditionRows`.split(/\s+/).filter(Boolean);
 
 // ГДЕ ЧТО ВЫВОЗИТСЯ и ЧТО ПЕРЕПРИСВАИВАЕТСЯ.
 //

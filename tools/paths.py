@@ -25,6 +25,7 @@ def от(*ч):
 ДЕРЕВО = os.environ.get('TREE') or от('app')
 КАРТА_ИМЁН = os.environ.get('PG_GLOBALS') or от('mapping/globals_map_v3.json')
 КАРТА_ДЕРЕВА = os.environ.get('PG_TREEMAP') or от('mapping/map_tree.json')
+КАРТА_ИМЁН_MD   = от('mapping/globals_map_v3.md')
 КАРТА_ДЕРЕВА_MD = от('mapping/map_tree.md')
 КЛЮЧИ = os.environ.get('KEYS') or от('mapping/handler_keys.json')
 
@@ -74,6 +75,7 @@ def от(*ч):
     'map_tree.mjs':              'maps',
     'map_tree_to_md.py':         'maps',
     'maps_fresh.mjs':            'maps',
+    'ns_capture.mjs':            'checks',
     'ops_probe.mjs':             'checks',
     'paths.mjs':                 '',
     'paths.py':                  '',
@@ -94,9 +96,9 @@ def от(*ч):
     'rig.mjs':                   'build',
     'serve.py':                  '',
     'serve.sh':                  '',
+    'sides_all.mjs':             'probes',
     'snap_stability.mjs':        'probes',
     'snapshot.mjs':              'probes',
-    'spec_probe.mjs':            'checks',
     'split.mjs':                 'build',
     'split_css.mjs':             'build',
     'sweep_all.mjs':             'probes',

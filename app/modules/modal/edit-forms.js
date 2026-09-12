@@ -136,6 +136,9 @@ VIEWS.generatePhilosopherEditContent = function generatePhilosopherEditContent(p
               <button class="modal-btn-secondary" style="flex:none;padding:6px 10px;"
                   data-tip="Редактировать"
                   data-act-click="open-edit-concept-modal" data-a1="${c.id}">✏️</button>
+              <button class="modal-edit-list-btn" style="flex:none;"
+                  data-tip="Удалить концепцию"
+                  data-act-click="delete-concept" data-a1="${c.id}">🗑️</button>
             </div>`;
         });
         html += `

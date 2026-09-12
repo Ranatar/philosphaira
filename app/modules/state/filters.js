@@ -6,8 +6,6 @@ S.selectedPhilosophers = new Set(Object.keys(DATA.philosopherConcepts));
 
 S.selectedRelations = new Set(Object.keys(DATA.relationTypesObj));
 
-S.selectedTraditions = new Set(DATA.traditions.map(t => t.id));
-
 S.selectedRubrics = new Set(DATA.rubrics.map(r => r.id));
 
 S.filterMode = 'all';

@@ -283,7 +283,16 @@ function deleteConcept(conceptId) {
           removeConceptEverywhere(id);
           afterDataChange({ nodes: true, links: true });
         });
-      closeUniversalModal();
+
+      // Если окно открыто на этой концепции — закрываем; если на философе,
+      // перерисовываем, чтобы перечень концепций не врал. Развилка та же,
+      // что в deleteConnection.
+      if (ModalContext.currentEntity === 'philosopher' && ModalContext.currentData) {
+        openUniversalModal('philosopher', ModalContext.currentData,
+                   ModalContext.currentMode, { noPush: true });
+      } else {
+        closeUniversalModal();
+      }
     }
 
 function saveConnectionData() {

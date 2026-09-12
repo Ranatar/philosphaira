@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// ЗАВЕДЕНИЕ НОВЫХ КОНЦЕПЦИЙ В ИСХОДНИК по файлам правок doc/additions/*.json.
+// ЗАВЕДЕНИЕ НОВЫХ КОНЦЕПЦИЙ В ИСХОДНИК по файлу правок (JSON).
 //
-//   node tools/edit/add_concepts.mjs doc/additions/batch-D-concepts.json
+//   node tools/edit/add_concepts.mjs <файл-правок.json>
 //                                    [--проба] [--исходник путь]
 //
 // Второй такой скрипт после add_links.mjs и по тем же причинам: в рабочей
@@ -108,7 +108,10 @@ const запись = (c) =>
 const нуженЗапятой = /\}\s*$/.test(body);
 const вставка = ready.length
   ? (нуженЗапятой ? ',' : '') + '\n'
-    + `      // Заведено по doc/db-additions-spec.md, заход D.\n`
+    // Метка называет ФАЙЛ ПРАВОК, по которому заведено. Прежде здесь стояла
+    // жёсткая строка «doc/db-additions-spec.md, заход D» — она врала при любом
+    // другом файле и указывала на документ, которого может не быть.
+    + `      // Заведено по ${path.basename(process.argv[2] || 'файлу правок')}.\n`
     + ready.map(запись).join('\n').replace(/,$/, '') + '\n'
   : '';
 

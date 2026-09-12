@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-127 модулей, 20191 строк, 804 объявлений,
-567 вывозов, 788 рёбер ввоза. Составлено 2026-09-11 11:37:08.
+127 модулей, 20380 строк, 807 объявлений,
+569 вывозов, 788 рёбер ввоза. Составлено 2026-09-11 20:40:48.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -55,7 +55,7 @@
 | Пространство | Полей | Самое востребованное поле | В скольких модулях |
 |---|---|---|---|
 | `DATA` | 17 | `nodes` | 35 |
-| `S` | 71 | `_concepts` | 15 |
+| `S` | 67 | `_concepts` | 15 |
 | `MET` | 33 | `influenceIndex` | 7 |
 | `VIEWS` | 6 | `generateConceptViewContent` | 1 |
 
@@ -92,7 +92,7 @@
 | `modules/core/base-cells.js` | 19 | 0 | 0 | 1 | S:8 |
 | `modules/core/events.js` | 65 | 5 | 2 | 0 | — |
 | `modules/core/graph-index.js` | 160 | 11 | 10 | 2 | DATA:16 |
-| `modules/core/link-facts.js` | 48 | 7 | 7 | 2 | DATA:1, S:4 |
+| `modules/core/link-facts.js` | 54 | 8 | 8 | 2 | DATA:1, S:6 |
 | `modules/core/long-task.js` | 120 | 3 | 3 | 0 | — |
 | `modules/core/ns.js` | 33 | 2 | 4 | 0 | — |
 | `modules/core/perms.js` | 21 | 4 | 3 | 0 | — |
@@ -111,20 +111,20 @@
 | `modules/dead.js` | 86 | 6 | 6 | 5 | DATA:1, S:5, MET:1 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 | 2 | — |
 | `modules/filters/chains.js` | 273 | 6 | 3 | 4 | DATA:3, S:2 |
-| `modules/filters/filters.js` | 454 | 14 | 3 | 13 | DATA:4, S:8 |
+| `modules/filters/filters.js` | 445 | 12 | 2 | 14 | DATA:4, S:7 |
 | `modules/graph/click-actions.js` | 201 | 8 | 2 | 8 | S:1 |
 | `modules/graph/graph-data.js` | 118 | 10 | 10 | 10 | DATA:2, S:6 |
-| `modules/graph/graph-selection.js` | 55 | 3 | 3 | 3 | S:1 |
+| `modules/graph/graph-selection.js` | 61 | 3 | 3 | 3 | S:1 |
 | `modules/metrics/by-link-type.js` | 116 | 6 | 3 | 2 | S:3, MET:4 |
 | `modules/metrics/concept-dynamics.js` | 224 | 8 | 4 | 2 | S:4, MET:4 |
 | `modules/metrics/descriptions.js` | 478 | 2 | 1 | 3 | S:3 |
 | `modules/metrics/format.js` | 32 | 4 | 2 | 2 | S:3 |
 | `modules/metrics/generativity.js` | 110 | 8 | 3 | 1 | S:6, MET:1 |
-| `modules/metrics/graph-cache.js` | 117 | 3 | 2 | 3 | S:3 |
+| `modules/metrics/graph-cache.js` | 129 | 3 | 2 | 3 | S:3 |
 | `modules/metrics/link-indexes.js` | 122 | 4 | 1 | 5 | DATA:3, S:9 |
-| `modules/metrics/network.js` | 871 | 25 | 18 | 4 | DATA:1, S:8, MET:9 |
+| `modules/metrics/network.js` | 950 | 26 | 18 | 4 | DATA:1, S:5, MET:9 |
 | `modules/metrics/philosopher.js` | 308 | 13 | 6 | 2 | S:5, MET:9 |
-| `modules/metrics/philosophical.js` | 1075 | 24 | 14 | 4 | DATA:1, S:6, MET:10 |
+| `modules/metrics/philosophical.js` | 1130 | 25 | 14 | 4 | DATA:1, S:6, MET:10 |
 | `modules/metrics/rankings.js` | 141 | 5 | 4 | 3 | S:4, MET:9 |
 | `modules/metrics/scope-reset.js` | 64 | 3 | 1 | 12 | S:2 |
 | `modules/metrics/scope-select.js` | 99 | 6 | 6 | 2 | DATA:2, S:5 |
@@ -144,12 +144,12 @@
 | `modules/modal/core.js` | 154 | 7 | 5 | 9 | S:1 |
 | `modules/modal/descriptions.js` | 162 | 10 | 6 | 0 | — |
 | `modules/modal/dirty.js` | 112 | 5 | 1 | 5 | DATA:2 |
-| `modules/modal/edit-forms.js` | 292 | 2 | 2 | 12 | DATA:5, VIEWS:2 |
+| `modules/modal/edit-forms.js` | 295 | 2 | 2 | 12 | DATA:5, VIEWS:2 |
 | `modules/modal/edit-rights.js` | 61 | 4 | 4 | 4 | — |
 | `modules/modal/entry.js` | 124 | 12 | 12 | 11 | DATA:3, S:2 |
 | `modules/modal/forms.js` | 81 | 6 | 5 | 2 | — |
 | `modules/modal/integrity.js` | 265 | 11 | 7 | 7 | DATA:4 |
-| `modules/modal/persist.js` | 441 | 11 | 6 | 14 | DATA:9, S:1 |
+| `modules/modal/persist.js` | 450 | 11 | 6 | 14 | DATA:9, S:1 |
 | `modules/modal/philosopher-view.js` | 633 | 4 | 1 | 13 | DATA:6, VIEWS:1 |
 | `modules/modal/profile-concept.js` | 182 | 8 | 4 | 8 | DATA:4, S:3, MET:19 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 2 | 8 | DATA:3, S:3, MET:3 |
@@ -169,7 +169,7 @@
 | `modules/render/interactions.js` | 308 | 8 | 4 | 19 | DATA:1, S:4 |
 | `modules/render/loop.js` | 20 | 4 | 2 | 0 | — |
 | `modules/render/metric-visualization.js` | 371 | 10 | 3 | 5 | DATA:4, S:3 |
-| `modules/render/picking.js` | 79 | 6 | 4 | 8 | DATA:2, S:1 |
+| `modules/render/picking.js` | 84 | 7 | 5 | 8 | DATA:2, S:1 |
 | `modules/render/render-state.js` | 17 | 6 | 6 | 1 | — |
 | `modules/render/scene.js` | 350 | 18 | 7 | 14 | DATA:4, S:5 |
 | `modules/render/selection.js` | 261 | 8 | 7 | 11 | DATA:2, S:2 |
@@ -177,7 +177,7 @@
 | `modules/render/simulation.js` | 131 | 11 | 8 | 12 | DATA:2, S:5 |
 | `modules/render/tooltip-el.js` | 7 | 1 | 1 | 1 | — |
 | `modules/state/edit.js` | 12 | 1 | 1 | 0 | — |
-| `modules/state/filters.js` | 22 | 3 | 3 | 2 | DATA:4, S:5 |
+| `modules/state/filters.js` | 20 | 3 | 3 | 2 | DATA:3, S:4 |
 | `modules/state/metrics-scope.js` | 13 | 0 | 0 | 1 | S:5 |
 | `modules/state/paths.js` | 18 | 0 | 0 | 2 | S:7 |
 | `modules/state/render.js` | 141 | 12 | 11 | 5 | DATA:5, S:11 |
@@ -195,13 +195,13 @@
 | `modules/stats/views/rankings.js` | 141 | 2 | 2 | 5 | DATA:2, S:1 |
 | `modules/ui/about.js` | 102 | 4 | 3 | 1 | DATA:6 |
 | `modules/ui/actions-byname.js` | 20 | 2 | 0 | 2 | — |
-| `modules/ui/actions-dyn.js` | 164 | 0 | 0 | 35 | DATA:1, S:9 |
+| `modules/ui/actions-dyn.js` | 165 | 0 | 0 | 35 | DATA:1, S:9 |
 | `modules/ui/actions-static.js` | 137 | 0 | 0 | 25 | — |
 | `modules/ui/actions.js` | 27 | 1 | 3 | 0 | — |
 | `modules/ui/delegation.js` | 70 | 3 | 1 | 1 | — |
 | `modules/ui/export.js` | 126 | 2 | 2 | 11 | DATA:4, S:2 |
 | `modules/ui/hint.js` | 60 | 7 | 4 | 1 | S:1 |
-| `modules/ui/legend.js` | 363 | 28 | 23 | 8 | DATA:9, S:10 |
+| `modules/ui/legend.js` | 387 | 29 | 24 | 7 | DATA:9, S:9 |
 | `modules/ui/notifications.js` | 99 | 10 | 8 | 2 | — |
 | `modules/ui/panels.js` | 40 | 2 | 2 | 0 | — |
 | `modules/ui/search-legend.js` | 141 | 7 | 6 | 17 | S:2 |
@@ -263,13 +263,14 @@
 | `nodesByPhilosopher` | const | 1 | да |
 | `linksByConcept` | const | 1 | да |
 
-### `modules/core/link-facts.js` — 48 строк, объявлений 7
+### `modules/core/link-facts.js` — 54 строк, объявлений 8
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `buildReflexiveMap` | function | 9 | да |
 | `isSymmetricLink` | function | 6 | да |
 | `isReflexiveLink` | function | 5 | да |
+| `linksBothWays` | function | 5 | да |
 | `isTypologicalLink` | function | 4 | да |
 | `reflexiveLinkOf` | function | 4 | да |
 | `otherPhilosopher` | function | 4 | да |
@@ -427,21 +428,19 @@
 | `confirmLongChainSearch` | function | 9 | да |
 | `CHAIN_WARN_THRESHOLD` | const | 1 | — |
 
-### `modules/filters/filters.js` — 454 строк, объявлений 14
+### `modules/filters/filters.js` — 445 строк, объявлений 12
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `handleUniqueChainsMode` | async function | 65 | — |
 | `handleChainsMode` | async function | 59 | — |
-| `applyBasicFilter` | function | 52 | — |
+| `applyBasicFilter` | function | 53 | — |
 | `applyFiltersImmediate` | function | 21 | да |
 | `cleanupInvisibleSelections` | function | 14 | — |
 | `debounce` | function | 11 | — |
-| `applyChainVisibility` | function | 7 | — |
+| `applyChainVisibility` | function | 8 | — |
 | `refreshMetricsIfScoped` | function | 7 | — |
-| `philosopherPassesTraditions` | function | 5 | да |
-| `linkPassesTraditions` | function | 5 | — |
-| `philTraditionsSelected` | function | 4 | — |
+| `sharesTradition` | function | 5 | — |
 | `FilterModes` | const | 1 | — |
 | `debouncedApplyFilters` | const | 1 | — |
 | `applyFilters` | function | 1 | да |
@@ -474,12 +473,12 @@
 | `traditionsOfPhilosopher` | function | 5 | да |
 | `updateNodeOnGraph` | function | 4 | да |
 
-### `modules/graph/graph-selection.js` — 55 строк, объявлений 3
+### `modules/graph/graph-selection.js` — 61 строк, объявлений 3
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `selectConceptOnGraph` | function | 28 | да |
-| `cancelGraphSelection` | function | 11 | да |
+| `selectConceptOnGraph` | function | 31 | да |
+| `cancelGraphSelection` | function | 14 | да |
 | `handleConceptSelection` | function | 6 | да |
 
 ### `modules/metrics/by-link-type.js` — 116 строк, объявлений 6
@@ -535,11 +534,11 @@
 | `GENERATIVITY_ITERATIONS` | const | 1 | — |
 | `_generativityCacheByScope` | let | 1 | — |
 
-### `modules/metrics/graph-cache.js` — 117 строк, объявлений 3
+### `modules/metrics/graph-cache.js` — 129 строк, объявлений 3
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `buildGlobalGraphCache` | function | 105 | да |
+| `buildGlobalGraphCache` | function | 117 | да |
 | `graphCache` | let | 1 | — |
 | `invalidateGraphCache` | function | 1 | да |
 
@@ -552,11 +551,11 @@
 | `buildIncomingLinks` | function | 14 | — |
 | `initializeMetricsData` | function | 10 | — |
 
-### `modules/metrics/network.js` — 871 строк, объявлений 25
+### `modules/metrics/network.js` — 950 строк, объявлений 26
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `calculateBetweennessAsync` | async function | 152 | да |
+| `calculateBetweennessAsync` | async function | 166 | да |
 | `dijkstraFromSource` | function | 47 | — |
 | `bfsFromSource` | function | 41 | — |
 | `medianNodeDegree` | function | 12 | да |
@@ -579,6 +578,7 @@
 | `weightedClusteringCache` | let | 1 | да |
 | `localCohesionCache` | let | 1 | да |
 | `richClubCache` | let | 1 | да |
+| `WEIGHTED_CLUSTERING_MIN_DEGREE` | const | 1 | — |
 | `eigenvectorCache` | let | 1 | да |
 | `eigenvectorCalculating` | let | 1 | — |
 
@@ -600,7 +600,7 @@
 | `philosopherInterdisciplinaryIndexCache` | let | 1 | — |
 | `temporalInfluencePatternCache` | let | 1 | — |
 
-### `modules/metrics/philosophical.js` — 1075 строк, объявлений 24
+### `modules/metrics/philosophical.js` — 1130 строк, объявлений 25
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -625,6 +625,7 @@
 | `DISRUPTIVE_TYPES` | const | 1 | да |
 | `syntheticIndexCache` | let | 1 | — |
 | `dialogicalIndexCache` | let | 1 | — |
+| `MUTUAL_DIALOGUE_BONUS` | const | 1 | — |
 | `internalCoherenceIndexCache` | let | 1 | — |
 | `tensionIndexCache` | let | 1 | — |
 | `INFLUENCE_SCOPE_LABELS` | const | 1 | да |
@@ -868,7 +869,7 @@
 | `hasConceptChanges` | function | 19 | — |
 | `hasFilledFields` | function | 10 | — |
 
-### `modules/modal/edit-forms.js` — 292 строк, объявлений 2
+### `modules/modal/edit-forms.js` — 295 строк, объявлений 2
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -928,7 +929,7 @@
 | `nLinks` | const | 1 | да |
 | `labelOf` | const | 1 | — |
 
-### `modules/modal/persist.js` — 441 строк, объявлений 11
+### `modules/modal/persist.js` — 450 строк, объявлений 11
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -937,7 +938,7 @@
 | `saveConceptData` | function | 76 | да |
 | `deleteConnection` | function | 49 | да |
 | `deletePhilosopher` | function | 41 | да |
-| `deleteConcept` | function | 22 | да |
+| `deleteConcept` | function | 31 | да |
 | `removeConceptEverywhere` | function | 8 | — |
 | `removeLinkEverywhere` | function | 7 | — |
 | `provenanceFields` | function | 6 | — |
@@ -1160,7 +1161,7 @@
 | `originalRadii` | let | 1 | — |
 | `originalTextDy` | let | 1 | — |
 
-### `modules/render/picking.js` — 79 строк, объявлений 6
+### `modules/render/picking.js` — 84 строк, объявлений 7
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1168,6 +1169,7 @@
 | `pickLink` | function | 12 | да |
 | `pickNode` | function | 9 | да |
 | `rebuildQuadtree` | function | 5 | да |
+| `refreshHitMaps` | function | 4 | да |
 | `toGraph` | function | 4 | да |
 | `quadtree` | let | 1 | — |
 
@@ -1261,7 +1263,7 @@
 |---|---|---|---|
 | `editMode` | let | 1 | да |
 
-### `modules/state/filters.js` — 22 строк, объявлений 3
+### `modules/state/filters.js` — 20 строк, объявлений 3
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1473,21 +1475,21 @@
 | `installHintOnClick` | function | 3 | да |
 | `hintBox` | let | 1 | — |
 
-### `modules/ui/legend.js` — 363 строк, объявлений 28
+### `modules/ui/legend.js` — 387 строк, объявлений 29
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `initFilters` | function | 79 | да |
+| `initFilters` | function | 89 | да |
 | `toggleSection` | function | 42 | да |
 | `updateProvenanceCoverage` | function | 40 | — |
-| `updatePhilosopherDimming` | function | 15 | да |
+| `syncTraditionRows` | function | 28 | да |
 | `updateFilterStats` | function | 12 | да |
 | `togglePhilosopher` | function | 8 | да |
-| `selectAllTraditions` | function | 8 | да |
-| `deselectAllTraditions` | function | 8 | да |
+| `toggleTradition` | function | 8 | да |
 | `toggleRelation` | function | 8 | да |
 | `toggleRubric` | function | 8 | да |
 | `toggleUniformLinkWidth` | function | 8 | да |
+| `traditionMembers` | function | 7 | да |
 | `selectAllPhilosophers` | function | 7 | да |
 | `deselectAllPhilosophers` | function | 7 | да |
 | `selectAllRelations` | function | 7 | да |
@@ -1496,13 +1498,14 @@
 | `deselectAllRubrics` | function | 7 | да |
 | `markChosenInLegend` | function | 6 | да |
 | `syncPhilosopherCheckboxes` | function | 6 | — |
-| `toggleTradition` | function | 5 | да |
+| `resetTradition` | function | 5 | да |
+| `selectAllTraditions` | function | 5 | да |
+| `deselectAllTraditions` | function | 5 | да |
 | `onlyTradition` | function | 5 | да |
-| `addTradition` | function | 5 | да |
-| `traditionMembers` | function | 4 | — |
 | `changeFilterMode` | function | 4 | да |
 | `syncLegendWeightsToggle` | function | 3 | да |
 | `syncLegendDirectionToggle` | function | 3 | да |
+| `WITHOUT_TRADITION` | const | 1 | — |
 | `legendWeightsToggle` | const | 1 | — |
 | `legendDirectionToggle` | const | 1 | — |
 
@@ -1675,7 +1678,7 @@
 - из `modules/state/render.js`: `installLayoutPull`, `layoutFromStore`, `storedLayoutComplaint`
 - из `modules/stats/modal.js`: `closeStatsModal`, `loadStatsContent`, `switchStatsView`
 - из `modules/stats/views/comparison.js`: `renderComparison`
-- из `modules/ui/legend.js`: `initFilters`, `markChosenInLegend`, `updateFilterStats`, `updatePhilosopherDimming`
+- из `modules/ui/legend.js`: `initFilters`, `markChosenInLegend`, `syncTraditionRows`, `updateFilterStats`
 - из `modules/ui/notifications.js`: `markNotificationRead`, `refreshUnread`, `renderBell`
 - из `modules/ui/panels.js`: `restorePanelStates`
 - из `modules/widgets/custom-select.js`: `initializeCustomSelects`
@@ -1846,7 +1849,7 @@
 - из `modules/core/ns.js`: `DATA`, `S`
 - из `modules/core/graph-index.js`: _ради побочного действия_
 
-Чаще всего поминает: `S`×6, `DATA`×2
+Чаще всего поминает: `S`×8, `DATA`×2
 
 ### `modules/core/relation-types.js`
 
@@ -1956,11 +1959,12 @@
 - из `modules/metrics/scope-reset.js`: `invalidateEverythingForScope`
 - из `modules/metrics/scope.js`: `updateMetricsScopeHint`
 - из `modules/render/d3-layer.js`: `gfxLinkAll`, `gfxNode`
+- из `modules/render/picking.js`: `refreshHitMaps`
 - из `modules/render/selection.js`: `highlightConnected`, `resetHighlight`
 - из `modules/state/filters.js`: `pinnedDespiteFilter`, `pinnedVisibleNodes`
 - из `modules/state/render.js`: `selectedNodes`
 
-Чаще всего поминает: `S`×62, `DATA`×20, `emit`×9, `showTemporaryMessage`×9, `CHAIN_SEARCH`×8
+Чаще всего поминает: `S`×60, `DATA`×20, `emit`×9, `showTemporaryMessage`×9, `CHAIN_SEARCH`×8
 
 ### `modules/graph/click-actions.js`
 
@@ -2058,7 +2062,7 @@
 - из `modules/core/graph-index.js`: `conceptById`
 - из `modules/metrics/graph-cache.js`: `buildGlobalGraphCache`
 
-Чаще всего поминает: `S`×37, `DATA`×25, `MET`×11, `buildGlobalGraphCache`×10, `conceptById`×3
+Чаще всего поминает: `S`×31, `DATA`×28, `MET`×11, `buildGlobalGraphCache`×10, `conceptById`×3
 
 ### `modules/metrics/philosopher.js`
 
@@ -2071,10 +2075,10 @@
 
 - из `modules/core/ns.js`: `DATA`, `MET`, `S`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/link-facts.js`: `isSymmetricLink`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+- из `modules/core/link-facts.js`: `isSymmetricLink`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 - из `modules/metrics/generativity.js`: `generativity`, `linkInInfluenceScope`
 
-Чаще всего поминает: `S`×65, `sumWeight`×13, `MET`×10, `linkInInfluenceScope`×2, `reflexiveLinkOf`×2
+Чаще всего поминает: `S`×65, `sumWeight`×13, `MET`×10, `linksBothWays`×6, `linkInInfluenceScope`×2
 
 ### `modules/metrics/rankings.js`
 
@@ -2342,7 +2346,7 @@
 - из `modules/modal/forms.js`: `provenanceValue`
 - из `modules/modal/integrity.js`: `conceptIntegrityWarnings`, `connectionIntegrityWarnings`, `nConcepts`, `nLinks`, `philosopherIntegrityWarnings`, `provenanceDriftWarning`, `relationIndexById`
 
-Чаще всего поминает: `DATA`×44, `ModalContext`×17, `submitChange`×8, `describeChange`×8, `afterDataChange`×8
+Чаще всего поминает: `DATA`×44, `ModalContext`×21, `submitChange`×8, `describeChange`×8, `afterDataChange`×8
 
 ### `modules/modal/philosopher-view.js`
 
@@ -2565,7 +2569,7 @@
 - из `modules/render/draw-link.js`: `drawSelfLoop`, `fillArrow`, `linkDrawWidth`, `linkVisualState`, `strokeLink`
 - из `modules/render/render-state.js`: `nodeRadius`
 
-Чаще всего поминает: `pickCtx`×14, `dpr`×6, `DATA`×5, `pickCanvas`×4, `renderState`×3
+Чаще всего поминает: `pickCtx`×14, `dpr`×6, `DATA`×5, `pickCanvas`×4, `S`×3
 
 ### `modules/render/render-state.js`
 
@@ -2647,7 +2651,7 @@
 - из `modules/core/ns.js`: `DATA`, `S`
 - из `modules/core/graph-index.js`: _ради побочного действия_
 
-Чаще всего поминает: `S`×5, `DATA`×4
+Чаще всего поминает: `S`×4, `DATA`×3
 
 ### `modules/state/metrics-scope.js`
 
@@ -2833,7 +2837,7 @@
 - из `modules/modal/edit-forms.js`: `syncPhilColorFromPicker`, `updatePhilColorSample`
 - из `modules/modal/entry.js`: `gotoNodeFromModal`, `openConceptById`, `openEditConceptModal`, `openEditConnectionModal`, `showAllConcepts`, `showPhilosopherDetailModal`
 - из `modules/modal/forms.js`: `refreshProvenanceField`
-- из `modules/modal/persist.js`: `deleteConnection`
+- из `modules/modal/persist.js`: `deleteConcept`, `deleteConnection`
 - из `modules/modal/profile-concept.js`: `closeConceptProfileModal`, `showConceptProfileModal`, `toggleProfileOrder`
 - из `modules/modal/profile-philosopher.js`: `closePhilosopherProfileModal`, `showPhilosopherProfileModal`
 - из `modules/modal/search.js`: `clearModalSearch`, `handleModalSearch`
@@ -2849,7 +2853,7 @@
 - из `modules/stats/run.js`: `calculateMetricFromModal`
 - из `modules/stats/views/comparison.js`: `openPairInComparison`, `openPhilosopherPair`, `renderClosestPairs`, `renderPhilosopherComparison`, `renderPhilosopherPairs`
 - из `modules/stats/views/philosophical.js`: `setInfluenceScope`
-- из `modules/ui/legend.js`: `addTradition`, `onlyTradition`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleTradition`
+- из `modules/ui/legend.js`: `onlyTradition`, `resetTradition`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleTradition`
 - из `modules/ui/search-legend.js`: `selectSearchResult`
 - из `modules/ui/search-link.js`: `highlightLinkOnGraph`, `pickLinkEnd`
 - из `modules/ui/search-philosopher.js`: `clearPhilosopherSearch`, `handlePhilosopherSearch`, `pickPhilosopherFromSearch`, `selectPhilosopherResult`
@@ -2920,13 +2924,12 @@
 - из `modules/core/ns.js`: `DATA`, `S`
 - из `modules/core/graph-index.js`: _ради побочного действия_
 - из `modules/core/relation-types.js`: `relationHint`
-- из `modules/filters/filters.js`: `applyFilters`, `philosopherPassesTraditions`
-- из `modules/modal/edit-rights.js`: `philRowTip`
+- из `modules/filters/filters.js`: `applyFilters`
 - из `modules/render/canvas-core.js`: `renderState`
 - из `modules/render/d3-layer.js`: `updateArrows`
 - из `modules/state/filters.js`: `chosenPhilosophers`
 
-Чаще всего поминает: `S`×31, `DATA`×28, `applyFilters`×15, `chosenPhilosophers`×1, `relationHint`×1
+Чаще всего поминает: `S`×33, `DATA`×27, `applyFilters`×15, `chosenPhilosophers`×1, `relationHint`×1
 
 ### `modules/ui/notifications.js`
 
