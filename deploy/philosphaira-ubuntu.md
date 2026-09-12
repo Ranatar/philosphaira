@@ -19,13 +19,17 @@
 
 ```bash
 scp philos-ubuntu.sh philosphaira.zip …    # с Windows 7 — через WinSCP или pscp
-chmod +x philos-ubuntu.sh
 
-./philos-ubuntu.sh установить              # Node 22, PostgreSQL, Chrome 131, мелочь
-./philos-ubuntu.sh развернуть philosphaira.zip
-./philos-ubuntu.sh пуск                    # оба процесса: сервер и работник
-./philos-ubuntu.sh состояние               # проверить, что оба живы
+bash philos-ubuntu.sh установить           # Node 22, PostgreSQL, Chrome 131, мелочь
+bash philos-ubuntu.sh развернуть philosphaira.zip
+bash philos-ubuntu.sh пуск                 # оба процесса: сервер и работник
+bash philos-ubuntu.sh состояние            # проверить, что оба живы
 ```
+
+**Зовите через `bash`, а не через `./`.** Права на запуск не переживают ни
+`scp` из-под Windows, ни распаковку `zip`, ни общую папку виртуалки — и
+`./philos-ubuntu.sh` отвечает `Permission denied`. `bash философ.sh` работает
+при любых правах; `chmod +x` нужен, только если хочется звать через `./`.
 
 **Что делает `развернуть`** — распаковку, `npm install` в двух местах, две
 базы, `~/philos.env`, миграции, семя графа, первую раскладку **и первого
@@ -97,6 +101,16 @@ node -v            # ждём v22.x
 ```
 
 ### 2.2. PostgreSQL, Python, мелочь
+
+**Сперва `sudo apt-get update`, и это не формальность.** Ubuntu выкатывает
+точечные выпуски и убирает прежние файлы с зеркал: список, пролежавший
+неделю, помнит `postgresql-16_16.14`, а на зеркале уже `16.15` — и установка
+падает связкой `404 Not Found`, из которой причина не видна вовсе.
+
+Скрипт обновляет списки первым шагом. Прежде он делал это **случайно** —
+обновление шло внутри установщика NodeSource, и только когда Node ещё не
+стоял; у кого Node уже был, шаг пропускался, и `установить` падал на
+втором шаге. Поймано не мной, а человеком со свежим Node.
 
 ```bash
 sudo apt install -y postgresql python3 python3-venv curl unzip git
@@ -499,6 +513,9 @@ tar -caf ~/philosphaira-$(date +%F).tar.xz \
 | `graph:import` отказал | граф не пуст — это защита, а не поломка | так и задумано; повтор — `ALLOW_GRAPH_REIMPORT=1` |
 | `npm start` не поднял базу и не завёл людей | запуск ничего не готовит нарочно | шаги 4.1–4.3 руками |
 | Логин `ИВАН` и `иван` завелись оба | база создана не в `C.UTF-8` | пересоздать базу с `--template=template0` |
+| `./philos-ubuntu.sh: Permission denied` | права на запуск потерялись при переносе | звать через `bash philos-ubuntu.sh`, либо `chmod +x` |
+| `установить` падает связкой `404 Not Found` | списки пакетов протухли: Ubuntu убрала прежний точечный выпуск | `sudo apt-get update`; скрипт делает это сам с 12 сентября 2026 |
+| `apt-get update` не помог, 404 остаётся | зеркало неполно или отвечает с перебоями | сменить источник на `archive.ubuntu.com` и повторить |
 
 ---
 
