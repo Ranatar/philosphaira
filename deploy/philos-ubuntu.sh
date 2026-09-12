@@ -163,10 +163,57 @@ mkdir -p "$LOGD"
   else
     [ -f "$SRC" ] || стоп "нет такого файла: $SRC"
     TMP=$(mktemp -d)
-    unzip -q "$SRC" -d "$TMP"
-    INNER=$(find "$TMP" -maxdepth 2 -name package.json -path '*/server/*' \
-      | head -1 | xargs -r dirname | xargs -r dirname)
-    [ -n "$INNER" ] || стоп "в архиве не нашлось server/package.json"
+
+    # РАСПАКОВКА ПО СОДЕРЖИМОМУ, А НЕ ПО РАСШИРЕНИЮ ОДНОГО ВИДА. Прежде звался
+    # только `unzip`, и на .tar.xz — том самом, каким проект и отдаётся, —
+    # он падал невнятно.
+    case "$SRC" in
+      *.zip)                   unzip -q "$SRC" -d "$TMP" ;;
+      *.tar.xz|*.txz|*.tar.gz|*.tgz|*.tar.bz2|*.tar)
+                               # --warning=no-timestamp глушит ровно один
+                               # повод для тревоги: «время в будущем» при
+                               # отставших часах машины. Настоящие ошибки
+                               # tar по-прежнему видны.
+                               tar --warning=no-timestamp -xf "$SRC" -C "$TMP" ;;
+      *) стоп "не знаю, чем открыть «$SRC»: жду .zip, .tar.xz, .tar.gz или .tar" ;;
+    esac
+
+    # ПОИСК БЕЗ ПРЕДЕЛА ГЛУБИНЫ.
+    #
+    # Прежде стояло `-maxdepth 2`, и этого хватало ровно на архив БЕЗ обёртки
+    # (`server/package.json` во втором уровне). Архив С обёрткой —
+    # `philosphaira/server/package.json` — лежит на третьем, и скрипт
+    # сообщал «в архиве не нашлось server/package.json» про архив, где он
+    # есть. Инструкция при этом обещала, что оба вида приняты.
+    #
+    # Причина не в числе 2, а в том, что путь через архив НИ РАЗУ НЕ
+    # ПРОХОДИЛСЯ: прогон делался из каталога, и обе ветки выглядели
+    # проверенными. Поэтому предел снят вовсе, а не увеличен на единицу:
+    # обёртка бывает и двойной (архив в архиве, папка с датой).
+    #
+    # node_modules отсекается: там сотни package.json, и любой из них
+    # в каталоге с именем server увёл бы поиск в чужое дерево.
+    INNER=$(find "$TMP" -name node_modules -prune -o \
+              -type f -path '*/server/package.json' -print 2>/dev/null \
+            | awk '{ print gsub(/\//, "/"), $0 }' | sort -n | head -1 | cut -d' ' -f2-)
+    INNER=$(printf '%s' "$INNER" | xargs -r dirname | xargs -r dirname)
+
+    if [ -z "$INNER" ]; then
+      беда "в распакованном не нашлось */server/package.json. Что внутри:"
+      find "$TMP" -maxdepth 2 | head -15 | sed 's/^/    /'
+      стоп "проверьте, тот ли это архив проекта"
+    fi
+
+    # ПРОВЕРКА, ЧТО НАШЛОСЬ ИМЕННО ДЕРЕВО ПРОЕКТА, а не случайное совпадение
+    # имён: у проекта рядом с server/ обязаны лежать source/ и tools/.
+    # ИМЯ ЛАТИНИЦЕЙ — см. шапку файла. Первая редакция этой проверки звала
+    # переменную `ОБЯЗАН`, bash отвечал «not a valid identifier», и цикл
+    # МОЛЧА НЕ ВЫПОЛНЯЛСЯ: проверка, которая ничего не проверяет, хуже
+    # отсутствующей. Поймано прогоном по четырём видам архива.
+    for need in source tools server; do
+      [ -d "$INNER/$need" ] || стоп "в «$INNER» нет папки $need — это не дерево проекта"
+    done
+
     mkdir -p "$ROOT" && cp -r "$INNER"/. "$ROOT"/
     rm -rf "$TMP"
     годно "распаковано в $ROOT"

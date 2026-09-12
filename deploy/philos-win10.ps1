@@ -183,12 +183,35 @@ function Invoke-Deploy($source) {
       & tar -xf $source -C $tmp
       if ($LASTEXITCODE -ne 0) { Die 'tar не справился с архивом' }
     }
-    # Ищем НЕ корень архива, а каталог, где лежит server\package.json: архив
-    # может быть как с папкой внутри, так и без неё.
-    $inner = Get-ChildItem $tmp -Recurse -Depth 3 -Filter package.json -ErrorAction SilentlyContinue |
-             Where-Object { $_.Directory.Name -eq 'server' } | Select-Object -First 1
-    if (-not $inner) { Die 'в архиве не нашлось server\package.json' }
+    # ПОИСК БЕЗ ПРЕДЕЛА ГЛУБИНЫ. Ищем не корень архива, а каталог, где лежит
+    # server\package.json: обёртка бывает и одна, и двойная (папка с датой,
+    # архив в архиве), и её может не быть вовсе.
+    #
+    # У близнеца на bash здесь стояло `-maxdepth 2`, и этого хватало ровно на
+    # архив БЕЗ обёртки; архив С обёрткой давал «в архиве не нашлось
+    # server/package.json» про архив, где он есть. Причина была не в числе, а
+    # в том, что путь через архив ни разу не проходился — прогон делался из
+    # каталога, и обе ветки выглядели проверенными. Здесь предел снят вовсе.
+    #
+    # node_modules отсекается: там сотни package.json, и любой из них в
+    # каталоге с именем server увёл бы поиск в чужое дерево.
+    $inner = Get-ChildItem $tmp -Recurse -Filter package.json -File -ErrorAction SilentlyContinue |
+             Where-Object { $_.Directory.Name -eq 'server' -and $_.FullName -notmatch '\\node_modules\\' } |
+             Sort-Object { ($_.FullName -split '\\').Count } | Select-Object -First 1
+    if (-not $inner) {
+      Bad 'в распакованном не нашлось server\package.json. Что внутри:'
+      Get-ChildItem $tmp -Depth 1 | ForEach-Object { Write-Host "    $($_.FullName.Substring($tmp.Length+1))" }
+      Die 'проверьте, тот ли это архив проекта'
+    }
     $proj = Split-Path (Split-Path $inner.FullName -Parent) -Parent
+
+    # ПРОВЕРКА, ЧТО НАШЛОСЬ ИМЕННО ДЕРЕВО ПРОЕКТА, а не случайное совпадение
+    # имён: у проекта рядом с server\ обязаны лежать source\ и tools\.
+    foreach ($need in @('source', 'tools', 'server')) {
+      if (-not (Test-Path (Join-Path $proj $need))) {
+        Die "в «$proj» нет папки $need — это не дерево проекта"
+      }
+    }
     New-Item -ItemType Directory -Force -Path $Root | Out-Null
     Copy-Item "$proj\*" $Root -Recurse -Force
     Remove-Item $tmp -Recurse -Force
