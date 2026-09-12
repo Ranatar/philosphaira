@@ -8,6 +8,11 @@ import { PICK_LINK_WIDTH, dpr, gfxCanvas, pickCanvas, pickCtx, renderState } fro
 import { drawSelfLoop, fillArrow, linkDrawWidth, linkVisualState, strokeLink } from './draw-link.js';
 import { nodeRadius } from './render-state.js';
 
+function refreshHitMaps() {
+      rebuildQuadtree();   // хит-тест узлов
+      S.pickDirty = true;    // хит-тест связей (карта выбора)
+    }
+
 let quadtree = null;
 
 function rebuildQuadtree() {
@@ -75,4 +80,4 @@ function pickLink(clientX, clientY) {
       return DATA.links[id - 1];
     }
 
-export { pickLink, pickNode, rebuildQuadtree, toGraph };
+export { pickLink, pickNode, rebuildQuadtree, refreshHitMaps, toGraph };

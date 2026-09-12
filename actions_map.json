@@ -1042,6 +1042,13 @@
   "аргументов": 1,
   "откуда": "modules/modal/edit-forms.js"
  },
+ "delete-concept": {
+  "код": "deleteConcept('${c.id}')",
+  "attr": "onclick",
+  "тело": "deleteConcept(el.dataset.a1)",
+  "аргументов": 1,
+  "откуда": "modules/modal/edit-forms.js"
+ },
  "create-new-concept-for-philosopher": {
   "код": "createNewConceptForPhilosopher('${escapeAttr(philosopherName)}')",
   "attr": "onclick",
@@ -1568,23 +1575,23 @@
   "откуда": "modules/ui/legend.js"
  },
  "toggle-tradition-change": {
-  "код": "toggleTradition('${tr.id}')",
+  "код": "toggleTradition('${id}')",
   "attr": "onchange",
   "тело": "toggleTradition(el.dataset.a1)",
   "аргументов": 1,
   "откуда": "modules/ui/legend.js"
  },
  "only-tradition": {
-  "код": "onlyTradition('${tr.id}')",
+  "код": "onlyTradition('${id}')",
   "attr": "onclick",
   "тело": "onlyTradition(el.dataset.a1)",
   "аргументов": 1,
   "откуда": "modules/ui/legend.js"
  },
- "add-tradition": {
-  "код": "addTradition('${tr.id}')",
+ "reset-tradition": {
+  "код": "resetTradition('${id}')",
   "attr": "onclick",
-  "тело": "addTradition(el.dataset.a1)",
+  "тело": "resetTradition(el.dataset.a1)",
   "аргументов": 1,
   "откуда": "modules/ui/legend.js"
  },

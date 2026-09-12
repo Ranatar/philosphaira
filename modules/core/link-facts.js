@@ -39,9 +39,15 @@ function sumWeight(links) {
       return links.reduce((s, r) => s + (r.weight || 1), 0);
     }
 
+function linksBothWays(conceptId) {
+      const incoming = S._incomingLinks.get(conceptId) || [];
+      const outgoing = S._outgoingLinks.get(conceptId) || [];
+      return incoming.concat(outgoing.filter(r => !isSymmetricLink(r)));
+    }
+
 function otherPhilosopher(r, conceptId) {
       const other = S._conceptMap.get(r.source === conceptId ? r.target : r.source);
       return other ? S._philosopherMap.get(other.philosopher) : null;
     }
 
-export { buildReflexiveMap, isReflexiveLink, isSymmetricLink, isTypologicalLink, otherPhilosopher, reflexiveLinkOf, sumWeight };
+export { buildReflexiveMap, isReflexiveLink, isSymmetricLink, isTypologicalLink, linksBothWays, otherPhilosopher, reflexiveLinkOf, sumWeight };

@@ -109,7 +109,7 @@ const METRIC_FIELD_LABELS = {
       outgoingContradictions: 'Исходящих противоречий',
       incomingCritiques: 'Полученной критики', incomingOppositions: 'Полученных оппозиций',
       acknowledgedLimits: 'Признанных ограничений',
-      conditionalDependencies: 'Условных зависимостей',
+      correlativePairs: 'Соотносительных пар',
       conceptsEmergedFrom: 'Порождённых концептов',
       independenceScore: 'Независимость от традиции', rubricDiversity: 'Разнообразие рубрик',
       futureImpact: 'Влияние в будущее',

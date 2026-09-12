@@ -206,13 +206,13 @@ function generateLocalCohesionContent() {
 function generateRichClubContent() {
       if (!richClubCache || richClubCache.length === 0) {
         return generateCalculateButton('Rich-Club', 'rich-club',
-          'Степень связности узла с другими высокостепенными узлами');
+          'Собственная степень узла, умноженная на долю связей с верхним децилем по степени');
       }
       
       return generateMetricResults(
         richClubCache.slice(0, 30),
         '👑 Rich-Club',
-        'Философская элита сети',
+        'Участие в клубе самых связных концепций',
         'rich-club',
         'value',
         true
