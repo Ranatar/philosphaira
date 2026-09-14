@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-128 модулей, 20556 строк, 815 объявлений,
-574 вывозов, 799 рёбер ввоза. Составлено 2026-09-14 07:18:19.
+129 модулей, 20803 строк, 836 объявлений,
+584 вывозов, 806 рёбер ввоза. Составлено 2026-09-14 13:28:35.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -17,13 +17,13 @@
 
 | Модуль | Ввозят из него |
 |---|---|
-| `modules/core/ns.js` | 94 |
-| `modules/core/graph-index.js` | 56 |
+| `modules/core/ns.js` | 95 |
+| `modules/core/graph-index.js` | 57 |
 | `modules/core/events.js` | 22 |
 | `modules/core/link-facts.js` | 20 |
 | `modules/render/canvas-core.js` | 19 |
 | `modules/state/render.js` | 18 |
-| `modules/util/html.js` | 16 |
+| `modules/util/html.js` | 17 |
 | `modules/core/api.js` | 13 |
 | `modules/core/perms.js` | 13 |
 | `modules/metrics/link-indexes.js` | 13 |
@@ -35,26 +35,26 @@
 | Имя | В скольких модулях ввозится |
 |---|---|
 | `S` | 75 |
-| `DATA` | 60 |
-| `conceptById` | 22 |
+| `DATA` | 61 |
+| `conceptById` | 23 |
 | `emit` | 21 |
 | `MET` | 21 |
 | `initializePhilosophyMetrics` | 12 |
 | `PERM` | 12 |
 | `can` | 11 |
+| `escapeAttr` | 11 |
 | `philosopherByName` | 11 |
 | `requestDraw` | 10 |
 | `api` | 10 |
 | `renderState` | 10 |
-| `escapeAttr` | 10 |
+| `isNodeVisible` | 9 |
 | `isSymmetricLink` | 9 |
-| `selectedNodes` | 9 |
 
 ## Общие пространства имён
 
 | Пространство | Полей | Самое востребованное поле | В скольких модулях |
 |---|---|---|---|
-| `DATA` | 17 | `nodes` | 35 |
+| `DATA` | 17 | `nodes` | 36 |
 | `S` | 67 | `_concepts` | 15 |
 | `MET` | 33 | `influenceIndex` | 7 |
 | `VIEWS` | 6 | `generateConceptViewContent` | 1 |
@@ -86,7 +86,7 @@
 | Модуль | Строк | Объявлений | Вывозит | Ввозит из | Пространства |
 |---|---|---|---|---|---|
 | `boot.js` | 313 | 0 | 1 | 65 | DATA:2, S:8 |
-| `main.js` | 134 | 0 | 0 | 123 | — |
+| `main.js` | 135 | 0 | 0 | 124 | — |
 | `modules/boot-defs.js` | 62 | 3 | 2 | 8 | S:1 |
 | `modules/core/api.js` | 85 | 4 | 3 | 1 | — |
 | `modules/core/base-cells.js` | 19 | 0 | 0 | 1 | S:8 |
@@ -156,6 +156,7 @@
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 2 | 8 | DATA:3, S:3, MET:3 |
 | `modules/modal/search.js` | 43 | 3 | 3 | 1 | — |
 | `modules/modal/security.js` | 116 | 7 | 4 | 4 | S:1 |
+| `modules/modal/selection-list.js` | 234 | 21 | 10 | 5 | DATA:5 |
 | `modules/modal/users.js` | 97 | 8 | 7 | 3 | — |
 | `modules/paths/analysis.js` | 74 | 2 | 2 | 7 | DATA:2 |
 | `modules/paths/chronology.js` | 175 | 10 | 6 | 4 | DATA:1, S:1 |
@@ -196,8 +197,8 @@
 | `modules/stats/views/rankings.js` | 141 | 2 | 2 | 5 | DATA:2, S:1 |
 | `modules/ui/about.js` | 102 | 4 | 3 | 1 | DATA:6 |
 | `modules/ui/actions-byname.js` | 20 | 2 | 0 | 2 | — |
-| `modules/ui/actions-dyn.js` | 169 | 0 | 0 | 36 | DATA:1, S:9 |
-| `modules/ui/actions-static.js` | 137 | 0 | 0 | 25 | — |
+| `modules/ui/actions-dyn.js` | 178 | 0 | 0 | 37 | DATA:2, S:9 |
+| `modules/ui/actions-static.js` | 140 | 0 | 0 | 26 | — |
 | `modules/ui/actions.js` | 27 | 1 | 3 | 0 | — |
 | `modules/ui/delegation.js` | 70 | 3 | 1 | 1 | — |
 | `modules/ui/export.js` | 126 | 2 | 2 | 11 | DATA:4, S:2 |
@@ -1007,6 +1008,32 @@
 | `securitySecret` | let | 1 | — |
 | `securityModalEl` | function | 1 | — |
 
+### `modules/modal/selection-list.js` — 234 строк, объявлений 21
+
+| Имя | Вид | Строк | Вывозится |
+|---|---|---|---|
+| `renderSelectionList` | function | 53 | да |
+| `selectionListSets` | function | 32 | да |
+| `selectionRowRelation` | function | 21 | — |
+| `selectionRowPhilosopher` | function | 15 | — |
+| `selectionRowConcept` | function | 15 | — |
+| `toggleSelectionBodies` | function | 11 | да |
+| `setSelectionProvenance` | function | 9 | да |
+| `openSelectionListModal` | function | 7 | да |
+| `provenanceState` | function | 6 | да |
+| `toggleSelectionBlock` | function | 5 | да |
+| `toggleSelectionBody` | function | 5 | да |
+| `selectionListMore` | function | 4 | да |
+| `selectionLabel` | function | 4 | — |
+| `closeSelectionListModal` | function | 3 | да |
+| `selectionListOpenBlocks` | let | 1 | — |
+| `selectionListOpenBodies` | let | 1 | — |
+| `SELECTION_LIST_CHUNK` | const | 1 | — |
+| `selectionListShown` | let | 1 | — |
+| `selectionProvenance` | let | 1 | — |
+| `PROVENANCE_LABELS` | const | 1 | — |
+| `selectionPhilCount` | let | 1 | — |
+
 ### `modules/modal/users.js` — 97 строк, объявлений 8
 
 | Имя | Вид | Строк | Вывозится |
@@ -1767,6 +1794,7 @@
 - из `modules/modal/profile-philosopher.js`: _ради побочного действия_
 - из `modules/modal/search.js`: _ради побочного действия_
 - из `modules/modal/security.js`: _ради побочного действия_
+- из `modules/modal/selection-list.js`: _ради побочного действия_
 - из `modules/modal/users.js`: _ради побочного действия_
 - из `modules/paths/analysis.js`: _ради побочного действия_
 - из `modules/paths/chronology.js`: _ради побочного действия_
@@ -2435,6 +2463,16 @@
 
 Чаще всего поминает: `api`×3, `escapeAttr`×3, `S`×1, `renderAuthControls`×1, `refreshEditHints`×1
 
+### `modules/modal/selection-list.js`
+
+- из `modules/core/ns.js`: `DATA`
+- из `modules/core/graph-index.js`: _ради побочного действия_
+- из `modules/core/graph-index.js`: `conceptById`
+- из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
+- из `modules/util/html.js`: `escapeAttr`
+
+Чаще всего поминает: `escapeAttr`×17, `DATA`×5, `isNodeVisible`×1, `isLinkVisible`×1, `conceptById`×1
+
 ### `modules/modal/users.js`
 
 - из `modules/core/api.js`: `api`
@@ -2872,6 +2910,7 @@
 - из `modules/modal/profile-philosopher.js`: `closePhilosopherProfileModal`, `showPhilosopherProfileModal`
 - из `modules/modal/search.js`: `clearModalSearch`, `handleModalSearch`
 - из `modules/modal/security.js`: `confirmMfaEnroll`, `openSecurityModal`, `refreshSecurityDone`, `startMfaEnroll`
+- из `modules/modal/selection-list.js`: `selectionListMore`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
 - из `modules/paths/path-descriptions.js`: `showPathDescriptionsModal`, `togglePathNodesDescriptions`
 - из `modules/paths/path-ui.js`: `clearPathHighlight`, `handlePathArrowHover`
 - из `modules/render/metric-visualization.js`: `toggleMetricVisualization`
@@ -2889,7 +2928,7 @@
 - из `modules/ui/search-philosopher.js`: `clearPhilosopherSearch`, `handlePhilosopherSearch`, `pickPhilosopherFromSearch`, `selectPhilosopherResult`
 - из `modules/widgets/custom-select.js`: `filterCustomSelect`, `selectCustomOption`, `showCustomSelectDropdown`
 
-Чаще всего поминает: `openUniversalModal`×18, `S`×10, `DATA`×8, `renderClosestPairs`×6, `toggleSubsection`×4
+Чаще всего поминает: `openUniversalModal`×21, `DATA`×10, `S`×10, `renderClosestPairs`×6, `toggleSubsection`×4
 
 ### `modules/ui/actions-static.js`
 
@@ -2902,6 +2941,7 @@
 - из `modules/modal/core.js`: `closeUniversalModal`
 - из `modules/modal/profile-concept.js`: `closeConceptProfileModal`
 - из `modules/modal/profile-philosopher.js`: `closePhilosopherProfileModal`
+- из `modules/modal/selection-list.js`: `closeSelectionListModal`, `openSelectionListModal`
 - из `modules/modal/users.js`: `closeUsersPanel`, `openUsersPanel`
 - из `modules/paths/path-descriptions.js`: `closePathDescriptionsModal`
 - из `modules/paths/path-ui.js`: `findAndShowPath`

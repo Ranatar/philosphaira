@@ -46,7 +46,10 @@ addLinkToGraph graphFingerprint applyStoredLayout layoutFromStore resetSimulatio
 philosopherSimilarity philosopherSimilarityData initializePhilosophyMetrics
 selectConceptOnGraph rebuildQuadtree applyFiltersImmediate calculateBetweennessAsync
 traditionMembers resetTradition syncTraditionRows
-toggleEntityHistory renderEntityHistory revertEntityToVersion deleteObservation`.split(/\s+/).filter(Boolean);
+toggleEntityHistory renderEntityHistory revertEntityToVersion deleteObservation
+openSelectionListModal closeSelectionListModal renderSelectionList
+toggleSelectionBlock toggleSelectionBody selectionListMore selectionListSets
+toggleSelectionBodies setSelectionProvenance provenanceState`.split(/\s+/).filter(Boolean);
 
 // ГДЕ ЧТО ВЫВОЗИТСЯ и ЧТО ПЕРЕПРИСВАИВАЕТСЯ.
 //

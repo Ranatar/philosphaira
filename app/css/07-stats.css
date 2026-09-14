@@ -5,6 +5,94 @@
     /* МОДАЛЬНОЕ ОКНО РАСШИРЕННОЙ СТАТИСТИКИ */
     /* ============================================ */
 
+    /* СПИСОК ОТОБРАННОГО. Облик заимствован у окна статистики целиком —
+       заводить третью манеру ради одного окна значило бы завести третье
+       место, где записано, как выглядит окно. */
+    #selectionListModal {
+      display: none;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.88); z-index: 9999; backdrop-filter: blur(8px);
+    }
+    #selectionListModal.active { display: flex; align-items: center; justify-content: center; }
+
+    .sel-block { margin-bottom: 10px; }
+    .sel-block-head {
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      padding: 10px 12px; border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border, rgba(255,255,255,0.08));
+    }
+    .sel-block-head:hover { background: rgba(255, 255, 255, 0.07); }
+    .sel-block-title { font-weight: 600; font-size: 14px; flex: 1; }
+    .sel-block-count {
+      font-size: 11px; padding: 1px 8px; border-radius: 999px;
+      background: rgba(108, 92, 231, 0.18); color: var(--accent-text, #b9aaff);
+    }
+    .sel-block-toggle { font-size: 10px; color: var(--fg-muted); }
+    .sel-block-body { padding: 6px 0 2px; }
+
+    .sel-row {
+      border-bottom: 1px solid var(--border, rgba(255,255,255,0.06));
+      padding: 6px 4px;
+    }
+    .sel-row-head { display: flex; align-items: center; gap: 8px; }
+    .sel-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+    /* Имя — единственное, что ведёт в окно просмотра. Строка целиком
+       кликабельной не делается нарочно: рядом стоит кнопка описания, и
+       промах по ней открывал бы окно вместо разворота. */
+    .sel-name { cursor: pointer; font-size: 13px; }
+    .sel-name:hover { color: var(--accent-text, #b9aaff); text-decoration: underline; }
+    .sel-meta { font-size: 11px; color: var(--fg-muted); margin-left: auto; }
+    .sel-toggle {
+      flex: none; background: none; border: none; cursor: pointer;
+      color: var(--fg-muted); font-size: 10px; padding: 2px 4px;
+    }
+    .sel-body {
+      margin: 4px 0 2px 17px; font-size: 12px; line-height: 1.5;
+      color: var(--fg-dim, #c8c8d4); white-space: pre-wrap;
+    }
+    .sel-bodies {
+      flex: none; padding: 2px 8px; font-size: 10px; cursor: pointer;
+      border-radius: 999px; background: none;
+      color: var(--accent-text, #b9aaff);
+      border: 1px solid var(--accent, #6c5ce7);
+    }
+    .sel-bodies:hover { background: rgba(108, 92, 231, 0.14); }
+
+    .sel-prov {
+      display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+      margin-bottom: 12px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+    }
+    .sel-prov-btn {
+      padding: 3px 10px; font-size: 11px; cursor: pointer; border-radius: 999px;
+      background: none; color: var(--fg-muted);
+      border: 1px solid var(--border, rgba(255,255,255,0.12));
+    }
+    .sel-prov-btn:hover { color: var(--fg); }
+    .sel-prov-btn.active {
+      color: var(--accent-text, #b9aaff);
+      border-color: var(--accent, #6c5ce7);
+      background: rgba(108, 92, 231, 0.14);
+    }
+    .sel-prov-note { font-size: 10px; color: var(--fg-muted); font-style: italic; }
+
+    .sel-more {
+      margin-top: 8px; width: 100%; padding: 6px; cursor: pointer;
+      font-size: 12px; border-radius: 6px; background: none;
+      color: var(--accent-text, #b9aaff);
+      border: 1px dashed var(--accent, #6c5ce7);
+    }
+
+    /* Низ панели легенды прилипает: сводка отбора и кнопка списка нужны
+       всегда, а лежали в конце длинной прокрутки. */
+    .legend-footer {
+      position: sticky; bottom: 0;
+      background: var(--panel-bg, #1b1b24);
+      padding-top: 4px;
+      margin-top: 6px;
+    }
+
     #statsModal {
       display: none;
       position: fixed;

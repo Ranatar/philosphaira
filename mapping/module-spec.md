@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 128 модулей, 20556 строк.
+Составлено из готовой сборки: 129 модулей, 20803 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -44,7 +44,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | Модуль | Строк | Вывозит | Ввозит из |
 |---|---|---|---|
 | `boot.js` | 313 | 1 | 65 |
-| `main.js` | 134 | 0 | 123 |
+| `main.js` | 135 | 0 | 124 |
 | `modules/boot-defs.js` | 62 | 2 | 8 |
 | `modules/core/api.js` | 85 | 3 | 1 |
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
@@ -114,6 +114,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
 | `modules/modal/security.js` | 116 | 4 | 4 |
+| `modules/modal/selection-list.js` | 234 | 10 | 5 |
 | `modules/modal/users.js` | 97 | 7 | 3 |
 | `modules/paths/analysis.js` | 74 | 2 | 7 |
 | `modules/paths/chronology.js` | 175 | 6 | 4 |
@@ -154,8 +155,8 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/stats/views/rankings.js` | 141 | 2 | 5 |
 | `modules/ui/about.js` | 102 | 3 | 1 |
 | `modules/ui/actions-byname.js` | 20 | 0 | 2 |
-| `modules/ui/actions-dyn.js` | 169 | 0 | 36 |
-| `modules/ui/actions-static.js` | 137 | 0 | 25 |
+| `modules/ui/actions-dyn.js` | 178 | 0 | 37 |
+| `modules/ui/actions-static.js` | 140 | 0 | 26 |
 | `modules/ui/actions.js` | 27 | 3 | 0 |
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
 | `modules/ui/export.js` | 126 | 2 | 11 |
@@ -253,7 +254,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `main.js`
 
-Строк 134.
+Строк 135.
 
 **Вывозит:** _ничего_
 
@@ -327,6 +328,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./modules/modal/profile-philosopher.js`: _ради побочного действия_
 - из `./modules/modal/search.js`: _ради побочного действия_
 - из `./modules/modal/security.js`: _ради побочного действия_
+- из `./modules/modal/selection-list.js`: _ради побочного действия_
 - из `./modules/modal/users.js`: _ради побочного действия_
 - из `./modules/paths/analysis.js`: _ради побочного действия_
 - из `./modules/paths/chronology.js`: _ради побочного действия_
@@ -1440,6 +1442,22 @@ tools/build/split_css.mjs <дерево>                              стили
 
 **Содержит:** `confirmMfaEnroll`, `openSecurityModal`, `refreshSecurityDone`, `securityError`, `securityModalEl`, `securitySecret`, `startMfaEnroll`
 
+### `modules/modal/selection-list.js`
+
+Строк 234.
+
+**Вывозит:** `closeSelectionListModal`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionListMore`, `selectionListSets`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
+
+**Ввозит:**
+
+- из `../core/ns.js`: `DATA`
+- из `../core/graph-index.js`: `conceptById`
+- из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
+- из `../util/html.js`: `escapeAttr`
+- из `../core/graph-index.js`: _ради побочного действия_
+
+**Содержит:** `PROVENANCE_LABELS`, `SELECTION_LIST_CHUNK`, `closeSelectionListModal`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionLabel`, `selectionListMore`, `selectionListOpenBlocks`, `selectionListOpenBodies`, `selectionListSets`, `selectionListShown`, `selectionPhilCount`, `selectionProvenance`, `selectionRowConcept`, `selectionRowPhilosopher`, `selectionRowRelation`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
+
 ### `modules/modal/users.js`
 
 Строк 97.
@@ -2096,7 +2114,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/actions-dyn.js`
 
-Строк 169.
+Строк 178.
 
 **Вывозит:** _ничего_
 
@@ -2122,6 +2140,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../modal/profile-philosopher.js`: `closePhilosopherProfileModal`, `showPhilosopherProfileModal`
 - из `../modal/search.js`: `clearModalSearch`, `handleModalSearch`
 - из `../modal/security.js`: `confirmMfaEnroll`, `openSecurityModal`, `refreshSecurityDone`, `startMfaEnroll`
+- из `../modal/selection-list.js`: `selectionListMore`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
 - из `../paths/path-descriptions.js`: `showPathDescriptionsModal`, `togglePathNodesDescriptions`
 - из `../paths/path-ui.js`: `clearPathHighlight`, `handlePathArrowHover`
 - из `../render/metric-visualization.js`: `toggleMetricVisualization`
@@ -2143,7 +2162,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/actions-static.js`
 
-Строк 137.
+Строк 140.
 
 **Вывозит:** _ничего_
 
@@ -2158,6 +2177,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../modal/core.js`: `closeUniversalModal`
 - из `../modal/profile-concept.js`: `closeConceptProfileModal`
 - из `../modal/profile-philosopher.js`: `closePhilosopherProfileModal`
+- из `../modal/selection-list.js`: `closeSelectionListModal`, `openSelectionListModal`
 - из `../modal/users.js`: `closeUsersPanel`, `openUsersPanel`
 - из `../paths/path-descriptions.js`: `closePathDescriptionsModal`
 - из `../paths/path-ui.js`: `findAndShowPath`
