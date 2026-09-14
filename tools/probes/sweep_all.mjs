@@ -132,6 +132,13 @@ window.__snap = function () {
     })(),
     g('universalModalContent'), g('conceptProfileContent'),
     g('philosopherProfileContent'), g('pathDescriptionsContent'), g('authModal'),
+    // СПИСОК ОТОБРАННОГО. Заведён 14 сентября 2026 и в перечень не входил:
+    // обход снимает содержимое ПО СПИСКУ УЗЛОВ, и новое окно ему невидимо.
+    // Три дефекта первой редакции (нет прокрутки, окно просмотра под
+    // списком, чужой фон подвала) прошли мимо приёмки именно поэтому —
+    // эталон учредился вместе с ними. Правило: завёл окно — впиши его сюда,
+    // иначе оно не под присмотром, а только выглядит так.
+    g('selectionListBody'), vis('selectionListModal'),
     vis('statsModal'), vis('universalModal'), vis('conceptProfileModal'),
     vis('philosopherProfileModal'), vis('pathDescriptionsModal'), vis('modalOverlay'),
     (document.getElementById('tooltip') || {}).style ? document.getElementById('tooltip').style.opacity || '0' : '-',

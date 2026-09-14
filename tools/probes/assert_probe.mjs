@@ -1503,6 +1503,80 @@ if (модуль) {
   await wait(700);
 }
 
+// ── 10-четв. окно списка отобранного ───────────────────────────────
+//
+// ТРИ УТВЕРЖДЕНИЯ ПРОТИВ ТРЁХ ДЕФЕКТОВ, КОТОРЫХ НЕ ПОЙМАЛ НИКТО.
+//
+// Первая редакция окна имела все три, и приёмка прошла зелено: эталоны
+// сличают снимок с прежним снимком, а новое окно сличать не с чем — его
+// эталон учреждается ВМЕСТЕ с дефектами. Нашёл их человек, открывший окно.
+// Отсюда правило: у новой части утверждения пишутся ОТ ЗАМЫСЛА, а не от
+// снимка, — иначе первая редакция не проверяется вовсе.
+{
+  await page.evaluate(() => window.__t.openSelectionListModal());
+  await wait(600);
+  await page.evaluate(() => window.__t.toggleSelectionBlock('relation'));
+  await wait(800);
+
+  // 1. ПРОКРУТКА. Первая редакция вешала содержимое на .stats-modal-body,
+  // а у того overflow: hidden — он там для двух колонок со своей прокруткой.
+  const прокрутка = await page.evaluate(() => {
+    const b = document.getElementById('selectionListBody');
+    const c = getComputedStyle(b);
+    return { overflowY: c.overflowY, влезает: b.scrollHeight > b.clientHeight + 4 };
+  });
+  проверить('тело окна списка прокручивается', прокрутка.overflowY === 'auto',
+    'auto', прокрутка.overflowY);
+  проверить('и содержимое в него не влезает — значит прокрутка нужна',
+    прокрутка.влезает === true, true, прокрутка.влезает);
+
+  // 2. СЛОИ. Первая редакция брала z-index: 9999 у окна статистики, и окно
+  // просмотра (2150), открытое ОТСЮДА, оказывалось ПОД списком: открыто, но
+  // не видно. Ровно дефект И-2, описанный у .detail-modal.
+  await page.evaluate(() => document.querySelector('#selectionListBody .sel-name').click());
+  await wait(900);
+  const слои = await page.evaluate(() => {
+    const m = document.getElementById('universalModal');
+    return {
+      открыто: m.classList.contains('show'),
+      просмотр: +getComputedStyle(m).zIndex,
+      список: +getComputedStyle(document.getElementById('selectionListModal')).zIndex,
+    };
+  });
+  проверить('щелчок по строке открывает окно просмотра', слои.открыто === true,
+    true, слои.открыто);
+  проверить('И ОНО ЛЕЖИТ ВЫШЕ СПИСКА, а не под ним',
+    слои.просмотр > слои.список, `> ${слои.список}`, слои.просмотр);
+
+  await page.evaluate(() => window.__t.closeUniversalModal());
+  await wait(300);
+  await page.evaluate(() => window.__t.closeSelectionListModal());
+  await wait(300);
+
+  // 3. ФОН ПОДВАЛА. Первая редакция брала var(--panel-bg, #1b1b24), а такой
+  // переменной НЕ СУЩЕСТВУЕТ — применялся запасной цвет, заметно серее
+  // панели.
+  //
+  // ПЕРВАЯ РЕДАКЦИЯ ЭТОГО УТВЕРЖДЕНИЯ ПРОВЕРЯЛА НЕ ТО: спрашивала, объявлена
+  // ли переменная --surface-solid, а не пользуется ли ею подвал. Подложенная
+  // поломка прошла мимо — переменная-то объявлена, просто подвал брал
+  // другую. Спрашивать надо у самого подвала: сличаем его вычисленный фон с
+  // вычисленным значением переменной. Тихий отказ var() ловится только так.
+  const фон = await page.evaluate(() => {
+    const f = document.querySelector('.legend-footer');
+    const проба = document.createElement('div');
+    проба.style.background = 'var(--surface-solid)';
+    document.body.appendChild(проба);
+    const ждём = getComputedStyle(проба).backgroundColor;
+    проба.remove();
+    return { подвал: getComputedStyle(f).backgroundColor, ждём };
+  });
+  проверить('подвал легенды взял ИМЕННО переменную, а не запасной цвет',
+    фон.подвал === фон.ждём, фон.ждём, фон.подвал);
+  проверить('и он непрозрачен — под ним проезжает прокрутка',
+    !/rgba\([^)]*,\s*0(\.\d+)?\)/.test(фон.подвал), 'непрозрачен', фон.подвал);
+}
+
 // ── 11. страница не ругалась ────────────────────────────────────────
 проверить('ошибок страницы нет', ошибки.length === 0, 0,
   ошибки.length + (ошибки[0] ? ' (' + ошибки[0].slice(0, 60) + ')' : ''));
