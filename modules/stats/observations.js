@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { S } from '../core/ns.js';
 import { api, serverMode } from '../core/api.js';
+import { PERM, can } from '../core/perms.js';
 import { FORMULA_VERSIONS } from '../metrics/philosophical.js';
 import { VIEW_METRIC, effectiveScopeFlags, metricsNodes } from '../metrics/scope-select.js';
 import { escapeAttr } from '../util/html.js';
@@ -8,6 +9,10 @@ import { escapeAttr } from '../util/html.js';
 function observationBar(viewName) {
       const metric = VIEW_METRIC[viewName];
       if (!serverMode || !metric) return '';
+      // Право спрашивается, а не выводится из роли: роль знает сервер, и он
+      // же присылает действующий набор прав — со срезками за неподтверждённый
+      // адрес и незаведённый второй шаг.
+      if (!can(PERM.SAVE_OBSERVATION)) return '';
       const flags = effectiveScopeFlags(viewName);
       return `
         <div class="observation-bar">
@@ -118,8 +123,16 @@ function renderObservations() {
       if (!observationItems.length) {
         slot.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📌</div>'
           + '<div class="empty-state-text">Замеров пока нет</div>'
-          + '<div class="empty-state-hint">Откройте вид метрики и нажмите'
-          + ' «Запомнить замер»</div></div>';
+          + (can(PERM.SAVE_OBSERVATION)
+              ? '<div class="empty-state-hint">Откройте вид метрики и нажмите'
+                + ' «Запомнить замер»</div>'
+              // Тому, кто писать не может, совет «нажмите Запомнить» —
+              // издёвка: кнопки он не увидит.
+              : '<div class="empty-state-hint">Записывать замеры может'
+                + ' редактор и выше</div>')
+          + (can(PERM.VIEW_ALL_OBSERVATIONS) ? ''
+              : '<div class="empty-state-hint">Показаны только ваши замеры</div>')
+          + '</div>';
         return;
       }
       // УСЛОВИЯ ПИШУТСЯ СЛОВАМИ, А НЕ ОТПЕЧАТКОМ. Отпечаток охвата годен для
@@ -134,6 +147,9 @@ function renderObservations() {
           </div>
           <div class="obs-conditions">${escapeAttr(z.flags)} · охват: ${
             escapeAttr(z.scopeNote || 'не назван')} · ${escapeAttr(z.authorName || '')}</div>
+          ${can(PERM.DELETE_OBSERVATION)
+            ? `<button class="obs-delete" data-act-click="delete-observation" data-a1="${escapeAttr(z.observationId)}">Удалить</button>`
+            : ''}
           ${z.note ? `<div class="obs-note">${escapeAttr(z.note)}</div>` : ''}
           <div class="obs-summary">среднее ${summary.mean ?? '—'} · медиана ${
             summary.median ?? '—'} · разброс ${summary.spread ?? '—'}</div>
@@ -146,6 +162,25 @@ function renderObservations() {
              отметьте два замера, чтобы сличить</div>`)
       + '</div>';
       if (observationPicked.length === 2) compareObservationsInPanel();
+    }
+
+async function deleteObservation(id) {
+      if (!confirm('Удалить замер? Это окончательно.')) return;
+      const reply = await api('/api/metrics/observations/' + encodeURIComponent(id),
+        { метод: 'DELETE' });
+      if (!reply.годно) {
+        // ОТКАЗ ПОКАЗЫВАЕТСЯ НА МЕСТЕ. Отдельной ячейки под ошибку у раздела
+        // нет, и заводить её ради одного случая — лишнее: сообщение
+        // подставляется в то же место, куда рисуется список, и следующая
+        // загрузка его сменит.
+        const slot = document.getElementById('observationsBody');
+        if (slot) slot.innerHTML = '<div class="empty-state"><div class="empty-state-text">'
+          + escapeAttr((reply.тело && reply.тело.error && reply.тело.error.message)
+                       || 'Сервер отказал') + '</div></div>';
+        return;
+      }
+      observationPicked = observationPicked.filter(x => x !== id);
+      await loadObservations();
     }
 
 function pickObservation(id) {
@@ -184,4 +219,4 @@ async function compareObservationsInPanel() {
           <th>стало</th><th>разница</th></tr></thead><tbody>${lines}</tbody></table>`;
     }
 
-export { generateObservationsContent, observationBar, pickObservation, saveObservation };
+export { deleteObservation, generateObservationsContent, observationBar, pickObservation, saveObservation };

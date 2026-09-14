@@ -9,6 +9,7 @@ import { linkArrow } from './connection-view.js';
 
 import { philRowTip, refreshEditHints } from './edit-rights.js';
 import { openEditPhilosopherModal, showPhilosopherDetailModal } from './entry.js';
+import { historyBlock } from './history.js';
 
 import { highlightPhilosopherOnGraph } from '../render/selection.js';
 
@@ -126,6 +127,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
         </div>
         <div class="description">${formattedDescription}</div>
         ${provenanceBlock(philosopherData.provenance, philosopherData.provenanceStatus)}
+        ${historyBlock('philosopher', philosopherData.id)}
         <button class="goto-node-btn" data-act-click="close-universal-modal-3" data-a1="${philosopherName}">
           📊 Статистический профиль
         </button>

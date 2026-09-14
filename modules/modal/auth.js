@@ -20,7 +20,7 @@ function openAuthModal(kind) {
       const act   = kind === 'register' ? 'Зарегистрироваться' : 'Войти';
       el.innerHTML =
         '<h3>' + title + '</h3>'
-      + '<div class="auth-field"><label for="authLogin">Логин</label>'
+      + '<div class="auth-field"><label for="authLogin">Логин или почта</label>'
       + '<input type="text" id="authLogin" autocomplete="off"></div>'
       + '<div class="auth-field"><label for="authPassword">Пароль</label>'
       + '<input type="password" id="authPassword" autocomplete="off"></div>'
@@ -131,7 +131,12 @@ async function submitAuth() {
       // остаётся нетронутой: без сервера всё как прежде.
       if (serverMode) {
         const reply = await api('/api/auth/login',
-          { метод: 'POST', тело: { email: l, password: pass } });
+          // ПОЛЕ ЗОВЁТСЯ `login`, А НЕ `email`. Подпись поля обещала логин,
+          // а значение уходило как почта — и сервер искал только по почте.
+          // Войти именем было нельзя, хотя findByUsername в db/users.js
+          // написана. Расхождение подписи со службой нашёл человек: ввёл имя
+          // администратора из примера в инструкции и не смог войти.
+          { метод: 'POST', тело: { login: l, password: pass } });
         if (!reply.годно) {
           authError((reply.тело && reply.тело.error && reply.тело.error.message)
             || 'Не удалось войти');

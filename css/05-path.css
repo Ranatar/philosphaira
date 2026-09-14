@@ -425,6 +425,45 @@
     }
     .obs-up { color: var(--success, #6ab04c); }
     .obs-down { color: var(--danger, #d63b3b); }
+    /* Кнопка удаления замера: видна только тому, кому право дано. */
+    .obs-delete {
+      margin-top: 6px; padding: 3px 8px; font-size: 10px; cursor: pointer;
+      background: none; color: var(--danger, #d63b3b);
+      border: 1px solid var(--danger, #d63b3b); border-radius: 4px;
+    }
+    .obs-delete:hover { background: rgba(214,59,59,0.12); }
+
+    /* ИСТОРИЯ ПРАВОК СУЩНОСТИ.
+       «Было / стало» показывается целиком, а не построчной разницей:
+       посимвольное сличение описаний в 600–900 знаков — отдельная работа,
+       и подделывать её видимость хуже, чем честно показать оба текста. */
+    .history-list { display: flex; flex-direction: column; gap: 8px; padding: 6px 0; }
+    .history-item {
+      padding: 8px 10px; border-radius: 6px; font-size: 12px;
+      border: 1px solid var(--border, rgba(255,255,255,0.08));
+    }
+    .history-item.reverted { opacity: 0.6; }
+    .history-head {
+      font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    }
+    .history-undone {
+      font-weight: 400; font-size: 10px; padding: 1px 6px; border-radius: 999px;
+      border: 1px solid var(--fg-muted, #8b8b9e); color: var(--fg-muted, #8b8b9e);
+    }
+    .history-message { color: var(--fg-dim, #c8c8d4); margin-top: 2px; }
+    .history-field { margin-top: 6px; font-size: 11px; }
+    .history-was, .history-now {
+      margin-top: 2px; padding: 4px 6px; border-radius: 4px;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .history-was { background: rgba(214,59,59,0.10); color: var(--fg-dim, #c8c8d4); }
+    .history-now { background: rgba(106,176,76,0.10); color: var(--fg-dim, #c8c8d4); }
+    .history-revert {
+      margin-top: 8px; padding: 3px 8px; font-size: 10px; cursor: pointer;
+      background: none; color: var(--accent, #6c5ce7);
+      border: 1px solid var(--accent, #6c5ce7); border-radius: 4px;
+    }
+    .history-revert:hover { background: rgba(108,92,231,0.12); }
 
     /* Полоса замера: приписка под видом статистики, а не часть его. */
     .observation-bar {

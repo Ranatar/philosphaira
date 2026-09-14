@@ -6,6 +6,8 @@ import { medianNodeDegree, nodeDegreeOf } from '../metrics/network.js';
 import { nearestConcepts, profileIsMeaningful } from '../metrics/similarity-concepts.js';
 import { linkArrow } from './connection-view.js';
 
+import { historyBlock } from './history.js';
+
 import { getContrastColor } from '../util/color.js';
 import { provenanceBlock } from '../util/html.js';
 
@@ -118,6 +120,7 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
         </div>
         <div class="description">${conceptData.extendedDescription}</div>
         ${provenanceBlock(conceptData.provenance, conceptData.provenanceStatus)}
+        ${historyBlock('concept', conceptData.id)}
         <button class="goto-node-btn" data-act-click="goto-node-from-modal" data-a1="${conceptData.id}">
           🎯 Перейти к узлу
         </button>

@@ -9,6 +9,13 @@ const PERM = Object.freeze({
       // получает от сервера: в местном режиме перекладки нет вовсе, потому
       // что нет и хранимой раскладки, которую можно было бы переучредить.
       RELAYOUT_GRAPH: 'relayout_graph',
+      // ЗАМЕРЫ — ТРИ ПРАВА. Прежде полоса «Запомнить замер» показывалась по
+      // одному условию serverMode, то есть любому вошедшему, а список
+      // отдавал ВСЕ замеры, включая чужие. Сервер спрашивал VIEW_GRAPH —
+      // самое слабое право, — и удаления не было вовсе.
+      SAVE_OBSERVATION: 'save_observation',
+      VIEW_ALL_OBSERVATIONS: 'view_all_observations',
+      DELETE_OBSERVATION: 'delete_observation',
     });
 
 let granted = new Set();

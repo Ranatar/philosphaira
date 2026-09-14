@@ -9,6 +9,7 @@ import { connectionsBetween, traditionsOfPhilosopher } from '../graph/graph-data
 import { selectConceptOnGraph } from '../graph/graph-selection.js';
 import { ModalContext } from './context.js';
 
+import { historyBlock } from './history.js';
 import { getContrastColor } from '../util/color.js';
 import { provenanceBlock } from '../util/html.js';
 
@@ -284,6 +285,10 @@ VIEWS.generateConnectionViewContent = function generateConnectionViewContent(con
             </div>
           </div>`;
       }
+
+      // История — только у существующей связи: у наполовину выбранной нет
+      // ни адреса, ни прошлого. Адрес связи в коммитах — «источник→цель».
+      if (has && connectionData.id) html += historyBlock('relation', connectionData.id);
 
       return html;
     };
