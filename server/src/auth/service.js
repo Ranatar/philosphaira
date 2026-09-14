@@ -15,7 +15,8 @@
 // просочились бы и остальные змеиные поля.
 
 import { withTransaction } from '../db/tx.js';
-import { findByEmailWithSecret, insertUser, setLastLogin, setEmailVerified, audit }
+import { findByEmailWithSecret, findByLoginWithSecret, insertUser, setLastLogin,
+         setEmailVerified, audit }
   from '../db/users.js';
 import { createSession, revokeSession, revokeAllSessions } from '../db/sessions.js';
 import { issueVerification, findVerification, markVerificationUsed }
@@ -78,7 +79,19 @@ export async function register(pool, { username, email, password,
   });
 }
 
-export async function login(pool, { email, password, ip = null, ua = null }) {
+/**
+ * ВХОД ПО ЛОГИНУ ИЛИ ПОЧТЕ.
+ *
+ * Довод `email` оставлен ради тех, кто уже шлёт его именем: пробы,
+ * возможные сторонние клиенты. Новое имя довода — `login`, и оно точнее:
+ * в нём может быть и то и другое.
+ */
+export async function login(pool, { login: loginOrEmail, email, password,
+                                    ip = null, ua = null }) {
+  // ИМЯ ЛАТИНИЦЕЙ: в server/src кириллических имён нет, и это стережёт
+  // ops_probe. Четвёртый раз за день пишу кириллицу и четвёртый раз ловлю
+  // её прибором, а не глазами.
+  const typed = String(loginOrEmail ?? email ?? '').trim();
   // ПЕРЕБОР ПО УЧЁТНОЙ ЗАПИСИ. Счётчик в throttle.js был написан, проверен
   // своей пробой — и НЕ ЗВАЛСЯ ОТСЮДА НИ РАЗУ: шапка throttle.js обещала
   // «второй счёт по адресу учётной записи, с растущей задержкой», а по IP
@@ -87,7 +100,7 @@ export async function login(pool, { email, password, ip = null, ua = null }) {
   //
   // Ключ — адрес, а не IP: перебор с множества адресов бьёт по одной записи,
   // а счёт по IP заодно наказывает всех за одним NAT.
-  const failKey = 'login:' + String(email ?? '').trim().toLowerCase();
+  const failKey = 'login:' + typed.toLowerCase();
   if (isBruteForce(failKey)) {
     throw new TooMany('Слишком много неудачных попыток; попробуйте позже');
   }
@@ -96,14 +109,29 @@ export async function login(pool, { email, password, ip = null, ua = null }) {
   const waitMs = delayMs(failKey);
   if (waitMs) await new Promise(r => setTimeout(r, waitMs));
 
-  const found = await findByEmailWithSecret(pool, email);
+  const found = await findByLoginWithSecret(pool, typed);
+
+  // ВТОРОЙ КЛЮЧ СЧЁТА — ПО САМОЙ ЗАПИСИ. Раз войти можно двумя именами, счёт
+  // по набранной строке даёт перебору ДВОЙНОЙ запас: десять попыток на имя и
+  // ещё десять на почту той же записи. Поэтому неудача отмечается и по
+  // записи тоже, и заслон спрашивает оба ключа.
+  //
+  // ЦЕНА НАЗВАНА ЧЕСТНО: отказ по второму ключу возможен только у
+  // существующей записи, то есть после десяти неудач подряд он сообщает, что
+  // такая запись есть. Обмен сознательный — десять потраченных попыток
+  // дороже этого знания, а двойной запас на перебор дороже вдвойне.
+  const ownerKey = found ? 'login:uid:' + found.user.userId : null;
+  if (ownerKey && isBruteForce(ownerKey)) {
+    throw new TooMany('Слишком много неудачных попыток; попробуйте позже');
+  }
 
   // Сверка идёт ВСЕГДА — с холостым хешем, если записи нет: иначе ответ на
   // неизвестный адрес приходит заметно быстрее, и это само по себе ответ.
   const matched = await verifyPassword(found?.passwordHash ?? DUMMY_HASH, password);
   if (!found || !matched) {
     noteFailure(failKey);
-    throw new Unauthorized('Неверный адрес или пароль');
+    if (ownerKey) noteFailure(ownerKey);
+    throw new Unauthorized('Неверный логин, адрес или пароль');
   }
 
   const { user } = found;
@@ -116,6 +144,7 @@ export async function login(pool, { email, password, ip = null, ua = null }) {
 
   // Удачный вход обнуляет счёт: считаются неудачи подряд, а не за всю жизнь.
   resetCounter(failKey);
+  if (ownerKey) resetCounter(ownerKey);
 
   return withTransaction(pool, async client => {
     // У кого второй шаг заведён, тот получает ЧАСТИЧНУЮ сессию: она не даёт

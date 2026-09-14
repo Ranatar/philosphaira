@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 127 модулей, 20380 строк.
+Составлено из готовой сборки: 128 модулей, 20556 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -44,7 +44,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | Модуль | Строк | Вывозит | Ввозит из |
 |---|---|---|---|
 | `boot.js` | 313 | 1 | 65 |
-| `main.js` | 133 | 0 | 122 |
+| `main.js` | 134 | 0 | 123 |
 | `modules/boot-defs.js` | 62 | 2 | 8 |
 | `modules/core/api.js` | 85 | 3 | 1 |
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
@@ -53,7 +53,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/core/link-facts.js` | 54 | 8 | 2 |
 | `modules/core/long-task.js` | 120 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
-| `modules/core/perms.js` | 21 | 3 | 0 |
+| `modules/core/perms.js` | 28 | 3 | 0 |
 | `modules/core/ready.js` | 15 | 2 | 0 |
 | `modules/core/relation-types.js` | 59 | 5 | 2 |
 | `modules/core/search.js` | 68 | 4 | 3 |
@@ -92,12 +92,12 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/metrics/tension-cache.js` | 13 | 1 | 1 |
 | `modules/metrics/tradition-bridging.js` | 89 | 3 | 2 |
 | `modules/modal/assembly.js` | 56 | 3 | 2 |
-| `modules/modal/auth.js` | 215 | 4 | 8 |
+| `modules/modal/auth.js` | 220 | 4 | 8 |
 | `modules/modal/commits.js` | 420 | 19 | 7 |
-| `modules/modal/concept-view.js` | 359 | 0 | 8 |
+| `modules/modal/concept-view.js` | 362 | 0 | 9 |
 | `modules/modal/conflict.js` | 88 | 5 | 7 |
 | `modules/modal/connection-edit.js` | 288 | 5 | 13 |
-| `modules/modal/connection-view.js` | 416 | 5 | 11 |
+| `modules/modal/connection-view.js` | 421 | 5 | 12 |
 | `modules/modal/context.js` | 11 | 1 | 0 |
 | `modules/modal/core.js` | 154 | 5 | 9 |
 | `modules/modal/descriptions.js` | 162 | 6 | 0 |
@@ -106,9 +106,10 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/edit-rights.js` | 61 | 4 | 4 |
 | `modules/modal/entry.js` | 124 | 12 | 10 |
 | `modules/modal/forms.js` | 81 | 5 | 2 |
+| `modules/modal/history.js` | 114 | 4 | 5 |
 | `modules/modal/integrity.js` | 265 | 7 | 7 |
 | `modules/modal/persist.js` | 450 | 6 | 14 |
-| `modules/modal/philosopher-view.js` | 633 | 1 | 13 |
+| `modules/modal/philosopher-view.js` | 635 | 1 | 14 |
 | `modules/modal/profile-concept.js` | 182 | 4 | 8 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
@@ -142,7 +143,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/state/stats.js` | 33 | 0 | 1 |
 | `modules/stats/coverage.js` | 66 | 3 | 6 |
 | `modules/stats/modal.js` | 240 | 8 | 17 |
-| `modules/stats/observations.js` | 188 | 4 | 5 |
+| `modules/stats/observations.js` | 223 | 5 | 6 |
 | `modules/stats/results.js` | 414 | 8 | 4 |
 | `modules/stats/run.js` | 128 | 1 | 3 |
 | `modules/stats/views/advanced.js` | 275 | 10 | 4 |
@@ -153,7 +154,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/stats/views/rankings.js` | 141 | 2 | 5 |
 | `modules/ui/about.js` | 102 | 3 | 1 |
 | `modules/ui/actions-byname.js` | 20 | 0 | 2 |
-| `modules/ui/actions-dyn.js` | 165 | 0 | 35 |
+| `modules/ui/actions-dyn.js` | 169 | 0 | 36 |
 | `modules/ui/actions-static.js` | 137 | 0 | 25 |
 | `modules/ui/actions.js` | 27 | 3 | 0 |
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
@@ -252,7 +253,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `main.js`
 
-Строк 133.
+Строк 134.
 
 **Вывозит:** _ничего_
 
@@ -318,6 +319,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./modules/modal/edit-rights.js`: _ради побочного действия_
 - из `./modules/modal/entry.js`: _ради побочного действия_
 - из `./modules/modal/forms.js`: _ради побочного действия_
+- из `./modules/modal/history.js`: _ради побочного действия_
 - из `./modules/modal/integrity.js`: _ради побочного действия_
 - из `./modules/modal/persist.js`: _ради побочного действия_
 - из `./modules/modal/philosopher-view.js`: _ради побочного действия_
@@ -483,7 +485,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/perms.js`
 
-Строк 21.
+Строк 28.
 
 **Вывозит:** `PERM`, `can`, `setPermissions`
 
@@ -1041,7 +1043,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/auth.js`
 
-Строк 215.
+Строк 220.
 
 **Вывозит:** `authLogout`, `closeAuthModal`, `openAuthModal`, `submitAuth`
 
@@ -1078,7 +1080,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/concept-view.js`
 
-Строк 359.
+Строк 362.
 
 **Вывозит:** _ничего_
 
@@ -1089,6 +1091,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
 - из `../metrics/similarity-concepts.js`: `nearestConcepts`, `profileIsMeaningful`
 - из `./connection-view.js`: `linkArrow`
+- из `./history.js`: `historyBlock`
 - из `../util/color.js`: `getContrastColor`
 - из `../util/html.js`: `provenanceBlock`
 - из `../core/graph-index.js`: _ради побочного действия_
@@ -1139,7 +1142,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/connection-view.js`
 
-Строк 416.
+Строк 421.
 
 **Вывозит:** `handleConnectionViewSearch`, `initConnectionSearchFields`, `linkArrow`, `selectConnectionViewConcept`, `toggleConnectionSearchSection`
 
@@ -1153,6 +1156,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../graph/graph-data.js`: `connectionsBetween`, `traditionsOfPhilosopher`
 - из `../graph/graph-selection.js`: `selectConceptOnGraph`
 - из `./context.js`: `ModalContext`
+- из `./history.js`: `historyBlock`
 - из `../util/color.js`: `getContrastColor`
 - из `../util/html.js`: `provenanceBlock`
 - из `../core/graph-index.js`: _ради побочного действия_
@@ -1287,6 +1291,22 @@ tools/build/split_css.mjs <дерево>                              стили
 
 **Содержит:** `PROVENANCE_STATES`, `commitReasonField`, `needsCitation`, `provenanceField`, `provenanceValue`, `refreshProvenanceField`
 
+### `modules/modal/history.js`
+
+Строк 114.
+
+**Вывозит:** `historyBlock`, `renderEntityHistory`, `revertEntityToVersion`, `toggleEntityHistory`
+
+**Ввозит:**
+
+- из `../core/api.js`: `api`, `serverMode`
+- из `../core/perms.js`: `PERM`, `can`
+- из `../data/remote.js`: `pullGraphSince`
+- из `./descriptions.js`: `toggleSubsection`
+- из `../util/html.js`: `escapeAttr`
+
+**Содержит:** `historyBlock`, `historyBusy`, `historyFor`, `historyItems`, `renderEntityHistory`, `revertEntityToVersion`, `toggleEntityHistory`
+
 ### `modules/modal/integrity.js`
 
 Строк 265.
@@ -1332,7 +1352,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/philosopher-view.js`
 
-Строк 633.
+Строк 635.
 
 **Вывозит:** `makeLegendsEditable`
 
@@ -1345,6 +1365,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./connection-view.js`: `linkArrow`
 - из `./edit-rights.js`: `philRowTip`, `refreshEditHints`
 - из `./entry.js`: `openEditPhilosopherModal`, `showPhilosopherDetailModal`
+- из `./history.js`: `historyBlock`
 - из `../render/selection.js`: `highlightPhilosopherOnGraph`
 - из `../util/color.js`: `getContrastColor`
 - из `../util/html.js`: `provenanceBlock`
@@ -1902,19 +1923,20 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/stats/observations.js`
 
-Строк 188.
+Строк 223.
 
-**Вывозит:** `generateObservationsContent`, `observationBar`, `pickObservation`, `saveObservation`
+**Вывозит:** `deleteObservation`, `generateObservationsContent`, `observationBar`, `pickObservation`, `saveObservation`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `S`
 - из `../core/api.js`: `api`, `serverMode`
+- из `../core/perms.js`: `PERM`, `can`
 - из `../metrics/philosophical.js`: `FORMULA_VERSIONS`
 - из `../metrics/scope-select.js`: `VIEW_METRIC`, `effectiveScopeFlags`, `metricsNodes`
 - из `../util/html.js`: `escapeAttr`
 
-**Содержит:** `compareObservationsInPanel`, `generateObservationsContent`, `loadObservations`, `observationBar`, `observationItems`, `observationPicked`, `observationValues`, `pickObservation`, `renderObservations`, `saveObservation`
+**Содержит:** `compareObservationsInPanel`, `deleteObservation`, `generateObservationsContent`, `loadObservations`, `observationBar`, `observationItems`, `observationPicked`, `observationValues`, `pickObservation`, `renderObservations`, `saveObservation`
 
 ### `modules/stats/results.js`
 
@@ -2074,7 +2096,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/actions-dyn.js`
 
-Строк 165.
+Строк 169.
 
 **Вывозит:** _ничего_
 
@@ -2094,6 +2116,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../modal/edit-forms.js`: `syncPhilColorFromPicker`, `updatePhilColorSample`
 - из `../modal/entry.js`: `gotoNodeFromModal`, `openConceptById`, `openEditConceptModal`, `openEditConnectionModal`, `showAllConcepts`, `showPhilosopherDetailModal`
 - из `../modal/forms.js`: `refreshProvenanceField`
+- из `../modal/history.js`: `revertEntityToVersion`, `toggleEntityHistory`
 - из `../modal/persist.js`: `deleteConcept`, `deleteConnection`
 - из `../modal/profile-concept.js`: `closeConceptProfileModal`, `showConceptProfileModal`, `toggleProfileOrder`
 - из `../modal/profile-philosopher.js`: `closePhilosopherProfileModal`, `showPhilosopherProfileModal`
@@ -2105,7 +2128,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../render/selection.js`: `highlightNodeById`
 - из `../render/similarity-overlay.js`: `clearSimilarityOverlay`, `setSimilarityLinks`, `showSimilarityOverlay`
 - из `../stats/modal.js`: `openStatsModal`, `switchStatsView`
-- из `../stats/observations.js`: `pickObservation`, `saveObservation`
+- из `../stats/observations.js`: `deleteObservation`, `pickObservation`, `saveObservation`
 - из `../stats/results.js`: `toggleMetricDetails`, `toggleMetricLayout`
 - из `../stats/run.js`: `calculateMetricFromModal`
 - из `../stats/views/comparison.js`: `openPairInComparison`, `openPhilosopherPair`, `renderClosestPairs`, `renderPhilosopherComparison`, `renderPhilosopherPairs`

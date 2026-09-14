@@ -21,12 +21,14 @@ import { submitCode, requireFreshMfa, beginEnroll, confirmEnroll, disable as dis
 import { userToApi } from '../db/mapper.js';
 import { impactOf } from '../graph/impact.js';
 import { recordObservation, getObservation, listMetricObservations,
-         compareObservations, listComparableWith } from '../metrics/observations.js';
+         compareObservations, listComparableWith,
+         removeObservation } from '../metrics/observations.js';
 import { exportAll } from '../db/graph.js';
 import { createCommit, listMine, listPending, getCommit,
          editOwnCommit, deleteOwnCommit } from '../commits/service.js';
 import { directCommit, reviewCommit } from '../commits/review.js';
 import { revertCommit } from '../commits/revert.js';
+import { revertEntityToVersion } from '../commits/revert-to-version.js';
 import { listUsers, changeUserRole, banUser, unbanUser, allowedRoles }
   from '../users/service.js';
 import { can, assertCan } from '../access/access.js';
@@ -105,8 +107,10 @@ export function createApp({ pool, безопасныеCookie = true,
   }));
 
   app.post('/api/auth/login', wrap(async (req, res) => {
-    const { email, password } = req.body ?? {};
-    const result = await login(pool, { email, password,
+    // `login` — новое имя поля, `email` принимается по-прежнему: так
+    // продолжают работать пробы и всё, что уже шлёт почту именем email.
+    const { login: loginField, email, password } = req.body ?? {};
+    const result = await login(pool, { login: loginField, email, password,
       ip: req.ip, ua: req.get('user-agent') });
     issueSession(res, result.токен);
     // Частичная сессия честно объявляет себя: клиент должен знать, что
@@ -249,6 +253,15 @@ export function createApp({ pool, безопасныеCookie = true,
   // Сравнимые — отдельным ходом, а не полем в ответе: их бывает много, и
   // тянуть их всякий раз, когда просто открыли замер, значит платить за то,
   // чего не просили.
+  // УДАЛЕНИЕ ЗАМЕРА — только администратору и только со свежим вторым шагом
+  // (право delete_observation в NEEDS_MFA). Неотменяемо и бьёт по чужой
+  // работе — мерка та же, что у удаления учётной записи.
+  app.delete('/api/metrics/observations/:id', requireAuth, requireFreshMfa(),
+    wrap(async (req, res) => {
+      res.json({ data: await removeObservation(pool,
+        { actor: req.user, observationId: req.params.id }) });
+    }));
+
   app.get('/api/metrics/observations/:id/comparable', requireAuth,
     wrap(async (req, res) => {
       res.json({ data: { items: await listComparableWith(pool,
@@ -293,6 +306,23 @@ export function createApp({ pool, безопасныеCookie = true,
     res.json({ data: { items: await readEntityHistory(pool, { actor: req.user,
       kind: req.params.kind, entityId: req.params.entityId }) } });
   }));
+
+  // ВОЗВРАТ СУЩНОСТИ К ВЕРСИИ. Применяется сразу и тем же правом, что откат
+  // коммита: мерка одна — действие редкое, видное и объясняющее себя
+  // причиной. Через очередь рецензирования не идёт.
+  //
+  // БЕЗ requireFreshMfa, И ЭТО НАРОЧНО. Первая редакция ставила свежий второй
+  // шаг, то есть была СТРОЖЕ образца: у `/api/commits/:id/revert` его нет.
+  // Само право REVERT_COMMIT уже требует заведённого второго шага (NEEDS_MFA);
+  // требовать сверх того недавнего подтверждения значило бы завести две мерки
+  // для одного действия — и решить это молча, за спиной у того, кто выбирал.
+  app.post('/api/graph/:kind/:entityId/revert-to/:version', requireAuth,
+    wrap(async (req, res) => {
+      const { reason } = req.body ?? {};
+      res.json({ data: await revertEntityToVersion(pool, {
+        actor: req.user, kind: req.params.kind, entityId: req.params.entityId,
+        version: Number(req.params.version), reason, ip: req.ip }) });
+    }));
 
   app.get('/api/commits', requireAuth, wrap(async (req, res) => {
     // ВИД ОТВЕТА ОДИН НА ВСЁ: успех — в поле data, и списки не исключение.

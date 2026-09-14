@@ -7,12 +7,12 @@
  * воспроизводимость. Сервер помнит наблюдение и стережёт его связность.
  */
 
-import { assertCan } from '../access/access.js';
+import { assertCan, can } from '../access/access.js';
 import { P } from '../access/roles.js';
 import { Forbidden } from '../http/errors.js';
 import { withTransaction } from '../db/tx.js';
 import { graphVersion } from '../db/graph.js';
-import { insertObservation, findObservation, listObservations,
+import { insertObservation, findObservation, listObservations, deleteObservation,
          listComparable, scopeFingerprint } from '../db/observations.js';
 
 /** Условия, при совпадении которых замеры сравнимы. Версия графа — не в счёт. */
@@ -49,7 +49,7 @@ function assertValues(values) {
 export async function recordObservation(pool, {
   actor, metric, formulaVersion, flags, scope, scopeNote, values, note,
 }) {
-  assertCan(actor, P.VIEW_GRAPH);
+  assertCan(actor, P.SAVE_OBSERVATION);
   if (!metric || !String(metric).trim()) throw new Forbidden('Замер без метрики');
   if (!Number.isInteger(formulaVersion) || formulaVersion < 1) {
     throw new Forbidden('Замер без версии формулы: число без родословной');
@@ -73,16 +73,48 @@ export async function recordObservation(pool, {
   });
 }
 
+/**
+ * ЧУЖОЙ ЗАМЕР НЕ ОТЛИЧАЕТСЯ ОТ НЕСУЩЕСТВУЮЩЕГО. Отказ один и тот же — «Замера
+ * нет», — иначе перебор по идентификаторам сообщал бы, какие замеры на свете
+ * есть и у кого. То же правило, по которому вход отвечает одинаково на
+ * неверный пароль и на неизвестный адрес.
+ */
+function assertVisible(actor, observation) {
+  if (!observation) throw new Forbidden('Замера нет');
+  if (can(actor, P.VIEW_ALL_OBSERVATIONS)) return observation;
+  if (observation.authorId === actor.userId) return observation;
+  throw new Forbidden('Замера нет');
+}
+
 export async function getObservation(pool, { actor, observationId }) {
   assertCan(actor, P.VIEW_GRAPH);
-  const observation = await findObservation(pool, observationId);
-  if (!observation) throw new Forbidden('Замера нет');
-  return observation;
+  return assertVisible(actor, await findObservation(pool, observationId));
 }
 
 export async function listMetricObservations(pool, { actor, metric, limit }) {
   assertCan(actor, P.VIEW_GRAPH);
-  return listObservations(pool, { metric, limit });
+  // Кому не дано видеть чужие — тот видит СВОИ, а не пустоту: замеры и
+  // заводились ради того, чтобы человек сличал собственный ряд.
+  const onlyAuthorId = can(actor, P.VIEW_ALL_OBSERVATIONS) ? null : actor.userId;
+  return listObservations(pool, { metric, limit, onlyAuthorId });
+}
+
+/**
+ * УДАЛЕНИЕ — то, чего не было вовсе. Записанный замер нельзя было убрать
+ * никак, даже администратору: пять ходов службы спрашивали VIEW_GRAPH, и
+ * удаления среди них не значилось.
+ *
+ * Удаление ОКОНЧАТЕЛЬНОЕ, а не мягкое, и это осознанно. Мягкое удаление
+ * заведено у сущностей графа ради отката коммитов — тело нужно, чтобы вернуть
+ * его обратно. Замер же ничего не обращает: он не часть истории графа, а
+ * запись о наблюдении. Держать удалённые замеры значило бы копить ряд,
+ * который никто не увидит и не сличит.
+ */
+export async function removeObservation(pool, { actor, observationId }) {
+  assertCan(actor, P.DELETE_OBSERVATION);
+  const deleted = await deleteObservation(pool, observationId);
+  if (!deleted) throw new Forbidden('Замера нет');
+  return { observationId: deleted.observation_id, metric: deleted.metric };
 }
 
 /**
@@ -95,9 +127,10 @@ export async function listMetricObservations(pool, { actor, metric, limit }) {
  */
 export async function compareObservations(pool, { actor, aId, bId }) {
   assertCan(actor, P.VIEW_GRAPH);
-  const first = await findObservation(pool, aId);
-  const second = await findObservation(pool, bId);
-  if (!first || !second) throw new Forbidden('Замера нет');
+  // Видимость спрашивается у ОБОИХ: иначе сличение стало бы обходным путём
+  // к чужому замеру — числа чужого ряда вышли бы наружу разницей.
+  const first = assertVisible(actor, await findObservation(pool, aId));
+  const second = assertVisible(actor, await findObservation(pool, bId));
 
   const differs = CONDITIONS.filter(к => first[к] !== second[к]);
   if (differs.length) {
@@ -146,6 +179,10 @@ export async function compareObservations(pool, { actor, aId, bId }) {
 
 export async function listComparableWith(pool, { actor, observationId }) {
   assertCan(actor, P.VIEW_GRAPH);
-  if (!await findObservation(pool, observationId)) throw new Forbidden('Замера нет');
-  return listComparable(pool, { observationId });
+  assertVisible(actor, await findObservation(pool, observationId));
+  const all = await listComparable(pool, { observationId });
+  // И сам перечень сравнимых сужается: показать чужой замер в списке «с чем
+  // можно сличить» значило бы отдать его тем же путём, только в обход.
+  return can(actor, P.VIEW_ALL_OBSERVATIONS)
+    ? all : all.filter(o => o.authorId === actor.userId);
 }

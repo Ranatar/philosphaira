@@ -1119,6 +1119,20 @@
   "аргументов": 0,
   "откуда": "modules/modal/forms.js"
  },
+ "toggle-entity-history": {
+  "код": "toggleEntityHistory('${escapeAttr(kind)}', '${escapeAttr(entityId)}')",
+  "attr": "onclick",
+  "тело": "toggleEntityHistory(el.dataset.a1, el.dataset.a2)",
+  "аргументов": 2,
+  "откуда": "modules/modal/history.js"
+ },
+ "revert-entity-to-version": {
+  "код": "revertEntityToVersion('${escapeAttr(kind)}', '${escapeAttr(entityId)}', ${Number(к.версия)})",
+  "attr": "onclick",
+  "тело": "revertEntityToVersion(el.dataset.a1, el.dataset.a2, el.dataset.a3)",
+  "аргументов": 3,
+  "откуда": "modules/modal/history.js"
+ },
  "open-universal-modal-9": {
   "код": "openUniversalModal('philosopher', '${f.nameRu}', 'view');",
   "attr": "onclick",
@@ -1382,6 +1396,13 @@
   "код": "pickObservation('${escapeAttr(z.observationId)}')",
   "attr": "onclick",
   "тело": "pickObservation(el.dataset.a1)",
+  "аргументов": 1,
+  "откуда": "modules/stats/observations.js"
+ },
+ "delete-observation": {
+  "код": "deleteObservation('${escapeAttr(z.observationId)}')",
+  "attr": "onclick",
+  "тело": "deleteObservation(el.dataset.a1)",
   "аргументов": 1,
   "откуда": "modules/stats/observations.js"
  },

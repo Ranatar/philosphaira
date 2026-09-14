@@ -989,6 +989,36 @@ try {
     /не разобрано \d+/.test(покрытиеДо), 'не разобрано', покрытиеДо.slice(0, 70));
 
   // ── ЗАПОМНИТЬ ЗАМЕР (E-2, клиентская часть) ──────────────────────────
+  //
+  // ПРАВО СПРАШИВАЕТСЯ, А НЕ ПОДРАЗУМЕВАЕТСЯ. С 12 сентября 2026 полоса
+  // «Запомнить замер» показывается по праву save_observation (редактор и
+  // выше с подтверждённым адресом), а не всякому вошедшему. Проба этого не
+  // знала и краснела на верном поведении — тот же случай, что был со вторым
+  // шагом у прямой правки. Убеждаемся, что в окне СЕЙЧАС тот, кому право
+  // дано, и говорим об этом вслух, а не полагаемся на порядок входов выше.
+  // ВХОД ЗАНОВО. К этому месту предыдущие разделы успели выйти, и до
+  // 12 сентября 2026 полоса замера показывалась НЕ ВОШЕДШЕМУ ВОВСЕ: условием
+  // было одно serverMode. Проба этого не замечала — она спрашивала «есть ли
+  // полоса», а не «кому она показана».
+  await pageHtml.evaluate(`(function(){
+    window.__app.openAuthModal('login');
+    document.getElementById('authLogin').value = 'p@e.рф';
+    document.getElementById('authPassword').value = ${JSON.stringify(ПАРОЛЬ)};
+  })()`);
+  await pageHtml.evaluate(`window.__app.submitAuth()`);
+  await ждать(1000);
+  // ВТОРОЙ ШАГ. У правщика он заведён (иначе срезалось бы review_commit), и
+  // вход без кода даёт лишь ЧАСТИЧНУЮ сессию — та не несёт прав вовсе.
+  await pageHtml.evaluate(`(function(){
+    document.getElementById('authPassword').value = '${totpКод(заведение.секрет)}';
+  })()`);
+  await pageHtml.evaluate(`window.__app.submitAuth()`);
+  await ждать(1500);
+  проверить('к разделу замеров в окне тот, кому дано записывать',
+    await pageHtml.evaluate(`window.__app.can('save_observation')`), true,
+    await pageHtml.evaluate(
+      `window.__app.authSession ? window.__app.authSession.user.login : '(никто)'`));
+
   await pageHtml.evaluate(`window.__app.openStatsModal()`);
   await ждать(800);
   await pageHtml.evaluate(`window.__app.loadStatsContent('degree')`);
@@ -1029,6 +1059,56 @@ try {
       `(document.getElementById('obsCompare')||{}).textContent||''`)),
     'ждёт двух', await pageHtml.evaluate(
       `(document.getElementById('obsCompare')||{}).textContent||''`).then(т => т.slice(0, 40)));
+
+  // ── ИСТОРИЯ ПРАВОК СУЩНОСТИ (клиентская часть) ───────────────────────
+  //
+  // Ход GET …/history был написан и НЕ ЗВАЛСЯ СО СТРАНИЦЫ НИ РАЗУ. Здесь
+  // проверяется, что раздел появился, наполняется по развороту и предлагает
+  // возврат тому, кому он дан.
+  await pageHtml.evaluate(`window.__app.closeStatsModal && window.__app.closeStatsModal()`);
+  await ждать(400);
+  await pageHtml.evaluate(
+    `window.__app.openUniversalModal('concept', window.__app.DATA.nodes[0], 'view')`);
+  await ждать(900);
+  проверить('в окне концепции есть раздел истории',
+    await pageHtml.evaluate(`!!document.querySelector('[id^="content-history-"]')`),
+    'есть', 'нет');
+  проверить('раздел свёрнут и не читал историю заранее',
+    /Разверните/.test(await pageHtml.evaluate(
+      `(document.querySelector('[id^="content-history-"]')||{}).textContent||''`)),
+    'свёрнут', 'наполнен сразу');
+
+  const идУзла = await pageHtml.evaluate(`window.__app.DATA.nodes[0].id`);
+  await pageHtml.evaluate(`window.__app.toggleEntityHistory('concept', ${JSON.stringify(идУзла)})`);
+  await ждать(1500);
+  const текстИстории = await pageHtml.evaluate(
+    `(document.querySelector('[id^="content-history-"]')||{}).textContent||''`);
+  проверить('по развороту история прочитана',
+    !/Разверните|Читаю историю/.test(текстИстории), 'прочитана',
+    текстИстории.slice(0, 50));
+
+  await pageHtml.evaluate(`window.__app.closeUniversalModal()`);
+  await ждать(400);
+
+  // ИСТОРИЯ ФИЛОСОФА. Раздел был написан для концепции и связи, а окно
+  // философа осталось без него — заметил автор, не прибор. Здесь же
+  // стережётся АДРЕС: окно знает философа по имени, а коммиты адресуют его
+  // полем `id`. Ошибись в этом — раздел молча ответил бы «правок не было».
+  const имяФ = await pageHtml.evaluate(`window.__app.DATA.philosophers[0].nameRu`);
+  const идФ = await pageHtml.evaluate(`window.__app.DATA.philosophers[0].id`);
+  await pageHtml.evaluate(
+    `window.__app.openUniversalModal('philosopher', ${JSON.stringify(имяФ)}, 'view')`);
+  await ждать(900);
+  проверить('в окне философа есть раздел истории',
+    await pageHtml.evaluate(`!!document.getElementById('content-history-philosopher:' + ${JSON.stringify(идФ)})`),
+    'есть', 'нет');
+  проверить('и адресован он ИДЕНТИФИКАТОРОМ, а не именем',
+    !(await pageHtml.evaluate(
+      `!!document.getElementById('content-history-philosopher:' + ${JSON.stringify(имяФ)})`))
+    || идФ === имяФ,
+    'по id', 'по имени');
+  await pageHtml.evaluate(`window.__app.closeUniversalModal()`);
+  await ждать(300);
 
   проверить('ошибок страницы по-прежнему нет', ошибки.length === 0, 0,
     ошибки.slice(0, 2).join(' | '));

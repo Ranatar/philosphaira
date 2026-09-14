@@ -11,6 +11,15 @@ export const P = Object.freeze({
   VIEW_GRAPH:                'view_graph',
   VIEW_COMMIT_HISTORY:       'view_commit_history',
 
+  // ЗАМЕРЫ — ТРИ ПРАВА, А НЕ ОДНО. Прежде все пять ходов службы замеров
+  // спрашивали VIEW_GRAPH, то есть самое слабое право: записать и прочесть
+  // чужие замеры мог любой вошедший, а удалить — никто, включая
+  // администратора. Три действия здесь разной цены, и мерить их одной
+  // меркой значило бы либо пустить всех всюду, либо закрыть всё разом.
+  SAVE_OBSERVATION:          'save_observation',       // свои замеры
+  VIEW_ALL_OBSERVATIONS:     'view_all_observations',  // и чужие тоже
+  DELETE_OBSERVATION:        'delete_observation',
+
   CREATE_COMMIT:             'create_commit',
   EDIT_OWN_PENDING_COMMIT:   'edit_own_pending_commit',
   DELETE_OWN_PENDING_COMMIT: 'delete_own_pending_commit',
@@ -42,17 +51,18 @@ export const P = Object.freeze({
 // где можно ошибиться.
 
 const viewer    = [P.VIEW_GRAPH, P.VIEW_COMMIT_HISTORY];
-const editor    = [...viewer, P.CREATE_COMMIT,
+const editor    = [...viewer, P.CREATE_COMMIT, P.SAVE_OBSERVATION,
                    P.EDIT_OWN_PENDING_COMMIT, P.DELETE_OWN_PENDING_COMMIT];
 const moderator = [...editor, P.VIEW_PENDING_COMMITS, P.REVIEW_COMMIT,
                    P.REVERT_COMMIT, P.VIEW_USERS, P.MANAGE_EDITORS,
-                   P.BAN_USER, P.VIEW_LOGS];
+                   P.BAN_USER, P.VIEW_LOGS, P.VIEW_ALL_OBSERVATIONS];
 
 // Права администратора ПЕРЕЧИСЛЕНЫ, а не собраны из Object.values(P).
 // Иначе всякое будущее право достаётся ему молча — а решать, кому оно
 // достаётся, должен человек, который это право вписывает.
 const administrator = [...moderator, P.MANAGE_MODERATORS, P.MANAGE_ADMINS,
-                       P.DELETE_USER, P.SYSTEM_SETTINGS, P.RELAYOUT_GRAPH];
+                       P.DELETE_USER, P.SYSTEM_SETTINGS, P.RELAYOUT_GRAPH,
+                       P.DELETE_OBSERVATION];
 
 export const ROLES = Object.freeze({
   guest:         Object.freeze({ level: 0, permissions: Object.freeze([P.VIEW_GRAPH]) }),
@@ -72,12 +82,19 @@ export const REAL_ROLES = Object.freeze(
  */
 export const NEEDS_VERIFIED_EMAIL = Object.freeze([
   P.CREATE_COMMIT, P.EDIT_OWN_PENDING_COMMIT, P.DELETE_OWN_PENDING_COMMIT,
+  // Замер — запись с автором и родословной, живущая дольше сессии. Подписывать
+  // её именем, которое никто не подтвердил, значит заводить историю от лица
+  // неизвестно кого. Мерка та же, что у коммита.
+  P.SAVE_OBSERVATION,
 ]);
 
 export const NEEDS_MFA = Object.freeze([
   P.REVIEW_COMMIT, P.REVERT_COMMIT, P.BAN_USER,
   P.MANAGE_EDITORS, P.MANAGE_MODERATORS, P.MANAGE_ADMINS,
   P.DELETE_USER, P.SYSTEM_SETTINGS,
+  // Удаление чужого замера неотменяемо и бьёт по чужой работе — мерка та же,
+  // что у удаления учётной записи.
+  P.DELETE_OBSERVATION,
   // Перекладка — по той же мерке, что откат коммита: действие редкое, видное
   // всем и трудно отменяемое ПО ВОСПРИЯТИЮ, даже когда отменяемо технически.
   P.RELAYOUT_GRAPH,

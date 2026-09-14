@@ -1585,6 +1585,45 @@
     }
     .obs-up { color: var(--success, #6ab04c); }
     .obs-down { color: var(--danger, #d63b3b); }
+    /* Кнопка удаления замера: видна только тому, кому право дано. */
+    .obs-delete {
+      margin-top: 6px; padding: 3px 8px; font-size: 10px; cursor: pointer;
+      background: none; color: var(--danger, #d63b3b);
+      border: 1px solid var(--danger, #d63b3b); border-radius: 4px;
+    }
+    .obs-delete:hover { background: rgba(214,59,59,0.12); }
+
+    /* ИСТОРИЯ ПРАВОК СУЩНОСТИ.
+       «Было / стало» показывается целиком, а не построчной разницей:
+       посимвольное сличение описаний в 600–900 знаков — отдельная работа,
+       и подделывать её видимость хуже, чем честно показать оба текста. */
+    .history-list { display: flex; flex-direction: column; gap: 8px; padding: 6px 0; }
+    .history-item {
+      padding: 8px 10px; border-radius: 6px; font-size: 12px;
+      border: 1px solid var(--border, rgba(255,255,255,0.08));
+    }
+    .history-item.reverted { opacity: 0.6; }
+    .history-head {
+      font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    }
+    .history-undone {
+      font-weight: 400; font-size: 10px; padding: 1px 6px; border-radius: 999px;
+      border: 1px solid var(--fg-muted, #8b8b9e); color: var(--fg-muted, #8b8b9e);
+    }
+    .history-message { color: var(--fg-dim, #c8c8d4); margin-top: 2px; }
+    .history-field { margin-top: 6px; font-size: 11px; }
+    .history-was, .history-now {
+      margin-top: 2px; padding: 4px 6px; border-radius: 4px;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .history-was { background: rgba(214,59,59,0.10); color: var(--fg-dim, #c8c8d4); }
+    .history-now { background: rgba(106,176,76,0.10); color: var(--fg-dim, #c8c8d4); }
+    .history-revert {
+      margin-top: 8px; padding: 3px 8px; font-size: 10px; cursor: pointer;
+      background: none; color: var(--accent, #6c5ce7);
+      border: 1px solid var(--accent, #6c5ce7); border-radius: 4px;
+    }
+    .history-revert:hover { background: rgba(108,92,231,0.12); }
 
     /* Полоса замера: приписка под видом статистики, а не часть его. */
     .observation-bar {
@@ -32022,6 +32061,10 @@
     function observationBar(viewName) {
       const metric = VIEW_METRIC[viewName];
       if (!serverMode || !metric) return '';
+      // Право спрашивается, а не выводится из роли: роль знает сервер, и он
+      // же присылает действующий набор прав — со срезками за неподтверждённый
+      // адрес и незаведённый второй шаг.
+      if (!can(PERM.SAVE_OBSERVATION)) return '';
       const flags = effectiveScopeFlags(viewName);
       return `
         <div class="observation-bar">
@@ -32144,8 +32187,16 @@
       if (!observationItems.length) {
         slot.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📌</div>'
           + '<div class="empty-state-text">Замеров пока нет</div>'
-          + '<div class="empty-state-hint">Откройте вид метрики и нажмите'
-          + ' «Запомнить замер»</div></div>';
+          + (can(PERM.SAVE_OBSERVATION)
+              ? '<div class="empty-state-hint">Откройте вид метрики и нажмите'
+                + ' «Запомнить замер»</div>'
+              // Тому, кто писать не может, совет «нажмите Запомнить» —
+              // издёвка: кнопки он не увидит.
+              : '<div class="empty-state-hint">Записывать замеры может'
+                + ' редактор и выше</div>')
+          + (can(PERM.VIEW_ALL_OBSERVATIONS) ? ''
+              : '<div class="empty-state-hint">Показаны только ваши замеры</div>')
+          + '</div>';
         return;
       }
       // УСЛОВИЯ ПИШУТСЯ СЛОВАМИ, А НЕ ОТПЕЧАТКОМ. Отпечаток охвата годен для
@@ -32160,6 +32211,9 @@
           </div>
           <div class="obs-conditions">${escapeAttr(z.flags)} · охват: ${
             escapeAttr(z.scopeNote || 'не назван')} · ${escapeAttr(z.authorName || '')}</div>
+          ${can(PERM.DELETE_OBSERVATION)
+            ? `<button class="obs-delete" onclick="deleteObservation('${escapeAttr(z.observationId)}')">Удалить</button>`
+            : ''}
           ${z.note ? `<div class="obs-note">${escapeAttr(z.note)}</div>` : ''}
           <div class="obs-summary">среднее ${summary.mean ?? '—'} · медиана ${
             summary.median ?? '—'} · разброс ${summary.spread ?? '—'}</div>
@@ -32172,6 +32226,34 @@
              отметьте два замера, чтобы сличить</div>`)
       + '</div>';
       if (observationPicked.length === 2) compareObservationsInPanel();
+    }
+
+    /**
+     * УДАЛЕНИЕ ЗАМЕРА. Подтверждение обязательно: удаление окончательное —
+     * мягкого удаления у замеров нет, потому что замер ничего не обращает,
+     * он не часть истории графа.
+     *
+     * Отмеченный на сличение снимается из отбора здесь же: иначе в
+     * observationPicked остался бы призрак, и панель пошла бы сличать
+     * то, чего уже нет.
+     */
+    async function deleteObservation(id) {
+      if (!confirm('Удалить замер? Это окончательно.')) return;
+      const reply = await api('/api/metrics/observations/' + encodeURIComponent(id),
+        { метод: 'DELETE' });
+      if (!reply.годно) {
+        // ОТКАЗ ПОКАЗЫВАЕТСЯ НА МЕСТЕ. Отдельной ячейки под ошибку у раздела
+        // нет, и заводить её ради одного случая — лишнее: сообщение
+        // подставляется в то же место, куда рисуется список, и следующая
+        // загрузка его сменит.
+        const slot = document.getElementById('observationsBody');
+        if (slot) slot.innerHTML = '<div class="empty-state"><div class="empty-state-text">'
+          + escapeAttr((reply.тело && reply.тело.error && reply.тело.error.message)
+                       || 'Сервер отказал') + '</div></div>';
+        return;
+      }
+      observationPicked = observationPicked.filter(x => x !== id);
+      await loadObservations();
     }
 
     function pickObservation(id) {
@@ -38240,6 +38322,13 @@
       // получает от сервера: в местном режиме перекладки нет вовсе, потому
       // что нет и хранимой раскладки, которую можно было бы переучредить.
       RELAYOUT_GRAPH: 'relayout_graph',
+      // ЗАМЕРЫ — ТРИ ПРАВА. Прежде полоса «Запомнить замер» показывалась по
+      // одному условию serverMode, то есть любому вошедшему, а список
+      // отдавал ВСЕ замеры, включая чужие. Сервер спрашивал VIEW_GRAPH —
+      // самое слабое право, — и удаления не было вовсе.
+      SAVE_OBSERVATION: 'save_observation',
+      VIEW_ALL_OBSERVATIONS: 'view_all_observations',
+      DELETE_OBSERVATION: 'delete_observation',
     });
 
     let granted = new Set();
@@ -38274,7 +38363,7 @@
       const act   = kind === 'register' ? 'Зарегистрироваться' : 'Войти';
       el.innerHTML =
         '<h3>' + title + '</h3>'
-      + '<div class="auth-field"><label for="authLogin">Логин</label>'
+      + '<div class="auth-field"><label for="authLogin">Логин или почта</label>'
       + '<input type="text" id="authLogin" autocomplete="off"></div>'
       + '<div class="auth-field"><label for="authPassword">Пароль</label>'
       + '<input type="password" id="authPassword" autocomplete="off"></div>'
@@ -38507,7 +38596,12 @@
       // остаётся нетронутой: без сервера всё как прежде.
       if (serverMode) {
         const reply = await api('/api/auth/login',
-          { метод: 'POST', тело: { email: l, password: pass } });
+          // ПОЛЕ ЗОВЁТСЯ `login`, А НЕ `email`. Подпись поля обещала логин,
+          // а значение уходило как почта — и сервер искал только по почте.
+          // Войти именем было нельзя, хотя findByUsername в db/users.js
+          // написана. Расхождение подписи со службой нашёл человек: ввёл имя
+          // администратора из примера в инструкции и не смог войти.
+          { метод: 'POST', тело: { login: l, password: pass } });
         if (!reply.годно) {
           authError((reply.тело && reply.тело.error && reply.тело.error.message)
             || 'Не удалось войти');
@@ -40640,6 +40734,135 @@
      * а не ссылку: у графа философских концепций немалая часть содержания
      * именно такова, и молчать об этом хуже, чем сказать прямо.
      */
+    /**
+     * ИСТОРИЯ ПРАВОК СУЩНОСТИ.
+     *
+     * Ход GET /api/graph/:kind/:entityId/history существовал с самого начала
+     * и НЕ ЗВАЛСЯ СО СТРАНИЦЫ НИ РАЗУ: посмотреть, когда и кем менялась вот
+     * эта концепция, было нельзя, хотя данные для этого лежали готовыми.
+     *
+     * Раздел рисуется пустым и наполняется ходом: история нужна не всякому,
+     * кто открыл окно, и тянуть её вместе с окном значило бы платить за неё
+     * всегда. Наполнение идёт при первом развороте.
+     */
+    let historyFor = null;          // { kind, entityId } — чья история сейчас в памяти
+    let historyItems = [];
+    let historyBusy = false;
+
+    /**
+     * АДРЕС СУЩНОСТИ В КОММИТАХ — ЭТО `id`, А НЕ ИМЯ, КОТОРЫМ ЕЁ ЗОВЁТ ОКНО.
+     * У концепции и связи это одно и то же, а окно философа знает его по
+     * ИМЕНИ (`philosopherName` — ключ в philosopherConcepts и в
+     * nodes[].concept), тогда как правки адресуются полем `id`
+     * (savePhilosopherData: `DATA.philosophers[i].id`). Отсюда
+     * `philosopherData.id` в вызове, а не `philosopherName`: иначе история
+     * искалась бы по адресу, которого в коммитах нет, и раздел молча
+     * отвечал бы «правок не было». Молчаливо неверный ответ здесь хуже
+     * отсутствующего.
+     */
+    function historyBlock(kind, entityId) {
+      // Без сервера истории нет вовсе: коммиты живут на нём. Молчание здесь
+      // честнее пустого раздела, который никогда не наполнится.
+      if (!serverMode) return '';
+      const key = kind + ':' + entityId;
+      return `
+        <div class="connections-subsection">
+          <div class="subsection-header"
+               onclick="toggleEntityHistory('${escapeAttr(kind)}', '${escapeAttr(entityId)}')">
+            <div class="subsection-title">🕐 История правок</div>
+            <span class="subsection-toggle collapsed" id="toggle-history-${escapeAttr(key)}">▼</span>
+          </div>
+          <div class="subsection-content collapsed" id="content-history-${escapeAttr(key)}">
+            <div class="empty-state-hint">Разверните, чтобы прочесть</div>
+          </div>
+        </div>`;
+    }
+
+    async function toggleEntityHistory(kind, entityId) {
+      const key = kind + ':' + entityId;
+      toggleSubsection('history-' + key);
+      const slot = document.getElementById('content-history-' + key);
+      if (!slot || slot.classList.contains('collapsed')) return;
+      // Повторный разворот не перечитывает: история меняется коммитом, а
+      // коммит перерисует окно сам.
+      if (historyFor === key && historyItems.length) return renderEntityHistory(kind, entityId);
+      if (historyBusy) return;
+      historyBusy = true;
+      slot.innerHTML = '<div class="empty-state-hint">Читаю историю…</div>';
+      const reply = await api('/api/graph/' + encodeURIComponent(kind)
+                            + '/' + encodeURIComponent(entityId) + '/history');
+      historyBusy = false;
+      historyFor = key;
+      historyItems = (reply.годно && reply.тело.data && reply.тело.data.items) || [];
+      renderEntityHistory(kind, entityId);
+    }
+
+    /**
+     * РАЗНИЦА ПОКАЗЫВАЕТСЯ ПОЛЯМИ, А НЕ ТЕКСТОМ. Посимвольное сличение
+     * описаний в 600–900 знаков — отдельная работа; здесь честнее показать
+     * «было / стало» целиком, чем подделать построчный вид.
+     */
+    function renderEntityHistory(kind, entityId) {
+      const key = kind + ':' + entityId;
+      const slot = document.getElementById('content-history-' + key);
+      if (!slot) return;
+      if (!historyItems.length) {
+        slot.innerHTML = '<div class="empty-state-hint">Правок не было: '
+          + 'сущность в том виде, в каком пришла с семенем графа</div>';
+        return;
+      }
+      // Свежие сверху: человек ищет «что изменилось на днях», а не начало времён.
+      const rows = [...historyItems].reverse().map(к => {
+        const mine = (к.changes || []).filter(и => и.kind === kind && и.entityId === entityId);
+        const fields = mine.flatMap(и => Object.entries(и.fields || {})
+          .map(([имя, пара]) => `
+            <div class="history-field"><b>${escapeAttr(имя)}</b>
+              <div class="history-was">было: ${escapeAttr(String(пара.base ?? '—')).slice(0, 400)}</div>
+              <div class="history-now">стало: ${escapeAttr(String(пара.next ?? '—')).slice(0, 400)}</div>
+            </div>`));
+        const action = mine.some(и => и.action === 'add') ? 'заведена'
+                     : mine.some(и => и.action === 'delete') ? 'удалена' : 'правлена';
+        // Вернуть можно К ВЕРСИИ, а не к коммиту: коммит — это правка,
+        // а версия — состояние. Возврат применяется сразу, тем же правом,
+        // что и откат коммита.
+        const back = can(PERM.REVERT_COMMIT)
+          ? `<button class="history-revert"
+                     onclick="revertEntityToVersion('${escapeAttr(kind)}', '${escapeAttr(entityId)}', ${Number(к.версия)})"
+                     >Вернуть к версии ${escapeAttr(String(к.версия))}</button>`
+          : '';
+        return `<div class="history-item${к.status === 'reverted' ? ' reverted' : ''}">
+          <div class="history-head">версия ${escapeAttr(String(к.версия))} · ${escapeAttr(action)}
+            · ${escapeAttr(к.author || '')}
+            ${к.status === 'reverted' ? '<span class="history-undone">отменён</span>' : ''}</div>
+          <div class="history-message">${escapeAttr(к.message || '')}</div>
+          ${fields.join('')}
+          ${back}
+        </div>`;
+      });
+      slot.innerHTML = '<div class="history-list">' + rows.join('') + '</div>';
+    }
+
+    async function revertEntityToVersion(kind, entityId, version) {
+      const reason = prompt(`Причина возврата ${entityId} к версии ${version} (обязательна):`);
+      if (!reason) return;
+      const reply = await api('/api/graph/' + encodeURIComponent(kind) + '/'
+        + encodeURIComponent(entityId) + '/revert-to/' + encodeURIComponent(version),
+        { метод: 'POST', тело: { reason: reason } });
+      if (!reply.годно) {
+        alert((reply.тело && reply.тело.error && reply.тело.error.message) || 'Сервер отказал');
+        return;
+      }
+      // ОКНО НЕ ЗАКРЫВАЕТСЯ, И ЭТО НЕ УДОБСТВО, А УСТРОЙСТВО. Вызов
+      // closeUniversalModal отсюда замкнул бы круг ввозов
+      // connection-view → core → history → core: прибор map_tree назвал его
+      // «круговых групп 1» в тот же прогон. Вместо закрытия перечитываем
+      // историю: возврат — это коммит, и он в неё уже лёг.
+      historyFor = null; historyItems = [];
+      await pullGraphSince();
+      await toggleEntityHistory(kind, entityId);   // свернуть
+      await toggleEntityHistory(kind, entityId);   // и развернуть заново
+    }
+
     function provenanceBlock(value, status) {
       const text = String(value == null ? '' : value).trim();
       // Старое соглашение читается на входе: записи, не прошедшие перевод
@@ -42404,6 +42627,10 @@
           </div>`;
       }
 
+      // История — только у существующей связи: у наполовину выбранной нет
+      // ни адреса, ни прошлого. Адрес связи в коммитах — «источник→цель».
+      if (has && connectionData.id) html += historyBlock('relation', connectionData.id);
+
       return html;
     }
 
@@ -42590,6 +42817,7 @@
         </div>
         <div class="description">${conceptData.extendedDescription}</div>
         ${provenanceBlock(conceptData.provenance, conceptData.provenanceStatus)}
+        ${historyBlock('concept', conceptData.id)}
         <button class="goto-node-btn" onclick="gotoNodeFromModal('${conceptData.id}')">
           🎯 Перейти к узлу
         </button>
@@ -43127,6 +43355,7 @@
         </div>
         <div class="description">${formattedDescription}</div>
         ${provenanceBlock(philosopherData.provenance, philosopherData.provenanceStatus)}
+        ${historyBlock('philosopher', philosopherData.id)}
         <button class="goto-node-btn" onclick="closeUniversalModal(); setTimeout(() => showPhilosopherProfileModal('${philosopherName}'), 100);">
           📊 Статистический профиль
         </button>

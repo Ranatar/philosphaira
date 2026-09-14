@@ -45,7 +45,8 @@ saveConceptData saveConnectionData deleteConnection
 addLinkToGraph graphFingerprint applyStoredLayout layoutFromStore resetSimulation planRelayout applyRelayout layoutPlan loadLayoutHistory askLayoutRevert doLayoutRevert layoutHistoryItems layoutRevertTo
 philosopherSimilarity philosopherSimilarityData initializePhilosophyMetrics
 selectConceptOnGraph rebuildQuadtree applyFiltersImmediate calculateBetweennessAsync
-traditionMembers resetTradition syncTraditionRows`.split(/\s+/).filter(Boolean);
+traditionMembers resetTradition syncTraditionRows
+toggleEntityHistory renderEntityHistory revertEntityToVersion deleteObservation`.split(/\s+/).filter(Boolean);
 
 // ГДЕ ЧТО ВЫВОЗИТСЯ и ЧТО ПЕРЕПРИСВАИВАЕТСЯ.
 //

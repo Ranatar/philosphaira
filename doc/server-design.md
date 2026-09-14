@@ -35,11 +35,13 @@
 | `view_graph` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | `view_commit_history` | ❌ | ✅ | ✅ | ✅ | ✅ |
 | `create_commit` | ❌ | ❌ | ✅ | ✅ | ✅ |
+| `save_observation` | ❌ | ❌ | ✅ | ✅ | ✅ |
 | `edit_own_pending_commit` | ❌ | ❌ | ✅ | ✅ | ✅ |
 | `delete_own_pending_commit` | ❌ | ❌ | ✅ | ✅ | ✅ |
 | `view_pending_commits` | ❌ | ❌ | ❌ | ✅ | ✅ |
 | `review_commit` | ❌ | ❌ | ❌ | ✅ | ✅ |
 | `revert_commit` | ❌ | ❌ | ❌ | ✅ | ✅ |
+| `view_all_observations` | ❌ | ❌ | ❌ | ✅ | ✅ |
 | `view_users` | ❌ | ❌ | ❌ | ✅ | ✅ |
 | `manage_editors` | ❌ | ❌ | ❌ | ✅ | ✅ |
 | `ban_user` | ❌ | ❌ | ❌ | ✅ | ✅ |
@@ -49,6 +51,7 @@
 | `delete_user` | ❌ | ❌ | ❌ | ❌ | ✅ |
 | `system_settings` | ❌ | ❌ | ❌ | ❌ | ✅ |
 | `relayout_graph` | ❌ | ❌ | ❌ | ❌ | ✅ |
+| `delete_observation` | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 Помимо роли набор срезают два условия: неподтверждённая почта (нет прав на
 коммиты) и незаведённый второй шаг (нет прав на рассмотрение, бан, роли,

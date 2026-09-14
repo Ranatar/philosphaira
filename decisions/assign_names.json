@@ -891,7 +891,15 @@
   "sharesTradition": "filters/filters.js",
   "WITHOUT_TRADITION": "ui/legend.js",
   "resetTradition": "ui/legend.js",
-  "syncTraditionRows": "ui/legend.js"
+  "syncTraditionRows": "ui/legend.js",
+  "deleteObservation": "stats/observations.js",
+  "historyFor": "modal/history.js",
+  "historyItems": "modal/history.js",
+  "historyBusy": "modal/history.js",
+  "historyBlock": "modal/history.js",
+  "toggleEntityHistory": "modal/history.js",
+  "renderEntityHistory": "modal/history.js",
+  "revertEntityToVersion": "modal/history.js"
  },
  "новые": [
   "BUS_PHASES"

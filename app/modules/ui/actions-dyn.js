@@ -13,6 +13,7 @@ import { toggleAllConnectionDescriptions, toggleAllPhilosopherConceptDescription
 import { syncPhilColorFromPicker, updatePhilColorSample } from '../modal/edit-forms.js';
 import { gotoNodeFromModal, openConceptById, openEditConceptModal, openEditConnectionModal, showAllConcepts, showPhilosopherDetailModal } from '../modal/entry.js';
 import { refreshProvenanceField } from '../modal/forms.js';
+import { revertEntityToVersion, toggleEntityHistory } from '../modal/history.js';
 import { deleteConcept, deleteConnection } from '../modal/persist.js';
 import { closeConceptProfileModal, showConceptProfileModal, toggleProfileOrder } from '../modal/profile-concept.js';
 import { closePhilosopherProfileModal, showPhilosopherProfileModal } from '../modal/profile-philosopher.js';
@@ -24,7 +25,7 @@ import { toggleMetricVisualization } from '../render/metric-visualization.js';
 import { highlightNodeById } from '../render/selection.js';
 import { clearSimilarityOverlay, setSimilarityLinks, showSimilarityOverlay } from '../render/similarity-overlay.js';
 import { openStatsModal, switchStatsView } from '../stats/modal.js';
-import { pickObservation, saveObservation } from '../stats/observations.js';
+import { deleteObservation, pickObservation, saveObservation } from '../stats/observations.js';
 import { toggleMetricDetails, toggleMetricLayout } from '../stats/results.js';
 import { calculateMetricFromModal } from '../stats/run.js';
 import { openPairInComparison, openPhilosopherPair, renderClosestPairs, renderPhilosopherComparison, renderPhilosopherPairs } from '../stats/views/comparison.js';
@@ -87,6 +88,8 @@ registerActions({
   "open-security-modal": (el, ev) => { openSecurityModal(); },
   "auth-logout": (el, ev) => { authLogout(); },
   "refresh-provenance-field-change": (el, ev) => { refreshProvenanceField(); },
+  "toggle-entity-history": (el, ev) => { toggleEntityHistory(el.dataset.a1, el.dataset.a2); },
+  "revert-entity-to-version": (el, ev) => { revertEntityToVersion(el.dataset.a1, el.dataset.a2, el.dataset.a3); },
   "open-universal-modal-9": (el, ev) => { openUniversalModal('philosopher', el.dataset.a1, 'view'); },
   "show-philosopher-detail-modal": (el, ev) => { showPhilosopherDetailModal(el.dataset.a1); },
   "handle-philosopher-search-input": (el, ev) => { handlePhilosopherSearch(el.value); },
@@ -125,6 +128,7 @@ registerActions({
   "clear-similarity-overlay": (el, ev) => { clearSimilarityOverlay(); },
   "save-observation": (el, ev) => { saveObservation(el.dataset.a1); },
   "pick-observation": (el, ev) => { pickObservation(el.dataset.a1); },
+  "delete-observation": (el, ev) => { deleteObservation(el.dataset.a1); },
   "calculate-metric-from-modal": (el, ev) => { calculateMetricFromModal(el.dataset.a1); },
   "toggle-metric-visualization": (el, ev) => { toggleMetricVisualization(el.dataset.a1); },
   "toggle-metric-layout": (el, ev) => { toggleMetricLayout(); },

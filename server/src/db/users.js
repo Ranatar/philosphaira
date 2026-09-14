@@ -22,6 +22,37 @@ export async function findByEmailWithSecret(db, email) {
   return { user: toSelf(rows[0]), passwordHash: rows[0].password_hash };
 }
 
+/**
+ * ПОИСК ПО ЛОГИНУ ИЛИ ПОЧТЕ — одним запросом.
+ *
+ * Форма входа подписана «Логин», а сервер искал ТОЛЬКО по почте: значение
+ * поля уходило как email, и войти именем было нельзя вовсе. При этом
+ * findByUsername ниже написана и на входе не звалась ни разу. Подпись
+ * обещала одно, служба делала другое — и расхождение нашёл человек, а не
+ * прибор.
+ *
+ * ОДНИМ ЗАПРОСОМ, А НЕ ДВУМЯ: два последовательных поиска дают разное время
+ * ответа для «нет такой почты» и «нет такого имени», а это само по себе
+ * ответ. Здесь путь один при любом исходе.
+ *
+ * ПОЧТА ИМЕЕТ ПРЕИМУЩЕСТВО. Знаки в имени нигде не ограничены, значит имя
+ * МОЖЕТ содержать «собаку» и совпасть с чужой почтой. Совпадение редкое, но
+ * молчаливый выбор «кого-нибудь из двух» недопустим: ORDER BY ставит впереди
+ * совпадение по почте, и правило записано, а не оставлено на усмотрение
+ * порядка строк.
+ */
+export async function findByLoginWithSecret(db, login) {
+  const { rows } = await db.query(
+    `SELECT * FROM users
+      WHERE (lower(email) = lower($1) OR lower(username) = lower($1))
+        AND deleted_at IS NULL
+      ORDER BY (lower(email) = lower($1)) DESC
+      LIMIT 1`,
+    [login]);
+  if (!rows[0]) return null;
+  return { user: toSelf(rows[0]), passwordHash: rows[0].password_hash };
+}
+
 export async function findByUsername(db, username) {
   const { rows } = await db.query(
     `SELECT * FROM users WHERE lower(username) = lower($1) AND deleted_at IS NULL`,

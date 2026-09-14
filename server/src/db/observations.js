@@ -62,13 +62,30 @@ export async function findObservation(db, id) {
   return rows[0] ? observationToApi(rows[0]) : null;
 }
 
-/** Замеры одной метрики, свежие сверху. */
-export async function listObservations(db, { metric, limit = 50 }) {
+/**
+ * Замеры одной метрики, свежие сверху.
+ *
+ * onlyAuthorId СУЖАЕТ выборку до своих. Отбор идёт ЗАПРОСОМ, а не просеиванием
+ * готового списка: иначе предел LIMIT 50 выбирался бы чужими записями, и у
+ * редактора список своих замеров пустел бы тем вернее, чем больше народу
+ * работает рядом.
+ */
+export async function listObservations(db, { metric, limit = 50, onlyAuthorId = null }) {
   const { rows } = await db.query(`
     SELECT ${COLUMNS} FROM ${FROM_CLAUSE}
      WHERE ($1::text IS NULL OR o.metric = $1)
-     ORDER BY o.created_at DESC LIMIT $2`, [metric ?? null, Math.min(limit, 200)]);
+       AND ($3::uuid IS NULL OR o.author_id = $3)
+     ORDER BY o.created_at DESC LIMIT $2`,
+    [metric ?? null, Math.min(limit, 200), onlyAuthorId]);
   return rows.map(observationToApi);
+}
+
+/** Удаление замера. Возвращает удалённый или null, если такого не было. */
+export async function deleteObservation(db, id) {
+  const { rows } = await db.query(
+    `DELETE FROM metric_observations WHERE observation_id = $1
+      RETURNING observation_id, metric, author_id`, [id]);
+  return rows[0] ?? null;
 }
 
 /**
