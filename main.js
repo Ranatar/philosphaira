@@ -66,6 +66,7 @@ import './modules/modal/profile-concept.js';
 import './modules/modal/profile-philosopher.js';
 import './modules/modal/search.js';
 import './modules/modal/security.js';
+import './modules/modal/selection-list.js';
 import './modules/modal/users.js';
 import './modules/paths/analysis.js';
 import './modules/paths/chronology.js';

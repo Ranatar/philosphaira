@@ -244,6 +244,13 @@
   "аргументов": 0,
   "откуда": "index.html"
  },
+ "open-selection-list-modal": {
+  "код": "openSelectionListModal()",
+  "attr": "onclick",
+  "тело": "openSelectionListModal()",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
  "toggle-panel": {
   "код": "togglePanel('pathFinder')",
   "attr": "onclick",
@@ -437,6 +444,13 @@
   "код": "closeConflictModal()",
   "attr": "onclick",
   "тело": "closeConflictModal()",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "close-selection-list-modal": {
+  "код": "closeSelectionListModal()",
+  "attr": "onclick",
+  "тело": "closeSelectionListModal()",
   "аргументов": 0,
   "откуда": "index.html"
  },
@@ -1301,6 +1315,62 @@
   "аргументов": 0,
   "откуда": "modules/modal/security.js"
  },
+ "open-universal-modal-13": {
+  "код": "openUniversalModal('philosopher', '${escapeAttr(p.nameRu)}', 'view')",
+  "attr": "onclick",
+  "тело": "openUniversalModal('philosopher', el.dataset.a1, 'view')",
+  "аргументов": 1,
+  "откуда": "modules/modal/selection-list.js"
+ },
+ "toggle-selection-body": {
+  "код": "toggleSelectionBody('${escapeAttr(bodyKey)}')",
+  "attr": "onclick",
+  "тело": "toggleSelectionBody(el.dataset.a1)",
+  "аргументов": 1,
+  "откуда": "modules/modal/selection-list.js"
+ },
+ "open-universal-modal-14": {
+  "код": "openUniversalModal('concept', nodes.find(x => x.id === '${escapeAttr(n.id)}'), 'view')",
+  "attr": "onclick",
+  "тело": "openUniversalModal('concept', DATA.nodes.find(x => x.id === el.dataset.a1), 'view')",
+  "аргументов": 1,
+  "откуда": "modules/modal/selection-list.js"
+ },
+ "open-universal-modal-15": {
+  "код": "openUniversalModal('connection', links.find(x => (x.source.id||x.source) === '${escapeAttr(s)}' && (x.target.id||x.target) === '${escapeAttr(t)}'), 'view')",
+  "attr": "onclick",
+  "тело": "openUniversalModal('connection', DATA.links.find(x => (x.source.id||x.source) === el.dataset.a1 && (x.target.id||x.target) === el.dataset.a2), 'view')",
+  "аргументов": 2,
+  "откуда": "modules/modal/selection-list.js"
+ },
+ "set-selection-provenance": {
+  "код": "setSelectionProvenance('${v}')",
+  "attr": "onclick",
+  "тело": "setSelectionProvenance(el.dataset.a1)",
+  "аргументов": 1,
+  "откуда": "modules/modal/selection-list.js"
+ },
+ "toggle-selection-block": {
+  "код": "toggleSelectionBlock('${kind}')",
+  "attr": "onclick",
+  "тело": "toggleSelectionBlock(el.dataset.a1)",
+  "аргументов": 1,
+  "откуда": "modules/modal/selection-list.js"
+ },
+ "toggle-selection-bodies": {
+  "код": "toggleSelectionBodies('${kind}')",
+  "attr": "onclick",
+  "тело": "toggleSelectionBodies(el.dataset.a1)",
+  "аргументов": 1,
+  "откуда": "modules/modal/selection-list.js"
+ },
+ "selection-list-more": {
+  "код": "selectionListMore('${kind}')",
+  "attr": "onclick",
+  "тело": "selectionListMore(el.dataset.a1)",
+  "аргументов": 1,
+  "откуда": "modules/modal/selection-list.js"
+ },
  "toggle-path-nodes-descriptions": {
   "код": "togglePathNodesDescriptions()",
   "attr": "onclick",
@@ -1315,14 +1385,14 @@
   "аргументов": 1,
   "откуда": "modules/paths/path-ui.js"
  },
- "open-universal-modal-13": {
+ "open-universal-modal-16": {
   "код": "openUniversalModal('philosopher', '${node.concept}', 'view')",
   "attr": "onclick",
   "тело": "openUniversalModal('philosopher', el.dataset.a1, 'view')",
   "аргументов": 1,
   "откуда": "modules/paths/path-descriptions.js"
  },
- "open-universal-modal-14": {
+ "open-universal-modal-17": {
   "код": "openUniversalModal('connection', findConnection('${src}', '${tgt}', false), 'view')",
   "attr": "onclick",
   "тело": "openUniversalModal('connection', findConnection(el.dataset.a1, el.dataset.a2, false), 'view')",
@@ -1336,7 +1406,7 @@
   "аргументов": 0,
   "откуда": "modules/paths/path-ui.js"
  },
- "open-universal-modal-15": {
+ "open-universal-modal-18": {
   "код": "openUniversalModal('connection', findConnection('${currentNode.id}', '${nextNode.id}', false), 'view')",
   "attr": "onclick",
   "тело": "openUniversalModal('connection', findConnection(el.dataset.a1, el.dataset.a2, false), 'view')",

@@ -8,6 +8,7 @@ import { closeConflictModal, rebuildOverCurrent } from '../modal/conflict.js';
 import { closeUniversalModal } from '../modal/core.js';
 import { closeConceptProfileModal } from '../modal/profile-concept.js';
 import { closePhilosopherProfileModal } from '../modal/profile-philosopher.js';
+import { closeSelectionListModal, openSelectionListModal } from '../modal/selection-list.js';
 import { closeUsersPanel, openUsersPanel } from '../modal/users.js';
 import { closePathDescriptionsModal } from '../paths/path-descriptions.js';
 import { findAndShowPath } from '../paths/path-ui.js';
@@ -61,6 +62,7 @@ registerActions({
   "toggle-section-4": (el, ev) => { toggleSection('traditions'); },
   "select-all-traditions": (el, ev) => { selectAllTraditions(); },
   "deselect-all-traditions": (el, ev) => { deselectAllTraditions(); },
+  "open-selection-list-modal": (el, ev) => { openSelectionListModal(); },
   "toggle-panel": (el, ev) => { togglePanel('pathFinder'); },
   "show-custom-select-dropdown-focus": (el, ev) => { showCustomSelectDropdown('source'); },
   "filter-custom-select-input": (el, ev) => { filterCustomSelect('source', el.value); },
@@ -89,6 +91,7 @@ registerActions({
   "mark-all-notifications-read": (el, ev) => { markAllNotificationsRead(); },
   "rebuild-over-current": (el, ev) => { rebuildOverCurrent(); },
   "close-conflict-modal": (el, ev) => { closeConflictModal(); },
+  "close-selection-list-modal": (el, ev) => { closeSelectionListModal(); },
   "handle-stats-parameter-change-change": (el, ev) => { handleStatsParameterChange(); },
   "handle-stats-parameter-change-change-2": (el, ev) => { handleStatsParameterChange(); },
   "handle-metrics-scope-change-change": (el, ev) => { handleMetricsScopeChange(); },

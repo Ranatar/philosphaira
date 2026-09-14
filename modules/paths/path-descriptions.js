@@ -59,7 +59,7 @@ function showPathDescriptionsModal() {
           <h4 class="path-open" data-act-click="open-concept-by-id-2" data-a1="${node.id}"
               data-tip="Открыть окно концепции">${role}: ${node.label}</h4>
           <div class="philosopher-tag" style="background: ${color}; color: ${getContrastColor(color)}"
-               data-act-click="open-universal-modal-13" data-a1="${node.concept}"
+               data-act-click="open-universal-modal-16" data-a1="${node.concept}"
                data-tip="Открыть окно философа">
             ${node.concept}${phil ? ' · ' + phil.years : ''}
           </div>
@@ -96,7 +96,7 @@ function showPathDescriptionsModal() {
           html += `
             <div class="path-description-item">
               <div class="path-description-header path-open"
-                   data-act-click="open-universal-modal-14" data-a1="${src}" data-a2="${tgt}"
+                   data-act-click="open-universal-modal-17" data-a1="${src}" data-a2="${tgt}"
                    data-tip="Открыть окно связи">
                 <span class="path-description-nodes">${currentNode.label}</span>
                 <span class="path-description-arrow" style="color: ${linkColor};">${arrow}</span>
