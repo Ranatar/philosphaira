@@ -920,7 +920,8 @@
   "provenanceState": "modal/selection-list.js",
   "PROVENANCE_LABELS": "modal/selection-list.js",
   "setSelectionProvenance": "modal/selection-list.js",
-  "toggleSelectionBodies": "modal/selection-list.js"
+  "toggleSelectionBodies": "modal/selection-list.js",
+  "directionMark": "core/link-facts.js"
  },
  "новые": [
   "BUS_PHASES"

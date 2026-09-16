@@ -1,17 +1,17 @@
 {
  "меры": {
   "модулей": 129,
-  "строк": 20803,
-  "объявлений": 836,
-  "вывозов": 584,
-  "рёбер": 806,
+  "строк": 20833,
+  "объявлений": 837,
+  "вывозов": 586,
+  "рёбер": 810,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
-  "вывозовДляПриборов": 27,
+  "вывозовДляПриборов": 28,
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-09-14 16:39:49"
+  "составлено": "2026-09-16 08:20:34"
  },
  "модули": [
   {
@@ -1324,9 +1324,9 @@
   },
   {
    "путь": "modules/core/link-facts.js",
-   "строк": 54,
-   "объявлений": 8,
-   "вывозит": 8,
+   "строк": 61,
+   "объявлений": 9,
+   "вывозит": 9,
    "ввозитИз": 2,
    "вНС": {
     "DATA": 1,
@@ -1334,6 +1334,7 @@
    },
    "вывоз": [
     "buildReflexiveMap",
+    "directionMark",
     "isReflexiveLink",
     "isSymmetricLink",
     "isTypologicalLink",
@@ -1395,6 +1396,11 @@
      "имя": "otherPhilosopher",
      "вид": "function",
      "строк": 4
+    },
+    {
+     "имя": "directionMark",
+     "вид": "function",
+     "строк": 6
     }
    ],
    "чащеВсего": [
@@ -7321,7 +7327,7 @@
    "строк": 635,
    "объявлений": 4,
    "вывозит": 1,
-   "ввозитИз": 14,
+   "ввозитИз": 15,
    "вНС": {
     "DATA": 6,
     "VIEWS": 1
@@ -7349,6 +7355,12 @@
       "philosopherByName",
       "rubricById",
       "traditionById"
+     ]
+    },
+    {
+     "откуда": "modules/core/link-facts.js",
+     "имена": [
+      "directionMark"
      ]
     },
     {
@@ -7883,10 +7895,10 @@
   },
   {
    "путь": "modules/modal/selection-list.js",
-   "строк": 234,
+   "строк": 251,
    "объявлений": 21,
-   "вывозит": 10,
-   "ввозитИз": 5,
+   "вывозит": 11,
+   "ввозитИз": 7,
    "вНС": {
     "DATA": 5
    },
@@ -7896,6 +7908,7 @@
     "provenanceState",
     "renderSelectionList",
     "selectionListMore",
+    "selectionListOpenBlocks",
     "selectionListSets",
     "setSelectionProvenance",
     "toggleSelectionBlock",
@@ -7920,10 +7933,23 @@
      ]
     },
     {
+     "откуда": "modules/core/link-facts.js",
+     "имена": [
+      "directionMark"
+     ]
+    },
+    {
      "откуда": "modules/core/visibility.js",
      "имена": [
       "isLinkVisible",
       "isNodeVisible"
+     ]
+    },
+    {
+     "откуда": "modules/render/simulation.js",
+     "имена": [
+      "freezeSimulation",
+      "unfreezeSimulation"
      ]
     },
     {
@@ -7987,12 +8013,12 @@
     {
      "имя": "openSelectionListModal",
      "вид": "function",
-     "строк": 7
+     "строк": 12
     },
     {
      "имя": "closeSelectionListModal",
      "вид": "function",
-     "строк": 3
+     "строк": 4
     },
     {
      "имя": "toggleSelectionBlock",
@@ -8027,12 +8053,12 @@
     {
      "имя": "selectionRowConcept",
      "вид": "function",
-     "строк": 15
+     "строк": 16
     },
     {
      "имя": "selectionRowRelation",
      "вид": "function",
-     "строк": 21
+     "строк": 29
     },
     {
      "имя": "renderSelectionList",
@@ -8043,7 +8069,7 @@
    "чащеВсего": [
     {
      "имя": "escapeAttr",
-     "раз": 17,
+     "раз": 19,
      "откуда": "modules/util/html.js"
     },
     {
@@ -8052,19 +8078,19 @@
      "откуда": "modules/core/ns.js"
     },
     {
+     "имя": "conceptById",
+     "раз": 2,
+     "откуда": "modules/core/graph-index.js"
+    },
+    {
+     "имя": "directionMark",
+     "раз": 2,
+     "откуда": "modules/core/link-facts.js"
+    },
+    {
      "имя": "isNodeVisible",
      "раз": 1,
      "откуда": "modules/core/visibility.js"
-    },
-    {
-     "имя": "isLinkVisible",
-     "раз": 1,
-     "откуда": "modules/core/visibility.js"
-    },
-    {
-     "имя": "conceptById",
-     "раз": 1,
-     "откуда": "modules/core/graph-index.js"
     }
    ]
   },
@@ -13916,10 +13942,10 @@
   },
   {
    "путь": "modules/ui/search-link.js",
-   "строк": 129,
+   "строк": 135,
    "объявлений": 7,
    "вывозит": 5,
-   "ввозитИз": 11,
+   "ввозитИз": 12,
    "вНС": {
     "DATA": 3,
     "S": 2
@@ -13951,6 +13977,12 @@
      "откуда": "modules/core/graph-index.js",
      "имена": [
       "conceptById"
+     ]
+    },
+    {
+     "откуда": "modules/core/link-facts.js",
+     "имена": [
+      "directionMark"
      ]
     },
     {
@@ -14023,7 +14055,7 @@
     {
      "имя": "showFoundLinks",
      "вид": "function",
-     "строк": 28
+     "строк": 33
     },
     {
      "имя": "highlightLinkOnGraph",
@@ -14561,12 +14593,12 @@
    "ввозятИзНего": 57
   },
   {
-   "модуль": "modules/core/events.js",
-   "ввозятИзНего": 22
+   "модуль": "modules/core/link-facts.js",
+   "ввозятИзНего": 23
   },
   {
-   "модуль": "modules/core/link-facts.js",
-   "ввозятИзНего": 20
+   "модуль": "modules/core/events.js",
+   "ввозятИзНего": 22
   },
   {
    "модуль": "modules/render/canvas-core.js",
@@ -14700,6 +14732,11 @@
    "имя": "renderSelectionList",
    "модуль": "modules/modal/selection-list.js",
    "внутри": 6
+  },
+  {
+   "имя": "selectionListOpenBlocks",
+   "модуль": "modules/modal/selection-list.js",
+   "внутри": 4
   },
   {
    "имя": "selectionListSets",

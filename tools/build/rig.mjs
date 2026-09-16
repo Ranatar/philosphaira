@@ -49,7 +49,8 @@ traditionMembers resetTradition syncTraditionRows
 toggleEntityHistory renderEntityHistory revertEntityToVersion deleteObservation
 openSelectionListModal closeSelectionListModal renderSelectionList
 toggleSelectionBlock toggleSelectionBody selectionListMore selectionListSets
-toggleSelectionBodies setSelectionProvenance provenanceState`.split(/\s+/).filter(Boolean);
+toggleSelectionBodies setSelectionProvenance provenanceState directionMark
+selectionListOpenBlocks`.split(/\s+/).filter(Boolean);
 
 // ГДЕ ЧТО ВЫВОЗИТСЯ и ЧТО ПЕРЕПРИСВАИВАЕТСЯ.
 //

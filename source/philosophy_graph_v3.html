@@ -102,7 +102,12 @@
          нижний край ровно на их сумму (замер: 22 точки). box-sizing
          укладывает их внутрь — та же ошибка, что была у описаний связей. */
       box-sizing: border-box;
-      overflow-y: auto;
+      /* Прокрутка переехала на #legendScroll: подвал со сводкой отбора и
+         кнопкой списка должен оставаться на виду, а прилипание требовало
+         бы непрозрачной краски поверх градиента — см. .legend-footer. */
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
       z-index: 1;
     }
     
@@ -2473,6 +2478,14 @@
       flex: none; background: none; border: none; cursor: pointer;
       color: var(--fg-muted); font-size: 10px; padding: 2px 4px;
     }
+    /* Подпись видна всегда — по образцу окна философа, где короткое
+       описание стоит под именем. Одна строка с многоточием: список должен
+       оставаться списком, а не превращаться в сплошной текст. */
+    .sel-caption {
+      margin-left: 17px; font-size: 11px; color: var(--fg-muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
     .sel-body {
       margin: 4px 0 2px 17px; font-size: 12px; line-height: 1.5;
       color: var(--fg-dim, #c8c8d4); white-space: pre-wrap;
@@ -2510,18 +2523,31 @@
       border: 1px dashed var(--accent, #6c5ce7);
     }
 
-    /* Низ панели легенды прилипает: сводка отбора и кнопка списка нужны
-       всегда, а лежали в конце длинной прокрутки.
-       ФОН — --surface-solid, А НЕ --panel-bg: последней переменной НЕ
-       СУЩЕСТВУЕТ ВОВСЕ (она встречается в одном месте стилей и нигде не
-       объявлена), поэтому применялся запасной цвет #1b1b24 — заметно серее
-       панели. Непрозрачность нужна по существу: подвал прилипший, и под ним
-       проезжает прокручиваемое содержимое. */
+    /* ПОДВАЛ ЛЕГЕНДЫ НЕ КРАСИТСЯ ВОВСЕ — он вынесен ИЗ ПРОКРУТКИ.
+       Прилипающий подвал обязан быть непрозрачным: под ним проезжает
+       содержимое. Но панель залита ГРАДИЕНТОМ (--surface-gradient, 135°),
+       и любая плоская краска расходится с ним тем заметнее, чем ниже: у
+       низа панели градиент идёт к #1b1728, а --surface-solid — это его
+       средняя точка #0d0b13. Подбирать цвет под градиент — бесконечное
+       занятие: он меняется с высотой окна.
+       Поэтому правка устройства, а не краски: легенда стала колонкой,
+       прокручивается её середина, а подвал — обычный последний ребёнок
+       вне прокрутки. Красить нечего: под ним ничего не проезжает, и он
+       залит тем же градиентом панели, что и всё остальное. */
     .legend-footer {
-      position: sticky; bottom: 0;
-      background: var(--surface-solid);
-      padding-top: 4px;
+      flex: none;
+      padding-top: 6px;
       margin-top: 6px;
+      border-top: 1px solid var(--border-color);
+    }
+    /* Прокручивается СЕРЕДИНА, а не вся панель. min-height: 0 обязателен —
+       без него flex не даёт колонке сжаться, и прокрутки не возникает. */
+    #legendScroll {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+      margin-right: -8px;   /* полоса прокрутки не отжимает содержимое */
+      padding-right: 8px;
     }
 
     #statsModal {
@@ -5088,6 +5114,10 @@
     
     <div id="legend">
       <h3>🔍 Фильтры и легенда</h3>
+      <!-- Прокручивается СЕРЕДИНА: заголовок сверху и подвал снизу остаются
+           на виду. Прежде прокручивалась вся панель, и сводка отбора
+           пряталась в конце. -->
+      <div id="legendScroll">
       
       <div id="legendSearch">
         <button id="searchToggle" class="legend-search-toggle" onclick="toggleLegendSearch()"
@@ -5315,6 +5345,8 @@
            («показано 44 из 718 — а какие именно?»), и смысл кнопки берётся
            из соседства, а не из подписи. Статистика — про весь граф и про
            метрики; это — про нынешний отбор. Разный предмет. -->
+      </div><!-- /legendScroll -->
+
       <div class="legend-footer">
         <div class="filter-stats" id="filterStats">
           Показано: все концепции и связи
@@ -25403,7 +25435,12 @@
       box.innerHTML = found.map((l, k) => {
         const t = relationTypesObj[l.type] || {};
         const a = l.source.id || l.source;
-        const arrow = l.bidirectional ? '↔' : (a === from.id ? '→' : '←');
+        // Возвратная связь получает '↻' (directionMark), а направление
+        // «от кого смотрим» остаётся: здесь список показан ОТ одной
+        // концепции, и '←' значит «связь идёт к ней», а не от неё.
+        const arrow = (l.source.id || l.source) === (l.target.id || l.target)
+          ? directionMark(l)
+          : (l.bidirectional ? '↔' : (a === from.id ? '→' : '←'));
         return `
           <div class="concept-row" onclick="highlightLinkOnGraph('${from.id}', '${to.id}', ${k})">
             <div class="concept-row-color" style="background:${t.color || '#6c5ce7'};"></div>
@@ -32203,12 +32240,18 @@
       selectionListShown = { philosopher: SELECTION_LIST_CHUNK,
                              concept: SELECTION_LIST_CHUNK,
                              relation: SELECTION_LIST_CHUNK };
+      // ЗАМОРОЗКА, КАК У ПРОЧИХ ПОЛНОЭКРАННЫХ ОКОН (статистика, описания
+      // пути). Граф под окном не виден вовсе, а укладка продолжала считать
+      // кадры и перерисовывать холст — работа вхолостую, и заметная: окно
+      // строит до 1300 строк, и делить с ним кадры незачем.
+      freezeSimulation();
       document.getElementById('selectionListModal').classList.add('active');
       renderSelectionList();
     }
 
     function closeSelectionListModal() {
       document.getElementById('selectionListModal').classList.remove('active');
+      unfreezeSimulation();
     }
 
     function toggleSelectionBlock(kind) {
@@ -32253,6 +32296,24 @@
       renderSelectionList();
     }
 
+    /**
+     * ЗНАК НАПРАВЛЕННОСТИ. Видов три, а не два: односторонняя, взаимная и
+     * ВОЗВРАТНАЯ — связь концепции с самой собой. Таких в базе 35, и до
+     * сих пор они рисовались обычной стрелкой «А → А»: вид, который
+     * читается как ошибка данных, а не как петля.
+     *
+     * Правило было записано в четырёх местах порознь (search-link,
+     * philosopher-view дважды, selection-list) и везде одинаково неполно:
+     * `bidirectional ? '↔' : '→'`. Отсюда общая функция: три вида в одном
+     * месте, и следующее место возьмёт её, а не перепишет в пятый раз.
+     */
+    function directionMark(l) {
+      const s = l.source.id || l.source;
+      const t = l.target.id || l.target;
+      if (s === t) return '↻';          // возвратная: сама на себя
+      return l.bidirectional ? '↔' : '→';
+    }
+
     // Имя концепции по её идентификатору. Указатель conceptById строится
     // в rebuildIndexes и держится в согласии с базой; линейный поиск по
     // nodes здесь дал бы 5440 проходов на один показ блока связей.
@@ -32273,10 +32334,17 @@
             <span class="sel-meta">${escapeAttr(p.years || '')} · концепций в отборе ${selectionPhilCount[p.nameRu] || 0}</span>
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(p.description || '')}</div>` : ''}
+          ${openBody ? `<div class="sel-body">${escapeAttr(p.description || 'Описания нет')}</div>` : ''}
         </div>`;
     }
 
+    /**
+     * ПОДПИСЬ ВИДНА ВСЕГДА, РАЗВОРАЧИВАЕТСЯ ПРОСТРАННОЕ — по образцу окна
+     * философа, где у концепции короткое описание стоит под именем, а
+     * кнопка открывает extendedDescription. Прежде здесь пряталось и то и
+     * другое разом, и свёрнутый список был рядом имён без смысла: чтобы
+     * понять, о чём концепция, приходилось разворачивать каждую.
+     */
     function selectionRowConcept(n) {
       const bodyKey = 'concept:' + n.id;
       const openBody = selectionListOpenBodies.has(bodyKey);
@@ -32289,10 +32357,18 @@
             <span class="sel-meta">${escapeAttr(n.concept)}</span>
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(n.description || '')}</div>` : ''}
+          <div class="sel-caption">${escapeAttr(n.description || '')}</div>
+          ${openBody ? `<div class="sel-body">${escapeAttr(n.extendedDescription || 'Пространного описания нет')}</div>` : ''}
         </div>`;
     }
 
+    /**
+     * ФИЛОСОФЫ НАЗВАНЫ У ОБОИХ КОНЦОВ. Без них строка связи нечитаема:
+     * «Идея блага → Единое» ничего не говорит о том, между чьими системами
+     * эта связь идёт, а именно это и есть главный вопрос к связи. В окне
+     * концепции и в поиске философ стоит второй строкой (concept-row-phil);
+     * здесь он поставлен под именами, чтобы строка оставалась одной.
+     */
     function selectionRowRelation(l) {
       const s = l.source.id || l.source;
       const t = l.target.id || l.target;
@@ -32303,15 +32379,23 @@
       // relationTypes['influence'] вернул бы undefined, и тип связи пропал
       // бы из строки, ничего об этом не сказав.
       const linkType = relationTypesObj[l.type] || {};
+      const philOf = id => { const n = conceptById.get(id); return n ? n.concept : ''; };
+      const sPhil = philOf(s);
+      const tPhil = philOf(t);
+      // У возвратной связи оба конца — одна концепция, и повторять философа
+      // дважды незачем.
+      const caption = s === t ? sPhil
+        : (sPhil === tPhil ? sPhil : sPhil + ' ' + directionMark(l) + ' ' + tPhil);
       return `
         <div class="sel-row">
           <div class="sel-row-head">
             <span class="sel-dot" style="background:${linkType.color || 'var(--fg-muted)'};"></span>
-            <span class="sel-name" onclick="openUniversalModal('connection', links.find(x => (x.source.id||x.source) === '${escapeAttr(s)}' && (x.target.id||x.target) === '${escapeAttr(t)}'), 'view')">${escapeAttr(selectionLabel(s))} ${l.bidirectional ? '↔' : '→'} ${escapeAttr(selectionLabel(t))}</span>
+            <span class="sel-name" onclick="openUniversalModal('connection', links.find(x => (x.source.id||x.source) === '${escapeAttr(s)}' && (x.target.id||x.target) === '${escapeAttr(t)}'), 'view')">${escapeAttr(selectionLabel(s))} ${directionMark(l)} ${escapeAttr(selectionLabel(t))}</span>
             <span class="sel-meta">${escapeAttr(linkType.label || l.type)} · вес ${l.weight}</span>
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(l.description || '')}</div>` : ''}
+          <div class="sel-caption">${escapeAttr(caption)}</div>
+          ${openBody ? `<div class="sel-body">${escapeAttr(l.description || 'Описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -44106,7 +44190,7 @@
           internalConnections.forEach(({ conn, srcNode, tgtNode }) => {
             const linkColor = relationTypesObj[conn.type].color;
             const linkLabel = relationTypesObj[conn.type].label;
-            const arrow = conn.bidirectional ? '↔' : '→';
+            const arrow = directionMark(conn);
             
             html += `
               <div class="connection-item">
@@ -44153,7 +44237,7 @@
           externalConnectionsData.forEach(({ conn, srcNode, tgtNode }) => {
             const linkColor = relationTypesObj[conn.type].color;
             const linkLabel = relationTypesObj[conn.type].label;
-            const arrow = conn.bidirectional ? '↔' : '→';
+            const arrow = directionMark(conn);
             
             html += `
               <div class="connection-item">

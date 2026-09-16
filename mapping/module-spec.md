@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 129 модулей, 20803 строк.
+Составлено из готовой сборки: 129 модулей, 20833 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -50,7 +50,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
 | `modules/core/events.js` | 65 | 2 | 0 |
 | `modules/core/graph-index.js` | 160 | 10 | 1 |
-| `modules/core/link-facts.js` | 54 | 8 | 2 |
+| `modules/core/link-facts.js` | 61 | 9 | 2 |
 | `modules/core/long-task.js` | 120 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
 | `modules/core/perms.js` | 28 | 3 | 0 |
@@ -109,12 +109,12 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/history.js` | 114 | 4 | 5 |
 | `modules/modal/integrity.js` | 265 | 7 | 7 |
 | `modules/modal/persist.js` | 450 | 6 | 14 |
-| `modules/modal/philosopher-view.js` | 635 | 1 | 14 |
+| `modules/modal/philosopher-view.js` | 635 | 1 | 15 |
 | `modules/modal/profile-concept.js` | 182 | 4 | 8 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
 | `modules/modal/security.js` | 116 | 4 | 4 |
-| `modules/modal/selection-list.js` | 234 | 10 | 5 |
+| `modules/modal/selection-list.js` | 251 | 11 | 7 |
 | `modules/modal/users.js` | 97 | 7 | 3 |
 | `modules/paths/analysis.js` | 74 | 2 | 7 |
 | `modules/paths/chronology.js` | 175 | 6 | 4 |
@@ -165,7 +165,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/ui/notifications.js` | 99 | 8 | 2 |
 | `modules/ui/panels.js` | 40 | 2 | 0 |
 | `modules/ui/search-legend.js` | 141 | 6 | 16 |
-| `modules/ui/search-link.js` | 129 | 5 | 10 |
+| `modules/ui/search-link.js` | 135 | 5 | 11 |
 | `modules/ui/search-philosopher.js` | 98 | 6 | 5 |
 | `modules/util/color.js` | 23 | 1 | 0 |
 | `modules/util/html.js` | 41 | 3 | 0 |
@@ -454,16 +454,16 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/link-facts.js`
 
-Строк 54.
+Строк 61.
 
-**Вывозит:** `buildReflexiveMap`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+**Вывозит:** `buildReflexiveMap`, `directionMark`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 
 **Ввозит:**
 
 - из `./ns.js`: `DATA`, `S`
 - из `./graph-index.js`: _ради побочного действия_
 
-**Содержит:** `buildReflexiveMap`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+**Содержит:** `buildReflexiveMap`, `directionMark`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 
 ### `modules/core/long-task.js`
 
@@ -1362,6 +1362,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
 - из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `rubricById`, `traditionById`
+- из `../core/link-facts.js`: `directionMark`
 - из `../core/perms.js`: `PERM`, `can`
 - из `../metrics/similarity-philosophers.js`: `nearestPhilosophers`
 - из `./connection-view.js`: `linkArrow`
@@ -1444,15 +1445,17 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/selection-list.js`
 
-Строк 234.
+Строк 251.
 
-**Вывозит:** `closeSelectionListModal`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionListMore`, `selectionListSets`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
+**Вывозит:** `closeSelectionListModal`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionListMore`, `selectionListOpenBlocks`, `selectionListSets`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
 - из `../core/graph-index.js`: `conceptById`
+- из `../core/link-facts.js`: `directionMark`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
+- из `../render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
 - из `../util/html.js`: `escapeAttr`
 - из `../core/graph-index.js`: _ради побочного действия_
 
@@ -2323,7 +2326,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/search-link.js`
 
-Строк 129.
+Строк 135.
 
 **Вывозит:** `clearLinkSearch`, `handleLegendLinkSearch`, `highlightLinkOnGraph`, `openLegendLinkSearch`, `pickLinkEnd`
 
@@ -2331,6 +2334,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/graph-index.js`: `conceptById`
+- из `../core/link-facts.js`: `directionMark`
 - из `../core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
 - из `../render/canvas-core.js`: `gfxSvg`
 - из `../render/d3-layer.js`: `gfxZoom`
