@@ -2,8 +2,10 @@
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
 import { conceptById } from '../core/graph-index.js';
+import { directionMark } from '../core/link-facts.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
 
+import { freezeSimulation, unfreezeSimulation } from '../render/simulation.js';
 import { escapeAttr } from '../util/html.js';
 
 let selectionListOpenBlocks = new Set();
@@ -80,12 +82,18 @@ function openSelectionListModal() {
       selectionListShown = { philosopher: SELECTION_LIST_CHUNK,
                              concept: SELECTION_LIST_CHUNK,
                              relation: SELECTION_LIST_CHUNK };
+      // ЗАМОРОЗКА, КАК У ПРОЧИХ ПОЛНОЭКРАННЫХ ОКОН (статистика, описания
+      // пути). Граф под окном не виден вовсе, а укладка продолжала считать
+      // кадры и перерисовывать холст — работа вхолостую, и заметная: окно
+      // строит до 1300 строк, и делить с ним кадры незачем.
+      freezeSimulation();
       document.getElementById('selectionListModal').classList.add('active');
       renderSelectionList();
     }
 
 function closeSelectionListModal() {
       document.getElementById('selectionListModal').classList.remove('active');
+      unfreezeSimulation();
     }
 
 function toggleSelectionBlock(kind) {
@@ -134,7 +142,7 @@ function selectionRowPhilosopher(p) {
             <span class="sel-meta">${escapeAttr(p.years || '')} · концепций в отборе ${selectionPhilCount[p.nameRu] || 0}</span>
             <button class="sel-toggle" data-act-click="toggle-selection-body" data-a1="${escapeAttr(bodyKey)}">${openBody ? '▲' : '▼'}</button>
           </div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(p.description || '')}</div>` : ''}
+          ${openBody ? `<div class="sel-body">${escapeAttr(p.description || 'Описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -150,7 +158,8 @@ function selectionRowConcept(n) {
             <span class="sel-meta">${escapeAttr(n.concept)}</span>
             <button class="sel-toggle" data-act-click="toggle-selection-body" data-a1="${escapeAttr(bodyKey)}">${openBody ? '▲' : '▼'}</button>
           </div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(n.description || '')}</div>` : ''}
+          <div class="sel-caption">${escapeAttr(n.description || '')}</div>
+          ${openBody ? `<div class="sel-body">${escapeAttr(n.extendedDescription || 'Пространного описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -164,15 +173,23 @@ function selectionRowRelation(l) {
       // relationTypes['influence'] вернул бы undefined, и тип связи пропал
       // бы из строки, ничего об этом не сказав.
       const linkType = DATA.relationTypesObj[l.type] || {};
+      const philOf = id => { const n = conceptById.get(id); return n ? n.concept : ''; };
+      const sPhil = philOf(s);
+      const tPhil = philOf(t);
+      // У возвратной связи оба конца — одна концепция, и повторять философа
+      // дважды незачем.
+      const caption = s === t ? sPhil
+        : (sPhil === tPhil ? sPhil : sPhil + ' ' + directionMark(l) + ' ' + tPhil);
       return `
         <div class="sel-row">
           <div class="sel-row-head">
             <span class="sel-dot" style="background:${linkType.color || 'var(--fg-muted)'};"></span>
-            <span class="sel-name" data-act-click="open-universal-modal-15" data-a1="${escapeAttr(s)}" data-a2="${escapeAttr(t)}">${escapeAttr(selectionLabel(s))} ${l.bidirectional ? '↔' : '→'} ${escapeAttr(selectionLabel(t))}</span>
+            <span class="sel-name" data-act-click="open-universal-modal-15" data-a1="${escapeAttr(s)}" data-a2="${escapeAttr(t)}">${escapeAttr(selectionLabel(s))} ${directionMark(l)} ${escapeAttr(selectionLabel(t))}</span>
             <span class="sel-meta">${escapeAttr(linkType.label || l.type)} · вес ${l.weight}</span>
             <button class="sel-toggle" data-act-click="toggle-selection-body" data-a1="${escapeAttr(bodyKey)}">${openBody ? '▲' : '▼'}</button>
           </div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(l.description || '')}</div>` : ''}
+          <div class="sel-caption">${escapeAttr(caption)}</div>
+          ${openBody ? `<div class="sel-body">${escapeAttr(l.description || 'Описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -230,4 +247,4 @@ function renderSelectionList() {
       }).join('');
     }
 
-export { closeSelectionListModal, openSelectionListModal, provenanceState, renderSelectionList, selectionListMore, selectionListSets, setSelectionProvenance, toggleSelectionBlock, toggleSelectionBodies, toggleSelectionBody };
+export { closeSelectionListModal, openSelectionListModal, provenanceState, renderSelectionList, selectionListMore, selectionListOpenBlocks, selectionListSets, setSelectionProvenance, toggleSelectionBlock, toggleSelectionBodies, toggleSelectionBody };

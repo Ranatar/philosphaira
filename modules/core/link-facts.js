@@ -50,4 +50,11 @@ function otherPhilosopher(r, conceptId) {
       return other ? S._philosopherMap.get(other.philosopher) : null;
     }
 
-export { buildReflexiveMap, isReflexiveLink, isSymmetricLink, isTypologicalLink, linksBothWays, otherPhilosopher, reflexiveLinkOf, sumWeight };
+function directionMark(l) {
+      const s = l.source.id || l.source;
+      const t = l.target.id || l.target;
+      if (s === t) return '↻';          // возвратная: сама на себя
+      return l.bidirectional ? '↔' : '→';
+    }
+
+export { buildReflexiveMap, directionMark, isReflexiveLink, isSymmetricLink, isTypologicalLink, linksBothWays, otherPhilosopher, reflexiveLinkOf, sumWeight };

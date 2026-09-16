@@ -3,6 +3,7 @@ import { DATA, S } from '../core/ns.js';
 import d3 from '../../vendor/d3.js';
 import '../core/graph-index.js';
 import { conceptById } from '../core/graph-index.js';
+import { directionMark } from '../core/link-facts.js';
 import { emptyList, pickConcepts, rowInner } from '../core/search.js';
 import { gfxSvg } from '../render/canvas-core.js';
 import { gfxZoom } from '../render/d3-layer.js';
@@ -76,7 +77,12 @@ function showFoundLinks() {
       box.innerHTML = found.map((l, k) => {
         const t = DATA.relationTypesObj[l.type] || {};
         const a = l.source.id || l.source;
-        const arrow = l.bidirectional ? '↔' : (a === from.id ? '→' : '←');
+        // Возвратная связь получает '↻' (directionMark), а направление
+        // «от кого смотрим» остаётся: здесь список показан ОТ одной
+        // концепции, и '←' значит «связь идёт к ней», а не от неё.
+        const arrow = (l.source.id || l.source) === (l.target.id || l.target)
+          ? directionMark(l)
+          : (l.bidirectional ? '↔' : (a === from.id ? '→' : '←'));
         return `
           <div class="concept-row" data-act-click="highlight-link-on-graph" data-a1="${from.id}" data-a2="${to.id}" data-a3="${k}">
             <div class="concept-row-color" style="background:${t.color || '#6c5ce7'};"></div>

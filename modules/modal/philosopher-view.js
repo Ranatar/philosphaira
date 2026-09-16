@@ -2,7 +2,7 @@
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
 import { conceptById, nodesByPhilosopher, philosopherByName, rubricById, traditionById } from '../core/graph-index.js';
-
+import { directionMark } from '../core/link-facts.js';
 import { PERM, can } from '../core/perms.js';
 import { nearestPhilosophers } from '../metrics/similarity-philosophers.js';
 import { linkArrow } from './connection-view.js';
@@ -461,7 +461,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
           internalConnections.forEach(({ conn, srcNode, tgtNode }) => {
             const linkColor = DATA.relationTypesObj[conn.type].color;
             const linkLabel = DATA.relationTypesObj[conn.type].label;
-            const arrow = conn.bidirectional ? '↔' : '→';
+            const arrow = directionMark(conn);
             
             html += `
               <div class="connection-item">
@@ -508,7 +508,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
           externalConnectionsData.forEach(({ conn, srcNode, tgtNode }) => {
             const linkColor = DATA.relationTypesObj[conn.type].color;
             const linkLabel = DATA.relationTypesObj[conn.type].label;
-            const arrow = conn.bidirectional ? '↔' : '→';
+            const arrow = directionMark(conn);
             
             html += `
               <div class="connection-item">

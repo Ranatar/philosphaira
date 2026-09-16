@@ -55,6 +55,10 @@
     
     <div id="legend">
       <h3>🔍 Фильтры и легенда</h3>
+      <!-- Прокручивается СЕРЕДИНА: заголовок сверху и подвал снизу остаются
+           на виду. Прежде прокручивалась вся панель, и сводка отбора
+           пряталась в конце. -->
+      <div id="legendScroll">
       
       <div id="legendSearch">
         <button id="searchToggle" class="legend-search-toggle" data-act-click="toggle-legend-search"
@@ -282,6 +286,8 @@
            («показано 44 из 718 — а какие именно?»), и смысл кнопки берётся
            из соседства, а не из подписи. Статистика — про весь граф и про
            метрики; это — про нынешний отбор. Разный предмет. -->
+      </div><!-- /legendScroll -->
+
       <div class="legend-footer">
         <div class="filter-stats" id="filterStats">
           Показано: все концепции и связи
