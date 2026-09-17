@@ -270,8 +270,13 @@ const В_БРАУЗЕРЕ = async (медленно) => {
       замерить(шестёрки((a, b) => A.profileSimilarity(ids[a], ids[b]), годен), N);
     итог.меры['приложение: структура'] =
       замерить(шестёрки((a, b) => A.structuralSimilarity(ids[a], ids[b]).jaccard, null), N);
+    // С 2026-09-17 типы — отдельная мера с двойным центрированием, а место
+    // в сети — четвёртый вид; сеть досчитывается асинхронно, её ждём явно.
     итог.меры['приложение: типы'] =
-      замерить(шестёрки((a, b) => A.structuralSimilarity(ids[a], ids[b]).typeCosine, null), N);
+      замерить(шестёрки((a, b) => A.typeStyleSimilarity(ids[a], ids[b]), null), N);
+    if (!(await A.ensureNetworkProfile())) throw new Error('сетевые метрики не досчитались');
+    итог.меры['приложение: место в сети'] =
+      замерить(шестёрки((a, b) => A.networkSimilarity(ids[a], ids[b]), годен), N);
   }
   // типослепая: как в коде (симметричность читает тип) и вправду типослепо
   for (const [имя, типослепо, отсев] of [
@@ -361,7 +366,8 @@ if (страница.startsWith('_ref')) {
     for (const имя of ['profileSimilarity', 'structuralSimilarity', 'profileIsMeaningful',
                        'medianNodeDegree', 'nodeDegreeOf', 'isSymmetricLink',
                        'similarityData', 'initializePhilosophyMetrics',
-                       'philosopherSimilarity', 'philosopherSimilarityData']) {
+                       'philosopherSimilarity', 'philosopherSimilarityData',
+                       'typeStyleSimilarity', 'networkSimilarity', 'ensureNetworkProfile']) {
       const f = взять(имя);
       if (typeof f === 'function') A[имя] = (...a) => взять(имя)(...a);
     }

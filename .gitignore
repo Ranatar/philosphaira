@@ -6,3 +6,7 @@ app/_ref-orig.html
 server/node_modules/
 server/.env
 server/.env.local
+
+# Зависимости корня (npm install) и кэш байт-кода оснастки на Python.
+/node_modules/
+__pycache__/

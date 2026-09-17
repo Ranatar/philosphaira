@@ -5,7 +5,7 @@ import { emit } from '../core/events.js';
 import { conceptById } from '../core/graph-index.js';
 import { showTemporaryMessage } from '../core/long-task.js';
 import { initializePhilosophyMetrics } from '../metrics/link-indexes.js';
-import { _simCache, profileIsMeaningful, profileSimilarity, structuralSimilarity } from '../metrics/similarity-concepts.js';
+import { SIGNED_SIMILARITY, _simCache, ensureNetworkProfile, networkSimilarity, networkSimilarityData, profileIsMeaningful, profileSimilarity, similarityNeedsDegree, structuralSimilarity, typeStyleSimilarity } from '../metrics/similarity-concepts.js';
 import { requestDraw } from './loop.js';
 
 const SIMILARITY_KEEP_QUANTILE = 0.85;
@@ -28,6 +28,22 @@ function showSimilarityOverlay(sourceId, kind) {
       // быстрее полной матрицы пар, но не мгновенно, поэтому предупреждаем.
       if (!_simCache && typeof showTemporaryMessage === 'function') {
         showTemporaryMessage('Считаю метрики для карты сходства…', 1500);
+      }
+      if (kind === 'network' && !profileIsMeaningful(sourceId)) {
+        if (typeof showTemporaryMessage === 'function') {
+          showTemporaryMessage(
+            'У этой концепции слишком мало связей: её место в сети неотличимо от места '
+            + 'любой такой же. Попробуйте вид «по структуре» или «по типам связей».', 4000);
+        }
+        return;
+      }
+      if (kind === 'network' && !networkSimilarityData()) {
+        // Четыре сетевые метрики считаются порциями: карта откроется по готовности.
+        if (typeof showTemporaryMessage === 'function') {
+          showTemporaryMessage('Считаю сетевые метрики для карты сходства…', 2500);
+        }
+        ensureNetworkProfile().then(ok => { if (ok) showSimilarityOverlay(sourceId, kind); });
+        return;
       }
       if (kind === 'profile' && !profileIsMeaningful(sourceId)) {
         // ОТКАЗ ГРОМКИЙ, А НЕ МОЛЧАЛИВЫЙ. Первая редакция этой правки просто
@@ -65,7 +81,7 @@ function showSimilarityOverlay(sourceId, kind) {
         if (n.id === sourceId) continue;
         // Отсев вырожденных нужен только профилю: жаккар и косинус по типам
         // строятся не на z-нормированных метриках и к нулям нечувствительны.
-        if (kind === 'profile' && !profileIsMeaningful(n.id)) continue;
+        if (similarityNeedsDegree(kind) && !profileIsMeaningful(n.id)) continue;
         let v;
         if (kind === 'structure') {
           const st = structuralSimilarity(sourceId, n.id);
@@ -80,7 +96,11 @@ function showSimilarityOverlay(sourceId, kind) {
           // из трёх: −0,258 против −0,364 у жаккара и −0,474 у профиля.
           // Отчёт называет это «вдвое больше попаданий, чем у профиля» —
           // на деле 141 против 88, то есть в 1,6 раза; вывод тот же.
-          v = structuralSimilarity(sourceId, n.id).typeCosine;
+          // С 2026-09-17 доли дважды центрированы (typeStyleData): мера
+          // знаковая, и порог приглушения у неё теперь по квантилю.
+          v = typeStyleSimilarity(sourceId, n.id);
+        } else if (kind === 'network') {
+          v = networkSimilarity(sourceId, n.id) || 0;
         } else {
           v = profileSimilarity(sourceId, n.id);
         }
@@ -103,7 +123,7 @@ function showSimilarityOverlay(sourceId, kind) {
       // только настоящие нули: ненулевых соседей у медианного узла 43,
       // и все они содержательны.
       let dimBelow;
-      if (kind === 'structure' || kind === 'types') {
+      if (kind === 'structure') {
         dimBelow = 0;
       } else {
         const sorted = [...mags].sort((a, b) => a - b);
@@ -130,7 +150,7 @@ function nodeLitBySimilarity(id) {
       if (id === S.similarityOverlay.sourceId) return true;
       const v = S.similarityOverlay.values.get(id);
       if (v === undefined) return false;
-      return S.similarityOverlay.kind === 'profile'
+      return SIGNED_SIMILARITY.has(S.similarityOverlay.kind)
         ? Math.abs(v) >= S.similarityOverlay.dimBelow
         : v > 0;
     }
@@ -178,7 +198,7 @@ function updateSimilarityLegend() {
       }
       const src = conceptById.get(S.similarityOverlay.sourceId);
       const mode = S.similarityOverlay.kind;
-      const isProfile = mode === 'profile';
+      const isSigned = SIGNED_SIMILARITY.has(mode);
       const btn = (k, caption) =>
         `<button class="simleg-btn ${mode === k ? 'active' : ''}"
              data-act-click="show-similarity-overlay-2" data-a1="${S.similarityOverlay.sourceId}" data-a2="${k}">${caption}</button>`;
@@ -187,7 +207,8 @@ function updateSimilarityLegend() {
         <div class="simleg-mode">
           ${btn('profile', 'По профилю')}
           ${btn('structure', 'По структуре')}
-          ${btn('types', 'По типам')}
+          ${btn('types', 'По типам связей')}
+          ${btn('network', 'По месту в сети')}
         </div>
         <div class="simleg-links-title">Связи из базы</div>
         <div class="simleg-links" data-tip="Карта гасит все связи разом, чтобы рёбра не перетягивали внимание. «С источником» показывает, совпало ли сходство с прямым отношением; «между похожими» — сложилась ли подсвеченная часть в связную область">
@@ -197,17 +218,17 @@ function updateSimilarityLegend() {
             `<button class="simleg-lbtn ${(S.similarityOverlay.linkMode || 'none') === m ? 'active' : ''}"
                  data-act-click="set-similarity-links" data-a1="${m}">${label}${m === 'none' ? '' : ` <b>${n}</b>`}</button>`).join('')}
         </div>
-        <div class="simleg-scale ${isProfile ? '' : 'one-sided'}"></div>
+        <div class="simleg-scale ${isSigned ? '' : 'one-sided'}"></div>
         <div class="simleg-ticks">
-          <span>${isProfile ? '−' + S.similarityOverlay.rowMax.toFixed(2) : '0'}</span>
-          <span>${isProfile ? '0' : ''}</span>
+          <span>${isSigned ? '−' + S.similarityOverlay.rowMax.toFixed(2) : '0'}</span>
+          <span>${isSigned ? '0' : ''}</span>
           <span>${S.similarityOverlay.rowMax.toFixed(2)}</span>
         </div>
         <div class="simleg-hint">
           Шкала нормирована по этой концепции: край соответствует её
           максимальному сходству ${S.similarityOverlay.rowMax.toFixed(2)}.
           Показано ${[...S.similarityOverlay.values.values()].filter(v =>
-            isProfile ? Math.abs(v) >= S.similarityOverlay.dimBelow : v > 0).length}
+            isSigned ? Math.abs(v) >= S.similarityOverlay.dimBelow : v > 0).length}
           концепций из ${S.similarityOverlay.values.size}.
           Пунктиром — ${SIMILARITY_ARCS} ближайших. Заливка узла — цвет философа.
         </div>

@@ -1423,6 +1423,88 @@ if (модуль) {
     'побочная|обычная|несущая', о.словарьВеса);
 }
 
+// ── 10-бис-бис. четыре вида сходства концепций (2026-09-17) ─────────
+//
+// Типы связей переведены на двойное центрирование, добавлено место в сети.
+// Прежняя мера по типам светила на карте почти всё (674 узла из 717 у
+// связной концепции) — отсюда утверждение «меньше половины». Сетевая мера
+// асинхронна: утверждения проверяют, что она ДОЖИДАЕТСЯ и дорисовывается,
+// а не остаётся заглушкой.
+{
+  const о = await page.evaluate(async () => {
+    const A = window.__t, ждать = мс => new Promise(r => setTimeout(r, мс)), о = {};
+    const высокая = A.DATA.concepts.find(c => A.profileIsMeaningful(c.id));
+    const низкая = A.DATA.concepts.find(c => !A.profileIsMeaningful(c.id));
+    const готоваДо = !!A.networkSimilarityData();
+    A.openConceptById(высокая.id); await ждать(1500);
+    о.колонок = document.querySelectorAll('.similar-col').length;
+    // Окно не смеет запускать сетевые метрики само: фоновый расчёт меняет
+    // облик видов статистики, и итог приборов зависел бы от его скорости.
+    о.тихоНеЗапускает = готоваДо || !A.networkSimilarityData();
+    const кнопка = document.querySelector('#similarNetworkCol .similar-map-btn');
+    if (кнопка) кнопка.click();
+    о.сетьДождалась = await A.ensureNetworkProfile(); await ждать(500);
+    о.строкСети = document.querySelectorAll('#similarNetworkCol .similar-item').length;
+    A.closeUniversalModal(); await ждать(200);
+    A.openConceptById(низкая.id); await ждать(400);
+    const пусто = document.querySelector('#similarNetworkCol .similar-empty');
+    о.сетьМалой = пусто ? пусто.textContent : 'НЕТ ПОМЕТКИ';
+    A.closeUniversalModal(); await ждать(200);
+    о.виды = {};
+    for (const вид of ['profile', 'structure', 'types', 'network']) {
+      A.showSimilarityOverlay(высокая.id, вид); await ждать(500);
+      const панель = document.getElementById('similarityLegend');
+      const счёт = панель ? панель.querySelector('.simleg-hint').textContent.match(/Показано\s+(\d+)\s+концепций из\s+(\d+)/) : null;
+      о.виды[вид] = {
+        кнопок: панель ? панель.querySelectorAll('.simleg-btn').length : 0,
+        активна: панель ? (панель.querySelector('.simleg-btn.active') || {}).textContent : null,
+        двусторонняя: !!панель && !панель.querySelector('.simleg-scale.one-sided'),
+        доля: счёт ? +счёт[1] / +счёт[2] : null,
+      };
+      if (о.виды[вид].активна) о.виды[вид].активна = о.виды[вид].активна.trim();
+    }
+    A.clearSimilarityOverlay(); await ждать(200);
+    const п = A.similarityThresholds();
+    о.порогиУпорядочены = [п.profile, п.types, п.network].every(t => t && t.high > t.low);
+    const в = A.similarityVerdict(высокая.id, низкая.id);
+    о.строкВердикта = в.lines.length;
+    о.заголовок = в.headline;
+    document.querySelector('.open-stats-modal-btn').click(); await ждать(600);
+    A.switchStatsView('comparison'); await ждать(1200);
+    о.плиток = document.querySelectorAll('#cmpBody .cmp-score').length;
+    о.строкВОкне = document.querySelectorAll('#cmpBody .cmp-verdict-lines li').length;
+    A.switchStatsView('closest-pairs'); await ждать(300);
+    о.видовПар = [...document.querySelectorAll('.pairs-modes .pairs-btn')].map(b => b.id).join(',');
+    const закрыть = document.querySelector('.stats-close-btn[data-act-click="close-stats-modal"]');
+    if (закрыть) закрыть.click();
+    await ждать(300);
+    return о;
+  });
+  проверить('сетевые метрики для сходства досчитываются', о.сетьДождалась === true, true, о.сетьДождалась);
+  проверить('в окне концепции четыре колонки похожих', о.колонок === 4, 4, о.колонок);
+  проверить('окно концепции само не запускает сетевые метрики', о.тихоНеЗапускает === true, true, о.тихоНеЗапускает);
+  проверить('колонка «по месту в сети» дорисовывается по кнопке', о.строкСети > 0, '> 0', о.строкСети);
+  проверить('у малосвязной концепции место в сети помечено непоказательным',
+    /непоказательно/.test(о.сетьМалой), 'непоказательно', о.сетьМалой);
+  const подписи = { profile: 'По профилю', structure: 'По структуре', types: 'По типам связей', network: 'По месту в сети' };
+  for (const [вид, д] of Object.entries(о.виды)) {
+    проверить(`карта «${вид}»: четыре вида и выбран свой`,
+      д.кнопок === 4 && д.активна === подписи[вид], `4, ${подписи[вид]}`, `${д.кнопок}, ${д.активна}`);
+    проверить(`карта «${вид}»: шкала ${вид === 'structure' ? 'односторонняя' : 'двусторонняя'}`,
+      д.двусторонняя === (вид !== 'structure'), вид !== 'structure', д.двусторонняя);
+  }
+  проверить('карта по типам светит меньше половины концепций',
+    о.виды.types.доля !== null && о.виды.types.доля < 0.5, '< 0.5', о.виды.types.доля);
+  проверить('пороги вердикта упорядочены у трёх знаковых мер', о.порогиУпорядочены === true, true, о.порогиУпорядочены);
+  проверить('вердикт называет все четыре меры и заголовок',
+    о.строкВердикта === 4 && !!о.заголовок, '4 строки и заголовок', `${о.строкВердикта}, ${о.заголовок}`);
+  проверить('окно сравнения: четыре плитки и четыре строки вердикта',
+    о.плиток === 4 && о.строкВОкне === 4, '4 и 4', `${о.плиток} и ${о.строкВОкне}`);
+  проверить('близкие пары: четыре вида',
+    о.видовПар === 'pairsBtnProfile,pairsBtnStructure,pairsBtnTypes,pairsBtnNetwork',
+    'профиль, структура, типы, сеть', о.видовПар);
+}
+
 // ── 10-трет. строки традиций отвечают набору философов ─────────────
 //
 // Прежде отбор держался на ДВУХ независимых наборах: selectedPhilosophers

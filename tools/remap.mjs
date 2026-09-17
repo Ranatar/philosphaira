@@ -178,7 +178,7 @@ if (команда === 'где') {
   }
   console.log(execFileSync('node', [программа('check_modules.mjs')],
     { encoding: 'utf8' }).trim().split('\n').pop());
-  console.log('\nдальше — приёмка: приборы sweep_all, compare, graph_probe, probe4…probe8');
+  console.log('\nдальше — приёмка: bash tools/accept.sh');
 
 } else {
   console.log(fs.readFileSync(new URL(import.meta.url), 'utf8')

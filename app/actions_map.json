@@ -846,6 +846,13 @@
   "аргументов": 1,
   "откуда": "modules/modal/concept-view.js"
  },
+ "compute-similar-network-column": {
+  "код": "computeSimilarNetworkColumn('${conceptId}')",
+  "attr": "onclick",
+  "тело": "computeSimilarNetworkColumn(el.dataset.a1)",
+  "аргументов": 1,
+  "откуда": "modules/modal/concept-view.js"
+ },
  "show-similarity-overlay": {
   "код": "showSimilarityOverlay('${conceptId}','${mapKind}')",
   "attr": "onclick",
@@ -1574,6 +1581,20 @@
   "аргументов": 0,
   "откуда": "modules/stats/views/comparison.js"
  },
+ "render-closest-pairs-3": {
+  "код": "_pairsKind='types'; renderClosestPairs();",
+  "attr": "onclick",
+  "тело": "S._pairsKind='types'; renderClosestPairs()",
+  "аргументов": 0,
+  "откуда": "modules/stats/views/comparison.js"
+ },
+ "render-closest-pairs-4": {
+  "код": "_pairsKind='network'; renderClosestPairs();",
+  "attr": "onclick",
+  "тело": "S._pairsKind='network'; renderClosestPairs()",
+  "аргументов": 0,
+  "откуда": "modules/stats/views/comparison.js"
+ },
  "render-closest-pairs-input": {
   "код": "_pairsMinDegree=+this.value; renderClosestPairs();",
   "attr": "oninput",
@@ -1621,6 +1642,13 @@
   "attr": "oninput",
   "тело": "filterCustomSelect(el.dataset.a1, el.value)",
   "аргументов": 1,
+  "откуда": "modules/stats/views/comparison.js"
+ },
+ "compute-comparison-network": {
+  "код": "computeComparisonNetwork()",
+  "attr": "onclick",
+  "тело": "computeComparisonNetwork()",
+  "аргументов": 0,
   "откуда": "modules/stats/views/comparison.js"
  },
  "highlight-node-by-id-3": {

@@ -3010,7 +3010,7 @@
     .simleg-title {
       color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 8px;
     }
-    .simleg-mode { display: flex; gap: 6px; margin-bottom: 8px; }
+    .simleg-mode { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
     .simleg-links-title {
       color: rgba(255,255,255,0.55); font-size: 10px;
       text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;
@@ -3164,6 +3164,8 @@
     }
     .cmp-field .custom-select-wrapper { width: 100%; }
     .cmp-vs { color: rgba(255,255,255,0.45); font-size: 12px; padding-bottom: 9px; }
+    .cmp-verdict-lines { margin: 6px 0 0; padding-left: 18px; font-weight: normal; }
+    .cmp-verdict-lines li { margin: 2px 0; }
     .cmp-summary { display: flex; gap: 14px; flex-wrap: wrap; margin: 16px 0 10px 0; }
     .cmp-score {
       flex: 1 1 150px; padding: 12px 14px; border-radius: 10px;
@@ -30756,6 +30758,9 @@
     function invalidateSimilarityCache() {
       invalidatePhilosopherSimilarityCache();
       _simCache = null;
+      _typeStyleCache = null;
+      _netSimCache = null;
+      _simThresholdCache = null;
       _pairCache = null;
       _pairCalculating = false;
     }
@@ -30769,6 +30774,11 @@
     // Синхронный доступ: отдаёт готовый кеш либо null, если ещё не считали.
     // Тот же приём, что у calculateBetweenness.
     function allConceptPairs() {
+      // Сетевая мера зависит от переключателей: сменились метрики — устарела
+      // только её колонка, остальные три меры остаются годными.
+      if (_pairCache && _pairCache.netData && _pairCache.netData !== networkSimilarityData()) {
+        _pairCache.netData = null;
+      }
       return _pairCache;
     }
 
@@ -30778,7 +30788,7 @@
     const PAIRS_CHUNK_ROWS = 15;
 
     async function allConceptPairsAsync(progressCallback) {
-      if (_pairCache) return _pairCache;
+      if (allConceptPairs()) return _pairCache;
       if (_pairCalculating) return null;
       _pairCalculating = true;
 
@@ -30789,6 +30799,11 @@
         await new Promise(r => setTimeout(r, 0));
         const D = similarityData();
         const N = neighborSets();
+        const T = typeStyleData();
+        // Сеть НЕ ЖДЁМ: её метрики тяжелы и считаются только по явной просьбе
+        // (вид «по месту в сети»). Готовы — колонка заполнится сразу, нет —
+        // её досчитает fillPairsNetwork, когда вид выберут.
+        const W = networkSimilarityData();
         if (progressCallback) progressCallback(15);
         await new Promise(r => setTimeout(r, 0));
 
@@ -30798,6 +30813,7 @@
 
         const ia = new Uint16Array(total), ja = new Uint16Array(total);
         const pv = new Float32Array(total), jv = new Float32Array(total);
+        const tv = new Float32Array(total), nv = new Float32Array(total);
         const sh = new Uint16Array(total);
         const deg = ids.map(id => (N.get(id) || new Set()).size);
 
@@ -30808,6 +30824,8 @@
             let s = 0; const Vj = D.V[j];
             for (let m = 0; m < Vi.length; m++) s += Vi[m] * Vj[m];
             pv[k] = (ni && D.norms[j]) ? s / (ni * D.norms[j]) : 0;
+            tv[k] = normedDot(T.V[i], T.norms[i], T.V[j], T.norms[j]);
+            nv[k] = W ? normedDot(W.V[i], W.norms[i], W.V[j], W.norms[j]) : 0;
 
             const b = N.get(ids[j]);
             let inter = 0;
@@ -30825,12 +30843,24 @@
           }
         }
 
-        _pairCache = { ids, ia, ja, pv, jv, sh, deg, total };
+        _pairCache = { ids, ia, ja, pv, jv, tv, nv, sh, deg, total, netData: W };
         if (progressCallback) progressCallback(100);
         return _pairCache;
       } finally {
         _pairCalculating = false;
       }
+    }
+
+    function fillPairsNetwork(P) {
+      const W = networkSimilarityData();
+      if (!W) return false;
+      if (P.netData === W) return true;
+      for (let k = 0; k < P.total; k++) {
+        const i = P.ia[k], j = P.ja[k];
+        P.nv[k] = normedDot(W.V[i], W.norms[i], W.V[j], W.norms[j]);
+      }
+      P.netData = W;
+      return true;
     }
 
     function profileSimilarity(idA, idB) {
@@ -30870,24 +30900,241 @@
     function structuralSimilarity(idA, idB) {
       const N = neighborSets();
       const a = N.get(idA), b = N.get(idB);
-      if (!a || !b) return { jaccard: 0, shared: 0, typeCosine: 0 };
+      if (!a || !b) return { jaccard: 0, shared: 0 };
 
       let inter = 0;
       for (const x of a) if (b.has(x)) inter++;
       const union = a.size + b.size - inter;
       const jaccard = union ? inter / union : 0;
+      // Косинус по долям типов прежде возвращался отсюда же (typeCosine).
+      // С 2026-09-17 это отдельная мера — typeStyleSimilarity, ниже.
+      return { jaccard, shared: inter };
+    }
 
-      // близость распределения типов связей
-      const ta = typeProfileOf(idA), tb = typeProfileOf(idB);
-      const keys = new Set([...Object.keys(ta), ...Object.keys(tb)]);
-      let dot = 0, na = 0, nb = 0;
-      for (const k of keys) {
-        const x = ta[k] || 0, y = tb[k] || 0;
-        dot += x * y; na += x * x; nb += y * y;
+    // ── общие приёмы мер сходства ───────────────────────────────
+    // z по столбцу (признаку) через все строки (концепции).
+    function zColumns(M) {
+      if (!M.length) return [];
+      const k = M[0].length;
+      const Z = M.map(r => r.slice());
+      for (let c = 0; c < k; c++) {
+        let m = 0;
+        for (const r of M) m += r[c];
+        m /= M.length;
+        let q = 0;
+        for (const r of M) q += (r[c] - m) * (r[c] - m);
+        const sd = Math.sqrt(q / M.length) || 1;
+        for (let i = 0; i < M.length; i++) Z[i][c] = (M[i][c] - m) / sd;
       }
-      const typeCosine = (na && nb) ? dot / Math.sqrt(na * nb) : 0;
+      return Z;
+    }
+    // Центр по строке: остаётся форма, а не общий уровень.
+    function centerRows(M) {
+      return M.map(r => {
+        const m = r.reduce((x, y) => x + y, 0) / (r.length || 1);
+        return r.map(x => x - m);
+      });
+    }
+    function vectorNorm(v) {
+      let q = 0;
+      for (const x of v) q += x * x;
+      return Math.sqrt(q);
+    }
+    function normedDot(a, na, b, nb) {
+      if (!na || !nb) return 0;
+      let d = 0;
+      for (let i = 0; i < a.length; i++) d += a[i] * b[i];
+      return d / (na * nb);
+    }
 
-      return { jaccard, shared: inter, typeCosine };
+    // ── типы связей: доли, дважды центрированные ─────────────────
+    // Прежде здесь был косинус по СЫРЫМ долям типов. Доли неотрицательны, а
+    // «влияние», «развитие» и «критика» есть почти у всех, поэтому косинус
+    // выходил положительным у любой пары с общим типом: на карте у связной
+    // концепции светилось в среднем 674 узла из 717.
+    // Двойное центрирование — z по типу через все концепции, затем центр по
+    // концепции — вычитает частоту типа в базе: тип говорит о концепции лишь
+    // тогда, когда его у неё больше или меньше обычного. Так давно устроен
+    // «способ построения» у философов.
+    // Замер 2026-09-17 (437 связных концепций, шестёрка ближайших): светится
+    // 297 узлов вместо 674; шестёрка попадает в связь базы в 5,6 раза чаще
+    // фона против 5,2, а без вклада собственной связи пары — 3,4 против 3,0.
+    // Цена: мера знаковая, и единичная связь редкого типа весит много.
+    // Направление по-прежнему не различается: входящие и исходящие вместе.
+    let _typeStyleCache = null;
+    function typeStyleData() {
+      if (_typeStyleCache) return _typeStyleCache;
+      const ids = _concepts.map(c => c.id);
+      const types = [...new Set(_relations.map(r => r.type))];
+      const share = ids.map(id => {
+        const p = typeProfileOf(id);
+        const v = types.map(t => p[t] || 0);
+        const total = v.reduce((x, y) => x + y, 0) || 1;
+        return v.map(x => x / total);
+      });
+      const V = centerRows(zColumns(share));
+      _typeStyleCache = { ids, types, V, norms: V.map(vectorNorm),
+                          index: new Map(ids.map((id, i) => [id, i])) };
+      return _typeStyleCache;
+    }
+    function typeStyleSimilarity(idA, idB) {
+      const T = typeStyleData();
+      const i = T.index.get(idA), j = T.index.get(idB);
+      if (i === undefined || j === undefined) return 0;
+      return normedDot(T.V[i], T.norms[i], T.V[j], T.norms[j]);
+    }
+
+    // ── место в сети: восемь сетевых метрик, дважды центрированных ──
+    // Похоже ли ПОЛОЖЕНИЕ концепций в топологии — узел ядра, мост, плотное
+    // гнездо, периферия, — безотносительно к содержанию связей.
+    // Метрики берутся при ТЕКУЩИХ переключателях весов, направленности и
+    // области, как во всём окне статистики. Четыре из них асинхронны,
+    // поэтому мера готова не сразу: networkSimilarityData() отдаёт null, пока
+    // хоть одной нет, а ensureNetworkProfile() досчитывает и дожидается.
+    // Годность кеша проверяется ТОЖДЕСТВОМ кешей метрик, а не перечнем
+    // сбросов: любой сброс метрики меняет ссылку, и мера пересчитается сама.
+    // Отсев малосвязных — тот же, что у профиля (profileIsMeaningful): по
+    // замеру у концепций ниже медианы пятый сосед выше 0,95 у четверти
+    // источников, у связных — у десятой части.
+    const NETWORK_SIM_NAMES = ['degree', 'pagerank', 'betweenness', 'closeness',
+                               'eigenvector', 'clustering', 'cohesion', 'richClub'];
+    const NETWORK_ROLE_OF = {
+      degree: 'core', pagerank: 'core', eigenvector: 'core', richClub: 'core',
+      betweenness: 'bridge', closeness: 'bridge',
+      clustering: 'nest', cohesion: 'nest'
+    };
+    const NETWORK_ROLE_WORDS = {
+      core: 'узел ядра', bridge: 'мост', nest: 'член плотного гнезда', periphery: 'периферия'
+    };
+    let _netSimCache = null;
+    let _netSimPending = null;
+
+    function metricValueMap(res) {
+      const m = new Map();
+      const list = Array.isArray(res) ? res : (res && typeof res === 'object' ? Object.values(res) : []);
+      for (const r of list) {
+        const id = r && r.node ? r.node.id : (r && r.id);
+        if (id !== undefined) m.set(id, Number.isFinite(r.value) ? r.value : 0);
+      }
+      return m;
+    }
+
+    function networkSimilarityData() {
+      const pending = [pageRankCache, betweennessCache, closenessCache, eigenvectorCache];
+      if (pending.some(x => !x)) return null;
+      const refs = pending.concat([calculateWeightedClustering(), calculateLocalCohesion(),
+                                   calculateRichClubCoefficient()]);
+      if (_netSimCache && _netSimCache.refs.every((r, i) => r === refs[i])) return _netSimCache;
+      const ids = _concepts.map(c => c.id);
+      const maps = refs.map(metricValueMap);
+      const raw = ids.map(id => [nodeDegreeOf(id)].concat(maps.map(m => m.get(id) || 0)));
+      const Z = zColumns(raw);
+      const V = centerRows(Z);
+      _netSimCache = { refs, ids, names: NETWORK_SIM_NAMES, Z, V, norms: V.map(vectorNorm),
+                       index: new Map(ids.map((id, i) => [id, i])) };
+      return _netSimCache;
+    }
+
+    function networkSimilarity(idA, idB) {
+      const W = networkSimilarityData();
+      if (!W) return null;
+      const i = W.index.get(idA), j = W.index.get(idB);
+      if (i === undefined || j === undefined) return 0;
+      return normedDot(W.V[i], W.norms[i], W.V[j], W.norms[j]);
+    }
+
+    // Слово о месте: периферия, если концепция в среднем ниже обычного на
+    // полсигмы; иначе — по составляющей, сильнее всего поднятой над её
+    // собственным уровнем.
+    function networkRoleOf(id) {
+      const W = networkSimilarityData();
+      if (!W) return null;
+      const i = W.index.get(id);
+      if (i === undefined) return null;
+      const z = W.Z[i];
+      if (z.reduce((x, y) => x + y, 0) / z.length < -0.5) return 'periphery';
+      let best = 0;
+      for (let k = 1; k < W.V[i].length; k++) if (W.V[i][k] > W.V[i][best]) best = k;
+      return NETWORK_ROLE_OF[W.names[best]];
+    }
+
+    // Досчитать сетевые метрики и дождаться. Каждый расчёт отдаёт null, если
+    // уже идёт, поэтому ждём по кешам, а не по обещаниям, и раз в секунду
+    // подталкиваем те, чей кеш пуст (расчёт мог быть сброшен на ходу).
+    function ensureNetworkProfile() {
+      if (networkSimilarityData()) return Promise.resolve(true);
+      if (_netSimPending) return _netSimPending;
+      const kick = () => {
+        if (!pageRankCache) calculatePageRank();
+        if (!betweennessCache) calculateBetweennessAsync();
+        if (!closenessCache) calculateClosenessCentrality();
+        if (!eigenvectorCache) calculateEigenvectorCentrality();
+      };
+      _netSimPending = (async () => {
+        try {
+          const started = Date.now();
+          let lastKick = 0;
+          while (!networkSimilarityData()) {
+            if (Date.now() - lastKick > 1000) { kick(); lastKick = Date.now(); }
+            if (Date.now() - started > 120000) return false;
+            await new Promise(r => setTimeout(r, 200));
+          }
+          return true;
+        } finally {
+          _netSimPending = null;
+        }
+      })();
+      return _netSimPending;
+    }
+
+    // ── вид сходства по имени ────────────────────────────────────
+    const SIGNED_SIMILARITY = new Set(['profile', 'types', 'network']);
+    function similarityNeedsDegree(kind) {
+      return kind === 'profile' || kind === 'network';
+    }
+    function similarityOf(kind, idA, idB) {
+      if (kind === 'profile') return profileSimilarity(idA, idB);
+      if (kind === 'structure') return structuralSimilarity(idA, idB).jaccard;
+      if (kind === 'types') return typeStyleSimilarity(idA, idB);
+      if (kind === 'network') return networkSimilarity(idA, idB) || 0;
+      return 0;
+    }
+
+    // ── пороги вердикта ──────────────────────────────────────────
+    // Процентили по всем парам связных концепций, а не вписанные числа:
+    // прежние 0,6 / 0,2 / 0,05 подбирались на базе в 453 концепции и к 718
+    // устарели — 0,6 у профиля лежит далеко выше 90-го процентиля (0,41).
+    const SIM_VERDICT_HIGH_Q = 0.9;
+    const SIM_VERDICT_LOW_Q = 0.1;
+    const SIM_SHARED_HIGH = 3;
+    let _simThresholdCache = null;
+    function similarityThresholds() {
+      const W = networkSimilarityData();
+      if (_simThresholdCache && _simThresholdCache.net === W) return _simThresholdCache;
+      const D = similarityData(), T = typeStyleData();
+      const keep = [];
+      D.ids.forEach((id, i) => { if (profileIsMeaningful(id)) keep.push(i); });
+      const cols = { profile: [], types: [], network: [] };
+      for (let a = 0; a < keep.length; a++) {
+        const i = keep[a];
+        for (let b = a + 1; b < keep.length; b++) {
+          const j = keep[b];
+          cols.profile.push(normedDot(D.V[i], D.norms[i], D.V[j], D.norms[j]));
+          cols.types.push(normedDot(T.V[i], T.norms[i], T.V[j], T.norms[j]));
+          if (W) cols.network.push(normedDot(W.V[i], W.norms[i], W.V[j], W.norms[j]));
+        }
+      }
+      const quantile = (arr, p) => {
+        if (!arr.length) return null;
+        const sorted = Float64Array.from(arr).sort();
+        return sorted[Math.floor(p * (sorted.length - 1))];
+      };
+      const out = { net: W, pairs: cols.profile.length };
+      for (const k of Object.keys(cols)) {
+        out[k] = { high: quantile(cols[k], SIM_VERDICT_HIGH_Q), low: quantile(cols[k], SIM_VERDICT_LOW_Q) };
+      }
+      _simThresholdCache = out;
+      return out;
     }
 
     function nearestConcepts(conceptId, kind, k) {
@@ -30902,16 +31149,16 @@
       // = −0.48, у 47 концепций из 453 верх ≥ 95 %, все степени 1–2.
       // Профильная колонка строится только для связных концепций —
       // и для источника, и для кандидатов.
-      if (kind === 'profile' && !profileIsMeaningful(conceptId)) return [];
+      if (similarityNeedsDegree(kind) && !profileIsMeaningful(conceptId)) return [];
+      // Сеть может быть ещё не посчитана: null — «подождите», а не «пусто».
+      if (kind === 'network' && !networkSimilarityData()) return null;
 
       const out = [];
       for (let i = 0; i < D.ids.length; i++) {
         if (i === src) continue;
         const id = D.ids[i];
-        if (kind === 'profile' && !profileIsMeaningful(id)) continue;
-        const value = kind === 'profile'
-          ? profileSimilarity(conceptId, id)
-          : structuralSimilarity(conceptId, id).jaccard;
+        if (similarityNeedsDegree(kind) && !profileIsMeaningful(id)) continue;
+        const value = similarityOf(kind, conceptId, id);
         if (value <= 0) continue;
         out.push({ id, value });
       }
@@ -31669,7 +31916,7 @@
         description: "Схожесть двух философских систем по четырём независимым мерам",
         interpretation: () => `Профиль метрик отвечает, каковы системы по совокупности показателей. Способ построения — какими типами связей философ строит систему: у Аристотеля преобладает следствие, у Гераклита противопоставление, у Платона кульминация. Структура — связаны ли философы с одними и теми же авторами. Тематический охват сравнивает распределение по рубрикам. Меры почти независимы: попарные корреляции по всем ${(() => { const _p = new Set(_concepts.map(c => c.philosopher)).size; return _p * (_p - 1) / 2; })()} парам лежат между −0.01 и 0.17.`,
         usage: () => "Проверка догадок о родстве систем и поиск неожиданных параллелей. Столбики показывают средний уровень философа по метрике относительно сильнейшего, а цифры рядом — среднее с разбросом по его концепциям: разброс отличает систему с одной яркой идеей от ровной.",
-        formula: () => "Профиль: косинус по вектору из средних и разбросов пяти метрик плюс систематичность, охват и междисциплинарность, дважды центрированному. Способ построения: то же по долям 18 типов связей. Структура: |A∩B| / |A∪B| по множествам философов-соседей. Рубрики: косинус по долям рубрик, только для авторов не менее чем с тремя концепциями"
+        formula: () => `Профиль: косинус по вектору из средних и разбросов пяти метрик плюс систематичность, охват и междисциплинарность, дважды центрированному. Способ построения: то же по долям ${new Set(_relations.map(r => r.type)).size} типов связей. Структура: |A∩B| / |A∪B| по множествам философов-соседей. Рубрики: косинус по долям рубрик, только для авторов не менее чем с тремя концепциями`
       },
       'philosopher-pairs': {
         name: "Близкие пары философов",
@@ -31680,17 +31927,17 @@
       },
       'closest-pairs': {
         name: "Близкие пары концепций",
-        description: "Наиболее схожие пары по профилю метрик и по структуре связей",
-        interpretation: () => `Профильная близость находит функциональные аналоги: понятия, играющие в своих системах одну роль, даже если между ними нет ни одной связи. Структурная близость находит понятия, окружённые одними и теми же соседями. Меры почти независимы — корреляция по всем ${(_concepts.length * (_concepts.length - 1) / 2).toLocaleString('ru')} парам составляет 0.05, — поэтому списки заметно расходятся, и расхождение содержательно.`,
-        usage: () => "Поиск неочевидных параллелей между традициями. Фильтр связности обязателен: у малосвязных концептов почти все метрики нулевые, профили выходят одинаковыми, и без порога верх списка занимают не родственные, а просто бедные данными понятия. Порог по умолчанию равен медианной связности графа. Клик по строке открывает пару в подробном сравнении.",
-        formula: () => "Профиль: косинус между дважды центрированными векторами метрик. Структура: |A∩B| / |A∪B| по множествам соседей. Отбор: обе концепции со связностью не ниже порога, для структуры дополнительно минимум общих соседей, опционально только пары разных философов"
+        description: "Наиболее схожие пары по одной из четырёх мер: профиль метрик, структура связей, типы связей, место в сети",
+        interpretation: () => "Профильная близость находит функциональные аналоги: понятия, играющие в своих системах одну роль, даже если между ними нет ни одной связи. Структурная — понятия, окружённые одними и теми же соседями. Близость по типам связей — понятия, необычные в одних и тех же отношениях: обе, скажем, насыщены «условием» и «ограничением» больше, чем принято в базе. Близость по месту в сети — сходную топологическую роль (узел ядра, мост, плотное гнездо, периферия); о родстве содержания она не говорит. Меры почти независимы — попарные ранговые корреляции по парам связных концепций не выше 0,3, — поэтому списки заметно расходятся, и расхождение содержательно.",
+        usage: () => "Поиск неочевидных параллелей между традициями. Фильтр связности обязателен: у малосвязных концептов почти все метрики нулевые, профили выходят одинаковыми, и без порога верх списка занимают не родственные, а просто бедные данными понятия. Порог по умолчанию равен медианной связности графа. Вид «по месту в сети» при первом выборе досчитывает сетевые метрики — это несколько секунд; считаются они при текущих переключателях весов, направленности и области. Клик по строке открывает пару в подробном сравнении.",
+        formula: () => "Профиль: косинус между дважды центрированными векторами 17 метрик. Структура: |A∩B| / |A∪B| по множествам соседей. Типы связей: косинус между дважды центрированными долями типов (входящие и исходящие вместе, с весом связи). Место в сети: косинус между дважды центрированными векторами восьми сетевых метрик — степень, PageRank, посредничество, близость, собственный вектор, взвешенная кластеризация, локальная когезия, rich-club. Двойное центрирование: z-нормировка по каждому признаку через все концепции, затем вычитание среднего по концепции. Отбор: обе концепции со связностью не ниже порога, для структуры дополнительно минимум общих соседей, опционально только пары разных философов или разных традиций"
       },
       'comparison': {
         name: "Сравнение концепций",
-        description: "Функциональная схожесть двух концепций по профилю метрик и по структуре связей",
-        interpretation: () => "Схожесть профиля — это корреляция между наборами метрик двух концепций: насколько похожа их роль в системе. Схожесть структуры — коэффициент Жаккара по общим соседям. Меры отвечают на разные вопросы и часто расходятся: высокая профильная при нулевой структурной означает функциональный аналог в другой традиции, у которого нет ни одной общей связи.",
-        usage: () => `Поиск неочевидных параллелей между философскими системами и проверка догадок вида «X у Гуссерля работает так же, как Y у Фреге». Столбики показывают процентиль концепции по каждой метрике среди всех ${_concepts.length}, поэтому видно не только насколько похожи, но и чем именно.`,
-        formula: () => "Профиль: косинус между векторами метрик, дважды центрированными — сначала z-нормировка по каждой метрике, затем вычитание среднего профиля концепции. Это равносильно корреляции Пирсона. tensionIndex исключён из вектора: корреляция Пирсона 0.94 с problemGenerationIndex (ранговая 0.91). Структура: |A∩B| / |A∪B| по множествам соседей, плюс отдельно косинус между распределениями типов связей"
+        description: "Схожесть двух концепций по четырём мерам: профиль метрик, структура связей, типы связей, место в сети",
+        interpretation: () => "Профиль отвечает, сходна ли роль концепций в системе; структура — связаны ли они с одними и теми же понятиями; типы связей — необычны ли они в одних и тех же отношениях; место в сети — сходно ли их положение в топологии графа. Профиль, типы и место в сети — знаковые меры: отрицательное значение значит противоположность, а не просто несходство. Вердикт называет уровень каждой меры и первое подошедшее сочетание: близнецы, аналоги в разных областях графа, одно окружение при разном отношении к нему, совпадение только по месту в сети.",
+        usage: () => `Поиск неочевидных параллелей между философскими системами и проверка догадок вида «X у Гуссерля работает так же, как Y у Фреге». Столбики показывают процентиль концепции по каждой метрике профиля среди всех ${_concepts.length}, поэтому видно не только насколько похожи, но и чем именно. У концепций со связностью ниже медианы профиль и место в сети непоказательны и помечены «н/п».`,
+        formula: () => "Профиль: косинус между векторами 17 метрик, дважды центрированными — z-нормировка по каждой метрике, затем вычитание среднего профиля концепции (равносильно корреляции Пирсона); tensionIndex исключён, его корреляция с problemGenerationIndex 0.94. Структура: |A∩B| / |A∪B| по множествам соседей. Типы связей: то же двойное центрирование по долям типов. Место в сети: то же по восьми сетевым метрикам при текущих переключателях. Уровни вердикта: высокое — не ниже 90-го процентиля по всем парам связных концепций, противоположное — не выше 10-го; для структуры высокое — не меньше трёх общих соседей. Слово о месте в сети: периферия, если концепция в среднем ниже обычного на полсигмы, иначе — по сильнейшей составляющей (степень, PageRank, собственный вектор, rich-club — узел ядра; посредничество, близость — мост; кластеризация, когезия — плотное гнездо)"
       },
       'generative': {
         name: "Генеративность (Generative Index)",
@@ -34627,7 +34874,7 @@
       return `
         <div class="stats-content-header">
           <h3 class="stats-content-title">🔗 Близкие пары концепций</h3>
-          <p class="stats-content-subtitle">Наиболее схожие пары по профилю метрик и по структуре связей</p>
+          <p class="stats-content-subtitle">Наиболее схожие пары по профилю метрик, структуре связей, типам связей и месту в сети</p>
         </div>
 
         ${generateMetricDescriptionBlock('closest-pairs')}
@@ -34636,6 +34883,8 @@
           <div class="pairs-modes">
             <button class="pairs-btn" id="pairsBtnProfile" onclick="_pairsKind='profile'; renderClosestPairs();">По профилю</button>
             <button class="pairs-btn" id="pairsBtnStructure" onclick="_pairsKind='structure'; renderClosestPairs();">По структуре</button>
+            <button class="pairs-btn" id="pairsBtnTypes" onclick="_pairsKind='types'; renderClosestPairs();">По типам связей</button>
+            <button class="pairs-btn" id="pairsBtnNetwork" onclick="_pairsKind='network'; renderClosestPairs();">По месту в сети</button>
           </div>
           <label class="pairs-filter">
             Минимальная связность узла: <b id="pairsDegVal">${_pairsMinDegree}</b>
@@ -34678,7 +34927,7 @@
         }
         const indicator = LoadingIndicator.create(
           'Расчёт близости концепций',
-          `Сравнение ${(_concepts.length * (_concepts.length - 1) / 2).toLocaleString('ru')} пар по 17 метрикам и по общим соседям`,
+          `Сравнение ${(_concepts.length * (_concepts.length - 1) / 2).toLocaleString('ru')} пар по профилю, соседям и типам связей`,
           '#6c5ce7'
         );
         try {
@@ -34693,16 +34942,26 @@
           return;
         }
       }
-      const isProfile = _pairsKind === 'profile';
+      const kind = _pairsKind;
+      if (kind === 'network' && !fillPairsNetwork(P)) {
+        box.innerHTML = '<div class="pairs-count">Считаю сетевые метрики…</div>';
+        const ok = await ensureNetworkProfile();
+        if (!ok) { box.innerHTML = '<div class="pairs-count">Сетевые метрики не досчитались.</div>'; return; }
+        if (_pairsKind === 'network' && document.getElementById('pairsBody')) renderClosestPairs();
+        return;
+      }
+      const isStructure = kind === 'structure';
       const philOf = {};
       nodes.forEach(n => philOf[n.id] = n.concept);
       const labOf = {};
       nodes.forEach(n => labOf[n.id] = n.label);
 
-      document.getElementById('pairsBtnProfile')?.classList.toggle('active', isProfile);
-      document.getElementById('pairsBtnStructure')?.classList.toggle('active', !isProfile);
+      [['pairsBtnProfile', 'profile'], ['pairsBtnStructure', 'structure'],
+       ['pairsBtnTypes', 'types'], ['pairsBtnNetwork', 'network']].forEach(([id, k]) =>
+        document.getElementById(id)?.classList.toggle('active', k === kind));
       const shFilter = document.getElementById('pairsSharedFilter');
-      if (shFilter) shFilter.style.display = isProfile ? 'none' : '';
+      if (shFilter) shFilter.style.display = isStructure ? '' : 'none';
+      const valuesOf = { profile: P.pv, structure: P.jv, types: P.tv, network: P.nv }[kind] || P.pv;
       const dv = document.getElementById('pairsDegVal'); if (dv) dv.textContent = _pairsMinDegree;
       const sv = document.getElementById('pairsShVal'); if (sv) sv.textContent = _pairsMinShared;
 
@@ -34719,11 +34978,11 @@
           const tb = philosopherTraditions[philOf[b]] || [];
           if (!ta.length || !tb.length || ta.some(x => tb.includes(x))) continue;
         }
-        if (!isProfile) {
+        if (isStructure) {
           if (P.sh[k] < _pairsMinShared) continue;
           if (P.jv[k] <= 0) continue;
         }
-        picked.push([isProfile ? P.pv[k] : P.jv[k], k]);
+        picked.push([valuesOf[k], k]);
       }
       picked.sort((x, y) => y[0] - x[0]);
       const top = picked.slice(0, 40);
@@ -34750,7 +35009,7 @@
               ${same ? '<span class="pairs-same">один автор</span>' : ''}
             </div>
             <div class="pairs-value">${v.toFixed(3)}</div>
-            <div class="pairs-extra">${isProfile ? '' : P.sh[k] + ' общ.'}</div>
+            <div class="pairs-extra">${isStructure ? P.sh[k] + ' общ.' : ''}</div>
           </div>`;
       }).join('');
 
@@ -34799,7 +35058,7 @@
       return `
         <div class="stats-content-header">
           <h3 class="stats-content-title">⚖️ Сравнение концепций</h3>
-          <p class="stats-content-subtitle">Функциональная схожесть по профилю метрик и по структуре связей</p>
+          <p class="stats-content-subtitle">Схожесть по профилю метрик, структуре связей, типам связей и месту в сети</p>
         </div>
 
         ${generateMetricDescriptionBlock('comparison')}
@@ -34814,6 +35073,70 @@
       `;
     }
 
+    // ── вердикт сравнения двух концепций ─────────────────────────
+    // Уровень каждой меры — по процентилям пар связных концепций
+    // (similarityThresholds): высокое — не ниже 90-го, противоположное — не
+    // выше 10-го (только у знаковых мер). Структура — по числу общих соседей
+    // (не меньше SIM_SHARED_HIGH, как умолчание фильтра «Близких пар»).
+    // Заголовок — первое подошедшее осмысленное сочетание.
+    function similarityVerdict(idA, idB) {
+      const th = similarityThresholds();
+      const meaningful = profileIsMeaningful(idA) && profileIsMeaningful(idB);
+      const level = (v, t) => (v === null || !t || t.high === null) ? null
+        : (v >= t.high ? 'high' : (v <= t.low ? 'low' : 'mid'));
+      const st = structuralSimilarity(idA, idB);
+      const prof = meaningful ? level(profileSimilarity(idA, idB), th.profile) : null;
+      const types = level(typeStyleSimilarity(idA, idB), th.types);
+      const netV = meaningful ? networkSimilarity(idA, idB) : null;
+      const net = netV === null ? null : level(netV, th.network);
+      const struct = st.shared >= SIM_SHARED_HIGH ? 'high' : (st.shared === 0 ? 'none' : 'mid');
+      const roleWord = id => NETWORK_ROLE_WORDS[networkRoleOf(id)] || '—';
+
+      const lines = [];
+      lines.push(!meaningful
+        ? 'Роль в системе: профиль непоказателен — у одной из концепций связей меньше медианы'
+        : ({ high: 'Сходная роль в системе: профиль в верхних 10 % пар',
+             low: 'Противоположные роли в системе: профиль в нижних 10 % пар',
+             mid: 'Роли в системе не схожи и не противоположны' })[prof]);
+      lines.push(({ high: `Общее окружение: общих соседей ${st.shared}`,
+                    none: 'Общих соседей нет',
+                    mid: `Окружение пересекается слабо: общих соседей ${st.shared}` })[struct]);
+      lines.push(({ high: 'Сходный характер отношений: необычны в одних и тех же типах связей',
+                    low: 'Противоположный характер отношений: одна насыщена теми типами связей, которых у другой меньше обычного',
+                    mid: 'Характер отношений не схож и не противоположен' })[types]);
+      if (!meaningful) lines.push('Место в сети: непоказательно — мало связей');
+      else if (netV === null) lines.push('Место в сети: сетевые метрики не посчитаны');
+      else if (net === 'high') lines.push(`Сходное место в сети: ${roleWord(idA)}`);
+      else if (net === 'low') lines.push(`Противоположное место в сети: ${roleWord(idA)} и ${roleWord(idB)}`);
+      else lines.push('Места в сети не схожи и не противоположны');
+
+      const names = { profile: 'роль', struct: 'окружение', types: 'характер отношений', net: 'место в сети' };
+      const high = Object.entries({ profile: prof, struct, types, net })
+        .filter(([, v]) => v === 'high').map(([k]) => k);
+      let headline;
+      if (high.length === 4)
+        headline = 'Близнецы: совпадают роль, окружение, характер отношений и место в сети.';
+      else if (prof === 'high' && types === 'high' && struct === 'none')
+        headline = 'Аналоги в разных областях графа: сходные роль и характер отношений без общих соседей.';
+      else if (struct === 'high' && types === 'low')
+        headline = 'Одно окружение, разное отношение к нему: соседи общие, а связи с ними противоположного рода.';
+      else if (high.length === 1 && net === 'high')
+        headline = 'Совпадает только место в сети — о родстве содержания это не говорит.';
+      else if (!high.length)
+        headline = 'Существенного сходства ни по одной мере не видно.';
+      else
+        headline = 'Частичное сходство: ' + high.map(k => names[k]).join(', ') + '.';
+      return { headline, lines };
+    }
+
+    function computeComparisonNetwork() {
+      const tile = document.querySelector('#cmpBody .similar-map-btn');
+      if (tile) { tile.disabled = true; tile.textContent = 'Считаю…'; }
+      ensureNetworkProfile().then(() => {
+        if (document.getElementById('cmpBody')) renderComparison();
+      });
+    }
+
     function renderComparison() {
       const box = document.getElementById('cmpBody');
       if (!box) return;
@@ -34823,17 +35146,17 @@
 
       const prof = profileSimilarity(_cmpA, _cmpB);
       const st = structuralSimilarity(_cmpA, _cmpB);
+      const typesV = typeStyleSimilarity(_cmpA, _cmpB);
+      const meaningful = profileIsMeaningful(_cmpA) && profileIsMeaningful(_cmpB);
+      const netV = meaningful ? networkSimilarity(_cmpA, _cmpB) : null;
       const ia = D.index.get(_cmpA), ib = D.index.get(_cmpB);
-
-      // расхождение мер само по себе содержательно
-      let verdict;
-      if (prof > 0.6 && st.jaccard < 0.05)
-        verdict = 'Функциональные аналоги без общих соседей: похожая роль в разных участках графа.';
-      else if (prof < 0.2 && st.jaccard > 0.2)
-        verdict = 'Общее окружение при разных ролях: соседи те же, но ведут себя понятия по-разному.';
-      else if (prof > 0.6 && st.jaccard > 0.2)
-        verdict = 'Близнецы: и роль, и окружение совпадают.';
-      else verdict = 'Существенного сходства ни по профилю, ни по структуре не видно.';
+      const verdict = similarityVerdict(_cmpA, _cmpB);
+      // Сеть считается только по кнопке — см. similarNetworkColumnHtml.
+      const signedPct = v => (v < 0 ? '−' : '') + Math.abs(Math.round(v * 100)) + ' %';
+      const netTile = !meaningful ? 'н/п'
+        : (netV === null
+          ? '<button class="similar-map-btn" onclick="computeComparisonNetwork()">Посчитать</button>'
+          : signedPct(netV));
 
       const rows = D.names.map((n, k) => {
         const pa = D.pct[k][ia], pb = D.pct[k][ib];
@@ -34852,7 +35175,7 @@
       box.innerHTML = `
         <div class="cmp-summary">
           <div class="cmp-score">
-            <div class="cmp-score-value">${Math.round(prof * 100)} %</div>
+            <div class="cmp-score-value">${meaningful ? signedPct(prof) : 'н/п'}</div>
             <div class="cmp-score-label">схожесть профиля</div>
           </div>
           <div class="cmp-score">
@@ -34860,12 +35183,18 @@
             <div class="cmp-score-label">схожесть структуры<br><span>общих соседей: ${st.shared}</span></div>
           </div>
           <div class="cmp-score">
-            <div class="cmp-score-value">${Math.round(st.typeCosine * 100)} %</div>
-            <div class="cmp-score-label">близость типов связей</div>
+            <div class="cmp-score-value">${signedPct(typesV)}</div>
+            <div class="cmp-score-label">сходство по типам связей</div>
+          </div>
+          <div class="cmp-score">
+            <div class="cmp-score-value">${netTile}</div>
+            <div class="cmp-score-label">сходство места в сети</div>
           </div>
         </div>
 
-        <div class="cmp-verdict">${verdict}</div>
+        <div class="cmp-verdict"><b>${verdict.headline}</b>
+          <ul class="cmp-verdict-lines">${verdict.lines.map(l => `<li>${l}</li>`).join('')}</ul>
+        </div>
 
         <div class="cmp-legend">
           <span><i class="cmp-swatch cmp-bar-a"></i>${a.label} (${a.concept})</span>
@@ -36745,6 +37074,22 @@
       if (!_simCache && typeof showTemporaryMessage === 'function') {
         showTemporaryMessage('Считаю метрики для карты сходства…', 1500);
       }
+      if (kind === 'network' && !profileIsMeaningful(sourceId)) {
+        if (typeof showTemporaryMessage === 'function') {
+          showTemporaryMessage(
+            'У этой концепции слишком мало связей: её место в сети неотличимо от места '
+            + 'любой такой же. Попробуйте вид «по структуре» или «по типам связей».', 4000);
+        }
+        return;
+      }
+      if (kind === 'network' && !networkSimilarityData()) {
+        // Четыре сетевые метрики считаются порциями: карта откроется по готовности.
+        if (typeof showTemporaryMessage === 'function') {
+          showTemporaryMessage('Считаю сетевые метрики для карты сходства…', 2500);
+        }
+        ensureNetworkProfile().then(ok => { if (ok) showSimilarityOverlay(sourceId, kind); });
+        return;
+      }
       if (kind === 'profile' && !profileIsMeaningful(sourceId)) {
         // ОТКАЗ ГРОМКИЙ, А НЕ МОЛЧАЛИВЫЙ. Первая редакция этой правки просто
         // возвращала пустоту — кнопка нажималась и не делала ничего, и
@@ -36781,7 +37126,7 @@
         if (n.id === sourceId) continue;
         // Отсев вырожденных нужен только профилю: жаккар и косинус по типам
         // строятся не на z-нормированных метриках и к нулям нечувствительны.
-        if (kind === 'profile' && !profileIsMeaningful(n.id)) continue;
+        if (similarityNeedsDegree(kind) && !profileIsMeaningful(n.id)) continue;
         let v;
         if (kind === 'structure') {
           const st = structuralSimilarity(sourceId, n.id);
@@ -36796,7 +37141,11 @@
           // из трёх: −0,258 против −0,364 у жаккара и −0,474 у профиля.
           // Отчёт называет это «вдвое больше попаданий, чем у профиля» —
           // на деле 141 против 88, то есть в 1,6 раза; вывод тот же.
-          v = structuralSimilarity(sourceId, n.id).typeCosine;
+          // С 2026-09-17 доли дважды центрированы (typeStyleData): мера
+          // знаковая, и порог приглушения у неё теперь по квантилю.
+          v = typeStyleSimilarity(sourceId, n.id);
+        } else if (kind === 'network') {
+          v = networkSimilarity(sourceId, n.id) || 0;
         } else {
           v = profileSimilarity(sourceId, n.id);
         }
@@ -36819,7 +37168,7 @@
       // только настоящие нули: ненулевых соседей у медианного узла 43,
       // и все они содержательны.
       let dimBelow;
-      if (kind === 'structure' || kind === 'types') {
+      if (kind === 'structure') {
         dimBelow = 0;
       } else {
         const sorted = [...mags].sort((a, b) => a - b);
@@ -36879,7 +37228,7 @@
       if (id === similarityOverlay.sourceId) return true;
       const v = similarityOverlay.values.get(id);
       if (v === undefined) return false;
-      return similarityOverlay.kind === 'profile'
+      return SIGNED_SIMILARITY.has(similarityOverlay.kind)
         ? Math.abs(v) >= similarityOverlay.dimBelow
         : v > 0;
     }
@@ -36929,7 +37278,7 @@
       }
       const src = conceptById.get(similarityOverlay.sourceId);
       const mode = similarityOverlay.kind;
-      const isProfile = mode === 'profile';
+      const isSigned = SIGNED_SIMILARITY.has(mode);
       const btn = (k, caption) =>
         `<button class="simleg-btn ${mode === k ? 'active' : ''}"
              onclick="showSimilarityOverlay('${similarityOverlay.sourceId}','${k}')">${caption}</button>`;
@@ -36938,7 +37287,8 @@
         <div class="simleg-mode">
           ${btn('profile', 'По профилю')}
           ${btn('structure', 'По структуре')}
-          ${btn('types', 'По типам')}
+          ${btn('types', 'По типам связей')}
+          ${btn('network', 'По месту в сети')}
         </div>
         <div class="simleg-links-title">Связи из базы</div>
         <div class="simleg-links" data-tip="Карта гасит все связи разом, чтобы рёбра не перетягивали внимание. «С источником» показывает, совпало ли сходство с прямым отношением; «между похожими» — сложилась ли подсвеченная часть в связную область">
@@ -36948,17 +37298,17 @@
             `<button class="simleg-lbtn ${(similarityOverlay.linkMode || 'none') === m ? 'active' : ''}"
                  onclick="setSimilarityLinks('${m}')">${label}${m === 'none' ? '' : ` <b>${n}</b>`}</button>`).join('')}
         </div>
-        <div class="simleg-scale ${isProfile ? '' : 'one-sided'}"></div>
+        <div class="simleg-scale ${isSigned ? '' : 'one-sided'}"></div>
         <div class="simleg-ticks">
-          <span>${isProfile ? '−' + similarityOverlay.rowMax.toFixed(2) : '0'}</span>
-          <span>${isProfile ? '0' : ''}</span>
+          <span>${isSigned ? '−' + similarityOverlay.rowMax.toFixed(2) : '0'}</span>
+          <span>${isSigned ? '0' : ''}</span>
           <span>${similarityOverlay.rowMax.toFixed(2)}</span>
         </div>
         <div class="simleg-hint">
           Шкала нормирована по этой концепции: край соответствует её
           максимальному сходству ${similarityOverlay.rowMax.toFixed(2)}.
           Показано ${[...similarityOverlay.values.values()].filter(v =>
-            isProfile ? Math.abs(v) >= similarityOverlay.dimBelow : v > 0).length}
+            isSigned ? Math.abs(v) >= similarityOverlay.dimBelow : v > 0).length}
           концепций из ${similarityOverlay.values.size}.
           Пунктиром — ${SIMILARITY_ARCS} ближайших. Заливка узла — цвет философа.
         </div>
@@ -38538,35 +38888,78 @@
       if (node) showDetailModal(node);
     }
 
-    function similarConceptsBlock(conceptId) {
-      let byProfile, byStructure;
-      try {
-        byProfile = nearestConcepts(conceptId, 'profile', 5);
-        byStructure = nearestConcepts(conceptId, 'structure', 5);
-      } catch (e) { return ''; }
-      if (!byProfile.length && !byStructure.length) return '';
-
-      const nodeById = id => conceptById.get(id);
-      const item = (x, unit) => {
-        const n = nodeById(x.id);
-        if (!n) return '';
-        // C5: показывается контраст, косинус — в подсказке при наведении
-        const score = (x.contrast !== null && x.contrast !== undefined)
-          ? ('×' + x.contrast.toFixed(1))
-          : unit(x.value);
-        const tip = 'косинус ' + Math.round(x.value * 100) + ' %'
-              + ((x.contrast !== null && x.contrast !== undefined)
-                ? '; контраст — во сколько сигм сосед выделяется среди прочих'
-                : '')
-              + (x.tied ? '; неразличимо с соседней строкой' : '');
-        return `
+    // Строка списка похожих. C5: показывается контраст, косинус — в подсказке.
+    function similarItemHtml(x) {
+      const n = conceptById.get(x.id);
+      if (!n) return '';
+      const hasContrast = x.contrast !== null && x.contrast !== undefined;
+      const score = hasContrast ? ('×' + x.contrast.toFixed(1)) : (Math.round(x.value * 100) + ' %');
+      const tip = 'косинус ' + Math.round(x.value * 100) + ' %'
+            + (hasContrast ? '; контраст — во сколько сигм сосед выделяется среди прочих' : '')
+            + (x.tied ? '; неразличимо с соседней строкой' : '');
+      return `
           <div class="similar-item${x.tied ? ' similar-tied' : ''}" onclick="openConceptById('${x.id}')" data-tip="${tip}">
             <span class="similar-name">${n.label}</span>
             <span class="similar-author">${n.concept}</span>
             <span class="similar-score">${score}${x.tied ? ' =' : ''}</span>
           </div>`;
-      };
-      const asPct = v => Math.round(v * 100) + ' %';
+    }
+
+    function similarColumnHtml(title, hint, list, empty, attrs) {
+      return `
+            <div class="similar-col"${attrs || ''}>
+              <div class="similar-col-title">${title}</div>
+              <div class="similar-col-hint">${hint}</div>
+              ${list && list.length
+                ? list.map(similarItemHtml).join('')
+                : `<div class="similar-empty">${empty}</div>`}
+            </div>`;
+    }
+
+    // Колонка «по месту в сети» может ждать метрик. Запускать их ТИХО нельзя:
+    // четыре тяжёлых расчёта в фоне меняют облик видов статистики (вместо
+    // «Рассчитать» сразу «Визуализировать»), и итог зависит от того, успели ли
+    // они, — на этом споткнулся assert_probe (2026-09-17). Поэтому кнопка.
+    function similarNetworkColumnHtml(conceptId) {
+      const title = 'По месту в сети';
+      const hint = 'Сходная позиция в топологии графа';
+      const attrs = ` id="similarNetworkCol" data-concept="${conceptId}"`;
+      if (!profileIsMeaningful(conceptId)) {
+        return similarColumnHtml(title, hint, [],
+          `Место в сети у малосвязной концепции непоказательно (связей: ${nodeDegreeOf(conceptId)}, порог: ${medianNodeDegree()})`, attrs);
+      }
+      const list = nearestConcepts(conceptId, 'network', 5);
+      if (list === null) {
+        return similarColumnHtml(title, hint, [],
+          `Сетевые метрики ещё не посчитаны. <button class="similar-map-btn" onclick="computeSimilarNetworkColumn('${conceptId}')">Посчитать</button>`, attrs);
+      }
+      return similarColumnHtml(title, hint, list, 'Нет концепций со сходным местом', attrs);
+    }
+
+    function computeSimilarNetworkColumn(conceptId) {
+      const box = document.getElementById('similarNetworkCol');
+      const empty = box && box.querySelector('.similar-empty');
+      if (empty) empty.textContent = 'Считаю сетевые метрики…';
+      ensureNetworkProfile().then(ok => {
+        if (ok) refreshSimilarNetworkColumn(conceptId);
+        else if (empty) empty.textContent = 'Сетевые метрики не досчитались';
+      });
+    }
+
+    function refreshSimilarNetworkColumn(conceptId) {
+      const box = document.getElementById('similarNetworkCol');
+      if (!box || box.dataset.concept !== conceptId) return;
+      box.outerHTML = similarNetworkColumnHtml(conceptId);
+    }
+
+    function similarConceptsBlock(conceptId) {
+      let byProfile, byStructure, byTypes;
+      try {
+        byProfile = nearestConcepts(conceptId, 'profile', 5);
+        byStructure = nearestConcepts(conceptId, 'structure', 5);
+        byTypes = nearestConcepts(conceptId, 'types', 5);
+      } catch (e) { return ''; }
+      if (!byProfile.length && !byStructure.length && !byTypes.length) return '';
 
       // КНОПКА ЗНАЕТ О ВЫРОЖДЕННОСТИ. Прежде она всегда звала вид «по профилю»,
       // а showSimilarityOverlay у малосвязной концепции отказывался и советовал
@@ -38600,20 +38993,13 @@
             ${mapButton}
           </div>
           <div class="similar-columns">
-            <div class="similar-col">
-              <div class="similar-col-title">По профилю метрик</div>
-              <div class="similar-col-hint">Играют похожую роль в системе</div>
-              ${byProfile.length
-                ? byProfile.map(x => item(x, asPct)).join('')
-                : `<div class="similar-empty">Профиль метрик этой концепции почти пуст (связей: ${nodeDegreeOf(conceptId)}, порог: ${medianNodeDegree()}) — сравнение по нему не показательно</div>`}
-            </div>
-            <div class="similar-col">
-              <div class="similar-col-title">По структуре связей</div>
-              <div class="similar-col-hint">Связаны с одними и теми же понятиями</div>
-              ${byStructure.length
-                ? byStructure.map(x => item(x, asPct)).join('')
-                : '<div class="similar-empty">Нет общих соседей</div>'}
-            </div>
+            ${similarColumnHtml('По профилю метрик', 'Играют похожую роль в системе', byProfile,
+              `Профиль метрик этой концепции почти пуст (связей: ${nodeDegreeOf(conceptId)}, порог: ${medianNodeDegree()}) — сравнение по нему не показательно`)}
+            ${similarColumnHtml('По структуре связей', 'Связаны с одними и теми же понятиями', byStructure,
+              'Нет общих соседей')}
+            ${similarColumnHtml('По типам связей', 'Необычны в одних и тех же отношениях', byTypes,
+              'Нет концепций со сходным характером связей')}
+            ${similarNetworkColumnHtml(conceptId)}
           </div>
         </div>`;
     }

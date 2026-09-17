@@ -1,17 +1,17 @@
 {
  "меры": {
   "модулей": 129,
-  "строк": 20981,
-  "объявлений": 844,
-  "вывозов": 593,
-  "рёбер": 811,
+  "строк": 21335,
+  "объявлений": 877,
+  "вывозов": 607,
+  "рёбер": 812,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
-  "вывозовДляПриборов": 29,
+  "вывозовДляПриборов": 30,
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-09-17 11:30:45"
+  "составлено": "2026-09-17 15:08:03"
  },
  "модули": [
   {
@@ -3313,7 +3313,7 @@
    "вывозит": 1,
    "ввозитИз": 3,
    "вНС": {
-    "S": 3
+    "S": 4
    },
    "вывоз": [
     "getMetricDescription"
@@ -3354,7 +3354,7 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 43,
+     "раз": 42,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -4698,25 +4698,36 @@
   },
   {
    "путь": "modules/metrics/similarity-concepts.js",
-   "строк": 243,
-   "объявлений": 15,
-   "вывозит": 10,
+   "строк": 463,
+   "объявлений": 41,
+   "вывозит": 21,
    "ввозитИз": 3,
    "вНС": {
     "S": 4,
-    "MET": 17
+    "MET": 23
    },
    "вывоз": [
+    "NETWORK_ROLE_WORDS",
+    "SIGNED_SIMILARITY",
+    "SIM_SHARED_HIGH",
     "_pairCalculating",
     "_simCache",
     "allConceptPairs",
     "allConceptPairsAsync",
+    "ensureNetworkProfile",
+    "fillPairsNetwork",
     "invalidateSimilarityCache",
     "nearestConcepts",
+    "networkRoleOf",
+    "networkSimilarity",
+    "networkSimilarityData",
     "profileIsMeaningful",
     "profileSimilarity",
     "similarityData",
-    "structuralSimilarity"
+    "similarityNeedsDegree",
+    "similarityThresholds",
+    "structuralSimilarity",
+    "typeStyleSimilarity"
    ],
    "ввоз": [
     {
@@ -4729,8 +4740,13 @@
     {
      "откуда": "modules/metrics/network.js",
      "имена": [
+      "betweennessCache",
+      "calculateBetweennessAsync",
+      "closenessCache",
+      "eigenvectorCache",
       "medianNodeDegree",
-      "nodeDegreeOf"
+      "nodeDegreeOf",
+      "pageRankCache"
      ]
     },
     {
@@ -4759,7 +4775,7 @@
     {
      "имя": "invalidateSimilarityCache",
      "вид": "function",
-     "строк": 6
+     "строк": 9
     },
     {
      "имя": "_pairCache",
@@ -4774,7 +4790,7 @@
     {
      "имя": "allConceptPairs",
      "вид": "function",
-     "строк": 3
+     "строк": 8
     },
     {
      "имя": "PAIRS_CHUNK_ROWS",
@@ -4784,7 +4800,12 @@
     {
      "имя": "allConceptPairsAsync",
      "вид": "async function",
-     "строк": 55
+     "строк": 63
+    },
+    {
+     "имя": "fillPairsNetwork",
+     "вид": "function",
+     "строк": 11
     },
     {
      "имя": "profileSimilarity",
@@ -4809,7 +4830,132 @@
     {
      "имя": "structuralSimilarity",
      "вид": "function",
-     "строк": 22
+     "строк": 13
+    },
+    {
+     "имя": "zColumns",
+     "вид": "function",
+     "строк": 15
+    },
+    {
+     "имя": "centerRows",
+     "вид": "function",
+     "строк": 6
+    },
+    {
+     "имя": "vectorNorm",
+     "вид": "function",
+     "строк": 5
+    },
+    {
+     "имя": "normedDot",
+     "вид": "function",
+     "строк": 6
+    },
+    {
+     "имя": "_typeStyleCache",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "typeStyleData",
+     "вид": "function",
+     "строк": 15
+    },
+    {
+     "имя": "typeStyleSimilarity",
+     "вид": "function",
+     "строк": 6
+    },
+    {
+     "имя": "NETWORK_SIM_NAMES",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "NETWORK_ROLE_OF",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "NETWORK_ROLE_WORDS",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "_netSimCache",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "_netSimPending",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "metricValueMap",
+     "вид": "function",
+     "строк": 9
+    },
+    {
+     "имя": "networkSimilarityData",
+     "вид": "function",
+     "строк": 15
+    },
+    {
+     "имя": "networkSimilarity",
+     "вид": "function",
+     "строк": 7
+    },
+    {
+     "имя": "networkRoleOf",
+     "вид": "function",
+     "строк": 11
+    },
+    {
+     "имя": "ensureNetworkProfile",
+     "вид": "function",
+     "строк": 25
+    },
+    {
+     "имя": "SIGNED_SIMILARITY",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "similarityNeedsDegree",
+     "вид": "function",
+     "строк": 3
+    },
+    {
+     "имя": "similarityOf",
+     "вид": "function",
+     "строк": 7
+    },
+    {
+     "имя": "SIM_VERDICT_HIGH_Q",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "SIM_VERDICT_LOW_Q",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "SIM_SHARED_HIGH",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "_simThresholdCache",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "similarityThresholds",
+     "вид": "function",
+     "строк": 28
     },
     {
      "имя": "nearestConcepts",
@@ -4820,28 +4966,28 @@
    "чащеВсего": [
     {
      "имя": "MET",
-     "раз": 17,
+     "раз": 23,
      "откуда": "modules/core/ns.js"
     },
     {
      "имя": "S",
-     "раз": 5,
+     "раз": 8,
      "откуда": "modules/core/ns.js"
     },
     {
      "имя": "nodeDegreeOf",
-     "раз": 1,
+     "раз": 2,
      "откуда": "modules/metrics/network.js"
     },
     {
-     "имя": "medianNodeDegree",
-     "раз": 1,
+     "имя": "pageRankCache",
+     "раз": 2,
      "откуда": "modules/metrics/network.js"
     },
     {
-     "имя": "invalidatePhilosopherSimilarityCache",
-     "раз": 1,
-     "откуда": "modules/metrics/similarity-philosophers.js"
+     "имя": "betweennessCache",
+     "раз": 2,
+     "откуда": "modules/metrics/network.js"
     }
    ]
   },
@@ -5522,15 +5668,17 @@
   },
   {
    "путь": "modules/modal/concept-view.js",
-   "строк": 362,
-   "объявлений": 1,
-   "вывозит": 0,
+   "строк": 394,
+   "объявлений": 6,
+   "вывозит": 1,
    "ввозитИз": 9,
    "вНС": {
     "DATA": 5,
     "VIEWS": 1
    },
-   "вывоз": [],
+   "вывоз": [
+    "computeSimilarNetworkColumn"
+   ],
    "ввоз": [
     {
      "откуда": "modules/core/ns.js",
@@ -5561,6 +5709,7 @@
     {
      "откуда": "modules/metrics/similarity-concepts.js",
      "имена": [
+      "ensureNetworkProfile",
       "nearestConcepts",
       "profileIsMeaningful"
      ]
@@ -5592,9 +5741,34 @@
    ],
    "свои": [
     {
+     "имя": "similarItemHtml",
+     "вид": "function",
+     "строк": 15
+    },
+    {
+     "имя": "similarColumnHtml",
+     "вид": "function",
+     "строк": 10
+    },
+    {
+     "имя": "similarNetworkColumnHtml",
+     "вид": "function",
+     "строк": 15
+    },
+    {
+     "имя": "computeSimilarNetworkColumn",
+     "вид": "function",
+     "строк": 9
+    },
+    {
+     "имя": "refreshSimilarNetworkColumn",
+     "вид": "function",
+     "строк": 5
+    },
+    {
      "имя": "similarConceptsBlock",
      "вид": "function",
-     "строк": 79
+     "строк": 51
     }
    ],
    "чащеВсего": [
@@ -5605,23 +5779,23 @@
     },
     {
      "имя": "nearestConcepts",
-     "раз": 2,
+     "раз": 4,
      "откуда": "modules/metrics/similarity-concepts.js"
+    },
+    {
+     "имя": "nodeDegreeOf",
+     "раз": 3,
+     "откуда": "modules/metrics/network.js"
+    },
+    {
+     "имя": "medianNodeDegree",
+     "раз": 3,
+     "откуда": "modules/metrics/network.js"
     },
     {
      "имя": "conceptById",
      "раз": 2,
      "откуда": "modules/core/graph-index.js"
-    },
-    {
-     "имя": "nodeDegreeOf",
-     "раз": 2,
-     "откуда": "modules/metrics/network.js"
-    },
-    {
-     "имя": "medianNodeDegree",
-     "раз": 2,
-     "откуда": "modules/metrics/network.js"
     }
    ]
   },
@@ -10384,7 +10558,7 @@
   },
   {
    "путь": "modules/render/similarity-overlay.js",
-   "строк": 219,
+   "строк": 240,
    "объявлений": 10,
    "вывозит": 5,
    "ввозитИз": 8,
@@ -10438,10 +10612,16 @@
     {
      "откуда": "modules/metrics/similarity-concepts.js",
      "имена": [
+      "SIGNED_SIMILARITY",
       "_simCache",
+      "ensureNetworkProfile",
+      "networkSimilarity",
+      "networkSimilarityData",
       "profileIsMeaningful",
       "profileSimilarity",
-      "structuralSimilarity"
+      "similarityNeedsDegree",
+      "structuralSimilarity",
+      "typeStyleSimilarity"
      ]
     },
     {
@@ -10470,7 +10650,7 @@
     {
      "имя": "showSimilarityOverlay",
      "вид": "function",
-     "строк": 95
+     "строк": 115
     },
     {
      "имя": "setSimilarityLinks",
@@ -10500,7 +10680,7 @@
     {
      "имя": "updateSimilarityLegend",
      "вид": "function",
-     "строк": 46
+     "строк": 47
     }
    ],
    "чащеВсего": [
@@ -10510,24 +10690,24 @@
      "откуда": "modules/core/ns.js"
     },
     {
+     "имя": "showTemporaryMessage",
+     "раз": 8,
+     "откуда": "modules/core/long-task.js"
+    },
+    {
      "имя": "DATA",
      "раз": 4,
      "откуда": "modules/core/ns.js"
     },
     {
-     "имя": "showTemporaryMessage",
-     "раз": 4,
-     "откуда": "modules/core/long-task.js"
+     "имя": "profileIsMeaningful",
+     "раз": 3,
+     "откуда": "modules/metrics/similarity-concepts.js"
     },
     {
      "имя": "requestDraw",
      "раз": 3,
      "откуда": "modules/render/loop.js"
-    },
-    {
-     "имя": "profileIsMeaningful",
-     "раз": 2,
-     "откуда": "modules/metrics/similarity-concepts.js"
     }
    ]
   },
@@ -11835,15 +12015,16 @@
   },
   {
    "путь": "modules/stats/views/comparison.js",
-   "строк": 428,
-   "объявлений": 10,
-   "вывозит": 10,
+   "строк": 504,
+   "объявлений": 12,
+   "вывозит": 12,
    "ввозитИз": 10,
    "вНС": {
     "DATA": 4,
     "S": 11
    },
    "вывоз": [
+    "computeComparisonNetwork",
     "generateClosestPairsContent",
     "generateComparisonContent",
     "generatePhilosopherComparisonContent",
@@ -11853,7 +12034,8 @@
     "renderClosestPairs",
     "renderComparison",
     "renderPhilosopherComparison",
-    "renderPhilosopherPairs"
+    "renderPhilosopherPairs",
+    "similarityVerdict"
    ],
    "ввоз": [
     {
@@ -11900,12 +12082,21 @@
     {
      "откуда": "modules/metrics/similarity-concepts.js",
      "имена": [
+      "NETWORK_ROLE_WORDS",
+      "SIM_SHARED_HIGH",
       "_pairCalculating",
       "allConceptPairs",
       "allConceptPairsAsync",
+      "ensureNetworkProfile",
+      "fillPairsNetwork",
+      "networkRoleOf",
+      "networkSimilarity",
+      "profileIsMeaningful",
       "profileSimilarity",
       "similarityData",
-      "structuralSimilarity"
+      "similarityThresholds",
+      "structuralSimilarity",
+      "typeStyleSimilarity"
      ]
     },
     {
@@ -11953,12 +12144,12 @@
     {
      "имя": "generateClosestPairsContent",
      "вид": "function",
-     "строк": 40
+     "строк": 42
     },
     {
      "имя": "renderClosestPairs",
      "вид": "async function",
-     "строк": 96
+     "строк": 106
     },
     {
      "имя": "openPairInComparison",
@@ -11971,15 +12162,25 @@
      "строк": 48
     },
     {
+     "имя": "similarityVerdict",
+     "вид": "function",
+     "строк": 49
+    },
+    {
+     "имя": "computeComparisonNetwork",
+     "вид": "function",
+     "строк": 7
+    },
+    {
      "имя": "renderComparison",
      "вид": "function",
-     "строк": 62
+     "строк": 68
     }
    ],
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 47,
+     "раз": 56,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -12609,10 +12810,10 @@
   },
   {
    "путь": "modules/ui/actions-dyn.js",
-   "строк": 178,
+   "строк": 183,
    "объявлений": 0,
    "вывозит": 0,
-   "ввозитИз": 37,
+   "ввозитИз": 38,
    "вНС": {
     "DATA": 1,
     "S": 9
@@ -12667,6 +12868,12 @@
       "cancelLayoutRevert",
       "doLayoutRevert",
       "planRelayout"
+     ]
+    },
+    {
+     "откуда": "modules/modal/concept-view.js",
+     "имена": [
+      "computeSimilarNetworkColumn"
      ]
     },
     {
@@ -12852,6 +13059,7 @@
     {
      "откуда": "modules/stats/views/comparison.js",
      "имена": [
+      "computeComparisonNetwork",
       "openPairInComparison",
       "openPhilosopherPair",
       "renderClosestPairs",
@@ -12916,7 +13124,7 @@
     },
     {
      "имя": "S",
-     "раз": 10,
+     "раз": 12,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -12926,7 +13134,7 @@
     },
     {
      "имя": "renderClosestPairs",
-     "раз": 6,
+     "раз": 8,
      "откуда": "modules/stats/views/comparison.js"
     },
     {
@@ -14843,6 +15051,11 @@
    "внутри": 1
   },
   {
+   "имя": "similarityVerdict",
+   "модуль": "modules/stats/views/comparison.js",
+   "внутри": 1
+  },
+  {
    "имя": "traditionMembers",
    "модуль": "modules/ui/legend.js",
    "внутри": 6
@@ -14983,6 +15196,11 @@
      "модулей": 11
     },
     {
+     "поле": "_relations",
+     "раз": 18,
+     "модулей": 10
+    },
+    {
      "поле": "_conceptMap",
      "раз": 54,
      "модулей": 10
@@ -14996,11 +15214,6 @@
      "поле": "viewHeight",
      "раз": 17,
      "модулей": 10
-    },
-    {
-     "поле": "_relations",
-     "раз": 16,
-     "модулей": 9
     },
     {
      "поле": "_incomingLinks",

@@ -6,6 +6,7 @@ import { cancelGraphSelection } from '../graph/graph-selection.js';
 import { toggleMetricValueMode } from '../metrics/format.js';
 import { authLogout, closeAuthModal, openAuthModal, submitAuth } from '../modal/auth.js';
 import { applyRelayout, askLayoutRevert, cancelLayoutRevert, doLayoutRevert, planRelayout } from '../modal/commits.js';
+import { computeSimilarNetworkColumn } from '../modal/concept-view.js';
 import { createNewConceptForPhilosopher, createNewConnectionForConcept, onConnTypeChange, selectConnectionEditConcept, swapConnectionConcepts } from '../modal/connection-edit.js';
 import { handleConnectionViewSearch, selectConnectionViewConcept, toggleConnectionSearchSection } from '../modal/connection-view.js';
 import { closeUniversalModal, openUniversalModal, popModalState, toggleModalMode } from '../modal/core.js';
@@ -29,7 +30,7 @@ import { openStatsModal, switchStatsView } from '../stats/modal.js';
 import { deleteObservation, pickObservation, saveObservation } from '../stats/observations.js';
 import { toggleMetricDetails, toggleMetricLayout } from '../stats/results.js';
 import { calculateMetricFromModal } from '../stats/run.js';
-import { openPairInComparison, openPhilosopherPair, renderClosestPairs, renderPhilosopherComparison, renderPhilosopherPairs } from '../stats/views/comparison.js';
+import { computeComparisonNetwork, openPairInComparison, openPhilosopherPair, renderClosestPairs, renderPhilosopherComparison, renderPhilosopherPairs } from '../stats/views/comparison.js';
 import { setInfluenceScope } from '../stats/views/philosophical.js';
 import { onlyTradition, resetTradition, togglePhilosopher, toggleRelation, toggleRubric, toggleTradition } from './legend.js';
 import { selectSearchResult } from './search-legend.js';
@@ -48,6 +49,7 @@ registerActions({
   "plan-relayout": (el, ev) => { planRelayout(); },
   "apply-relayout": (el, ev) => { applyRelayout(); },
   "open-concept-by-id": (el, ev) => { openConceptById(el.dataset.a1); },
+  "compute-similar-network-column": (el, ev) => { computeSimilarNetworkColumn(el.dataset.a1); },
   "show-similarity-overlay": (el, ev) => { showSimilarityOverlay(el.dataset.a1,el.dataset.a2); },
   "handle-modal-search-input": (el, ev) => { handleModalSearch(el.value); },
   "handle-modal-search-focus": (el, ev) => { handleModalSearch(el.value); },
@@ -152,6 +154,8 @@ registerActions({
   "open-philosopher-pair": (el, ev) => { openPhilosopherPair(el.dataset.a1,el.dataset.a2); },
   "render-closest-pairs": (el, ev) => { S._pairsKind='profile'; renderClosestPairs(); },
   "render-closest-pairs-2": (el, ev) => { S._pairsKind='structure'; renderClosestPairs(); },
+  "render-closest-pairs-3": (el, ev) => { S._pairsKind='types'; renderClosestPairs(); },
+  "render-closest-pairs-4": (el, ev) => { S._pairsKind='network'; renderClosestPairs(); },
   "render-closest-pairs-input": (el, ev) => { S._pairsMinDegree=+el.value; renderClosestPairs(); },
   "render-closest-pairs-input-2": (el, ev) => { S._pairsMinShared=+el.value; renderClosestPairs(); },
   "render-closest-pairs-change": (el, ev) => { S._pairsCrossAuthor=el.checked; renderClosestPairs(); },
@@ -159,6 +163,7 @@ registerActions({
   "open-pair-in-comparison": (el, ev) => { openPairInComparison(el.dataset.a1,el.dataset.a2); },
   "show-custom-select-dropdown-focus-3": (el, ev) => { showCustomSelectDropdown(el.dataset.a1); },
   "filter-custom-select-input-3": (el, ev) => { filterCustomSelect(el.dataset.a1, el.value); },
+  "compute-comparison-network": (el, ev) => { computeComparisonNetwork(); },
   "highlight-node-by-id-3": (el, ev) => { highlightNodeById(el.dataset.a1); },
   "set-influence-scope": (el, ev) => { setInfluenceScope(el.dataset.a1); },
   "set-influence-scope-2": (el, ev) => { setInfluenceScope(el.dataset.a1); },
