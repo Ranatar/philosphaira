@@ -19,7 +19,7 @@ import { closeConceptProfileModal, showConceptProfileModal, toggleProfileOrder }
 import { closePhilosopherProfileModal, showPhilosopherProfileModal } from '../modal/profile-philosopher.js';
 import { clearModalSearch, handleModalSearch } from '../modal/search.js';
 import { confirmMfaEnroll, openSecurityModal, refreshSecurityDone, startMfaEnroll } from '../modal/security.js';
-import { selectionListMore, setSelectionProvenance, toggleSelectionBlock, toggleSelectionBodies, toggleSelectionBody } from '../modal/selection-list.js';
+import { openSelectionLink, selectionListMore, setSelectionProvenance, toggleSelectionBlock, toggleSelectionBodies, toggleSelectionBody } from '../modal/selection-list.js';
 import { showPathDescriptionsModal, togglePathNodesDescriptions } from '../paths/path-descriptions.js';
 import { clearPathHighlight, handlePathArrowHover } from '../paths/path-ui.js';
 import { toggleMetricVisualization } from '../render/metric-visualization.js';
@@ -118,17 +118,17 @@ registerActions({
   "open-universal-modal-13": (el, ev) => { openUniversalModal('philosopher', el.dataset.a1, 'view'); },
   "toggle-selection-body": (el, ev) => { toggleSelectionBody(el.dataset.a1); },
   "open-universal-modal-14": (el, ev) => { openUniversalModal('concept', DATA.nodes.find(x => x.id === el.dataset.a1), 'view'); },
-  "open-universal-modal-15": (el, ev) => { openUniversalModal('connection', DATA.links.find(x => (x.source.id||x.source) === el.dataset.a1 && (x.target.id||x.target) === el.dataset.a2), 'view'); },
+  "open-selection-link": (el, ev) => { openSelectionLink(el.dataset.a1, el.dataset.a2); },
   "set-selection-provenance": (el, ev) => { setSelectionProvenance(el.dataset.a1); },
   "toggle-selection-block": (el, ev) => { toggleSelectionBlock(el.dataset.a1); },
   "toggle-selection-bodies": (el, ev) => { toggleSelectionBodies(el.dataset.a1); },
   "selection-list-more": (el, ev) => { selectionListMore(el.dataset.a1); },
   "toggle-path-nodes-descriptions": (el, ev) => { togglePathNodesDescriptions(); },
   "open-concept-by-id-2": (el, ev) => { openConceptById(el.dataset.a1); },
-  "open-universal-modal-16": (el, ev) => { openUniversalModal('philosopher', el.dataset.a1, 'view'); },
-  "open-universal-modal-17": (el, ev) => { openUniversalModal('connection', findConnection(el.dataset.a1, el.dataset.a2, false), 'view'); },
+  "open-universal-modal-15": (el, ev) => { openUniversalModal('philosopher', el.dataset.a1, 'view'); },
+  "open-universal-modal-16": (el, ev) => { openUniversalModal('connection', findConnection(el.dataset.a1, el.dataset.a2, false), 'view'); },
   "clear-path-highlight": (el, ev) => { clearPathHighlight(); },
-  "open-universal-modal-18": (el, ev) => { openUniversalModal('connection', findConnection(el.dataset.a1, el.dataset.a2, false), 'view'); },
+  "open-universal-modal-17": (el, ev) => { openUniversalModal('connection', findConnection(el.dataset.a1, el.dataset.a2, false), 'view'); },
   "handle-path-arrow-hover-mouseenter": (el, ev) => { handlePathArrowHover(ev, true); },
   "handle-path-arrow-hover-mouseleave": (el, ev) => { handlePathArrowHover(ev, false); },
   "show-path-descriptions-modal": (el, ev) => { showPathDescriptionsModal(); },
