@@ -2516,6 +2516,19 @@
     }
     .sel-prov-note { font-size: 10px; color: var(--fg-muted); font-style: italic; }
 
+    /* Черта между философами: порядок по системам виден только тому, кто
+       держит в голове годы — черта показывает его глазами. Имя стоит на
+       самой черте, а не отдельной строкой: так она остаётся разделителем,
+       а не превращается в третий уровень заголовков. */
+    .sel-divider {
+      display: flex; align-items: center; gap: 8px;
+      margin: 10px 0 6px; font-size: 10px; color: var(--fg-muted);
+    }
+    .sel-divider::before, .sel-divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border, rgba(255,255,255,0.12));
+    }
+
     .sel-more {
       margin-top: 8px; width: 100%; padding: 6px; cursor: pointer;
       font-size: 12px; border-radius: 6px; background: none;
@@ -32216,6 +32229,7 @@
     }
 
     let selectionPhilCount = {};
+    let selectionMirrorCount = 0;
 
     function selectionListSets() {
       const nodesShown = nodes.filter(isNodeVisible);
@@ -32246,12 +32260,36 @@
       // годе по алфавиту), концепции по философу и названию, связи —
       // внутренние вперёд. Указатели упорядочены при построении, но здесь
       // списки собираются отбором из nodes и links, а не из них.
+      /**
+       * ДВУСТОРОННЯЯ ВНЕШНЯЯ СВЯЗЬ ПОКАЗЫВАЕТСЯ У ОБОИХ ФИЛОСОФОВ.
+       *
+       * В базе она записана ОДИН раз и в одну сторону (пар, записанных
+       * дважды, — ноль из 2720), а порядок ведётся по философу-источнику.
+       * Значит «Эйдос ↔ Эпистема» легла бы к Платону, а у Фуко её не было
+       * бы вовсе — хотя связь симметрична и принадлежит обоим. Сторона тут
+       * выбрана тем, кто заводил строку, то есть произволом записи.
+       *
+       * Поэтому для таких связей строится ЗЕРКАЛО: та же связь с
+       * переставленными концами. Внутренних это не касается — у них
+       * философ один, и второй строкой вышло бы удвоение без смысла.
+       * Зеркал 217 при 2720 записях; их число названо в заголовке блока,
+       * чтобы «2937» не выглядело расхождением с базой.
+       */
+      const visibleLinks = byProvenance(links.filter(isLinkVisible));
+      const withMirrors = [];
+      for (const l of visibleLinks) {
+        withMirrors.push(l);
+        if (linkHasTwoHeads(l) && !linkIsInternal(l)) {
+          withMirrors.push({ ...l, source: l.target, target: l.source, mirrorOf: l });
+        }
+      }
+      selectionMirrorCount = withMirrors.length - visibleLinks.length;
       return {
         philosopher: byProvenance(
           philosophers.filter(p => selectionPhilCount[p.nameRu] > 0))
           .sort(comparePhilosophers),
         concept: byProvenance(nodesShown).sort(compareConcepts),
-        relation: byProvenance(links.filter(isLinkVisible)).sort(compareLinks),
+        relation: withMirrors.sort(compareLinks),
       };
     }
 
@@ -32393,7 +32431,6 @@
           <div class="sel-row-head">
             <span class="sel-dot" style="background:${dotColor};"></span>
             <span class="sel-name" onclick="openUniversalModal('concept', nodes.find(x => x.id === '${escapeAttr(n.id)}'), 'view')">${escapeAttr(n.label)}</span>
-            <span class="sel-meta">${escapeAttr(n.concept)}</span>
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
           <div class="sel-caption">${escapeAttr(n.description || '')}</div>
@@ -32408,6 +32445,19 @@
      * концепции и в поиске философ стоит второй строкой (concept-row-phil);
      * здесь он поставлен под именами, чтобы строка оставалась одной.
      */
+    /**
+     * Открыть окно связи по паре концов. Ищется в ОБЕ стороны нарочно: у
+     * зеркальной строки концы переставлены, и поиск строго «источник →
+     * цель» не нашёл бы ничего — строка молча перестала бы открываться.
+     */
+    function openSelectionLink(s, t) {
+      const found = links.find(x => {
+        const a = x.source.id || x.source, b = x.target.id || x.target;
+        return (a === s && b === t) || (a === t && b === s);
+      });
+      if (found) openUniversalModal('connection', found, 'view');
+    }
+
     function selectionRowRelation(l) {
       const s = l.source.id || l.source;
       const t = l.target.id || l.target;
@@ -32418,22 +32468,25 @@
       // relationTypes['influence'] вернул бы undefined, и тип связи пропал
       // бы из строки, ничего об этом не сказав.
       const linkType = relationTypesObj[l.type] || {};
+      // ПОДПИСЬ НЕСЁТ ТОЛЬКО ТО, ЧЕГО НЕ ГОВОРИТ ЧЕРТА. Философ-источник
+      // назван чертой над группой, и повторять его в каждой из 23 строк
+      // (медиана; у самого связного — 94) значит писать заголовок заново на
+      // каждой строке. У внутренней связи философ один — подписи нет вовсе;
+      // у внешней остаётся только цель.
       const philOf = id => { const n = conceptById.get(id); return n ? n.concept : ''; };
-      const sPhil = philOf(s);
       const tPhil = philOf(t);
       // У возвратной связи оба конца — одна концепция, и повторять философа
       // дважды незачем.
-      const caption = s === t ? sPhil
-        : (sPhil === tPhil ? sPhil : sPhil + ' ' + directionMark(l) + ' ' + tPhil);
+      const caption = linkIsInternal(l) ? '' : (directionMark(l) + ' ' + tPhil);
       return `
         <div class="sel-row">
           <div class="sel-row-head">
             <span class="sel-dot" style="background:${linkType.color || 'var(--fg-muted)'};"></span>
-            <span class="sel-name" onclick="openUniversalModal('connection', links.find(x => (x.source.id||x.source) === '${escapeAttr(s)}' && (x.target.id||x.target) === '${escapeAttr(t)}'), 'view')">${escapeAttr(selectionLabel(s))} ${directionMark(l)} ${escapeAttr(selectionLabel(t))}</span>
+            <span class="sel-name" onclick="openSelectionLink('${escapeAttr(s)}', '${escapeAttr(t)}')">${escapeAttr(selectionLabel(s))} ${directionMark(l)} ${escapeAttr(selectionLabel(t))}</span>
             <span class="sel-meta">${escapeAttr(linkType.label || l.type)} · вес ${l.weight}</span>
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
-          <div class="sel-caption">${escapeAttr(caption)}</div>
+          ${caption ? `<div class="sel-caption">${escapeAttr(caption)}</div>` : ''}
           ${openBody ? `<div class="sel-body">${escapeAttr(l.description || 'Описания нет')}</div>` : ''}
         </div>`;
     }
@@ -32466,6 +32519,33 @@
                 PROVENANCE_LABELS[selectionProvenance]}</span>`)
         + '</div>';
 
+      /**
+       * ЧЕРТА МЕЖДУ ФИЛОСОФАМИ. Порядок по системам виден только тому, кто
+       * держит в голове годы; черта показывает его глазами. У связей она
+       * ложится между последней ВНЕШНЕЙ связью одного и первой ВНУТРЕННЕЙ
+       * следующего — то есть по смене философа-источника, а разделение
+       * «внутренние/внешние» внутри философа чертой не отмечается: это
+       * второй уровень, и своя черта у него спорила бы с первой.
+       */
+      const ownerOf = (kind, z) => kind === 'concept' ? z.concept
+        : (conceptById.get(z.source.id || z.source) || {}).concept;
+      const withDividers = (kind, items, rowOf) => {
+        if (kind === 'philosopher') return items.map(rowOf).join('');
+        let prev = null;
+        return items.map(z => {
+          const who = ownerOf(kind, z);
+          // ЧЕРТА У КАЖДОЙ ГРУППЫ, ВКЛЮЧАЯ ПЕРВУЮ. Разделителю первая черта
+          // не нужна — разделять нечего; но здесь имя философа стоит НА
+          // черте и больше нигде (из строк его убрали как повтор). Пропусти
+          // первую — и у первой группы философ не назван вовсе, а при
+          // сужении отбора до одного философа он пропал бы с экрана совсем.
+          const divider = (who !== prev)
+            ? `<div class="sel-divider"><span>${escapeAttr(who || '')}</span></div>` : '';
+          prev = who;
+          return divider + rowOf(z);
+        }).join('');
+      };
+
       slot.innerHTML = provBar + blocks.map(([kind, title, items, rowOf]) => {
         const openBlock = selectionListOpenBlocks.has(kind);
         const shown = Math.min(selectionListShown[kind], items.length);
@@ -32473,7 +32553,9 @@
           <div class="sel-block">
             <div class="sel-block-head">
               <span class="sel-block-title" onclick="toggleSelectionBlock('${kind}')">${title}</span>
-              <span class="sel-block-count">${items.length}</span>
+              <span class="sel-block-count">${items.length}${
+                kind === 'relation' && selectionMirrorCount
+                  ? ', повторно ' + selectionMirrorCount : ''}</span>
               ${openBlock && items.length
                 ? `<button class="sel-bodies" onclick="toggleSelectionBodies('${kind}')"
                            data-tip="Разворачивает описания у показанных строк, а не у всего набора">Все описания</button>`
@@ -32481,7 +32563,7 @@
               <span class="sel-block-toggle" onclick="toggleSelectionBlock('${kind}')">${openBlock ? '▲' : '▼'}</span>
             </div>
             ${openBlock ? `<div class="sel-block-body">
-              ${items.length ? items.slice(0, shown).map(rowOf).join('')
+              ${items.length ? withDividers(kind, items.slice(0, shown), rowOf)
                               : '<div class="empty-state-hint">Ничего не отобрано</div>'}
               ${shown < items.length
                 ? `<button class="sel-more" onclick="selectionListMore('${kind}')">Показать ещё ${
@@ -33050,14 +33132,29 @@
     }
 
     /**
-     * ПОРЯДОК СВЯЗЕЙ. Внутренние (оба конца у одного философа) идут ПЕРЕД
-     * внешними: связь внутри системы говорит об устройстве самой системы, и
-     * читать её естественно раньше, чем связь наружу.
+     * ПОРЯДОК СВЯЗЕЙ — ПО СИСТЕМАМ, А НЕ ПО АЛФАВИТУ ПОВЕРХ ВСЕХ.
      *
-     * Внутренние — по алфавиту концепции-источника, затем цели: философ у
-     * обоих концов один, и хронология между ними ничего не различает.
-     * Внешние — по хронологии источника (а при равном годе по алфавиту, тем
-     * же сравнением), затем по хронологии цели, и лишь затем по названиям.
+     * Связи читаются от того, ЧЬЯ это система: сперва всё, что Пифагор
+     * связал внутри себя, потом всё, что он протянул наружу, потом то же у
+     * следующего по хронологии. Оглавление систем, а не словарь.
+     *
+     * ПЕРВАЯ РЕДАКЦИЯ БЫЛА ИНОЙ И ХУЖЕ: внутренние связи всей базы шли
+     * вперёд общей кучей, отсортированные по алфавиту концепции-источника.
+     * Условие выполнялось буквально, а смысл терялся — гегелевские связи
+     * оказывались вперемешку с пирсовыми, лосевскими и фихтевскими:
+     *
+     *   Абдукция → Прагматическая максима   (Пирс)
+     *   Абсолютная идея → Нравственность    (Гегель)
+     *   Абсолютная мифология → Миф          (Лосев)
+     *
+     * А внутренняя связь заведена ровно затем, чтобы читать устройство ОДНОЙ
+     * системы; раскидать её по алфавиту между чужими значит лишить
+     * назначения. Разделение «внутренние/внешние» осталось, но встало НА
+     * ВТОРОЙ уровень — внутри философа, а не поверх базы.
+     *
+     * Связь сортируется по философу ИСТОЧНИКА: та, где Пифагор цель, а
+     * источник чужой, попадёт к чужому — так и задумано, «его связи» это
+     * те, что он протянул.
      */
     function linkIsInternal(l) {
       const s = conceptById.get(l.source.id || l.source);
@@ -33066,19 +33163,16 @@
     }
 
     function compareLinks(a, b) {
-      const aInner = linkIsInternal(a), bInner = linkIsInternal(b);
-      if (aInner !== bInner) return aInner ? -1 : 1;
       const nodeOf = id => conceptById.get(id.id || id) || {};
       const aS = nodeOf(a.source), aT = nodeOf(a.target);
       const bS = nodeOf(b.source), bT = nodeOf(b.target);
       const byLabel = (x, y) =>
         String(x.label || '').localeCompare(String(y.label || ''), 'ru');
-      if (aInner) {
-        return byLabel(aS, bS) || byLabel(aT, bT);
-      }
-      return comparePhilosophers(aS.concept, bS.concept)
-          || comparePhilosophers(aT.concept, bT.concept)
-          || byLabel(aS, bS) || byLabel(aT, bT);
+      const aInner = linkIsInternal(a), bInner = linkIsInternal(b);
+      return comparePhilosophers(aS.concept, bS.concept)        // 1. чья система
+          || (aInner === bInner ? 0 : (aInner ? -1 : 1))        // 2. сперва внутрь себя
+          || comparePhilosophers(aT.concept, bT.concept)        // 3. к кому наружу
+          || byLabel(aS, bS) || byLabel(aT, bT);                // 4–5. алфавит
     }
     function philosopherYears(nameRu) {
       const p = philosopherByName.get(nameRu);
@@ -39918,7 +40012,12 @@
       return null;
     }
 
-    async function api(path, { method = 'GET', тело: body } = {}) {
+    async function api(path, { метод: method = 'GET', тело: body } = {}) {
+      // ИМЯ ПОЛЯ «метод» СОХРАНЕНО НАРОЧНО. Семнадцать вызовов шлют
+      // { метод: 'POST' }, и переименование разбора без сохранения поля
+      // превратило все POST и DELETE в GET — вход перестал работать.
+      // Поймано page_probe: приборы, гоняющие страницу БЕЗ сервера, этого
+      // увидеть не могли — api там выходит на первой же строке.
       // БЕЗ СЕРВЕРА НЕ ХОДИМ ВОВСЕ. Обход жмёт все обработчики подряд,
       // включая кнопки панелей, — и на статическом сервере каждый такой
       // зов давал 404, который браузер печатает в консоль. Прибор счёл это

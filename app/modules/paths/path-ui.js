@@ -174,7 +174,7 @@ function findAndShowPath() {
             pathHTML += `
               <span class="path-arrow path-open ${link.bidirectional ? 'bidirectional' : ''}${trCross ? ' tradition-crossing' : ''}" 
                   style="color: ${linkColor};"
-                  data-act-click="open-universal-modal-18" data-a1="${currentNode.id}" data-a2="${nextNode.id}" 
+                  data-act-click="open-universal-modal-17" data-a1="${currentNode.id}" data-a2="${nextNode.id}" 
                   data-tip="${trHint}"
                   data-link-type="${linkLabel}"
                   data-link-description="${linkDescription.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"

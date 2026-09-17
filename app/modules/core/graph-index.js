@@ -115,19 +115,16 @@ function linkIsInternal(l) {
     }
 
 function compareLinks(a, b) {
-      const aInner = linkIsInternal(a), bInner = linkIsInternal(b);
-      if (aInner !== bInner) return aInner ? -1 : 1;
       const nodeOf = id => conceptById.get(id.id || id) || {};
       const aS = nodeOf(a.source), aT = nodeOf(a.target);
       const bS = nodeOf(b.source), bT = nodeOf(b.target);
       const byLabel = (x, y) =>
         String(x.label || '').localeCompare(String(y.label || ''), 'ru');
-      if (aInner) {
-        return byLabel(aS, bS) || byLabel(aT, bT);
-      }
-      return comparePhilosophers(aS.concept, bS.concept)
-          || comparePhilosophers(aT.concept, bT.concept)
-          || byLabel(aS, bS) || byLabel(aT, bT);
+      const aInner = linkIsInternal(a), bInner = linkIsInternal(b);
+      return comparePhilosophers(aS.concept, bS.concept)        // 1. чья система
+          || (aInner === bInner ? 0 : (aInner ? -1 : 1))        // 2. сперва внутрь себя
+          || comparePhilosophers(aT.concept, bT.concept)        // 3. к кому наружу
+          || byLabel(aS, bS) || byLabel(aT, bT);                // 4–5. алфавит
     }
 
 function buildIndexes() {
@@ -212,4 +209,4 @@ function buildIndexes() {
 // всё, что от них считается, приходилось откладывать в boot.
 buildIndexes();
 
-export { buildConceptToRubrics, buildPhilosopherTraditions, buildRubricsIndex, compareConcepts, compareLinks, comparePhilosophers, conceptById, linksByConcept, nodesByPhilosopher, philosopherByName, rebuildIndexes, rubricById, traditionById };
+export { buildConceptToRubrics, buildPhilosopherTraditions, buildRubricsIndex, compareConcepts, compareLinks, comparePhilosophers, conceptById, linkIsInternal, linksByConcept, nodesByPhilosopher, philosopherByName, rebuildIndexes, rubricById, traditionById };

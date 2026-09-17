@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 129 модулей, 20903 строк.
+Составлено из готовой сборки: 129 модулей, 20970 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -46,10 +46,10 @@ tools/build/split_css.mjs <дерево>                              стили
 | `boot.js` | 313 | 1 | 65 |
 | `main.js` | 135 | 0 | 124 |
 | `modules/boot-defs.js` | 62 | 2 | 8 |
-| `modules/core/api.js` | 85 | 3 | 1 |
+| `modules/core/api.js` | 90 | 3 | 1 |
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
 | `modules/core/events.js` | 65 | 2 | 0 |
-| `modules/core/graph-index.js` | 216 | 13 | 1 |
+| `modules/core/graph-index.js` | 213 | 14 | 1 |
 | `modules/core/link-facts.js` | 73 | 10 | 2 |
 | `modules/core/long-task.js` | 120 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
@@ -114,7 +114,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
 | `modules/modal/security.js` | 116 | 4 | 4 |
-| `modules/modal/selection-list.js` | 256 | 11 | 7 |
+| `modules/modal/selection-list.js` | 321 | 13 | 8 |
 | `modules/modal/users.js` | 97 | 7 | 3 |
 | `modules/paths/analysis.js` | 74 | 2 | 7 |
 | `modules/paths/chronology.js` | 175 | 6 | 4 |
@@ -408,7 +408,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/api.js`
 
-Строк 85.
+Строк 90.
 
 **Вывозит:** `api`, `detectServerMode`, `serverMode`
 
@@ -442,9 +442,9 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/graph-index.js`
 
-Строк 216.
+Строк 213.
 
-**Вывозит:** `buildConceptToRubrics`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linksByConcept`, `nodesByPhilosopher`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
+**Вывозит:** `buildConceptToRubrics`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `linksByConcept`, `nodesByPhilosopher`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
 
 **Ввозит:**
 
@@ -1445,21 +1445,22 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/selection-list.js`
 
-Строк 256.
+Строк 321.
 
-**Вывозит:** `closeSelectionListModal`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionListMore`, `selectionListOpenBlocks`, `selectionListSets`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
+**Вывозит:** `closeSelectionListModal`, `openSelectionLink`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionListMore`, `selectionListOpenBlocks`, `selectionListSets`, `selectionMirrorCount`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
-- из `../core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`
-- из `../core/link-facts.js`: `directionMark`
+- из `../core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`
+- из `../core/link-facts.js`: `directionMark`, `linkHasTwoHeads`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
+- из `./core.js`: `openUniversalModal`
 - из `../render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
 - из `../util/html.js`: `escapeAttr`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `PROVENANCE_LABELS`, `SELECTION_LIST_CHUNK`, `closeSelectionListModal`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionLabel`, `selectionListMore`, `selectionListOpenBlocks`, `selectionListOpenBodies`, `selectionListSets`, `selectionListShown`, `selectionPhilCount`, `selectionProvenance`, `selectionRowConcept`, `selectionRowPhilosopher`, `selectionRowRelation`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
+**Содержит:** `PROVENANCE_LABELS`, `SELECTION_LIST_CHUNK`, `closeSelectionListModal`, `openSelectionLink`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionLabel`, `selectionListMore`, `selectionListOpenBlocks`, `selectionListOpenBodies`, `selectionListSets`, `selectionListShown`, `selectionMirrorCount`, `selectionPhilCount`, `selectionProvenance`, `selectionRowConcept`, `selectionRowPhilosopher`, `selectionRowRelation`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
 
 ### `modules/modal/users.js`
 
@@ -2143,7 +2144,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../modal/profile-philosopher.js`: `closePhilosopherProfileModal`, `showPhilosopherProfileModal`
 - из `../modal/search.js`: `clearModalSearch`, `handleModalSearch`
 - из `../modal/security.js`: `confirmMfaEnroll`, `openSecurityModal`, `refreshSecurityDone`, `startMfaEnroll`
-- из `../modal/selection-list.js`: `selectionListMore`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
+- из `../modal/selection-list.js`: `openSelectionLink`, `selectionListMore`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
 - из `../paths/path-descriptions.js`: `showPathDescriptionsModal`, `togglePathNodesDescriptions`
 - из `../paths/path-ui.js`: `clearPathHighlight`, `handlePathArrowHover`
 - из `../render/metric-visualization.js`: `toggleMetricVisualization`

@@ -229,6 +229,90 @@ for (const [файл, пакет] of [
     return найдено;
   };
 
+  // ── СОКРАЩЁННАЯ ЗАПИСЬ, ПОТЕРЯВШАЯ ИМЯ ПОЛЯ ───────────────────────────
+  //
+  // Переименование разбора `{ метод }` в `{ method }` выглядит как
+  // переименование, а меняет ДОГОВОР: разбор начинает читать другое поле.
+  // Ровно это и случилось 16 сентября 2026 — семнадцать вызовов слали
+  // `{ метод: 'POST' }`, а api разбирал `{ method }`, и все POST и DELETE
+  // стали GET. Вход перестал работать.
+  //
+  // Приборы страницы этого увидеть НЕ МОГЛИ: они гоняются без сервера, а
+  // api там выходит первой же строкой (`if (!serverMode) return …`).
+  // Нашла page_probe — единственная, что водит страницу ПРИ сервере.
+  //
+  // Заслон в rename_locals теперь разворачивает такую запись сам, но он
+  // стоит в инструменте, а не в приёмке: правку можно внести и руками.
+  // Признак прост и не требует знать намерений: вызовы шлют поле
+  // кириллицей, а разбор ждёт латиницей — значит имя потерялось.
+  {
+    const исходник = fs.readFileSync(path.join(КОРЕНЬ, 'source/philosophy_graph_v3.html'), 'utf8');
+    const кусок = [...исходник.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)]
+      .map(м => м[1]).sort((a, b) => b.length - a.length)[0];
+    const ast = acorn.parse(кусок, { ecmaVersion: 2023, sourceType: 'script' });
+
+    // какие кириллические поля где-то ПЕРЕДАЮТСЯ
+    const передаются = new Set();
+    // какие имена связываются сокращённой записью разбора
+    const разбираются = new Set();
+    (function обход(узел) {
+      if (!узел || typeof узел !== 'object') return;
+      if (узел.type === 'ObjectExpression') {
+        for (const с of узел.properties) {
+          if (с.type === 'Property' && с.key && с.key.type === 'Identifier'
+              && /[А-Яа-яЁё]/.test(с.key.name)) передаются.add(с.key.name);
+        }
+      }
+      if (узел.type === 'ObjectPattern') {
+        for (const с of узел.properties) {
+          if (с.type !== 'Property' || !с.shorthand) continue;
+          const им = с.value.type === 'Identifier' ? с.value.name
+            : (с.value.type === 'AssignmentPattern' && с.value.left.type === 'Identifier'
+               ? с.value.left.name : null);
+          if (им) разбираются.add(им);
+        }
+      }
+      for (const ключ of Object.keys(узел)) {
+        const в = узел[ключ];
+        if (Array.isArray(в)) в.forEach(обход);
+        else if (в && typeof в.type === 'string') обход(в);
+      }
+    })(ast);
+
+    // Сопоставляем по смыслу нельзя, а по факту можно: если поле
+    // передаётся кириллицей и НИГДЕ не разбирается — его никто не читает.
+    const разбираютсяВсе = new Set();
+    (function обход2(узел) {
+      if (!узел || typeof узел !== 'object') return;
+      if (узел.type === 'ObjectPattern') {
+        for (const с of узел.properties) {
+          if (с.type === 'Property' && с.key && с.key.type === 'Identifier') {
+            разбираютсяВсе.add(с.key.name);
+          }
+        }
+      }
+      if (узел.type === 'MemberExpression' && !узел.computed
+          && узел.property.type === 'Identifier') разбираютсяВсе.add(узел.property.name);
+      for (const ключ of Object.keys(узел)) {
+        const в = узел[ключ];
+        if (Array.isArray(в)) в.forEach(обход2);
+        else if (в && typeof в.type === 'string') обход2(в);
+      }
+    })(ast);
+
+    // ПОЛЯ ПОЛЕЗНОЙ НАГРУЗКИ — законное исключение. `{ имя, значение }`
+    // складываются в сводку замера и уходят на сервер как JSON: их никто
+    // не разбирает и разбирать не должен. Отличить их от потерянного имени
+    // разбором нельзя — это решение, и оно записано здесь поимённо, а не
+    // угадывается. Появится новое такое поле — прибор скажет, и решение
+    // будет принято осознанно, а не пропущено.
+    const НАГРУЗКА = new Set(['имя', 'значение']);
+    const осиротевшие = [...передаются]
+      .filter(им => !разбираютсяВсе.has(им) && !НАГРУЗКА.has(им));
+    п('переданные кириллические поля кто-то читает', осиротевшие.length === 0, 0,
+      осиротевшие.length ? осиротевшие.join(', ') : 0);
+  }
+
   for (const где of ['source/philosophy_graph_v3.html', 'server/src']) {
     const найдено = собрать(где);
     п(`кириллических имён в ${где} нет`, найдено.length === 0, 0,

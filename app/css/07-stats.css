@@ -105,6 +105,19 @@
     }
     .sel-prov-note { font-size: 10px; color: var(--fg-muted); font-style: italic; }
 
+    /* Черта между философами: порядок по системам виден только тому, кто
+       держит в голове годы — черта показывает его глазами. Имя стоит на
+       самой черте, а не отдельной строкой: так она остаётся разделителем,
+       а не превращается в третий уровень заголовков. */
+    .sel-divider {
+      display: flex; align-items: center; gap: 8px;
+      margin: 10px 0 6px; font-size: 10px; color: var(--fg-muted);
+    }
+    .sel-divider::before, .sel-divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border, rgba(255,255,255,0.12));
+    }
+
     .sel-more {
       margin-top: 8px; width: 100%; padding: 6px; cursor: pointer;
       font-size: 12px; border-radius: 6px; background: none;

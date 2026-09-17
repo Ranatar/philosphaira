@@ -925,7 +925,9 @@
   "compareConcepts": "core/graph-index.js",
   "linkIsInternal": "core/graph-index.js",
   "compareLinks": "core/graph-index.js",
-  "comparePhilosophers": "core/graph-index.js"
+  "comparePhilosophers": "core/graph-index.js",
+  "openSelectionLink": "modal/selection-list.js",
+  "selectionMirrorCount": "modal/selection-list.js"
  },
  "новые": [
   "BUS_PHASES"

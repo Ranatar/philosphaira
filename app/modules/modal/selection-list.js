@@ -1,10 +1,10 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
-import { compareConcepts, compareLinks, comparePhilosophers, conceptById } from '../core/graph-index.js';
-import { directionMark } from '../core/link-facts.js';
+import { compareConcepts, compareLinks, comparePhilosophers, conceptById, linkIsInternal } from '../core/graph-index.js';
+import { directionMark, linkHasTwoHeads } from '../core/link-facts.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
-
+import { openUniversalModal } from './core.js';
 import { freezeSimulation, unfreezeSimulation } from '../render/simulation.js';
 import { escapeAttr } from '../util/html.js';
 
@@ -45,6 +45,8 @@ function setSelectionProvenance(value) {
 
 let selectionPhilCount = {};
 
+let selectionMirrorCount = 0;
+
 function selectionListSets() {
       const nodesShown = DATA.nodes.filter(isNodeVisible);
       // Философ считается отобранным, если видна хоть одна его концепция:
@@ -74,12 +76,36 @@ function selectionListSets() {
       // годе по алфавиту), концепции по философу и названию, связи —
       // внутренние вперёд. Указатели упорядочены при построении, но здесь
       // списки собираются отбором из nodes и links, а не из них.
+      /**
+       * ДВУСТОРОННЯЯ ВНЕШНЯЯ СВЯЗЬ ПОКАЗЫВАЕТСЯ У ОБОИХ ФИЛОСОФОВ.
+       *
+       * В базе она записана ОДИН раз и в одну сторону (пар, записанных
+       * дважды, — ноль из 2720), а порядок ведётся по философу-источнику.
+       * Значит «Эйдос ↔ Эпистема» легла бы к Платону, а у Фуко её не было
+       * бы вовсе — хотя связь симметрична и принадлежит обоим. Сторона тут
+       * выбрана тем, кто заводил строку, то есть произволом записи.
+       *
+       * Поэтому для таких связей строится ЗЕРКАЛО: та же связь с
+       * переставленными концами. Внутренних это не касается — у них
+       * философ один, и второй строкой вышло бы удвоение без смысла.
+       * Зеркал 217 при 2720 записях; их число названо в заголовке блока,
+       * чтобы «2937» не выглядело расхождением с базой.
+       */
+      const visibleLinks = byProvenance(DATA.links.filter(isLinkVisible));
+      const withMirrors = [];
+      for (const l of visibleLinks) {
+        withMirrors.push(l);
+        if (linkHasTwoHeads(l) && !linkIsInternal(l)) {
+          withMirrors.push({ ...l, source: l.target, target: l.source, mirrorOf: l });
+        }
+      }
+      selectionMirrorCount = withMirrors.length - visibleLinks.length;
       return {
         philosopher: byProvenance(
           DATA.philosophers.filter(p => selectionPhilCount[p.nameRu] > 0))
           .sort(comparePhilosophers),
         concept: byProvenance(nodesShown).sort(compareConcepts),
-        relation: byProvenance(DATA.links.filter(isLinkVisible)).sort(compareLinks),
+        relation: withMirrors.sort(compareLinks),
       };
     }
 
@@ -160,12 +186,19 @@ function selectionRowConcept(n) {
           <div class="sel-row-head">
             <span class="sel-dot" style="background:${dotColor};"></span>
             <span class="sel-name" data-act-click="open-universal-modal-14" data-a1="${escapeAttr(n.id)}">${escapeAttr(n.label)}</span>
-            <span class="sel-meta">${escapeAttr(n.concept)}</span>
             <button class="sel-toggle" data-act-click="toggle-selection-body" data-a1="${escapeAttr(bodyKey)}">${openBody ? '▲' : '▼'}</button>
           </div>
           <div class="sel-caption">${escapeAttr(n.description || '')}</div>
           ${openBody ? `<div class="sel-body">${escapeAttr(n.extendedDescription || 'Пространного описания нет')}</div>` : ''}
         </div>`;
+    }
+
+function openSelectionLink(s, t) {
+      const found = DATA.links.find(x => {
+        const a = x.source.id || x.source, b = x.target.id || x.target;
+        return (a === s && b === t) || (a === t && b === s);
+      });
+      if (found) openUniversalModal('connection', found, 'view');
     }
 
 function selectionRowRelation(l) {
@@ -178,22 +211,25 @@ function selectionRowRelation(l) {
       // relationTypes['influence'] вернул бы undefined, и тип связи пропал
       // бы из строки, ничего об этом не сказав.
       const linkType = DATA.relationTypesObj[l.type] || {};
+      // ПОДПИСЬ НЕСЁТ ТОЛЬКО ТО, ЧЕГО НЕ ГОВОРИТ ЧЕРТА. Философ-источник
+      // назван чертой над группой, и повторять его в каждой из 23 строк
+      // (медиана; у самого связного — 94) значит писать заголовок заново на
+      // каждой строке. У внутренней связи философ один — подписи нет вовсе;
+      // у внешней остаётся только цель.
       const philOf = id => { const n = conceptById.get(id); return n ? n.concept : ''; };
-      const sPhil = philOf(s);
       const tPhil = philOf(t);
       // У возвратной связи оба конца — одна концепция, и повторять философа
       // дважды незачем.
-      const caption = s === t ? sPhil
-        : (sPhil === tPhil ? sPhil : sPhil + ' ' + directionMark(l) + ' ' + tPhil);
+      const caption = linkIsInternal(l) ? '' : (directionMark(l) + ' ' + tPhil);
       return `
         <div class="sel-row">
           <div class="sel-row-head">
             <span class="sel-dot" style="background:${linkType.color || 'var(--fg-muted)'};"></span>
-            <span class="sel-name" data-act-click="open-universal-modal-15" data-a1="${escapeAttr(s)}" data-a2="${escapeAttr(t)}">${escapeAttr(selectionLabel(s))} ${directionMark(l)} ${escapeAttr(selectionLabel(t))}</span>
+            <span class="sel-name" data-act-click="open-selection-link" data-a1="${escapeAttr(s)}" data-a2="${escapeAttr(t)}">${escapeAttr(selectionLabel(s))} ${directionMark(l)} ${escapeAttr(selectionLabel(t))}</span>
             <span class="sel-meta">${escapeAttr(linkType.label || l.type)} · вес ${l.weight}</span>
             <button class="sel-toggle" data-act-click="toggle-selection-body" data-a1="${escapeAttr(bodyKey)}">${openBody ? '▲' : '▼'}</button>
           </div>
-          <div class="sel-caption">${escapeAttr(caption)}</div>
+          ${caption ? `<div class="sel-caption">${escapeAttr(caption)}</div>` : ''}
           ${openBody ? `<div class="sel-body">${escapeAttr(l.description || 'Описания нет')}</div>` : ''}
         </div>`;
     }
@@ -226,6 +262,33 @@ function renderSelectionList() {
                 PROVENANCE_LABELS[selectionProvenance]}</span>`)
         + '</div>';
 
+      /**
+       * ЧЕРТА МЕЖДУ ФИЛОСОФАМИ. Порядок по системам виден только тому, кто
+       * держит в голове годы; черта показывает его глазами. У связей она
+       * ложится между последней ВНЕШНЕЙ связью одного и первой ВНУТРЕННЕЙ
+       * следующего — то есть по смене философа-источника, а разделение
+       * «внутренние/внешние» внутри философа чертой не отмечается: это
+       * второй уровень, и своя черта у него спорила бы с первой.
+       */
+      const ownerOf = (kind, z) => kind === 'concept' ? z.concept
+        : (conceptById.get(z.source.id || z.source) || {}).concept;
+      const withDividers = (kind, items, rowOf) => {
+        if (kind === 'philosopher') return items.map(rowOf).join('');
+        let prev = null;
+        return items.map(z => {
+          const who = ownerOf(kind, z);
+          // ЧЕРТА У КАЖДОЙ ГРУППЫ, ВКЛЮЧАЯ ПЕРВУЮ. Разделителю первая черта
+          // не нужна — разделять нечего; но здесь имя философа стоит НА
+          // черте и больше нигде (из строк его убрали как повтор). Пропусти
+          // первую — и у первой группы философ не назван вовсе, а при
+          // сужении отбора до одного философа он пропал бы с экрана совсем.
+          const divider = (who !== prev)
+            ? `<div class="sel-divider"><span>${escapeAttr(who || '')}</span></div>` : '';
+          prev = who;
+          return divider + rowOf(z);
+        }).join('');
+      };
+
       slot.innerHTML = provBar + blocks.map(([kind, title, items, rowOf]) => {
         const openBlock = selectionListOpenBlocks.has(kind);
         const shown = Math.min(selectionListShown[kind], items.length);
@@ -233,7 +296,9 @@ function renderSelectionList() {
           <div class="sel-block">
             <div class="sel-block-head">
               <span class="sel-block-title" data-act-click="toggle-selection-block" data-a1="${kind}">${title}</span>
-              <span class="sel-block-count">${items.length}</span>
+              <span class="sel-block-count">${items.length}${
+                kind === 'relation' && selectionMirrorCount
+                  ? ', повторно ' + selectionMirrorCount : ''}</span>
               ${openBlock && items.length
                 ? `<button class="sel-bodies" data-act-click="toggle-selection-bodies" data-a1="${kind}"
                            data-tip="Разворачивает описания у показанных строк, а не у всего набора">Все описания</button>`
@@ -241,7 +306,7 @@ function renderSelectionList() {
               <span class="sel-block-toggle" data-act-click="toggle-selection-block" data-a1="${kind}">${openBlock ? '▲' : '▼'}</span>
             </div>
             ${openBlock ? `<div class="sel-block-body">
-              ${items.length ? items.slice(0, shown).map(rowOf).join('')
+              ${items.length ? withDividers(kind, items.slice(0, shown), rowOf)
                               : '<div class="empty-state-hint">Ничего не отобрано</div>'}
               ${shown < items.length
                 ? `<button class="sel-more" data-act-click="selection-list-more" data-a1="${kind}">Показать ещё ${
@@ -252,4 +317,4 @@ function renderSelectionList() {
       }).join('');
     }
 
-export { closeSelectionListModal, openSelectionListModal, provenanceState, renderSelectionList, selectionListMore, selectionListOpenBlocks, selectionListSets, setSelectionProvenance, toggleSelectionBlock, toggleSelectionBodies, toggleSelectionBody };
+export { closeSelectionListModal, openSelectionLink, openSelectionListModal, provenanceState, renderSelectionList, selectionListMore, selectionListOpenBlocks, selectionListSets, selectionMirrorCount, setSelectionProvenance, toggleSelectionBlock, toggleSelectionBodies, toggleSelectionBody };

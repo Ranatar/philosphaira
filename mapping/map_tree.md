@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-129 модулей, 20903 строк, 841 объявлений,
-589 вывозов, 810 рёбер ввоза. Составлено 2026-09-16 15:39:04.
+129 модулей, 20970 строк, 843 объявлений,
+592 вывозов, 811 рёбер ввоза. Составлено 2026-09-17 06:32:44.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -27,8 +27,8 @@
 | `modules/core/api.js` | 13 |
 | `modules/core/perms.js` | 13 |
 | `modules/metrics/link-indexes.js` | 13 |
+| `modules/modal/core.js` | 13 |
 | `modules/render/selection.js` | 13 |
-| `modules/modal/core.js` | 12 |
 
 ## Самые востребованные имена
 
@@ -88,10 +88,10 @@
 | `boot.js` | 313 | 0 | 1 | 65 | DATA:2, S:8 |
 | `main.js` | 135 | 0 | 0 | 124 | — |
 | `modules/boot-defs.js` | 62 | 3 | 2 | 8 | S:1 |
-| `modules/core/api.js` | 85 | 4 | 3 | 1 | — |
+| `modules/core/api.js` | 90 | 4 | 3 | 1 | — |
 | `modules/core/base-cells.js` | 19 | 0 | 0 | 1 | S:8 |
 | `modules/core/events.js` | 65 | 5 | 2 | 0 | — |
-| `modules/core/graph-index.js` | 216 | 15 | 13 | 2 | DATA:16 |
+| `modules/core/graph-index.js` | 213 | 15 | 14 | 2 | DATA:16 |
 | `modules/core/link-facts.js` | 73 | 10 | 10 | 2 | DATA:1, S:6 |
 | `modules/core/long-task.js` | 120 | 3 | 3 | 0 | — |
 | `modules/core/ns.js` | 33 | 2 | 4 | 0 | — |
@@ -156,7 +156,7 @@
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 2 | 8 | DATA:3, S:3, MET:3 |
 | `modules/modal/search.js` | 43 | 3 | 3 | 1 | — |
 | `modules/modal/security.js` | 116 | 7 | 4 | 4 | S:1 |
-| `modules/modal/selection-list.js` | 256 | 21 | 11 | 7 | DATA:5 |
+| `modules/modal/selection-list.js` | 321 | 23 | 13 | 8 | DATA:5 |
 | `modules/modal/users.js` | 97 | 8 | 7 | 3 | — |
 | `modules/paths/analysis.js` | 74 | 2 | 2 | 7 | DATA:2 |
 | `modules/paths/chronology.js` | 175 | 10 | 6 | 4 | DATA:1, S:1 |
@@ -197,7 +197,7 @@
 | `modules/stats/views/rankings.js` | 141 | 2 | 2 | 5 | DATA:2, S:1 |
 | `modules/ui/about.js` | 102 | 4 | 3 | 1 | DATA:6 |
 | `modules/ui/actions-byname.js` | 20 | 2 | 0 | 2 | — |
-| `modules/ui/actions-dyn.js` | 178 | 0 | 0 | 37 | DATA:2, S:9 |
+| `modules/ui/actions-dyn.js` | 178 | 0 | 0 | 37 | DATA:1, S:9 |
 | `modules/ui/actions-static.js` | 140 | 0 | 0 | 26 | — |
 | `modules/ui/actions.js` | 27 | 1 | 3 | 0 | — |
 | `modules/ui/delegation.js` | 70 | 3 | 1 | 1 | — |
@@ -230,12 +230,12 @@
 | `closeAllModals` | function | 13 | — |
 | `installOverlayDismiss` | function | 8 | да |
 
-### `modules/core/api.js` — 85 строк, объявлений 4
+### `modules/core/api.js` — 90 строк, объявлений 4
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `detectServerMode` | async function | 36 | да |
-| `api` | async function | 29 | да |
+| `api` | async function | 34 | да |
 | `readCookie` | function | 10 | — |
 | `serverMode` | let | 1 | да |
 
@@ -249,17 +249,17 @@
 | `busSubscribers` | const | 1 | — |
 | `BUS_PHASES` | const | 1 | — |
 
-### `modules/core/graph-index.js` — 216 строк, объявлений 15
+### `modules/core/graph-index.js` — 213 строк, объявлений 15
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `buildIndexes` | function | 75 | — |
 | `rebuildIndexes` | function | 51 | да |
-| `compareLinks` | function | 15 | да |
 | `comparePhilosophers` | function | 14 | да |
+| `compareLinks` | function | 12 | да |
 | `buildRubricsIndex` | function | 8 | да |
 | `buildConceptToRubrics` | function | 5 | да |
-| `linkIsInternal` | function | 5 | — |
+| `linkIsInternal` | function | 5 | да |
 | `compareConcepts` | function | 4 | да |
 | `buildPhilosopherTraditions` | function | 3 | да |
 | `conceptById` | const | 1 | да |
@@ -1014,18 +1014,19 @@
 | `securitySecret` | let | 1 | — |
 | `securityModalEl` | function | 1 | — |
 
-### `modules/modal/selection-list.js` — 256 строк, объявлений 21
+### `modules/modal/selection-list.js` — 321 строк, объявлений 23
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `renderSelectionList` | function | 53 | да |
-| `selectionListSets` | function | 37 | да |
-| `selectionRowRelation` | function | 29 | — |
-| `selectionRowConcept` | function | 16 | — |
+| `renderSelectionList` | function | 82 | да |
+| `selectionListSets` | function | 61 | да |
+| `selectionRowRelation` | function | 32 | — |
 | `selectionRowPhilosopher` | function | 15 | — |
+| `selectionRowConcept` | function | 15 | — |
 | `openSelectionListModal` | function | 12 | да |
 | `toggleSelectionBodies` | function | 11 | да |
 | `setSelectionProvenance` | function | 9 | да |
+| `openSelectionLink` | function | 7 | да |
 | `provenanceState` | function | 6 | да |
 | `toggleSelectionBlock` | function | 5 | да |
 | `toggleSelectionBody` | function | 5 | да |
@@ -1039,6 +1040,7 @@
 | `selectionProvenance` | let | 1 | — |
 | `PROVENANCE_LABELS` | const | 1 | — |
 | `selectionPhilCount` | let | 1 | — |
+| `selectionMirrorCount` | let | 1 | да |
 
 ### `modules/modal/users.js` — 97 строк, объявлений 8
 
@@ -2473,13 +2475,14 @@
 
 - из `modules/core/ns.js`: `DATA`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`
-- из `modules/core/link-facts.js`: `directionMark`
+- из `modules/core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`
+- из `modules/core/link-facts.js`: `directionMark`, `linkHasTwoHeads`
 - из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
+- из `modules/modal/core.js`: `openUniversalModal`
 - из `modules/render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
 - из `modules/util/html.js`: `escapeAttr`
 
-Чаще всего поминает: `escapeAttr`×19, `DATA`×5, `conceptById`×2, `directionMark`×2, `isNodeVisible`×1
+Чаще всего поминает: `escapeAttr`×19, `DATA`×6, `conceptById`×3, `linkIsInternal`×2, `directionMark`×2
 
 ### `modules/modal/users.js`
 
@@ -2918,7 +2921,7 @@
 - из `modules/modal/profile-philosopher.js`: `closePhilosopherProfileModal`, `showPhilosopherProfileModal`
 - из `modules/modal/search.js`: `clearModalSearch`, `handleModalSearch`
 - из `modules/modal/security.js`: `confirmMfaEnroll`, `openSecurityModal`, `refreshSecurityDone`, `startMfaEnroll`
-- из `modules/modal/selection-list.js`: `selectionListMore`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
+- из `modules/modal/selection-list.js`: `openSelectionLink`, `selectionListMore`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
 - из `modules/paths/path-descriptions.js`: `showPathDescriptionsModal`, `togglePathNodesDescriptions`
 - из `modules/paths/path-ui.js`: `clearPathHighlight`, `handlePathArrowHover`
 - из `modules/render/metric-visualization.js`: `toggleMetricVisualization`
@@ -2936,7 +2939,7 @@
 - из `modules/ui/search-philosopher.js`: `clearPhilosopherSearch`, `handlePhilosopherSearch`, `pickPhilosopherFromSearch`, `selectPhilosopherResult`
 - из `modules/widgets/custom-select.js`: `filterCustomSelect`, `selectCustomOption`, `showCustomSelectDropdown`
 
-Чаще всего поминает: `openUniversalModal`×21, `DATA`×10, `S`×10, `renderClosestPairs`×6, `toggleSubsection`×4
+Чаще всего поминает: `openUniversalModal`×20, `S`×10, `DATA`×9, `renderClosestPairs`×6, `toggleSubsection`×4
 
 ### `modules/ui/actions-static.js`
 

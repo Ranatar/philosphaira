@@ -1,17 +1,17 @@
 {
  "меры": {
   "модулей": 129,
-  "строк": 20903,
-  "объявлений": 841,
-  "вывозов": 589,
-  "рёбер": 810,
+  "строк": 20970,
+  "объявлений": 843,
+  "вывозов": 592,
+  "рёбер": 811,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
-  "вывозовДляПриборов": 28,
+  "вывозовДляПриборов": 29,
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-09-16 15:39:04"
+  "составлено": "2026-09-17 06:32:44"
  },
  "модули": [
   {
@@ -1108,7 +1108,7 @@
   },
   {
    "путь": "modules/core/api.js",
-   "строк": 85,
+   "строк": 90,
    "объявлений": 4,
    "вывозит": 3,
    "ввозитИз": 1,
@@ -1140,7 +1140,7 @@
     {
      "имя": "api",
      "вид": "async function",
-     "строк": 29
+     "строк": 34
     },
     {
      "имя": "detectServerMode",
@@ -1226,9 +1226,9 @@
   },
   {
    "путь": "modules/core/graph-index.js",
-   "строк": 216,
+   "строк": 213,
    "объявлений": 15,
-   "вывозит": 13,
+   "вывозит": 14,
    "ввозитИз": 2,
    "вНС": {
     "DATA": 16
@@ -1241,6 +1241,7 @@
     "compareLinks",
     "comparePhilosophers",
     "conceptById",
+    "linkIsInternal",
     "linksByConcept",
     "nodesByPhilosopher",
     "philosopherByName",
@@ -1329,7 +1330,7 @@
     {
      "имя": "compareLinks",
      "вид": "function",
-     "строк": 15
+     "строк": 12
     },
     {
      "имя": "buildIndexes",
@@ -7925,21 +7926,23 @@
   },
   {
    "путь": "modules/modal/selection-list.js",
-   "строк": 256,
-   "объявлений": 21,
-   "вывозит": 11,
-   "ввозитИз": 7,
+   "строк": 321,
+   "объявлений": 23,
+   "вывозит": 13,
+   "ввозитИз": 8,
    "вНС": {
     "DATA": 5
    },
    "вывоз": [
     "closeSelectionListModal",
+    "openSelectionLink",
     "openSelectionListModal",
     "provenanceState",
     "renderSelectionList",
     "selectionListMore",
     "selectionListOpenBlocks",
     "selectionListSets",
+    "selectionMirrorCount",
     "setSelectionProvenance",
     "toggleSelectionBlock",
     "toggleSelectionBodies",
@@ -7962,13 +7965,15 @@
       "compareConcepts",
       "compareLinks",
       "comparePhilosophers",
-      "conceptById"
+      "conceptById",
+      "linkIsInternal"
      ]
     },
     {
      "откуда": "modules/core/link-facts.js",
      "имена": [
-      "directionMark"
+      "directionMark",
+      "linkHasTwoHeads"
      ]
     },
     {
@@ -7976,6 +7981,12 @@
      "имена": [
       "isLinkVisible",
       "isNodeVisible"
+     ]
+    },
+    {
+     "откуда": "modules/modal/core.js",
+     "имена": [
+      "openUniversalModal"
      ]
     },
     {
@@ -8039,9 +8050,14 @@
      "строк": 1
     },
     {
+     "имя": "selectionMirrorCount",
+     "вид": "let",
+     "строк": 1
+    },
+    {
      "имя": "selectionListSets",
      "вид": "function",
-     "строк": 37
+     "строк": 61
     },
     {
      "имя": "openSelectionListModal",
@@ -8086,17 +8102,22 @@
     {
      "имя": "selectionRowConcept",
      "вид": "function",
-     "строк": 16
+     "строк": 15
+    },
+    {
+     "имя": "openSelectionLink",
+     "вид": "function",
+     "строк": 7
     },
     {
      "имя": "selectionRowRelation",
      "вид": "function",
-     "строк": 29
+     "строк": 32
     },
     {
      "имя": "renderSelectionList",
      "вид": "function",
-     "строк": 53
+     "строк": 82
     }
    ],
    "чащеВсего": [
@@ -8107,11 +8128,16 @@
     },
     {
      "имя": "DATA",
-     "раз": 5,
+     "раз": 6,
      "откуда": "modules/core/ns.js"
     },
     {
      "имя": "conceptById",
+     "раз": 3,
+     "откуда": "modules/core/graph-index.js"
+    },
+    {
+     "имя": "linkIsInternal",
      "раз": 2,
      "откуда": "modules/core/graph-index.js"
     },
@@ -8119,11 +8145,6 @@
      "имя": "directionMark",
      "раз": 2,
      "откуда": "modules/core/link-facts.js"
-    },
-    {
-     "имя": "isNodeVisible",
-     "раз": 1,
-     "откуда": "modules/core/visibility.js"
     }
    ]
   },
@@ -12584,7 +12605,7 @@
    "вывозит": 0,
    "ввозитИз": 37,
    "вНС": {
-    "DATA": 2,
+    "DATA": 1,
     "S": 9
    },
    "вывоз": [],
@@ -12749,6 +12770,7 @@
     {
      "откуда": "modules/modal/selection-list.js",
      "имена": [
+      "openSelectionLink",
       "selectionListMore",
       "setSelectionProvenance",
       "toggleSelectionBlock",
@@ -12880,17 +12902,17 @@
    "чащеВсего": [
     {
      "имя": "openUniversalModal",
-     "раз": 21,
+     "раз": 20,
      "откуда": "modules/modal/core.js"
-    },
-    {
-     "имя": "DATA",
-     "раз": 10,
-     "откуда": "modules/core/ns.js"
     },
     {
      "имя": "S",
      "раз": 10,
+     "откуда": "modules/core/ns.js"
+    },
+    {
+     "имя": "DATA",
+     "раз": 9,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -14593,12 +14615,12 @@
    "ввозятМодулей": 8
   },
   {
-   "имя": "ModalContext",
+   "имя": "openUniversalModal",
    "ввозятМодулей": 8
   },
   {
-   "имя": "openUniversalModal",
-   "ввозятМодулей": 7
+   "имя": "ModalContext",
+   "ввозятМодулей": 8
   },
   {
    "имя": "serverMode",
@@ -14663,12 +14685,12 @@
    "ввозятИзНего": 13
   },
   {
-   "модуль": "modules/render/selection.js",
+   "модуль": "modules/modal/core.js",
    "ввозятИзНего": 13
   },
   {
-   "модуль": "modules/modal/core.js",
-   "ввозятИзНего": 12
+   "модуль": "modules/render/selection.js",
+   "ввозятИзНего": 13
   },
   {
    "модуль": "modules/render/d3-layer.js",
@@ -14782,6 +14804,11 @@
    "внутри": 2
   },
   {
+   "имя": "selectionMirrorCount",
+   "модуль": "modules/modal/selection-list.js",
+   "внутри": 3
+  },
+  {
    "имя": "loadUsers",
    "модуль": "modules/modal/users.js",
    "внутри": 3
@@ -14884,7 +14911,7 @@
     {
      "поле": "links",
      "раз": 70,
-     "модулей": 34
+     "модулей": 33
     },
     {
      "поле": "relationTypesObj",
