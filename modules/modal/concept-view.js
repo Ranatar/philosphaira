@@ -3,7 +3,7 @@ import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
 import { conceptById, otherEndColor, rubricById } from '../core/graph-index.js';
 import { medianNodeDegree, nodeDegreeOf } from '../metrics/network.js';
-import { nearestConcepts, profileIsMeaningful } from '../metrics/similarity-concepts.js';
+import { ensureNetworkProfile, nearestConcepts, profileIsMeaningful } from '../metrics/similarity-concepts.js';
 import { linkArrow } from './connection-view.js';
 
 import { historyBlock } from './history.js';
@@ -11,35 +11,73 @@ import { historyBlock } from './history.js';
 import { getContrastColor } from '../util/color.js';
 import { provenanceBlock } from '../util/html.js';
 
-function similarConceptsBlock(conceptId) {
-      let byProfile, byStructure;
-      try {
-        byProfile = nearestConcepts(conceptId, 'profile', 5);
-        byStructure = nearestConcepts(conceptId, 'structure', 5);
-      } catch (e) { return ''; }
-      if (!byProfile.length && !byStructure.length) return '';
-
-      const nodeById = id => conceptById.get(id);
-      const item = (x, unit) => {
-        const n = nodeById(x.id);
-        if (!n) return '';
-        // C5: показывается контраст, косинус — в подсказке при наведении
-        const score = (x.contrast !== null && x.contrast !== undefined)
-          ? ('×' + x.contrast.toFixed(1))
-          : unit(x.value);
-        const tip = 'косинус ' + Math.round(x.value * 100) + ' %'
-              + ((x.contrast !== null && x.contrast !== undefined)
-                ? '; контраст — во сколько сигм сосед выделяется среди прочих'
-                : '')
-              + (x.tied ? '; неразличимо с соседней строкой' : '');
-        return `
+function similarItemHtml(x) {
+      const n = conceptById.get(x.id);
+      if (!n) return '';
+      const hasContrast = x.contrast !== null && x.contrast !== undefined;
+      const score = hasContrast ? ('×' + x.contrast.toFixed(1)) : (Math.round(x.value * 100) + ' %');
+      const tip = 'косинус ' + Math.round(x.value * 100) + ' %'
+            + (hasContrast ? '; контраст — во сколько сигм сосед выделяется среди прочих' : '')
+            + (x.tied ? '; неразличимо с соседней строкой' : '');
+      return `
           <div class="similar-item${x.tied ? ' similar-tied' : ''}" data-act-click="open-concept-by-id" data-a1="${x.id}" data-tip="${tip}">
             <span class="similar-name">${n.label}</span>
             <span class="similar-author">${n.concept}</span>
             <span class="similar-score">${score}${x.tied ? ' =' : ''}</span>
           </div>`;
-      };
-      const asPct = v => Math.round(v * 100) + ' %';
+    }
+
+function similarColumnHtml(title, hint, list, empty, attrs) {
+      return `
+            <div class="similar-col"${attrs || ''}>
+              <div class="similar-col-title">${title}</div>
+              <div class="similar-col-hint">${hint}</div>
+              ${list && list.length
+                ? list.map(similarItemHtml).join('')
+                : `<div class="similar-empty">${empty}</div>`}
+            </div>`;
+    }
+
+function similarNetworkColumnHtml(conceptId) {
+      const title = 'По месту в сети';
+      const hint = 'Сходная позиция в топологии графа';
+      const attrs = ` id="similarNetworkCol" data-concept="${conceptId}"`;
+      if (!profileIsMeaningful(conceptId)) {
+        return similarColumnHtml(title, hint, [],
+          `Место в сети у малосвязной концепции непоказательно (связей: ${nodeDegreeOf(conceptId)}, порог: ${medianNodeDegree()})`, attrs);
+      }
+      const list = nearestConcepts(conceptId, 'network', 5);
+      if (list === null) {
+        return similarColumnHtml(title, hint, [],
+          `Сетевые метрики ещё не посчитаны. <button class="similar-map-btn" data-act-click="compute-similar-network-column" data-a1="${conceptId}">Посчитать</button>`, attrs);
+      }
+      return similarColumnHtml(title, hint, list, 'Нет концепций со сходным местом', attrs);
+    }
+
+function computeSimilarNetworkColumn(conceptId) {
+      const box = document.getElementById('similarNetworkCol');
+      const empty = box && box.querySelector('.similar-empty');
+      if (empty) empty.textContent = 'Считаю сетевые метрики…';
+      ensureNetworkProfile().then(ok => {
+        if (ok) refreshSimilarNetworkColumn(conceptId);
+        else if (empty) empty.textContent = 'Сетевые метрики не досчитались';
+      });
+    }
+
+function refreshSimilarNetworkColumn(conceptId) {
+      const box = document.getElementById('similarNetworkCol');
+      if (!box || box.dataset.concept !== conceptId) return;
+      box.outerHTML = similarNetworkColumnHtml(conceptId);
+    }
+
+function similarConceptsBlock(conceptId) {
+      let byProfile, byStructure, byTypes;
+      try {
+        byProfile = nearestConcepts(conceptId, 'profile', 5);
+        byStructure = nearestConcepts(conceptId, 'structure', 5);
+        byTypes = nearestConcepts(conceptId, 'types', 5);
+      } catch (e) { return ''; }
+      if (!byProfile.length && !byStructure.length && !byTypes.length) return '';
 
       // КНОПКА ЗНАЕТ О ВЫРОЖДЕННОСТИ. Прежде она всегда звала вид «по профилю»,
       // а showSimilarityOverlay у малосвязной концепции отказывался и советовал
@@ -73,20 +111,13 @@ function similarConceptsBlock(conceptId) {
             ${mapButton}
           </div>
           <div class="similar-columns">
-            <div class="similar-col">
-              <div class="similar-col-title">По профилю метрик</div>
-              <div class="similar-col-hint">Играют похожую роль в системе</div>
-              ${byProfile.length
-                ? byProfile.map(x => item(x, asPct)).join('')
-                : `<div class="similar-empty">Профиль метрик этой концепции почти пуст (связей: ${nodeDegreeOf(conceptId)}, порог: ${medianNodeDegree()}) — сравнение по нему не показательно</div>`}
-            </div>
-            <div class="similar-col">
-              <div class="similar-col-title">По структуре связей</div>
-              <div class="similar-col-hint">Связаны с одними и теми же понятиями</div>
-              ${byStructure.length
-                ? byStructure.map(x => item(x, asPct)).join('')
-                : '<div class="similar-empty">Нет общих соседей</div>'}
-            </div>
+            ${similarColumnHtml('По профилю метрик', 'Играют похожую роль в системе', byProfile,
+              `Профиль метрик этой концепции почти пуст (связей: ${nodeDegreeOf(conceptId)}, порог: ${medianNodeDegree()}) — сравнение по нему не показательно`)}
+            ${similarColumnHtml('По структуре связей', 'Связаны с одними и теми же понятиями', byStructure,
+              'Нет общих соседей')}
+            ${similarColumnHtml('По типам связей', 'Необычны в одних и тех же отношениях', byTypes,
+              'Нет концепций со сходным характером связей')}
+            ${similarNetworkColumnHtml(conceptId)}
           </div>
         </div>`;
     }
@@ -359,3 +390,4 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
       return html;
     };
 
+export { computeSimilarNetworkColumn };

@@ -6,7 +6,7 @@ import { conceptById } from '../../core/graph-index.js';
 import { LoadingIndicator } from '../../core/long-task.js';
 import { initializePhilosophyMetrics } from '../../metrics/link-indexes.js';
 import { philosopherProfile } from '../../metrics/philosopher.js';
-import { _pairCalculating, allConceptPairs, allConceptPairsAsync, profileSimilarity, similarityData, structuralSimilarity } from '../../metrics/similarity-concepts.js';
+import { NETWORK_ROLE_WORDS, SIM_SHARED_HIGH, _pairCalculating, allConceptPairs, allConceptPairsAsync, ensureNetworkProfile, fillPairsNetwork, networkRoleOf, networkSimilarity, profileIsMeaningful, profileSimilarity, similarityData, similarityThresholds, structuralSimilarity, typeStyleSimilarity } from '../../metrics/similarity-concepts.js';
 import { PHIL_SIM_LABELS, SIM_METRIC_LABELS, philosopherSimilarity, philosopherSimilarityData } from '../../metrics/similarity-philosophers.js';
 
 import { generateMetricDescriptionBlock } from '../results.js';
@@ -174,7 +174,7 @@ function generateClosestPairsContent() {
       return `
         <div class="stats-content-header">
           <h3 class="stats-content-title">🔗 Близкие пары концепций</h3>
-          <p class="stats-content-subtitle">Наиболее схожие пары по профилю метрик и по структуре связей</p>
+          <p class="stats-content-subtitle">Наиболее схожие пары по профилю метрик, структуре связей, типам связей и месту в сети</p>
         </div>
 
         ${generateMetricDescriptionBlock('closest-pairs')}
@@ -183,6 +183,8 @@ function generateClosestPairsContent() {
           <div class="pairs-modes">
             <button class="pairs-btn" id="pairsBtnProfile" data-act-click="render-closest-pairs">По профилю</button>
             <button class="pairs-btn" id="pairsBtnStructure" data-act-click="render-closest-pairs-2">По структуре</button>
+            <button class="pairs-btn" id="pairsBtnTypes" data-act-click="render-closest-pairs-3">По типам связей</button>
+            <button class="pairs-btn" id="pairsBtnNetwork" data-act-click="render-closest-pairs-4">По месту в сети</button>
           </div>
           <label class="pairs-filter">
             Минимальная связность узла: <b id="pairsDegVal">${S._pairsMinDegree}</b>
@@ -225,7 +227,7 @@ async function renderClosestPairs() {
         }
         const indicator = LoadingIndicator.create(
           'Расчёт близости концепций',
-          `Сравнение ${(S._concepts.length * (S._concepts.length - 1) / 2).toLocaleString('ru')} пар по 17 метрикам и по общим соседям`,
+          `Сравнение ${(S._concepts.length * (S._concepts.length - 1) / 2).toLocaleString('ru')} пар по профилю, соседям и типам связей`,
           '#6c5ce7'
         );
         try {
@@ -240,16 +242,26 @@ async function renderClosestPairs() {
           return;
         }
       }
-      const isProfile = S._pairsKind === 'profile';
+      const kind = S._pairsKind;
+      if (kind === 'network' && !fillPairsNetwork(P)) {
+        box.innerHTML = '<div class="pairs-count">Считаю сетевые метрики…</div>';
+        const ok = await ensureNetworkProfile();
+        if (!ok) { box.innerHTML = '<div class="pairs-count">Сетевые метрики не досчитались.</div>'; return; }
+        if (S._pairsKind === 'network' && document.getElementById('pairsBody')) renderClosestPairs();
+        return;
+      }
+      const isStructure = kind === 'structure';
       const philOf = {};
       DATA.nodes.forEach(n => philOf[n.id] = n.concept);
       const labOf = {};
       DATA.nodes.forEach(n => labOf[n.id] = n.label);
 
-      document.getElementById('pairsBtnProfile')?.classList.toggle('active', isProfile);
-      document.getElementById('pairsBtnStructure')?.classList.toggle('active', !isProfile);
+      [['pairsBtnProfile', 'profile'], ['pairsBtnStructure', 'structure'],
+       ['pairsBtnTypes', 'types'], ['pairsBtnNetwork', 'network']].forEach(([id, k]) =>
+        document.getElementById(id)?.classList.toggle('active', k === kind));
       const shFilter = document.getElementById('pairsSharedFilter');
-      if (shFilter) shFilter.style.display = isProfile ? 'none' : '';
+      if (shFilter) shFilter.style.display = isStructure ? '' : 'none';
+      const valuesOf = { profile: P.pv, structure: P.jv, types: P.tv, network: P.nv }[kind] || P.pv;
       const dv = document.getElementById('pairsDegVal'); if (dv) dv.textContent = S._pairsMinDegree;
       const sv = document.getElementById('pairsShVal'); if (sv) sv.textContent = S._pairsMinShared;
 
@@ -266,11 +278,11 @@ async function renderClosestPairs() {
           const tb = DATA.philosopherTraditions[philOf[b]] || [];
           if (!ta.length || !tb.length || ta.some(x => tb.includes(x))) continue;
         }
-        if (!isProfile) {
+        if (isStructure) {
           if (P.sh[k] < S._pairsMinShared) continue;
           if (P.jv[k] <= 0) continue;
         }
-        picked.push([isProfile ? P.pv[k] : P.jv[k], k]);
+        picked.push([valuesOf[k], k]);
       }
       picked.sort((x, y) => y[0] - x[0]);
       const top = picked.slice(0, 40);
@@ -297,7 +309,7 @@ async function renderClosestPairs() {
               ${same ? '<span class="pairs-same">один автор</span>' : ''}
             </div>
             <div class="pairs-value">${v.toFixed(3)}</div>
-            <div class="pairs-extra">${isProfile ? '' : P.sh[k] + ' общ.'}</div>
+            <div class="pairs-extra">${isStructure ? P.sh[k] + ' общ.' : ''}</div>
           </div>`;
       }).join('');
 
@@ -346,7 +358,7 @@ function generateComparisonContent() {
       return `
         <div class="stats-content-header">
           <h3 class="stats-content-title">⚖️ Сравнение концепций</h3>
-          <p class="stats-content-subtitle">Функциональная схожесть по профилю метрик и по структуре связей</p>
+          <p class="stats-content-subtitle">Схожесть по профилю метрик, структуре связей, типам связей и месту в сети</p>
         </div>
 
         ${generateMetricDescriptionBlock('comparison')}
@@ -361,6 +373,64 @@ function generateComparisonContent() {
       `;
     }
 
+function similarityVerdict(idA, idB) {
+      const th = similarityThresholds();
+      const meaningful = profileIsMeaningful(idA) && profileIsMeaningful(idB);
+      const level = (v, t) => (v === null || !t || t.high === null) ? null
+        : (v >= t.high ? 'high' : (v <= t.low ? 'low' : 'mid'));
+      const st = structuralSimilarity(idA, idB);
+      const prof = meaningful ? level(profileSimilarity(idA, idB), th.profile) : null;
+      const types = level(typeStyleSimilarity(idA, idB), th.types);
+      const netV = meaningful ? networkSimilarity(idA, idB) : null;
+      const net = netV === null ? null : level(netV, th.network);
+      const struct = st.shared >= SIM_SHARED_HIGH ? 'high' : (st.shared === 0 ? 'none' : 'mid');
+      const roleWord = id => NETWORK_ROLE_WORDS[networkRoleOf(id)] || '—';
+
+      const lines = [];
+      lines.push(!meaningful
+        ? 'Роль в системе: профиль непоказателен — у одной из концепций связей меньше медианы'
+        : ({ high: 'Сходная роль в системе: профиль в верхних 10 % пар',
+             low: 'Противоположные роли в системе: профиль в нижних 10 % пар',
+             mid: 'Роли в системе не схожи и не противоположны' })[prof]);
+      lines.push(({ high: `Общее окружение: общих соседей ${st.shared}`,
+                    none: 'Общих соседей нет',
+                    mid: `Окружение пересекается слабо: общих соседей ${st.shared}` })[struct]);
+      lines.push(({ high: 'Сходный характер отношений: необычны в одних и тех же типах связей',
+                    low: 'Противоположный характер отношений: одна насыщена теми типами связей, которых у другой меньше обычного',
+                    mid: 'Характер отношений не схож и не противоположен' })[types]);
+      if (!meaningful) lines.push('Место в сети: непоказательно — мало связей');
+      else if (netV === null) lines.push('Место в сети: сетевые метрики не посчитаны');
+      else if (net === 'high') lines.push(`Сходное место в сети: ${roleWord(idA)}`);
+      else if (net === 'low') lines.push(`Противоположное место в сети: ${roleWord(idA)} и ${roleWord(idB)}`);
+      else lines.push('Места в сети не схожи и не противоположны');
+
+      const names = { profile: 'роль', struct: 'окружение', types: 'характер отношений', net: 'место в сети' };
+      const high = Object.entries({ profile: prof, struct, types, net })
+        .filter(([, v]) => v === 'high').map(([k]) => k);
+      let headline;
+      if (high.length === 4)
+        headline = 'Близнецы: совпадают роль, окружение, характер отношений и место в сети.';
+      else if (prof === 'high' && types === 'high' && struct === 'none')
+        headline = 'Аналоги в разных областях графа: сходные роль и характер отношений без общих соседей.';
+      else if (struct === 'high' && types === 'low')
+        headline = 'Одно окружение, разное отношение к нему: соседи общие, а связи с ними противоположного рода.';
+      else if (high.length === 1 && net === 'high')
+        headline = 'Совпадает только место в сети — о родстве содержания это не говорит.';
+      else if (!high.length)
+        headline = 'Существенного сходства ни по одной мере не видно.';
+      else
+        headline = 'Частичное сходство: ' + high.map(k => names[k]).join(', ') + '.';
+      return { headline, lines };
+    }
+
+function computeComparisonNetwork() {
+      const tile = document.querySelector('#cmpBody .similar-map-btn');
+      if (tile) { tile.disabled = true; tile.textContent = 'Считаю…'; }
+      ensureNetworkProfile().then(() => {
+        if (document.getElementById('cmpBody')) renderComparison();
+      });
+    }
+
 function renderComparison() {
       const box = document.getElementById('cmpBody');
       if (!box) return;
@@ -370,17 +440,17 @@ function renderComparison() {
 
       const prof = profileSimilarity(S._cmpA, S._cmpB);
       const st = structuralSimilarity(S._cmpA, S._cmpB);
+      const typesV = typeStyleSimilarity(S._cmpA, S._cmpB);
+      const meaningful = profileIsMeaningful(S._cmpA) && profileIsMeaningful(S._cmpB);
+      const netV = meaningful ? networkSimilarity(S._cmpA, S._cmpB) : null;
       const ia = D.index.get(S._cmpA), ib = D.index.get(S._cmpB);
-
-      // расхождение мер само по себе содержательно
-      let verdict;
-      if (prof > 0.6 && st.jaccard < 0.05)
-        verdict = 'Функциональные аналоги без общих соседей: похожая роль в разных участках графа.';
-      else if (prof < 0.2 && st.jaccard > 0.2)
-        verdict = 'Общее окружение при разных ролях: соседи те же, но ведут себя понятия по-разному.';
-      else if (prof > 0.6 && st.jaccard > 0.2)
-        verdict = 'Близнецы: и роль, и окружение совпадают.';
-      else verdict = 'Существенного сходства ни по профилю, ни по структуре не видно.';
+      const verdict = similarityVerdict(S._cmpA, S._cmpB);
+      // Сеть считается только по кнопке — см. similarNetworkColumnHtml.
+      const signedPct = v => (v < 0 ? '−' : '') + Math.abs(Math.round(v * 100)) + ' %';
+      const netTile = !meaningful ? 'н/п'
+        : (netV === null
+          ? '<button class="similar-map-btn" data-act-click="compute-comparison-network">Посчитать</button>'
+          : signedPct(netV));
 
       const rows = D.names.map((n, k) => {
         const pa = D.pct[k][ia], pb = D.pct[k][ib];
@@ -399,7 +469,7 @@ function renderComparison() {
       box.innerHTML = `
         <div class="cmp-summary">
           <div class="cmp-score">
-            <div class="cmp-score-value">${Math.round(prof * 100)} %</div>
+            <div class="cmp-score-value">${meaningful ? signedPct(prof) : 'н/п'}</div>
             <div class="cmp-score-label">схожесть профиля</div>
           </div>
           <div class="cmp-score">
@@ -407,12 +477,18 @@ function renderComparison() {
             <div class="cmp-score-label">схожесть структуры<br><span>общих соседей: ${st.shared}</span></div>
           </div>
           <div class="cmp-score">
-            <div class="cmp-score-value">${Math.round(st.typeCosine * 100)} %</div>
-            <div class="cmp-score-label">близость типов связей</div>
+            <div class="cmp-score-value">${signedPct(typesV)}</div>
+            <div class="cmp-score-label">сходство по типам связей</div>
+          </div>
+          <div class="cmp-score">
+            <div class="cmp-score-value">${netTile}</div>
+            <div class="cmp-score-label">сходство места в сети</div>
           </div>
         </div>
 
-        <div class="cmp-verdict">${verdict}</div>
+        <div class="cmp-verdict"><b>${verdict.headline}</b>
+          <ul class="cmp-verdict-lines">${verdict.lines.map(l => `<li>${l}</li>`).join('')}</ul>
+        </div>
 
         <div class="cmp-legend">
           <span><i class="cmp-swatch cmp-bar-a"></i>${a.label} (${a.concept})</span>
@@ -424,4 +500,4 @@ function renderComparison() {
       `;
     }
 
-export { generateClosestPairsContent, generateComparisonContent, generatePhilosopherComparisonContent, generatePhilosopherPairsContent, openPairInComparison, openPhilosopherPair, renderClosestPairs, renderComparison, renderPhilosopherComparison, renderPhilosopherPairs };
+export { computeComparisonNetwork, generateClosestPairsContent, generateComparisonContent, generatePhilosopherComparisonContent, generatePhilosopherPairsContent, openPairInComparison, openPhilosopherPair, renderClosestPairs, renderComparison, renderPhilosopherComparison, renderPhilosopherPairs, similarityVerdict };

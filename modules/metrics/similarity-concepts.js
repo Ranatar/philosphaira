@@ -1,6 +1,6 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { MET, S } from '../core/ns.js';
-import { medianNodeDegree, nodeDegreeOf } from './network.js';
+import { betweennessCache, calculateBetweennessAsync, closenessCache, eigenvectorCache, medianNodeDegree, nodeDegreeOf, pageRankCache } from './network.js';
 import { invalidatePhilosopherSimilarityCache } from './similarity-philosophers.js';
 
 function profileIsMeaningful(conceptId) {
@@ -61,6 +61,9 @@ function similarityData() {
 function invalidateSimilarityCache() {
       invalidatePhilosopherSimilarityCache();
       _simCache = null;
+      _typeStyleCache = null;
+      _netSimCache = null;
+      _simThresholdCache = null;
       _pairCache = null;
       _pairCalculating = false;
     }
@@ -70,13 +73,18 @@ let _pairCache = null;
 let _pairCalculating = false;
 
 function allConceptPairs() {
+      // Сетевая мера зависит от переключателей: сменились метрики — устарела
+      // только её колонка, остальные три меры остаются годными.
+      if (_pairCache && _pairCache.netData && _pairCache.netData !== networkSimilarityData()) {
+        _pairCache.netData = null;
+      }
       return _pairCache;
     }
 
 const PAIRS_CHUNK_ROWS = 15;
 
 async function allConceptPairsAsync(progressCallback) {
-      if (_pairCache) return _pairCache;
+      if (allConceptPairs()) return _pairCache;
       if (_pairCalculating) return null;
       _pairCalculating = true;
 
@@ -87,6 +95,11 @@ async function allConceptPairsAsync(progressCallback) {
         await new Promise(r => setTimeout(r, 0));
         const D = similarityData();
         const N = neighborSets();
+        const T = typeStyleData();
+        // Сеть НЕ ЖДЁМ: её метрики тяжелы и считаются только по явной просьбе
+        // (вид «по месту в сети»). Готовы — колонка заполнится сразу, нет —
+        // её досчитает fillPairsNetwork, когда вид выберут.
+        const W = networkSimilarityData();
         if (progressCallback) progressCallback(15);
         await new Promise(r => setTimeout(r, 0));
 
@@ -96,6 +109,7 @@ async function allConceptPairsAsync(progressCallback) {
 
         const ia = new Uint16Array(total), ja = new Uint16Array(total);
         const pv = new Float32Array(total), jv = new Float32Array(total);
+        const tv = new Float32Array(total), nv = new Float32Array(total);
         const sh = new Uint16Array(total);
         const deg = ids.map(id => (N.get(id) || new Set()).size);
 
@@ -106,6 +120,8 @@ async function allConceptPairsAsync(progressCallback) {
             let s = 0; const Vj = D.V[j];
             for (let m = 0; m < Vi.length; m++) s += Vi[m] * Vj[m];
             pv[k] = (ni && D.norms[j]) ? s / (ni * D.norms[j]) : 0;
+            tv[k] = normedDot(T.V[i], T.norms[i], T.V[j], T.norms[j]);
+            nv[k] = W ? normedDot(W.V[i], W.norms[i], W.V[j], W.norms[j]) : 0;
 
             const b = N.get(ids[j]);
             let inter = 0;
@@ -123,12 +139,24 @@ async function allConceptPairsAsync(progressCallback) {
           }
         }
 
-        _pairCache = { ids, ia, ja, pv, jv, sh, deg, total };
+        _pairCache = { ids, ia, ja, pv, jv, tv, nv, sh, deg, total, netData: W };
         if (progressCallback) progressCallback(100);
         return _pairCache;
       } finally {
         _pairCalculating = false;
       }
+    }
+
+function fillPairsNetwork(P) {
+      const W = networkSimilarityData();
+      if (!W) return false;
+      if (P.netData === W) return true;
+      for (let k = 0; k < P.total; k++) {
+        const i = P.ia[k], j = P.ja[k];
+        P.nv[k] = normedDot(W.V[i], W.norms[i], W.V[j], W.norms[j]);
+      }
+      P.netData = W;
+      return true;
     }
 
 function profileSimilarity(idA, idB) {
@@ -167,24 +195,216 @@ function typeProfileOf(conceptId) {
 function structuralSimilarity(idA, idB) {
       const N = neighborSets();
       const a = N.get(idA), b = N.get(idB);
-      if (!a || !b) return { jaccard: 0, shared: 0, typeCosine: 0 };
+      if (!a || !b) return { jaccard: 0, shared: 0 };
 
       let inter = 0;
       for (const x of a) if (b.has(x)) inter++;
       const union = a.size + b.size - inter;
       const jaccard = union ? inter / union : 0;
+      // Косинус по долям типов прежде возвращался отсюда же (typeCosine).
+      // С 2026-09-17 это отдельная мера — typeStyleSimilarity, ниже.
+      return { jaccard, shared: inter };
+    }
 
-      // близость распределения типов связей
-      const ta = typeProfileOf(idA), tb = typeProfileOf(idB);
-      const keys = new Set([...Object.keys(ta), ...Object.keys(tb)]);
-      let dot = 0, na = 0, nb = 0;
-      for (const k of keys) {
-        const x = ta[k] || 0, y = tb[k] || 0;
-        dot += x * y; na += x * x; nb += y * y;
+function zColumns(M) {
+      if (!M.length) return [];
+      const k = M[0].length;
+      const Z = M.map(r => r.slice());
+      for (let c = 0; c < k; c++) {
+        let m = 0;
+        for (const r of M) m += r[c];
+        m /= M.length;
+        let q = 0;
+        for (const r of M) q += (r[c] - m) * (r[c] - m);
+        const sd = Math.sqrt(q / M.length) || 1;
+        for (let i = 0; i < M.length; i++) Z[i][c] = (M[i][c] - m) / sd;
       }
-      const typeCosine = (na && nb) ? dot / Math.sqrt(na * nb) : 0;
+      return Z;
+    }
 
-      return { jaccard, shared: inter, typeCosine };
+function centerRows(M) {
+      return M.map(r => {
+        const m = r.reduce((x, y) => x + y, 0) / (r.length || 1);
+        return r.map(x => x - m);
+      });
+    }
+
+function vectorNorm(v) {
+      let q = 0;
+      for (const x of v) q += x * x;
+      return Math.sqrt(q);
+    }
+
+function normedDot(a, na, b, nb) {
+      if (!na || !nb) return 0;
+      let d = 0;
+      for (let i = 0; i < a.length; i++) d += a[i] * b[i];
+      return d / (na * nb);
+    }
+
+let _typeStyleCache = null;
+
+function typeStyleData() {
+      if (_typeStyleCache) return _typeStyleCache;
+      const ids = S._concepts.map(c => c.id);
+      const types = [...new Set(S._relations.map(r => r.type))];
+      const share = ids.map(id => {
+        const p = typeProfileOf(id);
+        const v = types.map(t => p[t] || 0);
+        const total = v.reduce((x, y) => x + y, 0) || 1;
+        return v.map(x => x / total);
+      });
+      const V = centerRows(zColumns(share));
+      _typeStyleCache = { ids, types, V, norms: V.map(vectorNorm),
+                          index: new Map(ids.map((id, i) => [id, i])) };
+      return _typeStyleCache;
+    }
+
+function typeStyleSimilarity(idA, idB) {
+      const T = typeStyleData();
+      const i = T.index.get(idA), j = T.index.get(idB);
+      if (i === undefined || j === undefined) return 0;
+      return normedDot(T.V[i], T.norms[i], T.V[j], T.norms[j]);
+    }
+
+const NETWORK_SIM_NAMES = ['degree', 'pagerank', 'betweenness', 'closeness',
+                               'eigenvector', 'clustering', 'cohesion', 'richClub'];
+
+const NETWORK_ROLE_OF = {
+      degree: 'core', pagerank: 'core', eigenvector: 'core', richClub: 'core',
+      betweenness: 'bridge', closeness: 'bridge',
+      clustering: 'nest', cohesion: 'nest'
+    };
+
+const NETWORK_ROLE_WORDS = {
+      core: 'узел ядра', bridge: 'мост', nest: 'член плотного гнезда', periphery: 'периферия'
+    };
+
+let _netSimCache = null;
+
+let _netSimPending = null;
+
+function metricValueMap(res) {
+      const m = new Map();
+      const list = Array.isArray(res) ? res : (res && typeof res === 'object' ? Object.values(res) : []);
+      for (const r of list) {
+        const id = r && r.node ? r.node.id : (r && r.id);
+        if (id !== undefined) m.set(id, Number.isFinite(r.value) ? r.value : 0);
+      }
+      return m;
+    }
+
+function networkSimilarityData() {
+      const pending = [pageRankCache, betweennessCache, closenessCache, eigenvectorCache];
+      if (pending.some(x => !x)) return null;
+      const refs = pending.concat([MET.calculateWeightedClustering(), MET.calculateLocalCohesion(),
+                                   MET.calculateRichClubCoefficient()]);
+      if (_netSimCache && _netSimCache.refs.every((r, i) => r === refs[i])) return _netSimCache;
+      const ids = S._concepts.map(c => c.id);
+      const maps = refs.map(metricValueMap);
+      const raw = ids.map(id => [nodeDegreeOf(id)].concat(maps.map(m => m.get(id) || 0)));
+      const Z = zColumns(raw);
+      const V = centerRows(Z);
+      _netSimCache = { refs, ids, names: NETWORK_SIM_NAMES, Z, V, norms: V.map(vectorNorm),
+                       index: new Map(ids.map((id, i) => [id, i])) };
+      return _netSimCache;
+    }
+
+function networkSimilarity(idA, idB) {
+      const W = networkSimilarityData();
+      if (!W) return null;
+      const i = W.index.get(idA), j = W.index.get(idB);
+      if (i === undefined || j === undefined) return 0;
+      return normedDot(W.V[i], W.norms[i], W.V[j], W.norms[j]);
+    }
+
+function networkRoleOf(id) {
+      const W = networkSimilarityData();
+      if (!W) return null;
+      const i = W.index.get(id);
+      if (i === undefined) return null;
+      const z = W.Z[i];
+      if (z.reduce((x, y) => x + y, 0) / z.length < -0.5) return 'periphery';
+      let best = 0;
+      for (let k = 1; k < W.V[i].length; k++) if (W.V[i][k] > W.V[i][best]) best = k;
+      return NETWORK_ROLE_OF[W.names[best]];
+    }
+
+function ensureNetworkProfile() {
+      if (networkSimilarityData()) return Promise.resolve(true);
+      if (_netSimPending) return _netSimPending;
+      const kick = () => {
+        if (!pageRankCache) MET.calculatePageRank();
+        if (!betweennessCache) calculateBetweennessAsync();
+        if (!closenessCache) MET.calculateClosenessCentrality();
+        if (!eigenvectorCache) MET.calculateEigenvectorCentrality();
+      };
+      _netSimPending = (async () => {
+        try {
+          const started = Date.now();
+          let lastKick = 0;
+          while (!networkSimilarityData()) {
+            if (Date.now() - lastKick > 1000) { kick(); lastKick = Date.now(); }
+            if (Date.now() - started > 120000) return false;
+            await new Promise(r => setTimeout(r, 200));
+          }
+          return true;
+        } finally {
+          _netSimPending = null;
+        }
+      })();
+      return _netSimPending;
+    }
+
+const SIGNED_SIMILARITY = new Set(['profile', 'types', 'network']);
+
+function similarityNeedsDegree(kind) {
+      return kind === 'profile' || kind === 'network';
+    }
+
+function similarityOf(kind, idA, idB) {
+      if (kind === 'profile') return profileSimilarity(idA, idB);
+      if (kind === 'structure') return structuralSimilarity(idA, idB).jaccard;
+      if (kind === 'types') return typeStyleSimilarity(idA, idB);
+      if (kind === 'network') return networkSimilarity(idA, idB) || 0;
+      return 0;
+    }
+
+const SIM_VERDICT_HIGH_Q = 0.9;
+
+const SIM_VERDICT_LOW_Q = 0.1;
+
+const SIM_SHARED_HIGH = 3;
+
+let _simThresholdCache = null;
+
+function similarityThresholds() {
+      const W = networkSimilarityData();
+      if (_simThresholdCache && _simThresholdCache.net === W) return _simThresholdCache;
+      const D = similarityData(), T = typeStyleData();
+      const keep = [];
+      D.ids.forEach((id, i) => { if (profileIsMeaningful(id)) keep.push(i); });
+      const cols = { profile: [], types: [], network: [] };
+      for (let a = 0; a < keep.length; a++) {
+        const i = keep[a];
+        for (let b = a + 1; b < keep.length; b++) {
+          const j = keep[b];
+          cols.profile.push(normedDot(D.V[i], D.norms[i], D.V[j], D.norms[j]));
+          cols.types.push(normedDot(T.V[i], T.norms[i], T.V[j], T.norms[j]));
+          if (W) cols.network.push(normedDot(W.V[i], W.norms[i], W.V[j], W.norms[j]));
+        }
+      }
+      const quantile = (arr, p) => {
+        if (!arr.length) return null;
+        const sorted = Float64Array.from(arr).sort();
+        return sorted[Math.floor(p * (sorted.length - 1))];
+      };
+      const out = { net: W, pairs: cols.profile.length };
+      for (const k of Object.keys(cols)) {
+        out[k] = { high: quantile(cols[k], SIM_VERDICT_HIGH_Q), low: quantile(cols[k], SIM_VERDICT_LOW_Q) };
+      }
+      _simThresholdCache = out;
+      return out;
     }
 
 function nearestConcepts(conceptId, kind, k) {
@@ -199,16 +419,16 @@ function nearestConcepts(conceptId, kind, k) {
       // = −0.48, у 47 концепций из 453 верх ≥ 95 %, все степени 1–2.
       // Профильная колонка строится только для связных концепций —
       // и для источника, и для кандидатов.
-      if (kind === 'profile' && !profileIsMeaningful(conceptId)) return [];
+      if (similarityNeedsDegree(kind) && !profileIsMeaningful(conceptId)) return [];
+      // Сеть может быть ещё не посчитана: null — «подождите», а не «пусто».
+      if (kind === 'network' && !networkSimilarityData()) return null;
 
       const out = [];
       for (let i = 0; i < D.ids.length; i++) {
         if (i === src) continue;
         const id = D.ids[i];
-        if (kind === 'profile' && !profileIsMeaningful(id)) continue;
-        const value = kind === 'profile'
-          ? profileSimilarity(conceptId, id)
-          : structuralSimilarity(conceptId, id).jaccard;
+        if (similarityNeedsDegree(kind) && !profileIsMeaningful(id)) continue;
+        const value = similarityOf(kind, conceptId, id);
         if (value <= 0) continue;
         out.push({ id, value });
       }
@@ -239,4 +459,4 @@ function nearestConcepts(conceptId, kind, k) {
       return res;
     }
 
-export { _pairCalculating, _simCache, allConceptPairs, allConceptPairsAsync, invalidateSimilarityCache, nearestConcepts, profileIsMeaningful, profileSimilarity, similarityData, structuralSimilarity };
+export { NETWORK_ROLE_WORDS, SIGNED_SIMILARITY, SIM_SHARED_HIGH, _pairCalculating, _simCache, allConceptPairs, allConceptPairsAsync, ensureNetworkProfile, fillPairsNetwork, invalidateSimilarityCache, nearestConcepts, networkRoleOf, networkSimilarity, networkSimilarityData, profileIsMeaningful, profileSimilarity, similarityData, similarityNeedsDegree, similarityThresholds, structuralSimilarity, typeStyleSimilarity };
