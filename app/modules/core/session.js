@@ -7,13 +7,13 @@ const authAccounts = new Map();
 
 let authSession = { user: null };
 
-function setSessionUser(user, праваСнаружи) {
+function setSessionUser(user, grantedFromServer) {
       authSession.user = user;
       // Права ПРИСЛАНЫ — берём присланные; нет — выводим из роли, как в
       // местном режиме. Одна строка, и она единственная: заслоны спрашивают
       // готовый набор и о происхождении его не знают.
-      setPermissions(Array.isArray(праваСнаружи)
-        ? праваСнаружи
+      setPermissions(Array.isArray(grantedFromServer)
+        ? grantedFromServer
         : (user && user.role === 'admin'
              ? [PERM.CREATE_COMMIT, PERM.REVIEW_COMMIT]   // местный админ правит напрямую
              : []));

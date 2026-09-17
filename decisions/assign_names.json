@@ -501,7 +501,7 @@
   "linkDrawWidth": "render/draw-link.js",
   "linkDrawnLive": "render/scene.js",
   "linkHandlers": "render/d3-layer.js",
-  "linkHasTwoHeads": "render/geometry.js",
+  "linkHasTwoHeads": "core/link-facts.js",
   "linkHoverStrokeWidth": "render/geometry.js",
   "linkInInfluenceScope": "metrics/generativity.js",
   "linkLayer": "state/render.js",
@@ -921,7 +921,11 @@
   "PROVENANCE_LABELS": "modal/selection-list.js",
   "setSelectionProvenance": "modal/selection-list.js",
   "toggleSelectionBodies": "modal/selection-list.js",
-  "directionMark": "core/link-facts.js"
+  "directionMark": "core/link-facts.js",
+  "compareConcepts": "core/graph-index.js",
+  "linkIsInternal": "core/graph-index.js",
+  "compareLinks": "core/graph-index.js",
+  "comparePhilosophers": "core/graph-index.js"
  },
  "новые": [
   "BUS_PHASES"

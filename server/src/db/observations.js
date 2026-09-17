@@ -34,8 +34,8 @@ const FROM_CLAUSE = `metric_observations o JOIN users u ON u.user_id = o.author_
  * потому, что клиент перечислил сущности в другом порядке, — и сравнение
  * между ними стало бы невозможным без всякой причины.
  */
-export function scopeFingerprint(охват) {
-  const sorted = Array.isArray(охват) ? [...охват].map(String).sort() : [];
+export function scopeFingerprint(scope) {
+  const sorted = Array.isArray(scope) ? [...scope].map(String).sort() : [];
   return crypto.createHash('sha256')
     .update(sorted.join('\u0000')).digest('hex').slice(0, 16);
 }

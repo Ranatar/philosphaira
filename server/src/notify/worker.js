@@ -47,12 +47,12 @@ export const MAX_ATTEMPTS = 10;
  * Один заход по исходящим.
  * Возвращает счёт: сколько доставлено, сколько отложено, сколько пропущено.
  */
-export async function deliverOnce(pool, { отправитель = nullSender,
-                                          сколько = 50 } = {}) {
+export async function deliverOnce(pool, { отправитель: sender = nullSender,
+                                          сколько: limit = 50 } = {}) {
   const batch = await withTransaction(pool, client =>
-    claimOutbox(client, { сколько }));
+    claimOutbox(client, { сколько: limit }));
 
-  let delivered = 0, отложено = 0, пропущено = 0, безнадёжно = 0;
+  let delivered = 0, deferred = 0, skipped = 0, dead = 0;
 
   for (const record of batch) {
     try {
@@ -63,7 +63,7 @@ export async function deliverOnce(pool, { отправитель = nullSender,
           { вид: 'вещание', broadcastId: record.payload.broadcastId,
             type: record.payload.type })).catch(() => {});
         await withTransaction(pool, client => markDelivered(client, record.id));
-        пропущено++;
+        skipped++;
         continue;
       }
 
@@ -78,12 +78,12 @@ export async function deliverOnce(pool, { отправитель = nullSender,
       }
       if (!notification) { // уведомление успели убрать по сроку
         await withTransaction(pool, client => markDelivered(client, record.id));
-        пропущено++;
+        skipped++;
         continue;
       }
       if (!notification.почтойХочет) {
         await withTransaction(pool, client => markDelivered(client, record.id));
-        пропущено++;
+        skipped++;
         continue;
       }
       // НА НЕПОДТВЕРЖДЁННЫЙ АДРЕС НЕ ПИШЕМ — кроме самого письма
@@ -97,14 +97,14 @@ export async function deliverOnce(pool, { отправитель = nullSender,
       // уведомлением, а не этим.
       if (!notification.почтаПодтверждена && notification.type !== N.EMAIL_VERIFY) {
         await withTransaction(pool, client => markDelivered(client, record.id));
-        пропущено++;
+        skipped++;
         continue;
       }
 
       const letter = renderEmail(notification.type, notification.data);
       const headers = mailHeaders({ type: notification.type,
         userId: notification.userId, baseUrl: LINK_ROOT() });
-      await отправитель.send({ to: notification.email, ...letter, headers });
+      await sender.send({ to: notification.email, ...letter, headers });
       await withTransaction(pool, client => markDelivered(client, record.id));
       delivered++;
     } catch (e) {
@@ -117,15 +117,15 @@ export async function deliverOnce(pool, { отправитель = nullSender,
       if (isPermanentFailure(e) || exhausted) {
         await withTransaction(pool, client => markDead(client,
           { id: record.id, ошибка: e.message }));
-        безнадёжно++;
+        dead++;
       } else {
         await withTransaction(pool, client => markFailed(client,
           { id: record.id, attempts: record.attempts, ошибка: e.message }));
-        отложено++;
+        deferred++;
       }
     }
   }
-  return { взято: batch.length, доставлено: delivered, отложено, пропущено, безнадёжно };
+  return { взято: batch.length, доставлено: delivered, отложено: deferred, пропущено: skipped, безнадёжно: dead };
 }
 
 /**
@@ -133,27 +133,27 @@ export async function deliverOnce(pool, { отправитель = nullSender,
  * на каждое событие. Курсор broadcast_seen_id не трогаем — он про
  * прочитанность в приложении, а не про почту; для почты своя отметка.
  */
-export async function sendDigests(pool, { отправитель = nullSender,
-                                          часов = 1, категория = 'graphChanges' } = {}) {
-  const recipients = await digestRecipients(pool, { категория, часов });
-  let sent = 0, пусто = 0, отложено = 0;
+export async function sendDigests(pool, { отправитель: sender = nullSender,
+                                          часов: hours = 1, категория: category = 'graphChanges' } = {}) {
+  const recipients = await digestRecipients(pool, { категория: category, часов: hours });
+  let sent = 0, empty = 0, deferred = 0;
 
   for (const person of recipients) {
     const events = await broadcastsSince(pool,
-      { послеId: person.курсор, категория });
-    if (!events.length) { пусто++; continue; }
+      { послеId: person.курсор, категория: category });
+    if (!events.length) { empty++; continue; }
     try {
-      await отправитель.send({ to: person.email, ...renderDigest(events),
+      await sender.send({ to: person.email, ...renderDigest(events),
         headers: mailHeaders({ type: N.GRAPH_CHANGED, userId: person.id,
           baseUrl: LINK_ROOT() }) });
       await withTransaction(pool, client => stampDigest(client, person.id));
       sent++;
     } catch {
       // Отметку НЕ ставим: не отправленная сводка должна уйти в следующий раз.
-      отложено++;
+      deferred++;
     }
   }
-  return { кандидатов: recipients.length, отправлено: sent, пусто, отложено };
+  return { кандидатов: recipients.length, отправлено: sent, пусто: empty, отложено: deferred };
 }
 
 /** Суточная уборка. Просроченное не хранится: индекс на expires_at для того и есть. */
@@ -161,7 +161,7 @@ export const sweep = pool => withTransaction(pool, client => sweepExpired(client
 
 /** Проверка полноты образцов: тип без образца — ошибка, а не пропажа. */
 export function typesWithoutTemplate() {
-  return Object.keys(CATALOG).filter(тип => {
-    try { renderEmail(тип, {}); return false; } catch { return true; }
+  return Object.keys(CATALOG).filter(type => {
+    try { renderEmail(type, {}); return false; } catch { return true; }
   });
 }

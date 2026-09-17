@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 129 модулей, 20833 строк.
+Составлено из готовой сборки: 129 модулей, 20903 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -49,8 +49,8 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/core/api.js` | 85 | 3 | 1 |
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
 | `modules/core/events.js` | 65 | 2 | 0 |
-| `modules/core/graph-index.js` | 160 | 10 | 1 |
-| `modules/core/link-facts.js` | 61 | 9 | 2 |
+| `modules/core/graph-index.js` | 216 | 13 | 1 |
+| `modules/core/link-facts.js` | 73 | 10 | 2 |
 | `modules/core/long-task.js` | 120 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
 | `modules/core/perms.js` | 28 | 3 | 0 |
@@ -71,7 +71,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/filters/chains.js` | 273 | 3 | 4 |
 | `modules/filters/filters.js` | 445 | 2 | 14 |
 | `modules/graph/click-actions.js` | 201 | 2 | 8 |
-| `modules/graph/graph-data.js` | 118 | 10 | 9 |
+| `modules/graph/graph-data.js` | 121 | 10 | 9 |
 | `modules/graph/graph-selection.js` | 61 | 3 | 3 |
 | `modules/metrics/by-link-type.js` | 116 | 3 | 2 |
 | `modules/metrics/concept-dynamics.js` | 224 | 4 | 2 |
@@ -114,7 +114,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
 | `modules/modal/security.js` | 116 | 4 | 4 |
-| `modules/modal/selection-list.js` | 251 | 11 | 7 |
+| `modules/modal/selection-list.js` | 256 | 11 | 7 |
 | `modules/modal/users.js` | 97 | 7 | 3 |
 | `modules/paths/analysis.js` | 74 | 2 | 7 |
 | `modules/paths/chronology.js` | 175 | 6 | 4 |
@@ -123,8 +123,8 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/paths/shortest-path.js` | 203 | 1 | 5 |
 | `modules/render/canvas-core.js` | 45 | 9 | 2 |
 | `modules/render/d3-layer.js` | 107 | 9 | 6 |
-| `modules/render/draw-link.js` | 101 | 6 | 6 |
-| `modules/render/geometry.js` | 95 | 6 | 3 |
+| `modules/render/draw-link.js` | 102 | 6 | 7 |
+| `modules/render/geometry.js` | 88 | 5 | 2 |
 | `modules/render/grouping.js` | 115 | 3 | 6 |
 | `modules/render/interactions.js` | 308 | 4 | 18 |
 | `modules/render/loop.js` | 20 | 2 | 0 |
@@ -166,7 +166,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/ui/panels.js` | 40 | 2 | 0 |
 | `modules/ui/search-legend.js` | 141 | 6 | 16 |
 | `modules/ui/search-link.js` | 135 | 5 | 11 |
-| `modules/ui/search-philosopher.js` | 98 | 6 | 5 |
+| `modules/ui/search-philosopher.js` | 98 | 6 | 6 |
 | `modules/util/color.js` | 23 | 1 | 0 |
 | `modules/util/html.js` | 41 | 3 | 0 |
 | `modules/util/philosopher-label.js` | 40 | 5 | 3 |
@@ -442,28 +442,28 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/graph-index.js`
 
-Строк 160.
+Строк 216.
 
-**Вывозит:** `buildConceptToRubrics`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `conceptById`, `linksByConcept`, `nodesByPhilosopher`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
+**Вывозит:** `buildConceptToRubrics`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linksByConcept`, `nodesByPhilosopher`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
 
 **Ввозит:**
 
 - из `./ns.js`: `DATA`
 
-**Содержит:** `buildConceptToRubrics`, `buildIndexes`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `conceptById`, `linksByConcept`, `nodesByPhilosopher`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
+**Содержит:** `buildConceptToRubrics`, `buildIndexes`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `linksByConcept`, `nodesByPhilosopher`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
 
 ### `modules/core/link-facts.js`
 
-Строк 61.
+Строк 73.
 
-**Вывозит:** `buildReflexiveMap`, `directionMark`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+**Вывозит:** `buildReflexiveMap`, `directionMark`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linkHasTwoHeads`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 
 **Ввозит:**
 
 - из `./ns.js`: `DATA`, `S`
 - из `./graph-index.js`: _ради побочного действия_
 
-**Содержит:** `buildReflexiveMap`, `directionMark`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+**Содержит:** `buildReflexiveMap`, `directionMark`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linkHasTwoHeads`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 
 ### `modules/core/long-task.js`
 
@@ -739,7 +739,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/graph/graph-data.js`
 
-Строк 118.
+Строк 121.
 
 **Вывозит:** `addLinkToGraph`, `addNodeToGraph`, `connectionsBetween`, `findConnection`, `forgetLink`, `forgetNode`, `getConceptConnections`, `traditionsOfPhilosopher`, `updateLinkOnGraph`, `updateNodeOnGraph`
 
@@ -1361,7 +1361,7 @@ tools/build/split_css.mjs <дерево>                              стили
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
-- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `rubricById`, `traditionById`
+- из `../core/graph-index.js`: `comparePhilosophers`, `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `rubricById`, `traditionById`
 - из `../core/link-facts.js`: `directionMark`
 - из `../core/perms.js`: `PERM`, `can`
 - из `../metrics/similarity-philosophers.js`: `nearestPhilosophers`
@@ -1445,14 +1445,14 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/selection-list.js`
 
-Строк 251.
+Строк 256.
 
 **Вывозит:** `closeSelectionListModal`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionListMore`, `selectionListOpenBlocks`, `selectionListSets`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
-- из `../core/graph-index.js`: `conceptById`
+- из `../core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`
 - из `../core/link-facts.js`: `directionMark`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `../render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
@@ -1595,15 +1595,16 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/draw-link.js`
 
-Строк 101.
+Строк 102.
 
 **Вывозит:** `drawSelfLoop`, `fillArrow`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLink`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `S`
+- из `../core/link-facts.js`: `linkHasTwoHeads`
 - из `./canvas-core.js`: `renderState`
-- из `./geometry.js`: `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHasTwoHeads`, `linkHoverStrokeWidth`, `linkStrokeWidth`
+- из `./geometry.js`: `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHoverStrokeWidth`, `linkStrokeWidth`
 - из `./render-state.js`: `hasLinkClass`, `nodeRadius`
 - из `./similarity-overlay.js`: `linkAmongHighlighted`
 - из `../state/render.js`: `selectedEdges`
@@ -1612,17 +1613,16 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/geometry.js`
 
-Строк 95.
+Строк 88.
 
-**Вывозит:** `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHasTwoHeads`, `linkHoverStrokeWidth`, `linkStrokeWidth`
+**Вывозит:** `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHoverStrokeWidth`, `linkStrokeWidth`
 
 **Ввозит:**
 
-- из `../core/ns.js`: `DATA`, `S`
+- из `../core/ns.js`: `S`
 - из `./canvas-core.js`: `renderState`
-- из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHasTwoHeads`, `linkHoverStrokeWidth`, `linkStrokeWidth`
+**Содержит:** `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHoverStrokeWidth`, `linkStrokeWidth`
 
 ### `modules/render/grouping.js`
 
@@ -2231,12 +2231,12 @@ tools/build/split_css.mjs <дерево>                              стили
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
-- из `../core/link-facts.js`: `isSymmetricLink`
+- из `../core/link-facts.js`: `isSymmetricLink`, `linkHasTwoHeads`
 - из `../core/long-task.js`: `showTemporaryMessage`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `../render/canvas-core.js`: `renderState`
 - из `../render/draw-link.js`: `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`
-- из `../render/geometry.js`: `arrowPoints`, `arrowPointsStart`, `linkHasTwoHeads`
+- из `../render/geometry.js`: `arrowPoints`, `arrowPointsStart`
 - из `../render/render-state.js`: `hasNodeClass`, `nodeLabelDy`, `nodeRadius`
 - из `../render/scene.js`: `DRAW_ORDER`, `renderScene`
 - из `../state/render.js`: `selectedNodes`
@@ -2355,6 +2355,7 @@ tools/build/split_css.mjs <дерево>                              стили
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
+- из `../core/graph-index.js`: `comparePhilosophers`
 - из `../core/search.js`: `emptyList`
 - из `../modal/core.js`: `openUniversalModal`
 - из `../render/selection.js`: `highlightPhilosopherOnGraph`
@@ -2391,7 +2392,7 @@ tools/build/split_css.mjs <дерево>                              стили
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
-- из `../core/graph-index.js`: `philosopherByName`
+- из `../core/graph-index.js`: `comparePhilosophers`, `philosopherByName`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `_ambiguousLabels`, `ambiguousLabels`, `formatBirthYear`, `labelWithAuthor`, `philosopherBirth`, `philosopherYears`, `sortPhilosophersByBirth`

@@ -100,8 +100,8 @@ function runForces({ nodes, links, степень: degree }, { decay, alpha }) {
 }
 
 /** Полный отжиг с нуля: медленное остывание, начальные положения от d3. */
-export function fullLayout(граф) {
-  return runForces(graphBody(граф), { decay: 0.005, alpha: 1 });
+export function fullLayout(graph) {
+  return runForces(graphBody(graph), { decay: 0.005, alpha: 1 });
 }
 
 /**
@@ -109,11 +109,11 @@ export function fullLayout(граф) {
  * (только что добавлен), ставится в середину с малым разбросом — как это
  * делает и приложение, — и дальше его растаскивают силы.
  */
-export function growLayout(граф, прежние) {
-  const graphData = graphBody(граф);
+export function growLayout(graph, previous) {
+  const graphData = graphBody(graph);
   let withoutPrev = 0;
   for (const n of graphData.nodes) {
-    const p = прежние?.[n.id];
+    const p = previous?.[n.id];
     if (p) { n.x = p[0]; n.y = p[1]; }
     else {
       withoutPrev++;
@@ -136,12 +136,12 @@ export function growLayout(граф, прежние) {
  * 200 px» выбран не на глаз: при таком сдвиге узел уезжает за пределы своего
  * прежнего окружения (медиана расстояния до ближайшего соседа — 90).
  */
-export function divergence(было, стало) {
+export function divergence(before, after) {
   const shifts = [];
-  for (const id of Object.keys(стало)) {
-    const a = было?.[id];
+  for (const id of Object.keys(after)) {
+    const a = before?.[id];
     if (!a) continue;
-    shifts.push(Math.hypot(стало[id][0] - a[0], стало[id][1] - a[1]));
+    shifts.push(Math.hypot(after[id][0] - a[0], after[id][1] - a[1]));
   }
   if (!shifts.length) return { медиана: null, далеко: null, сверено: 0 };
   shifts.sort((x, y) => x - y);

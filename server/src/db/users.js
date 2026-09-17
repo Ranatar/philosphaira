@@ -12,7 +12,7 @@
 import { userFromRow } from './mapper.js';
 
 /** Себе показываем полностью: почта своя. */
-const toSelf = строка => userFromRow(строка, { кому: { userId: строка.user_id, level: 4 } });
+const toSelf = row => userFromRow(row, { кому: { userId: row.user_id, level: 4 } });
 
 export async function findByEmailWithSecret(db, email) {
   const { rows } = await db.query(
@@ -73,11 +73,11 @@ export async function findById(db, userId) {
  */
 export async function insertUser(client, { username, email, passwordHash,
                                            displayName = null, role = 'viewer' }) {
-  const { rows: [строка] } = await client.query(`
+  const { rows: [row] } = await client.query(`
     INSERT INTO users (username, email, password_hash, display_name, role)
     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
     [username, email, passwordHash, displayName, role]);
-  return toSelf(строка);
+  return toSelf(row);
 }
 
 export const setLastLogin = (client, userId) => client.query(

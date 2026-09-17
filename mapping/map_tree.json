@@ -1,9 +1,9 @@
 {
  "меры": {
   "модулей": 129,
-  "строк": 20833,
-  "объявлений": 837,
-  "вывозов": 586,
+  "строк": 20903,
+  "объявлений": 841,
+  "вывозов": 589,
   "рёбер": 810,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
@@ -11,7 +11,7 @@
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-09-16 08:20:34"
+  "составлено": "2026-09-16 15:39:04"
  },
  "модули": [
   {
@@ -1226,9 +1226,9 @@
   },
   {
    "путь": "modules/core/graph-index.js",
-   "строк": 160,
-   "объявлений": 11,
-   "вывозит": 10,
+   "строк": 216,
+   "объявлений": 15,
+   "вывозит": 13,
    "ввозитИз": 2,
    "вНС": {
     "DATA": 16
@@ -1237,6 +1237,9 @@
     "buildConceptToRubrics",
     "buildPhilosopherTraditions",
     "buildRubricsIndex",
+    "compareConcepts",
+    "compareLinks",
+    "comparePhilosophers",
     "conceptById",
     "linksByConcept",
     "nodesByPhilosopher",
@@ -1301,12 +1304,32 @@
     {
      "имя": "rebuildIndexes",
      "вид": "function",
-     "строк": 37
+     "строк": 51
     },
     {
      "имя": "buildPhilosopherTraditions",
      "вид": "function",
      "строк": 3
+    },
+    {
+     "имя": "comparePhilosophers",
+     "вид": "function",
+     "строк": 14
+    },
+    {
+     "имя": "compareConcepts",
+     "вид": "function",
+     "строк": 4
+    },
+    {
+     "имя": "linkIsInternal",
+     "вид": "function",
+     "строк": 5
+    },
+    {
+     "имя": "compareLinks",
+     "вид": "function",
+     "строк": 15
     },
     {
      "имя": "buildIndexes",
@@ -1324,9 +1347,9 @@
   },
   {
    "путь": "modules/core/link-facts.js",
-   "строк": 61,
-   "объявлений": 9,
-   "вывозит": 9,
+   "строк": 73,
+   "объявлений": 10,
+   "вывозит": 10,
    "ввозитИз": 2,
    "вНС": {
     "DATA": 1,
@@ -1338,6 +1361,7 @@
     "isReflexiveLink",
     "isSymmetricLink",
     "isTypologicalLink",
+    "linkHasTwoHeads",
     "linksBothWays",
     "otherPhilosopher",
     "reflexiveLinkOf",
@@ -1398,9 +1422,14 @@
      "строк": 4
     },
     {
+     "имя": "linkHasTwoHeads",
+     "вид": "function",
+     "строк": 5
+    },
+    {
      "имя": "directionMark",
      "вид": "function",
-     "строк": 6
+     "строк": 12
     }
    ],
    "чащеВсего": [
@@ -1411,7 +1440,7 @@
     },
     {
      "имя": "DATA",
-     "раз": 2,
+     "раз": 3,
      "откуда": "modules/core/ns.js"
     }
    ]
@@ -2855,7 +2884,7 @@
   },
   {
    "путь": "modules/graph/graph-data.js",
-   "строк": 118,
+   "строк": 121,
    "объявлений": 10,
    "вывозит": 10,
    "ввозитИз": 10,
@@ -2952,7 +2981,7 @@
     {
      "имя": "getConceptConnections",
      "вид": "function",
-     "строк": 8
+     "строк": 11
     },
     {
      "имя": "addNodeToGraph",
@@ -7350,6 +7379,7 @@
     {
      "откуда": "modules/core/graph-index.js",
      "имена": [
+      "comparePhilosophers",
       "conceptById",
       "nodesByPhilosopher",
       "philosopherByName",
@@ -7895,7 +7925,7 @@
   },
   {
    "путь": "modules/modal/selection-list.js",
-   "строк": 251,
+   "строк": 256,
    "объявлений": 21,
    "вывозит": 11,
    "ввозитИз": 7,
@@ -7929,6 +7959,9 @@
     {
      "откуда": "modules/core/graph-index.js",
      "имена": [
+      "compareConcepts",
+      "compareLinks",
+      "comparePhilosophers",
       "conceptById"
      ]
     },
@@ -8008,7 +8041,7 @@
     {
      "имя": "selectionListSets",
      "вид": "function",
-     "строк": 32
+     "строк": 37
     },
     {
      "имя": "openSelectionListModal",
@@ -9022,10 +9055,10 @@
   },
   {
    "путь": "modules/render/draw-link.js",
-   "строк": 101,
+   "строк": 102,
    "объявлений": 6,
    "вывозит": 6,
-   "ввозитИз": 6,
+   "ввозитИз": 7,
    "вНС": {
     "S": 1
    },
@@ -9045,6 +9078,12 @@
      ]
     },
     {
+     "откуда": "modules/core/link-facts.js",
+     "имена": [
+      "linkHasTwoHeads"
+     ]
+    },
+    {
      "откуда": "modules/render/canvas-core.js",
      "имена": [
       "renderState"
@@ -9056,7 +9095,6 @@
       "arcParams",
       "arrowPoints",
       "arrowPointsStart",
-      "linkHasTwoHeads",
       "linkHoverStrokeWidth",
       "linkStrokeWidth"
      ]
@@ -9143,19 +9181,17 @@
   },
   {
    "путь": "modules/render/geometry.js",
-   "строк": 95,
-   "объявлений": 6,
-   "вывозит": 6,
-   "ввозитИз": 3,
+   "строк": 88,
+   "объявлений": 5,
+   "вывозит": 5,
+   "ввозитИз": 2,
    "вНС": {
-    "DATA": 1,
     "S": 2
    },
    "вывоз": [
     "arcParams",
     "arrowPoints",
     "arrowPointsStart",
-    "linkHasTwoHeads",
     "linkHoverStrokeWidth",
     "linkStrokeWidth"
    ],
@@ -9163,13 +9199,8 @@
     {
      "откуда": "modules/core/ns.js",
      "имена": [
-      "DATA",
       "S"
      ]
-    },
-    {
-     "откуда": "modules/core/graph-index.js",
-     "имена": []
     },
     {
      "откуда": "modules/render/canvas-core.js",
@@ -9203,11 +9234,6 @@
      "имя": "arrowPointsStart",
      "вид": "function",
      "строк": 28
-    },
-    {
-     "имя": "linkHasTwoHeads",
-     "вид": "function",
-     "строк": 5
     }
    ],
    "чащеВсего": [
@@ -9220,11 +9246,6 @@
      "имя": "renderState",
      "раз": 2,
      "откуда": "modules/render/canvas-core.js"
-    },
-    {
-     "имя": "DATA",
-     "раз": 1,
-     "откуда": "modules/core/ns.js"
     }
    ]
   },
@@ -13204,7 +13225,8 @@
     {
      "откуда": "modules/core/link-facts.js",
      "имена": [
-      "isSymmetricLink"
+      "isSymmetricLink",
+      "linkHasTwoHeads"
      ]
     },
     {
@@ -13238,8 +13260,7 @@
      "откуда": "modules/render/geometry.js",
      "имена": [
       "arrowPoints",
-      "arrowPointsStart",
-      "linkHasTwoHeads"
+      "arrowPointsStart"
      ]
     },
     {
@@ -14101,7 +14122,7 @@
    "строк": 98,
    "объявлений": 7,
    "вывозит": 6,
-   "ввозитИз": 5,
+   "ввозитИз": 6,
    "вНС": {
     "DATA": 3
    },
@@ -14123,6 +14144,12 @@
     {
      "откуда": "modules/core/graph-index.js",
      "имена": []
+    },
+    {
+     "откуда": "modules/core/graph-index.js",
+     "имена": [
+      "comparePhilosophers"
+     ]
     },
     {
      "откуда": "modules/core/search.js",
@@ -14162,7 +14189,7 @@
     {
      "имя": "pickPhilosophers",
      "вид": "function",
-     "строк": 11
+     "строк": 10
     },
     {
      "имя": "handlePhilosopherSearch",
@@ -14195,6 +14222,11 @@
      "имя": "highlightPhilosopherOnGraph",
      "раз": 1,
      "откуда": "modules/render/selection.js"
+    },
+    {
+     "имя": "comparePhilosophers",
+     "раз": 1,
+     "откуда": "modules/core/graph-index.js"
     },
     {
      "имя": "openUniversalModal",
@@ -14285,6 +14317,7 @@
     {
      "откуда": "modules/core/graph-index.js",
      "имена": [
+      "comparePhilosophers",
       "philosopherByName"
      ]
     }
@@ -14330,6 +14363,11 @@
     {
      "имя": "philosopherByName",
      "раз": 2,
+     "откуда": "modules/core/graph-index.js"
+    },
+    {
+     "имя": "comparePhilosophers",
+     "раз": 1,
      "откуда": "modules/core/graph-index.js"
     },
     {
@@ -14488,7 +14526,7 @@
   },
   {
    "имя": "DATA",
-   "ввозятМодулей": 61
+   "ввозятМодулей": 60
   },
   {
    "имя": "conceptById",
@@ -14590,11 +14628,11 @@
   },
   {
    "модуль": "modules/core/graph-index.js",
-   "ввозятИзНего": 57
+   "ввозятИзНего": 56
   },
   {
    "модуль": "modules/core/link-facts.js",
-   "ввозятИзНего": 23
+   "ввозятИзНего": 24
   },
   {
    "модуль": "modules/core/events.js",
@@ -14851,7 +14889,7 @@
     {
      "поле": "relationTypesObj",
      "раз": 46,
-     "модулей": 23
+     "модулей": 22
     },
     {
      "поле": "philosopherConcepts",

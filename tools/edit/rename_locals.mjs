@@ -27,14 +27,62 @@ import { ИСХОДНИК } from '../paths.mjs';
 const СЛОВАРЬ = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const ПРИМЕНИТЬ = process.argv.includes('--да');
 
-const html = fs.readFileSync(ИСХОДНИК, 'utf8');
-const нач = html.indexOf('<script>', html.indexOf('</style>'));
-const телоНач = html.indexOf('>', нач) + 1;
-const телоКон = html.indexOf('</script>', телоНач);
+// ФАЙЛ ЛЮБОЙ, а не только одностраничный исходник: те же правила нужны и в
+// server/src, где кириллических имён нашлось 164. Ключ `--файл <путь>`.
+const ключФайл = process.argv.indexOf('--файл');
+const ФАЙЛ = ключФайл > 0 ? process.argv[ключФайл + 1] : ИСХОДНИК;
+const модуль = !/\.html$/.test(ФАЙЛ);
+
+const html = fs.readFileSync(ФАЙЛ, 'utf8');
+let телоНач = 0, телоКон = html.length;
+if (!модуль) {
+  const нач = html.indexOf('<script>', html.indexOf('</style>'));
+  телоНач = html.indexOf('>', нач) + 1;
+  телоКон = html.indexOf('</script>', телоНач);
+}
 const code = html.slice(телоНач, телоКон);
 
-const ast = acorn.parse(code, { ecmaVersion: 2023, sourceType: 'script', ranges: true });
-const sm = eslintScope.analyze(ast, { ecmaVersion: 2023, sourceType: 'script' });
+const видИсходника = модуль ? 'module' : 'script';
+const ast = acorn.parse(code, { ecmaVersion: 2023, sourceType: видИсходника, ranges: true });
+// eslint-scope здешней сборки не переваривает модули — для них ввозы и
+// вывозы срезаются на время разбора: имена из них нам всё равно не нужны,
+// а связывания внутри тел функций от этого не меняются.
+// Срезаем ПО ОБЛАСТЯМ ИЗ РАЗБОРА, а не регулярным выражением: первая
+// редакция гасила строку целиком и ломала многострочные ввозы, оставляя
+// висящий хвост. Ввоз и вывоз без объявления гасятся целиком; у вывоза с
+// объявлением гасится только слово `export`, чтобы объявление осталось.
+const дляОбластей = (() => {
+  if (!модуль) return code;
+  const буквы = code.split('');
+  const гасить = (a, b) => { for (let i = a; i < b; i++) if (буквы[i] !== '\n') буквы[i] = ' '; };
+  for (const узел of ast.body) {
+    if (узел.type === 'ImportDeclaration'
+     || узел.type === 'ExportAllDeclaration'
+     || (узел.type === 'ExportNamedDeclaration' && !узел.declaration)) {
+      гасить(узел.range[0], узел.range[1]);
+    } else if ((узел.type === 'ExportNamedDeclaration' || узел.type === 'ExportDefaultDeclaration')
+               && узел.declaration) {
+      гасить(узел.range[0], узел.declaration.range[0]);
+    }
+  }
+  return буквы.join('');
+})();
+// `allowAwaitOutsideFunction` — иначе `export const X = await …` (годное в
+// модуле и негодное в скрипте) роняет разбор, и файл ПРОПУСКАЕТСЯ МОЛЧА.
+// Так password.js остался с тремя кириллическими именами, а инструмент
+// отрапортовал об успехе: тихий пропуск хуже отказа.
+let astДляОбластей;
+try {
+  astДляОбластей = модуль
+    ? acorn.parse(дляОбластей, { ecmaVersion: 2023, sourceType: 'script',
+                                 allowAwaitOutsideFunction: true, ranges: true })
+    : ast;
+} catch (e) {
+  console.error(`\n✗ ${ФАЙЛ}: области видимости не разобрались — ${e.message}`);
+  console.error('Файл НЕ ПРАВЛЕН. Молча пропустить его нельзя: вы решили, что он готов.');
+  process.exit(1);
+}
+const sm = eslintScope.analyze(astДляОбластей, { ecmaVersion: 2023, sourceType: 'script' });
 
 // имя вмещающей функции — для словаря и для отчёта
 function хозяин(область) {
@@ -46,6 +94,50 @@ function хозяин(область) {
   }
   return '(верх)';
 }
+
+/**
+ * СОКРАЩЁННАЯ ЗАПИСЬ — ДВА СЛУЧАЯ, И ОБА МОЛЧАЛИВО ОПАСНЫЕ.
+ *
+ *   const { токен } = ответ      — разбор: имя связывания И имя поля стоят
+ *                                  в одном месте текста;
+ *   return { user, токен }       — сборка: то же место есть И ссылка на
+ *                                  переменную, И имя поля в ответе.
+ *
+ * Простая замена даёт `{ token }`: выглядит переименованием, а меняет
+ * ДОГОВОР — в первом случае читается другое поле, во втором наружу уходит
+ * ответ с другим именем поля. Поймано подлогом: `токен → token` в
+ * register превратило `const { токен, sessionId }` в `{ token, sessionId }`
+ * и `return { user, токен }` в `return { user, token }`.
+ *
+ * Поэтому здесь заранее собираются ВСЕ места, где Identifier стоит
+ * значением сокращённого свойства: при правке такое место разворачивается
+ * в полную запись `поле: новоеИмя`. eslint-scope об этом не знает — его
+ * Definition.node указывает на VariableDeclarator, а не на Property.
+ */
+const сокращённые = new Map();   // «начало:конец» → имя поля
+(function собратьСокращённые(узел) {
+  if (!узел || typeof узел !== 'object') return;
+  if (узел.type === 'Property' && узел.shorthand && узел.value
+      && узел.value.type === 'Identifier') {
+    сокращённые.set(узел.value.range[0] + ':' + узел.value.range[1], узел.key.name);
+  }
+  // значение по умолчанию в сокращённой записи: { токен = 1 }
+  if (узел.type === 'Property' && узел.shorthand && узел.value
+      && узел.value.type === 'AssignmentPattern'
+      && узел.value.left.type === 'Identifier') {
+    сокращённые.set(узел.value.left.range[0] + ':' + узел.value.left.range[1], узел.key.name);
+  }
+  for (const ключ of Object.keys(узел)) {
+    const в = узел[ключ];
+    if (Array.isArray(в)) в.forEach(собратьСокращённые);
+    else if (в && typeof в.type === 'string') собратьСокращённые(в);
+  }
+})(ast);
+
+const развернуть = (начало, конец, новое) => {
+  const поле = сокращённые.get(начало + ':' + конец);
+  return поле !== undefined ? (поле + ': ' + новое) : новое;
+};
 
 const правки = [];
 const отчёт = [];
@@ -66,8 +158,21 @@ const поЗвёздочке = new Map();
       поЗвёздочке.get(пер.name).push(где);
     }
     отчёт.push(`${пер.name} → ${новое}   (в ${где}, ссылок ${пер.references.length})`);
-    for (const d of пер.defs) if (d.name) правки.push({ ...d.name.range, s: d.name.range[0], e: d.name.range[1], новое });
-    for (const r of пер.references) правки.push({ s: r.identifier.range[0], e: r.identifier.range[1], новое });
+    // СОКРАЩЁННАЯ ЗАПИСЬ РАЗБОРА — ОТДЕЛЬНЫЙ СЛУЧАЙ, И МОЛЧАЛИВО ОПАСНЫЙ.
+    // В `const { токен } = ответ` имя связывания и имя ПОЛЯ — одно и то же
+    // место в тексте. Замена его на `token` даёт `{ token }`, то есть чтение
+    // ДРУГОГО поля: правка выглядит переименованием, а меняет договор с
+    // тем, кто этот объект вернул. Поэтому здесь пишется полная запись
+    // `поле: новоеИмя` — поле остаётся, связывание переименовано.
+    for (const d of пер.defs) {
+      if (!d.name) continue;
+      const [a, b] = d.name.range;
+      правки.push({ s: a, e: b, новое: развернуть(a, b, новое) });
+    }
+    for (const r of пер.references) {
+      const [a, b] = r.identifier.range;
+      правки.push({ s: a, e: b, новое: развернуть(a, b, новое) });
+    }
   }
   область.childScopes.forEach(обход);
 })(sm.globalScope);
@@ -141,6 +246,52 @@ if (широкие.length && !process.argv.includes('--везде')) {
   process.exit(1);
 }
 
+// ЗАСЛОН ОТ СТОЛКНОВЕНИЯ ДВУХ ПРАВОК МЕЖДУ СОБОЙ.
+//
+// Проверка выше сверяет новое имя с НЫНЕШНИМ состоянием файла. Но столкнуться
+// могут и две правки одного захода: в stateInWords довод звался `код`, а
+// разобранный элемент внутри — `к`, и оба просились в `stateCode`. Порознь
+// каждая правка безупречна; вместе внутреннее имя затенило бы внешнее, и
+// `(код || 'unspecified')` стало бы читать само себя. Тихая порча, которую
+// не видит ни разбор до правки, ни разбор после.
+//
+// Ловится сличением намерений: если две области, одна внутри другой,
+// получают ОДНО И ТО ЖЕ новое имя — это столкновение.
+{
+  const поОбластям = new Map();   // область → { имя: новое }
+  (function собрать(область) {
+    for (const пер of область.variables) {
+      const правило = СЛОВАРЬ[пер.name];
+      if (!правило || область.type === 'global') continue;
+      const где = хозяин(область);
+      const новое = typeof правило === 'string' ? правило : (правило[где] || правило['*']);
+      if (!новое) continue;
+      if (!поОбластям.has(область)) поОбластям.set(область, []);
+      поОбластям.get(область).push({ было: пер.name, стало: новое });
+    }
+    область.childScopes.forEach(собрать);
+  })(sm.globalScope);
+
+  for (const [область, правки] of поОбластям) {
+    for (let верх = область.upper; верх; верх = верх.upper) {
+      const снаружи = поОбластям.get(верх);
+      if (!снаружи) continue;
+      for (const в of правки) {
+        for (const н of снаружи) {
+          if (в.стало !== н.стало) continue;
+          const [a, b] = область.block.range;
+          const внешнее = верх.variables.find(v => v.name === н.было);
+          const читается = внешнее && внешнее.references.some(
+            r => r.identifier.range[0] >= a && r.identifier.range[1] <= b);
+          if (читается) столкновения.push(
+            `${в.было} → ${в.стало} (в ${хозяин(область)}): ДВЕ ПРАВКИ СОШЛИСЬ В ОДНО ИМЯ — `
+            + `снаружи ${н.было} → ${н.стало}, и внешнее читается внутри`);
+        }
+      }
+    }
+  }
+}
+
 if (столкновения.length) {
   console.error('\nСТОЛКНОВЕНИЕ ИМЁН — переименование отменено:');
   for (const с of столкновения) console.error('  ✗ ' + с);
@@ -159,5 +310,5 @@ if (!ПРИМЕНИТЬ) { console.log('(показ; чтобы применит
 
 let новыйКод = code;
 for (const п of список) новыйКод = новыйКод.slice(0, п.s) + п.новое + новыйКод.slice(п.e);
-fs.writeFileSync(ИСХОДНИК, html.slice(0, телоНач) + новыйКод + html.slice(телоКон));
-console.log('\nисходник обновлён. ОБЯЗАТЕЛЬНО: probe6 — он поймает, если правка задела данные.');
+fs.writeFileSync(ФАЙЛ, html.slice(0, телоНач) + новыйКод + html.slice(телоКон));
+console.log(`\n${ФАЙЛ} обновлён. ОБЯЗАТЕЛЬНО: probe6 — он поймает, если правка задела данные.`);

@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-129 модулей, 20833 строк, 837 объявлений,
-586 вывозов, 810 рёбер ввоза. Составлено 2026-09-16 08:20:34.
+129 модулей, 20903 строк, 841 объявлений,
+589 вывозов, 810 рёбер ввоза. Составлено 2026-09-16 15:39:04.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -18,8 +18,8 @@
 | Модуль | Ввозят из него |
 |---|---|
 | `modules/core/ns.js` | 95 |
-| `modules/core/graph-index.js` | 57 |
-| `modules/core/link-facts.js` | 23 |
+| `modules/core/graph-index.js` | 56 |
+| `modules/core/link-facts.js` | 24 |
 | `modules/core/events.js` | 22 |
 | `modules/render/canvas-core.js` | 19 |
 | `modules/state/render.js` | 18 |
@@ -35,7 +35,7 @@
 | Имя | В скольких модулях ввозится |
 |---|---|
 | `S` | 75 |
-| `DATA` | 61 |
+| `DATA` | 60 |
 | `conceptById` | 23 |
 | `emit` | 21 |
 | `MET` | 21 |
@@ -91,8 +91,8 @@
 | `modules/core/api.js` | 85 | 4 | 3 | 1 | — |
 | `modules/core/base-cells.js` | 19 | 0 | 0 | 1 | S:8 |
 | `modules/core/events.js` | 65 | 5 | 2 | 0 | — |
-| `modules/core/graph-index.js` | 160 | 11 | 10 | 2 | DATA:16 |
-| `modules/core/link-facts.js` | 61 | 9 | 9 | 2 | DATA:1, S:6 |
+| `modules/core/graph-index.js` | 216 | 15 | 13 | 2 | DATA:16 |
+| `modules/core/link-facts.js` | 73 | 10 | 10 | 2 | DATA:1, S:6 |
 | `modules/core/long-task.js` | 120 | 3 | 3 | 0 | — |
 | `modules/core/ns.js` | 33 | 2 | 4 | 0 | — |
 | `modules/core/perms.js` | 28 | 4 | 3 | 0 | — |
@@ -113,7 +113,7 @@
 | `modules/filters/chains.js` | 273 | 6 | 3 | 4 | DATA:3, S:2 |
 | `modules/filters/filters.js` | 445 | 12 | 2 | 14 | DATA:4, S:7 |
 | `modules/graph/click-actions.js` | 201 | 8 | 2 | 8 | S:1 |
-| `modules/graph/graph-data.js` | 118 | 10 | 10 | 10 | DATA:2, S:6 |
+| `modules/graph/graph-data.js` | 121 | 10 | 10 | 10 | DATA:2, S:6 |
 | `modules/graph/graph-selection.js` | 61 | 3 | 3 | 3 | S:1 |
 | `modules/metrics/by-link-type.js` | 116 | 6 | 3 | 2 | S:3, MET:4 |
 | `modules/metrics/concept-dynamics.js` | 224 | 8 | 4 | 2 | S:4, MET:4 |
@@ -156,7 +156,7 @@
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 2 | 8 | DATA:3, S:3, MET:3 |
 | `modules/modal/search.js` | 43 | 3 | 3 | 1 | — |
 | `modules/modal/security.js` | 116 | 7 | 4 | 4 | S:1 |
-| `modules/modal/selection-list.js` | 251 | 21 | 11 | 7 | DATA:5 |
+| `modules/modal/selection-list.js` | 256 | 21 | 11 | 7 | DATA:5 |
 | `modules/modal/users.js` | 97 | 8 | 7 | 3 | — |
 | `modules/paths/analysis.js` | 74 | 2 | 2 | 7 | DATA:2 |
 | `modules/paths/chronology.js` | 175 | 10 | 6 | 4 | DATA:1, S:1 |
@@ -165,8 +165,8 @@
 | `modules/paths/shortest-path.js` | 203 | 4 | 1 | 5 | DATA:2, S:4 |
 | `modules/render/canvas-core.js` | 45 | 9 | 9 | 3 | S:3 |
 | `modules/render/d3-layer.js` | 107 | 11 | 9 | 7 | DATA:2, S:2 |
-| `modules/render/draw-link.js` | 101 | 6 | 6 | 6 | S:1 |
-| `modules/render/geometry.js` | 95 | 6 | 6 | 3 | DATA:1, S:2 |
+| `modules/render/draw-link.js` | 102 | 6 | 6 | 7 | S:1 |
+| `modules/render/geometry.js` | 88 | 5 | 5 | 2 | S:2 |
 | `modules/render/grouping.js` | 115 | 7 | 3 | 7 | DATA:1, S:6 |
 | `modules/render/interactions.js` | 308 | 8 | 4 | 19 | DATA:1, S:4 |
 | `modules/render/loop.js` | 20 | 4 | 2 | 0 | — |
@@ -208,7 +208,7 @@
 | `modules/ui/panels.js` | 40 | 2 | 2 | 0 | — |
 | `modules/ui/search-legend.js` | 141 | 7 | 6 | 17 | S:2 |
 | `modules/ui/search-link.js` | 135 | 7 | 5 | 12 | DATA:3, S:2 |
-| `modules/ui/search-philosopher.js` | 98 | 7 | 6 | 5 | DATA:3 |
+| `modules/ui/search-philosopher.js` | 98 | 7 | 6 | 6 | DATA:3 |
 | `modules/util/color.js` | 23 | 1 | 1 | 0 | — |
 | `modules/util/html.js` | 41 | 3 | 3 | 0 | — |
 | `modules/util/philosopher-label.js` | 40 | 7 | 5 | 3 | DATA:1 |
@@ -249,14 +249,18 @@
 | `busSubscribers` | const | 1 | — |
 | `BUS_PHASES` | const | 1 | — |
 
-### `modules/core/graph-index.js` — 160 строк, объявлений 11
+### `modules/core/graph-index.js` — 216 строк, объявлений 15
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `buildIndexes` | function | 75 | — |
-| `rebuildIndexes` | function | 37 | да |
+| `rebuildIndexes` | function | 51 | да |
+| `compareLinks` | function | 15 | да |
+| `comparePhilosophers` | function | 14 | да |
 | `buildRubricsIndex` | function | 8 | да |
 | `buildConceptToRubrics` | function | 5 | да |
+| `linkIsInternal` | function | 5 | — |
+| `compareConcepts` | function | 4 | да |
 | `buildPhilosopherTraditions` | function | 3 | да |
 | `conceptById` | const | 1 | да |
 | `philosopherByName` | const | 1 | да |
@@ -265,15 +269,16 @@
 | `nodesByPhilosopher` | const | 1 | да |
 | `linksByConcept` | const | 1 | да |
 
-### `modules/core/link-facts.js` — 61 строк, объявлений 9
+### `modules/core/link-facts.js` — 73 строк, объявлений 10
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
+| `directionMark` | function | 12 | да |
 | `buildReflexiveMap` | function | 9 | да |
 | `isSymmetricLink` | function | 6 | да |
-| `directionMark` | function | 6 | да |
 | `isReflexiveLink` | function | 5 | да |
 | `linksBothWays` | function | 5 | да |
+| `linkHasTwoHeads` | function | 5 | да |
 | `isTypologicalLink` | function | 4 | да |
 | `reflexiveLinkOf` | function | 4 | да |
 | `otherPhilosopher` | function | 4 | да |
@@ -461,15 +466,15 @@
 | `linkClickTimer` | let | 1 | — |
 | `linkClickCount` | let | 1 | — |
 
-### `modules/graph/graph-data.js` — 118 строк, объявлений 10
+### `modules/graph/graph-data.js` — 121 строк, объявлений 10
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `forgetNode` | function | 18 | да |
 | `addNodeToGraph` | function | 15 | да |
+| `getConceptConnections` | function | 11 | да |
 | `addLinkToGraph` | function | 11 | да |
 | `findConnection` | function | 9 | да |
-| `getConceptConnections` | function | 8 | да |
 | `updateLinkOnGraph` | function | 8 | да |
 | `forgetLink` | function | 8 | да |
 | `connectionsBetween` | function | 8 | да |
@@ -1009,12 +1014,12 @@
 | `securitySecret` | let | 1 | — |
 | `securityModalEl` | function | 1 | — |
 
-### `modules/modal/selection-list.js` — 251 строк, объявлений 21
+### `modules/modal/selection-list.js` — 256 строк, объявлений 21
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `renderSelectionList` | function | 53 | да |
-| `selectionListSets` | function | 32 | да |
+| `selectionListSets` | function | 37 | да |
 | `selectionRowRelation` | function | 29 | — |
 | `selectionRowConcept` | function | 16 | — |
 | `selectionRowPhilosopher` | function | 15 | — |
@@ -1131,7 +1136,7 @@
 | `updateArrows` | function | 1 | да |
 | `gfxZoom` | const | 1 | да |
 
-### `modules/render/draw-link.js` — 101 строк, объявлений 6
+### `modules/render/draw-link.js` — 102 строк, объявлений 6
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1142,14 +1147,13 @@
 | `strokeLink` | function | 8 | да |
 | `linkVisualState` | function | 7 | да |
 
-### `modules/render/geometry.js` — 95 строк, объявлений 6
+### `modules/render/geometry.js` — 88 строк, объявлений 5
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `arrowPointsStart` | function | 28 | да |
 | `arrowPoints` | function | 26 | да |
 | `arcParams` | function | 15 | да |
-| `linkHasTwoHeads` | function | 5 | да |
 | `linkStrokeWidth` | function | 4 | да |
 | `linkHoverStrokeWidth` | function | 4 | да |
 
@@ -1603,7 +1607,7 @@
 |---|---|---|---|
 | `handlePhilosopherSearch` | function | 26 | да |
 | `handleLegendPhilSearch` | function | 23 | да |
-| `pickPhilosophers` | function | 11 | — |
+| `pickPhilosophers` | function | 10 | — |
 | `clearPhilosopherSearch` | function | 8 | да |
 | `clearLegendPhilSearch` | function | 6 | да |
 | `pickPhilosopherFromSearch` | function | 4 | да |
@@ -1893,7 +1897,7 @@
 - из `modules/core/ns.js`: `DATA`, `S`
 - из `modules/core/graph-index.js`: _ради побочного действия_
 
-Чаще всего поминает: `S`×8, `DATA`×2
+Чаще всего поминает: `S`×8, `DATA`×3
 
 ### `modules/core/relation-types.js`
 
@@ -2408,7 +2412,7 @@
 
 - из `modules/core/ns.js`: `DATA`, `VIEWS`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `rubricById`, `traditionById`
+- из `modules/core/graph-index.js`: `comparePhilosophers`, `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `rubricById`, `traditionById`
 - из `modules/core/link-facts.js`: `directionMark`
 - из `modules/core/perms.js`: `PERM`, `can`
 - из `modules/metrics/similarity-philosophers.js`: `nearestPhilosophers`
@@ -2469,7 +2473,7 @@
 
 - из `modules/core/ns.js`: `DATA`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `conceptById`
+- из `modules/core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`
 - из `modules/core/link-facts.js`: `directionMark`
 - из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `modules/render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
@@ -2566,8 +2570,9 @@
 ### `modules/render/draw-link.js`
 
 - из `modules/core/ns.js`: `S`
+- из `modules/core/link-facts.js`: `linkHasTwoHeads`
 - из `modules/render/canvas-core.js`: `renderState`
-- из `modules/render/geometry.js`: `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHasTwoHeads`, `linkHoverStrokeWidth`, `linkStrokeWidth`
+- из `modules/render/geometry.js`: `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHoverStrokeWidth`, `linkStrokeWidth`
 - из `modules/render/render-state.js`: `hasLinkClass`, `nodeRadius`
 - из `modules/render/similarity-overlay.js`: `linkAmongHighlighted`
 - из `modules/state/render.js`: `selectedEdges`
@@ -2576,11 +2581,10 @@
 
 ### `modules/render/geometry.js`
 
-- из `modules/core/ns.js`: `DATA`, `S`
-- из `modules/core/graph-index.js`: _ради побочного действия_
+- из `modules/core/ns.js`: `S`
 - из `modules/render/canvas-core.js`: `renderState`
 
-Чаще всего поминает: `S`×6, `renderState`×2, `DATA`×1
+Чаще всего поминает: `S`×6, `renderState`×2
 
 ### `modules/render/grouping.js`
 
@@ -2975,12 +2979,12 @@
 
 - из `modules/core/ns.js`: `DATA`, `S`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/link-facts.js`: `isSymmetricLink`
+- из `modules/core/link-facts.js`: `isSymmetricLink`, `linkHasTwoHeads`
 - из `modules/core/long-task.js`: `showTemporaryMessage`
 - из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `modules/render/canvas-core.js`: `renderState`
 - из `modules/render/draw-link.js`: `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`
-- из `modules/render/geometry.js`: `arrowPoints`, `arrowPointsStart`, `linkHasTwoHeads`
+- из `modules/render/geometry.js`: `arrowPoints`, `arrowPointsStart`
 - из `modules/render/render-state.js`: `hasNodeClass`, `nodeLabelDy`, `nodeRadius`
 - из `modules/render/scene.js`: `DRAW_ORDER`, `renderScene`
 - из `modules/state/render.js`: `selectedNodes`
@@ -3055,19 +3059,20 @@
 
 - из `modules/core/ns.js`: `DATA`
 - из `modules/core/graph-index.js`: _ради побочного действия_
+- из `modules/core/graph-index.js`: `comparePhilosophers`
 - из `modules/core/search.js`: `emptyList`
 - из `modules/modal/core.js`: `openUniversalModal`
 - из `modules/render/selection.js`: `highlightPhilosopherOnGraph`
 
-Чаще всего поминает: `DATA`×7, `emptyList`×2, `highlightPhilosopherOnGraph`×1, `openUniversalModal`×1
+Чаще всего поминает: `DATA`×7, `emptyList`×2, `highlightPhilosopherOnGraph`×1, `comparePhilosophers`×1, `openUniversalModal`×1
 
 ### `modules/util/philosopher-label.js`
 
 - из `modules/core/ns.js`: `DATA`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `philosopherByName`
+- из `modules/core/graph-index.js`: `comparePhilosophers`, `philosopherByName`
 
-Чаще всего поминает: `philosopherByName`×2, `DATA`×1
+Чаще всего поминает: `philosopherByName`×2, `comparePhilosophers`×1, `DATA`×1
 
 ### `modules/widgets/custom-select.js`
 

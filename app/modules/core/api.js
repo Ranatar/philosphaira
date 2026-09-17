@@ -3,18 +3,18 @@ import { setSessionUser } from './session.js';
 
 let serverMode = false;
 
-function readCookie(имя) {
+function readCookie(cookieName) {
       const pairs = String(document.cookie || '').split(';');
       for (const pair of pairs) {
         const i = pair.indexOf('=');
-        if (i !== -1 && pair.slice(0, i).trim() === имя) {
+        if (i !== -1 && pair.slice(0, i).trim() === cookieName) {
           return decodeURIComponent(pair.slice(i + 1));
         }
       }
       return null;
     }
 
-async function api(path, { метод = 'GET', тело: body } = {}) {
+async function api(path, { method = 'GET', тело: body } = {}) {
       // БЕЗ СЕРВЕРА НЕ ХОДИМ ВОВСЕ. Обход жмёт все обработчики подряд,
       // включая кнопки панелей, — и на статическом сервере каждый такой
       // зов давал 404, который браузер печатает в консоль. Прибор счёл это
@@ -26,13 +26,13 @@ async function api(path, { метод = 'GET', тело: body } = {}) {
 
       const headers = {};
       if (body) headers['Content-Type'] = 'application/json';
-      if (метод !== 'GET') {
+      if (method !== 'GET') {
         const token = readCookie('csrf');
         if (token) headers['X-CSRF-Token'] = token;
       }
       try {
         const reply = await fetch(path, {
-          method: метод, credentials: 'same-origin', headers: headers,
+          method: method, credentials: 'same-origin', headers: headers,
           body: body ? JSON.stringify(body) : undefined,
         });
         const parsed = await reply.json().catch(() => null);

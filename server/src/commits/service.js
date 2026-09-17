@@ -35,27 +35,27 @@ export function assertChanges(changes) {
     throw new Forbidden('Коммит без изменений: описывать нечего');
   }
   const entityKeys = new Set();
-  changes.forEach((и, i) => {
+  changes.forEach((change, i) => {
     const where = `изменение ${i + 1}`;
-    if (!ACTIONS.includes(и?.action)) {
-      throw new Forbidden(`${where}: неизвестное действие «${и?.action}»`);
+    if (!ACTIONS.includes(change?.action)) {
+      throw new Forbidden(`${where}: неизвестное действие «${change?.action}»`);
     }
-    if (!KINDS.includes(и?.kind)) {
-      throw new Forbidden(`${where}: неизвестный род сущности «${и?.kind}»`);
+    if (!KINDS.includes(change?.kind)) {
+      throw new Forbidden(`${where}: неизвестный род сущности «${change?.kind}»`);
     }
-    if (typeof и.entityId !== 'string' || !и.entityId.trim()) {
+    if (typeof change.entityId !== 'string' || !change.entityId.trim()) {
       throw new Forbidden(`${where}: пустой адрес сущности`);
     }
-    const entityKey = `${и.kind}\u0000${и.entityId}`;
+    const entityKey = `${change.kind}\u0000${change.entityId}`;
     if (entityKeys.has(entityKey)) {
       // Два изменения одной сущности в одном коммите — это спор с самим
       // собой: какое из них верно, не знает никто, включая автора.
-      throw new Forbidden(`${where}: сущность ${и.entityId} правится дважды в одном коммите`);
+      throw new Forbidden(`${where}: сущность ${change.entityId} правится дважды в одном коммите`);
     }
     entityKeys.add(entityKey);
 
-    const fieldNames = и.fields ?? {};
-    if (и.action === 'delete') {
+    const fieldNames = change.fields ?? {};
+    if (change.action === 'delete') {
       if (Object.keys(fieldNames).length) {
         throw new Forbidden(`${where}: у удаления не бывает полей`);
       }
@@ -64,10 +64,10 @@ export function assertChanges(changes) {
     if (!Object.keys(fieldNames).length) {
       throw new Forbidden(`${where}: нет ни одного изменённого поля`);
     }
-    for (const [имя, з] of Object.entries(fieldNames)) {
-      if (!з || typeof з !== 'object' || !('base' in з) || !('next' in з)) {
+    for (const [fieldKey, spec] of Object.entries(fieldNames)) {
+      if (!spec || typeof spec !== 'object' || !('base' in spec) || !('next' in spec)) {
         throw new Forbidden(
-          `${where}, поле ${имя}: нужны ОБА значения — base и next. ` +
+          `${where}, поле ${fieldKey}: нужны ОБА значения — base и next. ` +
           'Без «было» нельзя отличить одинаковую правку от разной.');
       }
     }
@@ -110,7 +110,7 @@ function assertProvenance(fields, where) {
 
 export async function createCommit(pool, { actor, message, authorComment = null,
                                            changes, supersedes = null,
-                                           ip = null, наРассмотрение = true }) {
+                                           ip = null, наРассмотрение: forReview = true }) {
   assertCan(actor, P.CREATE_COMMIT);
   if (!message || !String(message).trim()) {
     throw new Forbidden('Коммит без сообщения: рецензенту нечего читать');
@@ -149,7 +149,7 @@ export async function createCommit(pool, { actor, message, authorComment = null,
     // заводит коммит — и первый набросок звал сюда же, извещая сотрудников
     // «новый коммит на рассмотрении» о том, что уже применено. Проба нашла
     // это на лишней адресной строке.
-    if (наРассмотрение) {
+    if (forReview) {
       await notify(client, N.NEW_COMMIT_PENDING, {
         authorId: actor.userId, authorName: actor.username,
         commitId: commit.commitId, message: commit.message });

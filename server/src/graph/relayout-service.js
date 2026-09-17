@@ -46,8 +46,8 @@ export async function relayoutPlan(db) {
  * Применить перекладку. Журнал и извещение — В ТОЙ ЖЕ транзакции: порознь
  * они разъезжаются, и раскладка сменилась бы, а люди о ней не узнали.
  */
-export async function applyRelayout(pool, { план, actorId = null }) {
-  const { версия: graphVer, прежняя: previous, позиции: positions, мера: measure } = план;
+export async function applyRelayout(pool, { план: plan, actorId = null }) {
+  const { версия: graphVer, прежняя: previous, позиции: positions, мера: measure } = plan;
   return withTransaction(pool, async client => {
     const id = await saveLayout(client, {
       версияГрафа: graphVer, род: 'full', изЧего: previous?.id ?? null,
@@ -68,8 +68,8 @@ export async function applyRelayout(pool, { план, actorId = null }) {
  * поздних: история раскладок есть история решений, и стирать её значит
  * терять ответ на вопрос «почему картина такая».
  */
-export async function revertLayout(pool, { id: кКакой, actorId = null }) {
-  const targetLayout = await layoutById(pool, кКакой);
+export async function revertLayout(pool, { id: toId, actorId = null }) {
+  const targetLayout = await layoutById(pool, toId);
   if (!targetLayout) return null;
   const currentPositions = await currentLayout(pool);
   const measure = divergence(currentPositions?.позиции ?? null, targetLayout.позиции);

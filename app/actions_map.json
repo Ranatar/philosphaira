@@ -805,7 +805,7 @@
   "откуда": "modules/modal/auth.js"
  },
  "ask-layout-revert": {
-  "код": "askLayoutRevert('${escapeAttr(String(л.id))}')",
+  "код": "askLayoutRevert('${escapeAttr(String(item.id))}')",
   "attr": "onclick",
   "тело": "askLayoutRevert(el.dataset.a1)",
   "аргументов": 1,
@@ -1141,7 +1141,7 @@
   "откуда": "modules/modal/history.js"
  },
  "revert-entity-to-version": {
-  "код": "revertEntityToVersion('${escapeAttr(kind)}', '${escapeAttr(entityId)}', ${Number(к.версия)})",
+  "код": "revertEntityToVersion('${escapeAttr(kind)}', '${escapeAttr(entityId)}', ${Number(commit.версия)})",
   "attr": "onclick",
   "тело": "revertEntityToVersion(el.dataset.a1, el.dataset.a2, el.dataset.a3)",
   "аргументов": 3,

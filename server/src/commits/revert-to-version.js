@@ -52,8 +52,8 @@ export async function bodyAtVersion(client, { kind, entityId, version }) {
 
   const body = { ...current.тело };
   const history = await entityHistory(client, { kind, entityId });
-  const later = history.filter(з => Number(з.версия) > Number(version))
-                       .sort((а, б) => Number(б.версия) - Number(а.версия));
+  const later = history.filter(commit => Number(commit.версия) > Number(version))
+                       .sort((x, y) => Number(y.версия) - Number(x.версия));
 
   for (const commit of later) {
     for (const change of commit.changes ?? []) {
@@ -65,8 +65,8 @@ export async function bodyAtVersion(client, { kind, entityId, version }) {
           + 'Возврат к версии здесь не определён однозначно — разберите это '
           + 'откатом самих коммитов.');
       }
-      for (const [fieldKey, пара] of Object.entries(change.fields ?? {})) {
-        body[fieldKey] = пара.base;
+      for (const [fieldKey, beforeAfter] of Object.entries(change.fields ?? {})) {
+        body[fieldKey] = beforeAfter.base;
       }
     }
   }

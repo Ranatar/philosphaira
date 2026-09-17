@@ -107,9 +107,9 @@ export const NEEDS_MFA = Object.freeze([
 export function effectivePermissions({ role, emailVerified = false, mfaReady = false }) {
   const spec = ROLES[role];
   if (!spec) throw new Error(`effectivePermissions: неизвестная роль «${role}»`);
-  return Object.freeze(spec.permissions.filter(право =>
-       (emailVerified || !NEEDS_VERIFIED_EMAIL.includes(право))
-    && (mfaReady      || !NEEDS_MFA.includes(право))));
+  return Object.freeze(spec.permissions.filter(permission =>
+       (emailVerified || !NEEDS_VERIFIED_EMAIL.includes(permission))
+    && (mfaReady      || !NEEDS_MFA.includes(permission))));
 }
 
 /**
@@ -117,14 +117,14 @@ export function effectivePermissions({ role, emailVerified = false, mfaReady = f
  * «сотрудникам от модератора и выше» — это ЗДЕСЬ, а не второй список там.
  */
 export function rolesAtLeast(level) {
-  return REAL_ROLES.filter(роль => ROLES[роль].level >= level);
+  return REAL_ROLES.filter(role => ROLES[role].level >= level);
 }
 
 /** Матрица прав ПОРОЖДАЕТСЯ. Руками её больше не пишут: разойдётся. */
 export function permissionMatrix() {
   const roleNames = Object.keys(ROLES);
-  return Object.values(P).map(право => ({
-    permission: право,
-    ...Object.fromEntries(roleNames.map(decipher => [decipher, ROLES[decipher].permissions.includes(право)])),
+  return Object.values(P).map(permission => ({
+    permission: permission,
+    ...Object.fromEntries(roleNames.map(decipher => [decipher, ROLES[decipher].permissions.includes(permission)])),
   }));
 }

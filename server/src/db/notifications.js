@@ -9,7 +9,7 @@ export async function staffIds(client, minLevel) {
     SELECT user_id AS "id" FROM users
      WHERE is_active AND NOT is_banned AND deleted_at IS NULL
        AND role = ANY($1::user_role[])`, [rolesAtLeast(minLevel)]);
-  return rows.map(с => с.id);
+  return rows.map(row => row.id);
 }
 
 /**
@@ -23,25 +23,25 @@ export async function keepSubscribed(client, userIds, category) {
       FROM unnest($1::uuid[]) AS u
       LEFT JOIN notification_preferences p ON p.user_id = u
      WHERE COALESCE((p.categories ->> $2)::boolean, TRUE)`, [userIds, category]);
-  return rows.map(с => с.id);
+  return rows.map(row => row.id);
 }
 
 export async function insertAddressed(client, { userIds, type, category, priority,
-                                                data, дней }) {
+                                                data, дней: days }) {
   const { rows } = await client.query(`
     INSERT INTO notifications (user_id, type, category, priority, data, expires_at)
     SELECT u, $2, $3, $4, $5, NOW() + ($6 || ' days')::interval
       FROM unnest($1::uuid[]) AS u
     RETURNING notification_id AS "id"`,
-    [userIds, type, category, priority, data, String(дней)]);
-  return rows.map(с => с.id);
+    [userIds, type, category, priority, data, String(days)]);
+  return rows.map(row => row.id);
 }
 
-export async function insertBroadcast(client, { type, category, data, дней }) {
+export async function insertBroadcast(client, { type, category, data, дней: days }) {
   const { rows } = await client.query(`
     INSERT INTO broadcasts (type, category, data, expires_at)
     VALUES ($1, $2, $3, NOW() + ($4 || ' days')::interval)
-    RETURNING broadcast_id AS "id"`, [type, category, data, String(дней)]);
+    RETURNING broadcast_id AS "id"`, [type, category, data, String(days)]);
   return rows[0].id;
 }
 
@@ -136,8 +136,8 @@ export async function outboxPending(db, limit = 100) {
   return rows;
 }
 
-export async function countRows(db, таблица) {
-  const { rows } = await db.query(`SELECT count(*)::int AS "n" FROM ${таблица}`);
+export async function countRows(db, table) {
+  const { rows } = await db.query(`SELECT count(*)::int AS "n" FROM ${table}`);
   return rows[0].n;
 }
 
@@ -148,7 +148,7 @@ export async function countRows(db, таблица) {
  * строка должна достаться ровно одному: SKIP LOCKED пропускает занятые
  * чужой сделкой, а claimed_until страхует от работника, умершего молча.
  */
-export async function claimOutbox(client, { сколько = 50, наСекунд = 120 }) {
+export async function claimOutbox(client, { сколько: limit = 50, наСекунд: forSeconds = 120 }) {
   const { rows } = await client.query(`
     UPDATE outbox SET claimed_until = NOW() + ($2 || ' seconds')::interval
      WHERE outbox_id IN (
@@ -158,7 +158,7 @@ export async function claimOutbox(client, { сколько = 50, наСекун�
         ORDER BY outbox_id LIMIT $1
         FOR UPDATE SKIP LOCKED)
     RETURNING outbox_id AS "id", channel, payload, attempts`,
-    [сколько, String(наСекунд)]);
+    [limit, String(forSeconds)]);
   return rows;
 }
 
@@ -175,17 +175,17 @@ export const markDelivered = (client, id) => client.query(
  * `last_error`, который здесь нарочно не стирается:
  *   SELECT count(*) FROM outbox WHERE delivered_at IS NOT NULL AND last_error IS NOT NULL;
  */
-export const markDead = (client, { id, ошибка }) => client.query(
+export const markDead = (client, { id, ошибка: error }) => client.query(
   `UPDATE outbox SET delivered_at = NOW(), claimed_until = NULL,
           attempts = attempts + 1, last_error = $2
-    WHERE outbox_id = $1`, [id, String(ошибка).slice(0, 500)]);
+    WHERE outbox_id = $1`, [id, String(error).slice(0, 500)]);
 
 /** Задержка растёт: не удалось — подождём вдвое дольше, но не больше часа. */
-export const markFailed = (client, { id, attempts, ошибка }) => client.query(
+export const markFailed = (client, { id, attempts, ошибка: error }) => client.query(
   `UPDATE outbox SET attempts = attempts + 1, claimed_until = NULL,
           last_error = $2,
           next_try_at = NOW() + (LEAST(3600, 30 * power(2, $3)::int) || ' seconds')::interval
-    WHERE outbox_id = $1`, [id, String(ошибка).slice(0, 500), attempts]);
+    WHERE outbox_id = $1`, [id, String(error).slice(0, 500), attempts]);
 
 export async function notificationForDelivery(db, notificationId) {
   const { rows } = await db.query(`
@@ -200,7 +200,7 @@ export async function notificationForDelivery(db, notificationId) {
 }
 
 /** Кому слать сводку: у кого час прошёл и кто не отключал ни почту, ни категорию. */
-export async function digestRecipients(db, { категория, часов = 1 }) {
+export async function digestRecipients(db, { категория: category, часов: hours = 1 }) {
   const { rows } = await db.query(`
     SELECT u.user_id AS "id", u.email, u.username,
            COALESCE(p.last_digest_at, to_timestamp(0)) AS "прошлаяСводка",
@@ -211,16 +211,16 @@ export async function digestRecipients(db, { категория, часов = 1 
        AND COALESCE(p.email_enabled, TRUE)
        AND COALESCE((p.categories ->> $1)::boolean, TRUE)
        AND COALESCE(p.last_digest_at, to_timestamp(0)) < NOW() - ($2 || ' hours')::interval`,
-    [категория, String(часов)]);
+    [category, String(hours)]);
   return rows;
 }
 
-export async function broadcastsSince(db, { послеId, категория }) {
+export async function broadcastsSince(db, { послеId: afterId, категория: category }) {
   const { rows } = await db.query(`
     SELECT broadcast_id AS "id", type, data, created_at AS "createdAt"
       FROM broadcasts
      WHERE broadcast_id > $1 AND category = $2 AND expires_at > NOW()
-     ORDER BY broadcast_id`, [послеId, категория]);
+     ORDER BY broadcast_id`, [afterId, category]);
   return rows;
 }
 

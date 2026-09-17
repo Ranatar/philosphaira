@@ -20,8 +20,8 @@ const PERM = Object.freeze({
 
 let granted = new Set();
 
-function setPermissions(права) { granted = new Set(права); }
+function setPermissions(permissions) { granted = new Set(permissions); }
 
-function can(право) { return granted.has(право); }
+function can(permission) { return granted.has(permission); }
 
 export { PERM, can, setPermissions };

@@ -15,14 +15,14 @@ import { Forbidden } from '../http/errors.js';
 export const unread = (pool, user) => unreadCount(pool, user.userId);
 
 export async function list(pool, user, { onlyUnread = false, limit = 50 } = {}) {
-  const [адресные, вещание] = await Promise.all([
+  const [addressed, broadcast] = await Promise.all([
     listAddressed(pool, { userId: user.userId, onlyUnread, limit }),
     listBroadcasts(pool, { userId: user.userId, limit }),
   ]);
   const allItems = [
-    ...адресные.map(з => ({ ...з, вид: 'адресное' })),
-    ...вещание.filter(з => !onlyUnread || !з.прочитано)
-              .map(з => ({ ...з, вид: 'широковещательное' })),
+    ...addressed.map(item => ({ ...item, вид: 'адресное' })),
+    ...broadcast.filter(item => !onlyUnread || !item.прочитано)
+              .map(item => ({ ...item, вид: 'широковещательное' })),
   ].sort((first, second) => +new Date(second.createdAt) - +new Date(first.createdAt));
   return allItems.slice(0, limit);
 }
@@ -51,14 +51,14 @@ export async function unsubscribeByToken(pool, { userId, token }) {
   return { отписан: true };
 }
 
-export function updatePreferences(pool, user, изменения) {
-  for (const categoryName of Object.keys(изменения.categories ?? {})) {
+export function updatePreferences(pool, user, changes) {
+  for (const categoryName of Object.keys(changes.categories ?? {})) {
     if (!CATEGORIES[categoryName]) throw new Forbidden(`Нет такой категории: «${categoryName}»`);
-    if (CATEGORIES[categoryName].mandatory && изменения.categories[categoryName] === false) {
+    if (CATEGORIES[categoryName].mandatory && changes.categories[categoryName] === false) {
       throw new Forbidden(
         `Категорию «${CATEGORIES[categoryName].title}» отключить нельзя: ` +
         'о собственном положении сообщают всегда');
     }
   }
-  return withTransaction(pool, client => setPreferences(client, user.userId, изменения));
+  return withTransaction(pool, client => setPreferences(client, user.userId, changes));
 }

@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
-import { conceptById, nodesByPhilosopher, philosopherByName, rubricById, traditionById } from '../core/graph-index.js';
+import { comparePhilosophers, conceptById, nodesByPhilosopher, philosopherByName, rubricById, traditionById } from '../core/graph-index.js';
 import { directionMark } from '../core/link-facts.js';
 import { PERM, can } from '../core/perms.js';
 import { nearestPhilosophers } from '../metrics/similarity-philosophers.js';
@@ -31,7 +31,7 @@ function philosopherTraditionsBlock(name) {
       return own.map(tr => {
         const others = DATA.philosophers
           .filter(f => f.nameRu !== name && (DATA.philosopherTraditions[f.nameRu] || []).includes(tr.id))
-          .sort((a, b) => (a.birth || 0) - (b.birth || 0));
+          .sort(comparePhilosophers);
         return `
           <div class="rubric-section">
             <div class="rubric-title">🏛 Традиция: ${tr.name}</div>

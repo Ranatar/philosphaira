@@ -21,6 +21,10 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const acorn = require('acorn');
+const eslintScope = require('eslint-scope');
 import { КОРЕНЬ } from '../paths.mjs';
 
 const прочесть = отн => {
@@ -134,16 +138,85 @@ for (const [файл, пакет] of [
 // после фаз шины и заслона согласия, двадцать одно после блока «Основание».
 // ЗНАНИЕ ПРАВИЛА ОТ НАРУШЕНИЯ НЕ ЗАЩИЩАЕТ — защищает прибор.
 //
-// Приборы и оснастка (`server/probes`, `server/scripts`, `tools`) СОЗНАТЕЛЬНО
-// не проверяются: там кириллица оставлена решением, см. doc/plan-next.md.
+// РАЗБОР ОБЛАСТЕЙ ВИДИМОСТИ, А НЕ ПОИСК ПО КЛЮЧЕВЫМ СЛОВАМ.
+// Первая редакция искала `const|let|var|function|class` с кириллическим
+// именем следом. Она не видела ДОВОДОВ ФУНКЦИЙ — а их в исходнике было 58
+// из 60, — не видела разбора (`const { имя } = …`) и переменных `catch`.
+// Прибор рапортовал «не сошлось 0» при шести десятках нарушений и тем
+// учил доверять себе зря: это хуже отсутствующей проверки, потому что
+// отсутствие видно, а ложное подтверждение — нет.
+//
+// ЧТО СОЗНАТЕЛЬНО НЕ ПРОВЕРЯЕТСЯ:
+//  * приборы и оснастка (`server/probes`, `server/scripts`, `tools`) —
+//    там кириллица оставлена решением, см. doc/plan-next.md;
+//  Решение записано целиком в decisions/cyrillic.json — читайте его прежде,
+//  чем отменять исключение.
+//  * ИМЕНА ПОЛЕЙ в возвращаемых значениях (`годно`, `вышло`, `версия`,
+//    `исход`). Это не имена в коде, а СЛОВАРЬ ПРИЁМКИ: на нём написаны
+//    утверждения и отчёты, которые читает человек, разбирая красный
+//    прогон. Серверные пробы читают 91 такое поле, `годно` и `вышло` — в
+//    восемнадцати пробах каждое. Разбор областей видимости их и не
+//    касается: свойство объекта областью видимости не связано.
 {
-  const кир = /\b(?:export )?(?:const|let|var|function|async function|class)\s+([А-Яа-яЁё][\wА-Яа-яЁё]*)/g;
+  // СОБСТВЕННЫЙ ОБХОД ДЕРЕВА, А НЕ eslint-scope: тот в здешней сборке не
+  // переваривает модули (`import`/`export`) и падает на каждом файле
+  // server/src. Нам и не нужны области видимости — нужен перечень МЕСТ
+  // СВЯЗЫВАНИЯ, а это разбирается прямым обходом и без чужих ограничений.
+  const связывания = (узел, наружу) => {
+    if (!узел || typeof узел !== 'object') return;
+    const имя = у => {
+      if (!у) return;
+      if (у.type === 'Identifier') наружу(у.name);
+      else if (у.type === 'ObjectPattern') у.properties.forEach(с =>
+        имя(с.type === 'RestElement' ? с.argument : с.value));
+      else if (у.type === 'ArrayPattern') у.elements.forEach(имя);
+      else if (у.type === 'AssignmentPattern') имя(у.left);
+      else if (у.type === 'RestElement') имя(у.argument);
+    };
+    switch (узел.type) {
+      case 'VariableDeclarator': имя(узел.id); break;
+      case 'FunctionDeclaration':
+      case 'FunctionExpression':
+      case 'ArrowFunctionExpression':
+        имя(узел.id); узел.params.forEach(имя); break;
+      case 'ClassDeclaration':
+      case 'ClassExpression': имя(узел.id); break;
+      case 'CatchClause': имя(узел.param); break;
+      default: break;
+    }
+    for (const ключ of Object.keys(узел)) {
+      const в = узел[ключ];
+      if (Array.isArray(в)) в.forEach(э => связывания(э, наружу));
+      else if (в && typeof в.type === 'string') связывания(в, наружу);
+    }
+  };
+
   const собрать = отн => {
     const п = path.join(КОРЕНЬ, отн);
     if (!fs.existsSync(п)) return [];
-    const имена = new Set();
-    const файл = ф => [...fs.readFileSync(ф, 'utf8').matchAll(кир)]
-      .forEach(м => имена.add(м[1]));
+    const найдено = [];
+    const файл = ф => {
+      const текст = fs.readFileSync(ф, 'utf8');
+      const html = /\.html$/.test(ф);
+      const куски = html
+        ? [...текст.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(м => м[1])
+        : [текст];
+      for (const код of куски) {
+        if (!код.trim()) continue;
+        let ast;
+        try {
+          ast = acorn.parse(код, { ecmaVersion: 2023,
+            sourceType: html ? 'script' : 'module' });
+        } catch {
+          continue;   // не разобралось — скажет check_modules, не мы
+        }
+        связывания(ast, и => {
+          if (/[А-Яа-яЁё]/.test(и) && и !== 'ЖИВЫЕ') {
+            найдено.push(path.basename(ф) + ': ' + и);
+          }
+        });
+      }
+    };
     const обойти = д => {
       for (const и of fs.readdirSync(д)) {
         if (и === 'node_modules') continue;
@@ -153,12 +226,13 @@ for (const [файл, пакет] of [
       }
     };
     fs.statSync(п).isDirectory() ? обойти(п) : файл(п);
-    return [...имена];
+    return найдено;
   };
+
   for (const где of ['source/philosophy_graph_v3.html', 'server/src']) {
-    const найдено = собрать(где).filter(и => и !== 'ЖИВЫЕ');
+    const найдено = собрать(где);
     п(`кириллических имён в ${где} нет`, найдено.length === 0, 0,
-      найдено.slice(0, 6).join(', ') || 0);
+      найдено.length ? найдено.length + ': ' + найдено.slice(0, 5).join(', ') : 0);
   }
 }
 

@@ -12,9 +12,9 @@
 import { N, CATEGORIES } from './catalog.js';
 
 export const esc = s => String(s ?? '').replace(/[&<>"']/g,
-  з => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[з]));
+  entry => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[entry]));
 
-const paragraph = (что, audience) => `<p><strong>${esc(что)}:</strong> ${esc(audience)}</p>`;
+const paragraph = (what, audience) => `<p><strong>${esc(what)}:</strong> ${esc(audience)}</p>`;
 
 export const TEMPLATES = Object.freeze({
   [N.EMAIL_VERIFY]: d => ({
@@ -113,14 +113,14 @@ export function renderEmail(type, data) {
 
 /** Сводка: одно письмо вместо десятка одинаковых. */
 export function renderDigest(events) {
-  const rows = events.map(с =>
-    `${new Date(с.createdAt).toISOString().slice(0, 16).replace('T', ' ')} — ` +
-    `версия ${с.data?.версия ?? '—'}`);
+  const rows = events.map(event =>
+    `${new Date(event.createdAt).toISOString().slice(0, 16).replace('T', ' ')} — ` +
+    `версия ${event.data?.версия ?? '—'}`);
   return {
     subject: `Граф изменён: ${events.length} ${events.length === 1 ? 'раз' : 'раза(з)'}`,
     text: 'Изменения графа:\n' + rows.join('\n'),
     html: '<h2>Изменения графа</h2><ul>'
-        + rows.map(с => `<li>${esc(с)}</li>`).join('') + '</ul>',
+        + rows.map(event => `<li>${esc(event)}</li>`).join('') + '</ul>',
   };
 }
 

@@ -22,21 +22,21 @@ function warnRemoteEdit(touched) {
         + 'Ваш текст цел; при сохранении вы увидите, что разошлось.');
     }
 
-function showConflict(descr, столкновения) {
+function showConflict(descr, clashes) {
       // ПОЛЕ ОСТАЁТСЯ «описание»: его читает rebuildOverCurrent и проба.
       // Переименование довода свернуло запись в `{ descr, … }`, и
       // пересборка поверх текущего падала на `c.описание.entityId`.
-      lastConflict = { описание: descr, столкновения, когда: Date.now() };
+      lastConflict = { описание: descr, clashes, когда: Date.now() };
 
-      const lines = столкновения.map(с => {
-        if (!с.field) {
-          return `<div class="conflict-row"><b>${escapeAttr(String(с.reason || 'столкновение'))}</b></div>`;
+      const lines = clashes.map(clash => {
+        if (!clash.field) {
+          return `<div class="conflict-row"><b>${escapeAttr(String(clash.reason || 'столкновение'))}</b></div>`;
         }
         return '<div class="conflict-row">'
-          + `<div><b>${escapeAttr(с.field)}</b></div>`
-          + `<div>вы видели: ${escapeAttr(String(с.base ?? ''))}</div>`
-          + `<div>вы хотели: ${escapeAttr(String(с.yours ?? ''))}</div>`
-          + `<div>сейчас там: ${escapeAttr(String(с.current ?? ''))}</div>`
+          + `<div><b>${escapeAttr(clash.field)}</b></div>`
+          + `<div>вы видели: ${escapeAttr(String(clash.base ?? ''))}</div>`
+          + `<div>вы хотели: ${escapeAttr(String(clash.yours ?? ''))}</div>`
+          + `<div>сейчас там: ${escapeAttr(String(clash.current ?? ''))}</div>`
           + '</div>';
       }).join('');
 
@@ -45,7 +45,7 @@ function showConflict(descr, столкновения) {
       if (!modal || !body) {
         // Разметки нет (старая страница) — хотя бы не молчим.
         reportSubmit('столкновение',
-          'Правка столкнулась с чужой: ' + столкновения.map(с => с.field).join(', '));
+          'Правка столкнулась с чужой: ' + clashes.map(clash => clash.field).join(', '));
         return;
       }
       body.innerHTML = lines

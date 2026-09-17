@@ -83,7 +83,7 @@ export const commitToApi = commit;
  * ПРИ ОТПРАВКЕ, а не после рассмотрения.
  */
 export async function overlappingPending(db, { authorId, changes }) {
-  const entityKeys = changes.map(и => `${и.kind}\u0000${и.entityId}`);
+  const entityKeys = changes.map(change => `${change.kind}\u0000${change.entityId}`);
   const { rows } = await db.query(`
     SELECT c.commit_id, c.author_id, c.message, c.changes, u.username AS author_name
       FROM commits c JOIN users u ON u.user_id = c.author_id
@@ -94,9 +94,9 @@ export async function overlappingPending(db, { authorId, changes }) {
     for (const theirs of since.changes) {
       const entityKey = `${theirs.kind}\u0000${theirs.entityId}`;
       if (!entityKeys.includes(entityKey)) continue;
-      const mine = changes.find(и => `${и.kind}\u0000${и.entityId}` === entityKey);
+      const mine = changes.find(change => `${change.kind}\u0000${change.entityId}` === entityKey);
       const shared = Object.keys(mine.fields ?? {})
-        .filter(п => п in (theirs.fields ?? {}));
+        .filter(field => field in (theirs.fields ?? {}));
       // Совпал адрес, но не поля — это не пересечение: двое правят разные
       // стороны одной концепции, и слияние выйдет само (беседа 2.3).
       if (!shared.length && mine.action === 'edit' && theirs.action === 'edit') continue;
@@ -138,10 +138,10 @@ export const markConflicted = (client, { commitId, reviewerId = null, столк
      WHERE commit_id = $1`,
     [commitId, reviewerId, JSON.stringify(conflicts ?? [])]);
 
-export const markApplied = (client, { commitId, статус, reviewerId = null,
+export const markApplied = (client, { commitId, статус: status, reviewerId = null,
                                       comment = null, версия: version }) =>
   client.query(`
     UPDATE commits SET status = $2::commit_status, reviewed_by = $3,
            reviewed_at = CASE WHEN $3::uuid IS NULL THEN NULL ELSE NOW() END,
            review_comment = $4, applied_at = NOW(), applied_version = $5
-     WHERE commit_id = $1`, [commitId, статус, reviewerId, comment, version]);
+     WHERE commit_id = $1`, [commitId, status, reviewerId, comment, version]);

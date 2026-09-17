@@ -8,21 +8,21 @@ import { applyServerLayout } from '../state/render.js';
 
 let knownGraphVersion = 0;
 
-function replaceEntity(set, id, запись) {
+function replaceEntity(set, id, record) {
       const at = set.findIndex(z => z.id === id);
-      if (запись === null) {
+      if (record === null) {
         if (at === -1) return false;
         set.splice(at, 1); return true;
       }
-      if (at === -1) { set.push(запись); return true; }
-      set[at] = запись; return true;
+      if (at === -1) { set.push(record); return true; }
+      set[at] = record; return true;
     }
 
-function applyIncrement(приращение) {
+function applyIncrement(increment) {
       const sets = { concepts: DATA.concepts, relations: DATA.relations, philosophers: DATA.philosophers,
                        traditions: DATA.traditions, rubrics: DATA.rubrics, relationTypes: DATA.relationTypes };
       const touched = [];
-      for (const i of приращение.изменения || []) {
+      for (const i of increment.изменения || []) {
         const set = sets[i.набор];
         if (!set) continue;
         if (replaceEntity(set, i.entityId, i.удалена ? null : i.запись)) {
@@ -33,7 +33,7 @@ function applyIncrement(приращение) {
         rebuildDerived();
         afterDataChange({ philosophers: true, nodes: true, links: true });
       }
-      knownGraphVersion = приращение.версия;
+      knownGraphVersion = increment.версия;
       return touched;
     }
 
@@ -77,9 +77,9 @@ function connectLive() {
                   + location.host + '/ws';
       let socket;
       try { socket = new WebSocket(address); } catch (e) { return null; }
-      socket.addEventListener('message', событие => {
+      socket.addEventListener('message', event => {
         let message;
-        try { message = JSON.parse(событие.data); } catch (e) { return; }
+        try { message = JSON.parse(event.data); } catch (e) { return; }
         if (message.type === 'broadcast' || message.type === 'notification') {
           pullGraphSince();
         }

@@ -132,7 +132,7 @@ export async function compareObservations(pool, { actor, aId, bId }) {
   const first = assertVisible(actor, await findObservation(pool, aId));
   const second = assertVisible(actor, await findObservation(pool, bId));
 
-  const differs = CONDITIONS.filter(к => first[к] !== second[к]);
+  const differs = CONDITIONS.filter(condition => first[condition] !== second[condition]);
   if (differs.length) {
     const inWords = {
       metric: 'метрика', formulaVersion: 'версия формулы',
@@ -140,8 +140,8 @@ export async function compareObservations(pool, { actor, aId, bId }) {
     };
     return {
       сравнимы: false,
-      разошлось: differs.map(к => ({
-        что: inWords[к] ?? к, у_первого: first[к], у_второго: second[к] })),
+      разошлось: differs.map(condition => ({
+        что: inWords[condition] ?? condition, у_первого: first[condition], у_второго: second[condition] })),
       почему: 'Сравнивать можно только замеры, у которых совпало всё, кроме '
             + 'версии графа. Иначе разница в числах будет приписана графу, '
             + 'а взялась она из условий счёта.',
@@ -168,10 +168,10 @@ export async function compareObservations(pool, { actor, aId, bId }) {
               createdAt: earlier.createdAt },
     позже:  { observationId: later.observationId,  graphVersion: later.graphVersion,
               createdAt: later.createdAt },
-    сводка: Object.fromEntries(fieldNames.map(п => {
-      const before = Number(summaryEarlier[п]), updated = Number(summaryLater[п]);
+    сводка: Object.fromEntries(fieldNames.map(field => {
+      const before = Number(summaryEarlier[field]), updated = Number(summaryLater[field]);
       const finite = Number.isFinite(before) && Number.isFinite(updated);
-      return [п, { было: summaryEarlier[п] ?? null, стало: summaryLater[п] ?? null,
+      return [field, { было: summaryEarlier[field] ?? null, стало: summaryLater[field] ?? null,
                    разница: finite ? +(updated - before).toFixed(6) : null }];
     })),
   };

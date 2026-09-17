@@ -23,17 +23,17 @@
  * забытый столбец в SELECT, и узнать об этом надо ЗДЕСЬ, а не через три слоя
  * в виде «прав нет».
  */
-function requireColumns(строка, fieldNames, чей) {
-  if (!строка || typeof строка !== 'object' || Array.isArray(строка)) {
-    throw new Error(`${чей}: ожидалась строка базы, получено ${строка}`);
+function requireColumns(row, fieldNames, whose) {
+  if (!row || typeof row !== 'object' || Array.isArray(row)) {
+    throw new Error(`${whose}: ожидалась строка базы, получено ${row}`);
   }
-  const missing = fieldNames.filter(п => !(п in строка));
+  const missing = fieldNames.filter(column => !(column in row));
   if (missing.length) {
     throw new Error(
-      `${чей}: в строке базы нет полей: ${missing.join(', ')}. ` +
+      `${whose}: в строке базы нет полей: ${missing.join(', ')}. ` +
       'Скорее всего, SELECT их не забрал — преобразователь не угадывает.');
   }
-  return строка;
+  return row;
 }
 
 const USER_FIELDS = [
@@ -52,45 +52,45 @@ const toIso = v => (v == null ? null
  * @param {object} [кому]   — доменный пользователь, КОМУ показываем: от него
  *                            зависит видимость почты. null — гость.
  */
-export function userFromRow(строка, { кому: recipients = null } = {}) {
-  requireColumns(строка, USER_FIELDS, 'userFromRow');
+export function userFromRow(row, { кому: recipients = null } = {}) {
+  requireColumns(row, USER_FIELDS, 'userFromRow');
 
-  const spec = ROLES[строка.role];
-  if (!spec) throw new Error(`userFromRow: неизвестная роль «${строка.role}»`);
+  const spec = ROLES[row.role];
+  if (!spec) throw new Error(`userFromRow: неизвестная роль «${row.role}»`);
 
-  const emailVerified = строка.email_verified_at != null;
-  const mfaReady      = строка.mfa_enabled === true;
+  const emailVerified = row.email_verified_at != null;
+  const mfaReady      = row.mfa_enabled === true;
 
   // Почту видят сам человек и сотрудники от модератора и выше.
-  const isSelf = Boolean(recipients && recipients.userId === строка.user_id);
+  const isSelf = Boolean(recipients && recipients.userId === row.user_id);
   const canSeeMail = isSelf
     || Boolean(recipients && recipients.level >= ROLES.moderator.level);
 
   return Object.freeze({
-    userId:   строка.user_id,
-    username: строка.username,
-    email:    canSeeMail ? строка.email : undefined,
-    role:     строка.role,
+    userId:   row.user_id,
+    username: row.username,
+    email:    canSeeMail ? row.email : undefined,
+    role:     row.role,
     level:    spec.level,
-    permissions: effectivePermissions({ role: строка.role, emailVerified, mfaReady }),
+    permissions: effectivePermissions({ role: row.role, emailVerified, mfaReady }),
 
-    isActive:  строка.is_active === true,
-    isBanned:  строка.is_banned === true,
-    isDeleted: строка.deleted_at != null,
-    banReason: строка.is_banned ? (строка.ban_reason ?? null) : null,
+    isActive:  row.is_active === true,
+    isBanned:  row.is_banned === true,
+    isDeleted: row.deleted_at != null,
+    banReason: row.is_banned ? (row.ban_reason ?? null) : null,
 
     emailVerified,
     mfaReady,
 
     profile: Object.freeze({
-      displayName:  строка.display_name ?? null,
-      avatarUrl:    строка.avatar_url ?? null,
-      bio:          строка.bio ?? null,
-      registeredAt: toIso(строка.registered_at),
+      displayName:  row.display_name ?? null,
+      avatarUrl:    row.avatar_url ?? null,
+      bio:          row.bio ?? null,
+      registeredAt: toIso(row.registered_at),
     }),
     settings: Object.freeze({
-      language: строка.language ?? 'ru',
-      theme:    строка.theme ?? 'dark',
+      language: row.language ?? 'ru',
+      theme:    row.theme ?? 'dark',
     }),
   });
 }

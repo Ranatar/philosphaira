@@ -30,9 +30,9 @@ import { notify } from '../notify/notify.js';
 import { N } from '../notify/catalog.js';
 import { Forbidden, Conflict, NotFound } from '../http/errors.js';
 
-const requireReason = (причина, чего) => {
-  if (!причина || !String(причина).trim()) {
-    throw new Forbidden(`Причина ${чего} обязательна`);
+const requireReason = (reason, ofWhat) => {
+  if (!reason || !String(reason).trim()) {
+    throw new Forbidden(`Причина ${ofWhat} обязательна`);
   }
 };
 
@@ -145,8 +145,8 @@ export async function listUsers(pool, { actor, role, isBanned, query,
 
   const where = ['u.deleted_at IS NULL'];
   const params = [];
-  const push = (сборка, значение) => {
-    params.push(значение); where.push(сборка(params.length));
+  const push = (acc, value) => {
+    params.push(value); where.push(acc(params.length));
   };
   if (role !== undefined)     push(i => `u.role = $${i}::user_role`, role);
   if (isBanned !== undefined) push(i => `u.is_banned = $${i}`, isBanned);
@@ -155,7 +155,7 @@ export async function listUsers(pool, { actor, role, isBanned, query,
   return paginate(pool, {
     from: 'users u', select: 'u.*', where, params,
     order: 'u.registered_at DESC', page, limit,
-    map: строка => userFromRow(строка, { кому: actor }),
+    map: row => userFromRow(row, { кому: actor }),
   });
 }
 
@@ -166,9 +166,9 @@ export async function listUsers(pool, { actor, role, isBanned, query,
  */
 export function allowedRoles(actor, target) {
   if (!actor || !target) return [];
-  return REAL_ROLES.filter(роль => {
-    if (роль === target.role) return false;
+  return REAL_ROLES.filter(role => {
+    if (role === target.role) return false;
     try { assertCanActOn(actor, target); } catch { return false; }
-    return can(actor, permissionForRoleChange(target.role, роль));
+    return can(actor, permissionForRoleChange(target.role, role));
   });
 }

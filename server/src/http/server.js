@@ -9,21 +9,21 @@ import http from 'node:http';
 import { createApp } from './app.js';
 import { startNode } from '../ws/node.js';
 
-export async function createServer({ pool, строкаПодключения,
-                                      папкаПриложения = null,
-                                      безопасныеCookie = true, origins = null,
+export async function createServer({ pool, строкаПодключения: connectionString,
+                                      папкаПриложения: appDir = null,
+                                      безопасныеCookie: secureCookies = true, origins = null,
                                       trustProxy = 0 }) {
-  const app = createApp({ pool, безопасныеCookie, папкаПриложения, trustProxy });
-  const wsNode = await startNode({ db: pool, строкаПодключения, origins });
+  const app = createApp({ pool, безопасныеCookie: secureCookies, папкаПриложения: appDir, trustProxy });
+  const wsNode = await startNode({ db: pool, строкаПодключения: connectionString, origins });
   const httpServer = http.createServer(app);
   httpServer.on('upgrade', (req, socket, head) => wsNode.handleUpgrade(req, socket, head));
 
   return {
     сервер: httpServer, узел: wsNode, app,
-    слушать: порт => new Promise(готово => httpServer.listen(порт, готово)),
+    слушать: port => new Promise(done => httpServer.listen(port, done)),
     async close() {
       await wsNode.close();
-      await new Promise(готово => httpServer.close(готово));
+      await new Promise(done => httpServer.close(done));
     },
   };
 }

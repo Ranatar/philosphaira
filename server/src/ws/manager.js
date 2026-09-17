@@ -14,11 +14,11 @@ import { SESSION_COOKIE } from '../http/cookies.js';
 
 export const HEARTBEAT_MS = 30_000;
 
-const parseCookie = строка => Object.fromEntries(
-  String(строка ?? '').split(';').map(к => {
-    const i = к.indexOf('=');
-    return i === -1 ? [к.trim(), ''] : [к.slice(0, i).trim(), decodeURIComponent(к.slice(i + 1))];
-  }).filter(([и]) => и));
+const parseCookie = row => Object.fromEntries(
+  String(row ?? '').split(';').map(pair => {
+    const i = pair.indexOf('=');
+    return i === -1 ? [pair.trim(), ''] : [pair.slice(0, i).trim(), decodeURIComponent(pair.slice(i + 1))];
+  }).filter(([change]) => change));
 
 export class Connections {
   constructor({ db, origins = null } = {}) {
@@ -80,10 +80,10 @@ export class Connections {
     this.поЛюдям.get(user.userId).add(ws);   // второе устройство НЕ выбивает первое
 
     ws.on('pong', () => { ws.живой = true; });
-    ws.on('message', сырое => {
+    ws.on('message', raw => {
       let message;
       // Кривое сообщение закрывает РАЗГОВОР, а не процесс.
-      try { message = JSON.parse(сырое); } catch { return; }
+      try { message = JSON.parse(raw); } catch { return; }
       if (message?.type === 'ping') ws.send('{"type":"pong"}');
     });
     ws.on('close', () => this.убрать(ws));

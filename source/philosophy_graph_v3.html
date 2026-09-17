@@ -23916,11 +23916,11 @@
     // негде — в отличие от набора в файле, который едет отдельно от базы.
     // Пришедшая раскладка сильнее посчитанной заранее: она учитывает чужие
     // утверждённые правки, которых в наборе ещё нет.
-    function applyServerLayout(позиции) {
-      if (!позиции) return false;
+    function applyServerLayout(positions) {
+      if (!positions) return false;
       let placed = 0;
       for (const n of nodes) {
-        const p = позиции[n.id];
+        const p = positions[n.id];
         if (!p) continue;
         n.x = p[0]; n.y = p[1]; n.vx = 0; n.vy = 0;
         placed++;
@@ -24117,6 +24117,20 @@
           b.push(l);
         }
       });
+
+      // ПОРЯДОК ЗАДАЁТСЯ ЗДЕСЬ, ОДИН РАЗ НА ВСЕХ.
+      //
+      // Прежде списки шли в порядке базы, то есть в порядке заведения по
+      // заходам A–H: правила, которое можно назвать вслух, не было. Назвать
+      // его в каждом из девяти показывающих мест значило бы завести девять
+      // правил, которые однажды разойдутся.
+      //
+      // Сортировка при построении, а не при показе: указатели строятся
+      // заново только при правке базы (afterDataChange), а показ идёт
+      // постоянно. Платим редко, получаем везде — включая те места, где
+      // порядком никто не занимался и не вспомнит.
+      nodesByPhilosopher.forEach(a => a.sort(compareConcepts));
+      linksByConcept.forEach(a => a.sort(compareLinks));
     }
     rebuildIndexes();
     // Глобальные переменные для переключения режимов расчёта
@@ -25683,15 +25697,15 @@
 
     const BUS_PHASES = ['derived', 'bound', 'filters', 'ui'];
 
-    function subscribe(event, handler, фаза) {
+    function subscribe(event, handler, phase) {
       // Фаза приписывается самому подписчику: список подписок читается
       // сверху вниз, и увидеть в нём очередь рассылки иначе нельзя.
-      if (фаза) {
-        if (!BUS_PHASES.includes(фаза)) {
-          console.error('шина: неизвестная фаза —', фаза);
+      if (phase) {
+        if (!BUS_PHASES.includes(phase)) {
+          console.error('шина: неизвестная фаза —', phase);
           return;
         }
-        handler.фаза = фаза;
+        handler.фаза = phase;
       }
       if (!BUS_EVENTS.includes(event)) {
         console.error('шина: неизвестное событие при подписке —', event);
@@ -25733,7 +25747,7 @@
       // записи; между фазами он объявлен и не зависит от того, кто когда
       // подписался.
       const queue = BUS_PHASES.length && allHandlers.some(h => h.фаза)
-        ? BUS_PHASES.flatMap(ф => allHandlers.filter(h => (h.фаза || 'ui') === ф))
+        ? BUS_PHASES.flatMap(phase => allHandlers.filter(h => (h.фаза || 'ui') === phase))
         : allHandlers;
       for (const handler of queue) {
         try { handler(...args); }
@@ -26776,13 +26790,13 @@
         // Число в строке ставит syncTraditionRows: при сборке набор ещё не
         // известен, а писать сюда общее число членов значило бы завести
         // второй ответ на тот же вопрос.
-        const traditionRow = (id, имя, подсказка) => {
+        const traditionRow = (id, title, tip) => {
           const item = document.createElement('div');
           item.className = 'legend-item';
           item.innerHTML = `
             <input type="checkbox" id="trad-${id}" onchange="toggleTradition('${id}')">
-            <label for="trad-${id}" data-tip="${подсказка}" style="flex:1;">
-              <span>${имя}<small id="trad-count-${id}" style="color: var(--fg-muted);font-size:9px;"></small></span>
+            <label for="trad-${id}" data-tip="${tip}" style="flex:1;">
+              <span>${title}<small id="trad-count-${id}" style="color: var(--fg-muted);font-size:9px;"></small></span>
             </label>
             <button class="tradition-pick" data-tip="Оставить в отборе только этих философов"
                 onclick="onlyTradition('${id}')">=</button>
@@ -27137,9 +27151,9 @@
       // полей не пусто, — а не сколько утверждений подкреплено.
       // «Процента достоверности» здесь нет и не будет: достоверность не
       // считается делением, и такой процент немедленно стал бы враньём.
-      const byState = список => {
+      const byState = items => {
         const fields = { sourced: 0, editorial_reasoning: 0, source_not_found: 0 };
-        for (const z of список || []) {
+        for (const z of items || []) {
           if (!z) continue;
           const line = String(z.provenance || '').trim();
           const state = z.provenanceStatus
@@ -27151,15 +27165,15 @@
       };
       const byRelations = byState(relations);
       const byConcepts = byState(concepts);
-      const classified = о => о.sourced + о.editorial_reasoning + о.source_not_found;
+      const classified = counts => counts.sourced + counts.editorial_reasoning + counts.source_not_found;
       if (!classified(byRelations) && !classified(byConcepts)) {
         slot.textContent = '';
         return;
       }
-      const asLine = (имя, о, длина) => имя + ': источник ' + о.sourced
-        + ' · основание ' + о.editorial_reasoning
-        + ' · не найден ' + о.source_not_found
-        + ' · не разобрано ' + (длина - classified(о));
+      const asLine = (kindLabel, counts, total) => kindLabel + ': источник ' + counts.sourced
+        + ' · основание ' + counts.editorial_reasoning
+        + ' · не найден ' + counts.source_not_found
+        + ' · не разобрано ' + (total - classified(counts));
       slot.textContent = asLine('связи', byRelations, (relations || []).length)
         + '; ' + asLine('концепции', byConcepts, (concepts || []).length);
     }
@@ -32228,11 +32242,16 @@
       // прочесть адрес сущности из окна вместо схемы. Спрашивать надо схему.
       const byProvenance = items => selectionProvenance === 'all'
         ? items : items.filter(z => provenanceState(z) === selectionProvenance);
+      // Порядок — тот же, что везде: философы по хронологии (при равном
+      // годе по алфавиту), концепции по философу и названию, связи —
+      // внутренние вперёд. Указатели упорядочены при построении, но здесь
+      // списки собираются отбором из nodes и links, а не из них.
       return {
         philosopher: byProvenance(
-          philosophers.filter(p => selectionPhilCount[p.nameRu] > 0)),
-        concept: byProvenance(nodesShown),
-        relation: byProvenance(links.filter(isLinkVisible)),
+          philosophers.filter(p => selectionPhilCount[p.nameRu] > 0))
+          .sort(comparePhilosophers),
+        concept: byProvenance(nodesShown).sort(compareConcepts),
+        relation: byProvenance(links.filter(isLinkVisible)).sort(compareLinks),
       };
     }
 
@@ -32307,11 +32326,31 @@
      * `bidirectional ? '↔' : '→'`. Отсюда общая функция: три вида в одном
      * месте, и следующее место возьмёт её, а не перепишет в пятый раз.
      */
+    /**
+     * ДВА НАКОНЕЧНИКА — свойство связи, а не полотна.
+     *
+     * Взаимность бывает двух родов: флаг `bidirectional` у самой связи
+     * («X обсуждает Y» и «Y обсуждает X» — два акта, 81 связь) и
+     * `symmetric` у типа («X и Y противоречат друг другу» — направления нет
+     * вовсе, 202 связи). Множества не пересекаются.
+     */
+    function linkHasTwoHeads(l) {
+      if (l.bidirectional) return true;
+      const t = relationTypesObj[l.type];
+      return !!(t && t.symmetric);
+    }
+
     function directionMark(l) {
       const s = l.source.id || l.source;
       const t = l.target.id || l.target;
       if (s === t) return '↻';          // возвратная: сама на себя
-      return l.bidirectional ? '↔' : '→';
+      // СПРАШИВАЕТ, А НЕ ПЕРЕСКАЗЫВАЕТ. Первая редакция писала здесь
+      // `l.bidirectional ? '↔' : '→'` — то же неполное правило, что было
+      // в четырёх текстовых местах, и 202 связи симметричных ТИПОВ
+      // получали одностороннюю стрелку. При этом полотно рисовало им два
+      // наконечника: текст и картинка расходились на глазах у человека.
+      // Правило было в пяти местах, из них верно в одном — рисующем.
+      return linkHasTwoHeads(l) ? '↔' : '→';
     }
 
     // Имя концепции по её идентификатору. Указатель conceptById строится
@@ -32599,14 +32638,14 @@
         if (top.length < 20) top.push({ имя: cells[0].textContent.trim(), значение: cellNumber });
       }
       if (!numbers.length) return null;
-      const ascending = [...numbers].sort((а, б) => а - б);
-      const mean = numbers.reduce((с, z2) => с + z2, 0) / numbers.length;
+      const ascending = [...numbers].sort((x, y) => x - y);
+      const mean = numbers.reduce((acc, z2) => acc + z2, 0) / numbers.length;
       return {
         top: top,
         summary: {
           mean: +mean.toFixed(6),
           median: +ascending[Math.floor(ascending.length / 2)].toFixed(6),
-          spread: +Math.sqrt(numbers.reduce((с, z3) => с + (z3 - mean) ** 2, 0)
+          spread: +Math.sqrt(numbers.reduce((acc, z3) => acc + (z3 - mean) ** 2, 0)
                              / numbers.length).toFixed(6),
           nonzero: numbers.filter(z4 => z4 !== 0).length,
           count: numbers.length,
@@ -32773,22 +32812,22 @@
     async function compareObservationsInPanel() {
       const slot = document.getElementById('obsCompare');
       if (!slot) return;
-      const [а, б] = observationPicked;
-      const reply = await api('/api/metrics/compare?a=' + encodeURIComponent(а)
-        + '&b=' + encodeURIComponent(б));
+      const [firstId, secondId] = observationPicked;
+      const reply = await api('/api/metrics/compare?a=' + encodeURIComponent(firstId)
+        + '&b=' + encodeURIComponent(secondId));
       if (!reply.годно) { slot.innerHTML = '<div class="commits-error">Не вышло сличить</div>'; return; }
       const verdict = reply.тело.data;
       if (!verdict.сравнимы) {
         slot.innerHTML = '<div class="obs-refusal"><b>Сравнивать нельзя</b><div>'
           + escapeAttr(verdict.почему) + '</div>'
-          + (verdict.разошлось || []).map(р => `<div class="obs-diff">${escapeAttr(р.что)}:
-             у первого ${escapeAttr(String(р.у_первого))},
-             у второго ${escapeAttr(String(р.у_второго))}</div>`).join('')
+          + (verdict.разошлось || []).map(diffLine => `<div class="obs-diff">${escapeAttr(diffLine.что)}:
+             у первого ${escapeAttr(String(diffLine.у_первого))},
+             у второго ${escapeAttr(String(diffLine.у_второго))}</div>`).join('')
           + '</div>';
         return;
       }
-      const lines = Object.entries(verdict.сводка || {}).map(([имя, z]) =>
-        `<tr><td>${escapeAttr(имя)}</td><td>${z.было ?? '—'}</td><td>${z.стало ?? '—'}</td>
+      const lines = Object.entries(verdict.сводка || {}).map(([metricName, z]) =>
+        `<tr><td>${escapeAttr(metricName)}</td><td>${z.было ?? '—'}</td><td>${z.стало ?? '—'}</td>
          <td class="${Number(z.разница) > 0 ? 'obs-up' : Number(z.разница) < 0 ? 'obs-down' : ''}">${
            z.разница == null ? '—' : (z.разница > 0 ? '+' : '') + z.разница}</td></tr>`).join('');
       slot.innerHTML = `<div class="obs-verdict">${escapeAttr(verdict.метрика)}:
@@ -32969,8 +33008,77 @@
     function formatBirthYear(b) {
       return b < 0 ? (-b) + ' до н.э.' : String(b);
     }
+    /**
+     * ПОРЯДОК ФИЛОСОФОВ: хронология, при равном годе — алфавит.
+     *
+     * Сравнение по одному году НЕДООПРЕДЕЛЕНО, и это не тонкость: ровесников
+     * в базе двенадцать групп, 26 человек из 100 — четверть. Спиноза и Локк
+     * оба 1632 года, Витгенштейн и Хайдеггер — 1889, Гуссерль, Бергсон и
+     * Дьюи — 1859. Без второго уровня их порядок зависит от порядка в файле,
+     * а список концепций получался вперемешку: сортируются концепции, и при
+     * равном годе два философа чередуются как придётся.
+     *
+     * localeCompare с 'ru' — не украшение: обычное сравнение строк ставит
+     * «Ё» после «я», а заглавные перед строчными.
+     */
+    function comparePhilosophers(a, b) {
+      // Принимает и ИМЯ, и запись философа: зовут отсюда и там, где в руках
+      // список имён (концепции хранят имя в поле concept), и там, где список
+      // записей (поиск, традиции). Две почти одинаковые функции разошлись бы.
+      const nameOf = x => (x && typeof x === 'object') ? x.nameRu : x;
+      const na = nameOf(a), nb = nameOf(b);
+      // Год берётся из указателя НАПРЯМУЮ, а не через philosopherBirth:
+      // тот живёт в util/philosopher-label.js, и обращение к нему замкнуло
+      // бы круг ввозов core/graph-index ↔ util/philosopher-label. Сравнения
+      // опираются на указатели, значит и жить должны рядом с ними.
+      const birthOf = n => { const p = philosopherByName.get(n); return p ? p.birth : 0; };
+      const d = birthOf(na) - birthOf(nb);
+      return d !== 0 ? d : String(na).localeCompare(String(nb), 'ru');
+    }
+
     function sortPhilosophersByBirth(list) {
-      return Array.from(list).sort((a, b) => philosopherBirth(a) - philosopherBirth(b));
+      return Array.from(list).sort(comparePhilosophers);
+    }
+
+    /**
+     * ПОРЯДОК КОНЦЕПЦИЙ: по философу (хронология, затем алфавит), внутри —
+     * по названию. Совпадает с тем, как их показывает окно философа.
+     */
+    function compareConcepts(a, b) {
+      const d = comparePhilosophers(a.concept, b.concept);
+      return d !== 0 ? d : String(a.label || '').localeCompare(String(b.label || ''), 'ru');
+    }
+
+    /**
+     * ПОРЯДОК СВЯЗЕЙ. Внутренние (оба конца у одного философа) идут ПЕРЕД
+     * внешними: связь внутри системы говорит об устройстве самой системы, и
+     * читать её естественно раньше, чем связь наружу.
+     *
+     * Внутренние — по алфавиту концепции-источника, затем цели: философ у
+     * обоих концов один, и хронология между ними ничего не различает.
+     * Внешние — по хронологии источника (а при равном годе по алфавиту, тем
+     * же сравнением), затем по хронологии цели, и лишь затем по названиям.
+     */
+    function linkIsInternal(l) {
+      const s = conceptById.get(l.source.id || l.source);
+      const t = conceptById.get(l.target.id || l.target);
+      return !!(s && t && s.concept === t.concept);
+    }
+
+    function compareLinks(a, b) {
+      const aInner = linkIsInternal(a), bInner = linkIsInternal(b);
+      if (aInner !== bInner) return aInner ? -1 : 1;
+      const nodeOf = id => conceptById.get(id.id || id) || {};
+      const aS = nodeOf(a.source), aT = nodeOf(a.target);
+      const bS = nodeOf(b.source), bT = nodeOf(b.target);
+      const byLabel = (x, y) =>
+        String(x.label || '').localeCompare(String(y.label || ''), 'ru');
+      if (aInner) {
+        return byLabel(aS, bS) || byLabel(aT, bT);
+      }
+      return comparePhilosophers(aS.concept, bS.concept)
+          || comparePhilosophers(aT.concept, bT.concept)
+          || byLabel(aS, bS) || byLabel(aT, bT);
     }
     function philosopherYears(nameRu) {
       const p = philosopherByName.get(nameRu);
@@ -36006,8 +36114,7 @@
         const words = (p.nameRu + ' ' + (p.nameEn || '')).toLowerCase().split(/\s+/);
         return queryWords.every(q => words.some(w => w.startsWith(q)));
       };
-      return philosophers.filter(fits)
-        .sort((a, b) => (a.birth || 0) - (b.birth || 0));
+      return philosophers.filter(fits).sort(comparePhilosophers);
     }
 
     function handlePhilosopherSearch(query) {
@@ -36886,13 +36993,9 @@
       });
     }
 
-    // Связь показывается с двумя наконечниками, если она взаимна
-    // по флагу или симметрична по типу.
-    function linkHasTwoHeads(l) {
-      if (l.bidirectional) return true;
-      const t = relationTypesObj[l.type];
-      return !!(t && t.symmetric);
-    }
+    // Правило переехало к фактам о связи (linkHasTwoHeads рядом с
+    // isSymmetricLink): оно к отрисовке не относится вовсе — это свойство
+    // связи, а не полотна. Здесь остаётся только вызов.
 
     // ---- отрисовка сцены -------------------------------------------------
     // Один и тот же код обслуживает экран, экспорт в PNG и холст хит-теста.
@@ -38834,19 +38937,19 @@
 
     let granted = new Set();
 
-    function setPermissions(права) { granted = new Set(права); }
+    function setPermissions(permissions) { granted = new Set(permissions); }
 
-    function can(право) { return granted.has(право); }
+    function can(permission) { return granted.has(permission); }
 
     // Единственная дверь для смены сеанса. Права пересчитываются здесь же,
     // потому что забыть пересчитать их снаружи — вопрос времени.
-    function setSessionUser(user, праваСнаружи) {
+    function setSessionUser(user, grantedFromServer) {
       authSession.user = user;
       // Права ПРИСЛАНЫ — берём присланные; нет — выводим из роли, как в
       // местном режиме. Одна строка, и она единственная: заслоны спрашивают
       // готовый набор и о происхождении его не знают.
-      setPermissions(Array.isArray(праваСнаружи)
-        ? праваСнаружи
+      setPermissions(Array.isArray(grantedFromServer)
+        ? grantedFromServer
         : (user && user.role === 'admin'
              ? [PERM.CREATE_COMMIT, PERM.REVIEW_COMMIT]   // местный админ правит напрямую
              : []));
@@ -38983,7 +39086,7 @@
         // случайным щелчком мимо значило бы потерять их насовсем.
         body.innerHTML =
           '<div class="auth-field"><label>Коды восстановления</label>'
-        + '<div id="securityCodes">' + codes.map(к => escapeAttr(к)).join('<br>') + '</div></div>'
+        + '<div id="securityCodes">' + codes.map(code => escapeAttr(code)).join('<br>') + '</div></div>'
         + '<div class="auth-field">'
         + '<label for="securitySaved">Я сохранил коды вне этого устройства</label>'
         + '<input type="checkbox" id="securitySaved" onchange="refreshSecurityDone()"></div>'
@@ -39489,6 +39592,9 @@
       // ОТДАЁТСЯ КОПИЯ, а не сам список указателя: прежняя filter возвращала
       // свежий массив, и звавшие вправе его менять. Копия стоит длины ответа,
       // а не длины базы.
+      // Порядок уже задан при построении указателя (rebuildIndexes), и
+      // сортировать здесь заново значило бы платить за это на каждом из
+      // семи вызовов, часть которых в циклах по всем узлам.
       return (linksByConcept.get(conceptId) || []).slice();
     }
 
@@ -39801,18 +39907,18 @@
 
     let serverMode = false;      // выясняется один раз при запуске
 
-    function readCookie(имя) {
+    function readCookie(cookieName) {
       const pairs = String(document.cookie || '').split(';');
       for (const pair of pairs) {
         const i = pair.indexOf('=');
-        if (i !== -1 && pair.slice(0, i).trim() === имя) {
+        if (i !== -1 && pair.slice(0, i).trim() === cookieName) {
           return decodeURIComponent(pair.slice(i + 1));
         }
       }
       return null;
     }
 
-    async function api(path, { метод = 'GET', тело: body } = {}) {
+    async function api(path, { method = 'GET', тело: body } = {}) {
       // БЕЗ СЕРВЕРА НЕ ХОДИМ ВОВСЕ. Обход жмёт все обработчики подряд,
       // включая кнопки панелей, — и на статическом сервере каждый такой
       // зов давал 404, который браузер печатает в консоль. Прибор счёл это
@@ -39824,13 +39930,13 @@
 
       const headers = {};
       if (body) headers['Content-Type'] = 'application/json';
-      if (метод !== 'GET') {
+      if (method !== 'GET') {
         const token = readCookie('csrf');
         if (token) headers['X-CSRF-Token'] = token;
       }
       try {
         const reply = await fetch(path, {
-          method: метод, credentials: 'same-origin', headers: headers,
+          method: method, credentials: 'same-origin', headers: headers,
           body: body ? JSON.stringify(body) : undefined,
         });
         const parsed = await reply.json().catch(() => null);
@@ -39947,11 +40053,11 @@
     // Решение принимается здесь, а не в восьми местах, где нажимают кнопки.
     let lastSubmitted = null;      // последнее описание; читается приборами
 
-    function submitChange(descr, применить) {
+    function submitChange(descr, apply) {
       lastSubmitted = descr;
 
       // МЕСТНОЕ ВОПЛОЩЕНИЕ — как было: применить немедленно.
-      if (!serverMode) { применить(); return true; }
+      if (!serverMode) { apply(); return true; }
 
       // СЕРВЕРНОЕ. У кого есть право прямой правки — тот правит и на месте
       // (сервер сделает то же у себя); у остальных правка НЕ ТРОГАЕТ базу
@@ -39959,7 +40065,7 @@
       // которой ещё нет, было бы обманом: человек уйдёт с экрана в
       // уверенности, что дело сделано.
       const direct = can(PERM.REVIEW_COMMIT);
-      if (direct) применить();
+      if (direct) apply();
 
       sendCommit(descr, direct);
       return direct;
@@ -40048,8 +40154,8 @@
      * сам, а значит должен ВИДЕТЬ — какое поле разошлось, что он видел,
      * что хотел и что там теперь. Три величины, а не одна.
      */
-    subscribe('commit-conflicted', ({ descr, столкновения }) =>
-      showConflict(descr, столкновения));
+    subscribe('commit-conflicted', ({ descr, столкновения: clashes }) =>
+      showConflict(descr, clashes));
 
     // ══════════════════════════════════════════════════════════════
     // ПАНЕЛЬ ПОЛЬЗОВАТЕЛЕЙ
@@ -40111,9 +40217,9 @@
       slot.innerHTML = userItems.map(u => {
         // Список ролей ПРИСЛАН. Пустой — значит этому человеку роль менять
         // нельзя, и выбора не рисуем вовсе.
-        const roles = (u.allowedRoles || []).map(р =>
+        const roles = (u.allowedRoles || []).map(role =>
           `<button class="user-role" data-id="${escapeAttr(u.userId)}" `
-          + `data-role="${escapeAttr(р)}">${escapeAttr(р)}</button>`).join('');
+          + `data-role="${escapeAttr(role)}">${escapeAttr(role)}</button>`).join('');
         const ban = u.state && u.state.isBanned
           ? `<button class="user-unban" data-id="${escapeAttr(u.userId)}">Снять бан</button>`
           : `<button class="user-ban" data-id="${escapeAttr(u.userId)}">Забанить</button>`;
@@ -40154,8 +40260,8 @@
     }
 
     // Слушатель один на панель: кнопки перерисовываются.
-    document.addEventListener('click', событие => {
-      const target = событие.target;
+    document.addEventListener('click', ev => {
+      const target = ev.target;
       if (!target || !target.closest) return;
       const role = target.closest('.user-role');
       const banBtn = target.closest('.user-ban');
@@ -40194,11 +40300,11 @@
       if (modal) modal.style.display = 'none';
     }
 
-    function switchCommitTab(вкладка) {
+    function switchCommitTab(tab) {
       // Вкладка выбирается ПО ПРАВУ, а не по названию: нажатие на скрытую
       // кнопку (или зов из консоли) не должен открывать чужое.
-      if (вкладка === 'layout' && can(PERM.RELAYOUT_GRAPH)) commitTab = 'layout';
-      else if (вкладка === 'pending' && can(PERM.REVIEW_COMMIT)) commitTab = 'pending';
+      if (tab === 'layout' && can(PERM.RELAYOUT_GRAPH)) commitTab = 'layout';
+      else if (tab === 'pending' && can(PERM.REVIEW_COMMIT)) commitTab = 'pending';
       else commitTab = 'mine';
       if (commitTab === 'layout') {
         layoutPlan = null; layoutError = ''; layoutRevertTo = null;
@@ -40252,7 +40358,7 @@
     function cancelLayoutRevert() { layoutRevertTo = null; renderCommits(); }
 
     function askLayoutRevert(id) {
-      const targetItem = layoutHistoryItems.find(л => String(л.id) === String(id));
+      const targetItem = layoutHistoryItems.find(item => String(item.id) === String(id));
       layoutRevertTo = targetItem || null;
       renderCommits();
     }
@@ -40384,9 +40490,9 @@
         + rows.join('') + '</div>';
     }
 
-    function stateInWords(код) {
-      const found = PROVENANCE_STATES.find(([к]) => к === (код || 'unspecified'));
-      return found ? found[1] : String(код);
+    function stateInWords(stateCode) {
+      const found = PROVENANCE_STATES.find(([candidate]) => candidate === (stateCode || 'unspecified'));
+      return found ? found[1] : String(stateCode);
     }
 
     // Разметка вкладки раскладки. Числа показываются ДО применения и
@@ -40399,15 +40505,15 @@
 
     function layoutHistoryHtml() {
       if (!layoutHistoryItems.length) return '';
-      const historyRows = layoutHistoryItems.map((л, i) => {
-        const measure = л.расхождение && л.расхождение.медиана !== null
-          ? `сдвиг ${л.расхождение.медиана} px` : 'первая';
-        const whenText = л.когда ? new Date(л.когда).toLocaleString('ru-RU') : '';
+      const historyRows = layoutHistoryItems.map((item, i) => {
+        const measure = item.расхождение && item.расхождение.медиана !== null
+          ? `сдвиг ${item.расхождение.медиана} px` : 'первая';
+        const whenText = item.когда ? new Date(item.когда).toLocaleString('ru-RU') : '';
         // У действующей раскладки кнопки возврата нет: возвращать к самой себе
         // нечего, а кнопка, которая ничего не делает, учит не доверять кнопкам.
         const buttonHtml = i === 0 ? '<span class="layout-current">действующая</span>'
-          : `<button class="layout-revert" onclick="askLayoutRevert('${escapeAttr(String(л.id))}')">Вернуть</button>`;
-        return `<li>№${escapeAttr(String(л.id))} · ${LAYOUT_KINDS[л.род] || escapeAttr(л.род)}`
+          : `<button class="layout-revert" onclick="askLayoutRevert('${escapeAttr(String(item.id))}')">Вернуть</button>`;
+        return `<li>№${escapeAttr(String(item.id))} · ${LAYOUT_KINDS[item.род] || escapeAttr(item.род)}`
              + ` · ${escapeAttr(measure)} · ${escapeAttr(whenText)} ${buttonHtml}</li>`;
       }).join('');
       return `<div class="layout-history"><b>Прежние раскладки</b><ul>${historyRows}</ul></div>`;
@@ -40447,7 +40553,7 @@
           + '<div class="modal-actions"><button onclick="applyRelayout()">Применить</button></div>';
       }
       const farMoved = (layoutPlan.дальние || [])
-        .map(у => `<li>${escapeAttr(у.id)} — ${у.сдвиг} px</li>`).join('');
+        .map(moved => `<li>${escapeAttr(moved.id)} — ${moved.сдвиг} px</li>`).join('');
       return `<div class="commits-empty">`
         + `Медианный сдвиг узла: <b>${diffMeasure.медиана} px</b><br>`
         + `Узлов дальше 200 px: <b>${diffMeasure.далеко}</b> из ${diffMeasure.сверено}<br>`
@@ -40489,50 +40595,50 @@
       }
       refreshEditCount(commitItems.length);
 
-      slot.innerHTML = commitItems.map(к => {
+      slot.innerHTML = commitItems.map(commit => {
         const reviewBtn = (commitTab === 'pending' && can(PERM.REVIEW_COMMIT))
-          ? `<button class="commit-approve" data-id="${escapeAttr(к.commitId)}">Одобрить</button>`
-          + `<button class="commit-reject" data-id="${escapeAttr(к.commitId)}">Отклонить</button>`
+          ? `<button class="commit-approve" data-id="${escapeAttr(commit.commitId)}">Одобрить</button>`
+          + `<button class="commit-reject" data-id="${escapeAttr(commit.commitId)}">Отклонить</button>`
           : '';
-        const revert = (к.status === 'applied' && can(PERM.REVERT_COMMIT))
-          ? `<button class="commit-revert" data-id="${escapeAttr(к.commitId)}">Откатить</button>`
+        const revert = (commit.status === 'applied' && can(PERM.REVERT_COMMIT))
+          ? `<button class="commit-revert" data-id="${escapeAttr(commit.commitId)}">Откатить</button>`
           : '';
         // ПРИЧИНА ОТКАЗА ПОКАЗЫВАЕТСЯ АВТОРУ. Она хранилась (review_comment),
         // но наружу не выходила: рецензент писал в пустоту.
-        const reason = (к.status === 'rejected' && к.reviewComment)
-          ? `<div class="commit-why">Причина отказа: ${escapeAttr(к.reviewComment)}</div>`
+        const reason = (commit.status === 'rejected' && commit.reviewComment)
+          ? `<div class="commit-why">Причина отказа: ${escapeAttr(commit.reviewComment)}</div>`
           : '';
         // РОДСТВО ПОКАЗЫВАЕТСЯ КОРОТКО, но показывается: без него история
         // правки распадается на несвязанные попытки, и не видно, что три
         // похожих коммита — это три захода на одно и то же.
-        const supersedesLine = к.supersedes
+        const supersedesLine = commit.supersedes
           ? '<div class="commit-what">Взамен правки '
-            + escapeAttr(String(к.supersedes).slice(0, 8)) + '…</div>'
+            + escapeAttr(String(commit.supersedes).slice(0, 8)) + '…</div>'
           : '';
-        const breakdown = (к.status === 'conflicted')
+        const breakdown = (commit.status === 'conflicted')
           ? '<div class="commit-why">Пересоберите правку поверх нынешнего состояния.</div>'
           : '';
         // Если автор объяснил — крупно идёт ЗАЧЕМ, а машинный адрес мелко
         // под ним. Не объяснил — заголовком служит адрес: он всегда есть.
-        const why = к.authorComment ? String(к.authorComment).trim() : '';
+        const why = commit.authorComment ? String(commit.authorComment).trim() : '';
         const head = why
           ? `<div class="commit-msg">${escapeAttr(why)}</div>`
-            + `<div class="commit-what">${escapeAttr(к.message || '')}</div>`
-          : `<div class="commit-msg">${escapeAttr(к.message || '')}</div>`;
+            + `<div class="commit-what">${escapeAttr(commit.message || '')}</div>`
+          : `<div class="commit-msg">${escapeAttr(commit.message || '')}</div>`;
         // ПОСЛЕДСТВИЯ СПРАШИВАЮТСЯ, А НЕ ПОКАЗЫВАЮТСЯ СРАЗУ. Счёт идёт по
         // всему графу, и тянуть его для каждой записи очереди значило бы
         // класть на сервер работу, которой никто не просил. Кнопка есть у
         // всех, кому виден сам коммит: право то же.
         const impactButton = `<button class="commit-impact-btn" `
-          + `data-id="${escapeAttr(к.commitId)}">Последствия</button>`;
+          + `data-id="${escapeAttr(commit.commitId)}">Последствия</button>`;
         return '<div class="commit-item">'
           + head
-          + provenanceDiff(к.changes)
-          + `<div class="commit-meta">${escapeAttr(к.authorName || '')} · `
-          + `<span class="commit-state state-${commitStateKind(к.status)}">`
-          + `${escapeAttr(commitStateWords(к.status))}</span></div>`
+          + provenanceDiff(commit.changes)
+          + `<div class="commit-meta">${escapeAttr(commit.authorName || '')} · `
+          + `<span class="commit-state state-${commitStateKind(commit.status)}">`
+          + `${escapeAttr(commitStateWords(commit.status))}</span></div>`
           + supersedesLine + reason + breakdown
-          + `<div class="commit-impact" data-for="${escapeAttr(к.commitId)}"></div>`
+          + `<div class="commit-impact" data-for="${escapeAttr(commit.commitId)}"></div>`
           + impactButton + reviewBtn + revert + '</div>';
       }).join('');
     }
@@ -40543,20 +40649,20 @@
      * решит, что очередь кончилась. Число говорит правду прежде, чем он
      * успеет ошибиться.
      */
-    function refreshEditCount(сколько) {
+    function refreshEditCount(count) {
       const slot = document.getElementById('commitsCount');
       if (!slot) return;
-      slot.textContent = сколько
-        ? `${сколько} ${сколько === 1 ? 'правка' : (сколько < 5 ? 'правки' : 'правок')}`
+      slot.textContent = count
+        ? `${count} ${count === 1 ? 'правка' : (count < 5 ? 'правки' : 'правок')}`
         : '';
     }
 
-    async function reviewCommitFromPanel(id, решение) {
-      const comment = решение === 'reject'
+    async function reviewCommitFromPanel(id, verdict) {
+      const comment = verdict === 'reject'
         ? prompt('Причина отказа (обязательна):') : null;
-      if (решение === 'reject' && !comment) return;
+      if (verdict === 'reject' && !comment) return;
       const reply = await api('/api/commits/' + encodeURIComponent(id) + '/review',
-        { метод: 'POST', тело: { action: решение, comment: comment } });
+        { метод: 'POST', тело: { action: verdict, comment: comment } });
       if (!reply.годно) {
         // ОТКАЗ ПОКАЗЫВАЕТСЯ, а не проглатывается.
         commitError = (reply.тело && reply.тело.error && reply.тело.error.message)
@@ -40621,7 +40727,7 @@
       const goneRelations = gone.relations || [];
       if (goneConcepts.length) {
         lines.push('Исчезнут концепции: '
-          + goneConcepts.slice(0, 5).map(к => escapeAttr(к.label || к.id)).join(', ')
+          + goneConcepts.slice(0, 5).map(node => escapeAttr(node.label || node.id)).join(', ')
           + (goneConcepts.length > 5 ? ' и ещё ' + (goneConcepts.length - 5) : ''));
       }
       if (goneRelations.length) {
@@ -40630,7 +40736,7 @@
       }
       if ((data.orphaned || []).length) {
         lines.push('Останутся без связей: '
-          + data.orphaned.slice(0, 5).map(к => escapeAttr(к.label || к.id)).join(', ')
+          + data.orphaned.slice(0, 5).map(node => escapeAttr(node.label || node.id)).join(', ')
           + (data.orphaned.length > 5 ? ' и ещё ' + (data.orphaned.length - 5) : ''));
       }
       if (data.connectivity && data.connectivity.splits) {
@@ -40642,8 +40748,8 @@
     }
 
     // Слушатель один на панель: кнопки перерисовываются.
-    document.addEventListener('click', событие => {
-      const target = событие.target;
+    document.addEventListener('click', ev => {
+      const target = ev.target;
       if (!target || !target.closest) return;
       const approveBtn = target.closest('.commit-approve');
       const rejectBtn = target.closest('.commit-reject');
@@ -40766,11 +40872,11 @@
     // Отметка висит на КНОПКЕ. Слушатель ставится на список один раз —
     // кнопки перерисовываются, и вешать на каждую значило бы плодить
     // слушателей при каждом обновлении.
-    document.addEventListener('click', событие => {
-      const button = событие.target && событие.target.closest
-                   && событие.target.closest('.notify-mark');
+    document.addEventListener('click', ev => {
+      const button = ev.target && ev.target.closest
+                   && ev.target.closest('.notify-mark');
       if (!button) return;
-      событие.stopPropagation();
+      ev.stopPropagation();
       markNotificationRead(button.getAttribute('data-id'));
     });
 
@@ -40801,21 +40907,21 @@
 
     subscribe('graph-updated-remotely', warnRemoteEdit);
 
-    function showConflict(descr, столкновения) {
+    function showConflict(descr, clashes) {
       // ПОЛЕ ОСТАЁТСЯ «описание»: его читает rebuildOverCurrent и проба.
       // Переименование довода свернуло запись в `{ descr, … }`, и
       // пересборка поверх текущего падала на `c.описание.entityId`.
-      lastConflict = { описание: descr, столкновения, когда: Date.now() };
+      lastConflict = { описание: descr, clashes, когда: Date.now() };
 
-      const lines = столкновения.map(с => {
-        if (!с.field) {
-          return `<div class="conflict-row"><b>${escapeAttr(String(с.reason || 'столкновение'))}</b></div>`;
+      const lines = clashes.map(clash => {
+        if (!clash.field) {
+          return `<div class="conflict-row"><b>${escapeAttr(String(clash.reason || 'столкновение'))}</b></div>`;
         }
         return '<div class="conflict-row">'
-          + `<div><b>${escapeAttr(с.field)}</b></div>`
-          + `<div>вы видели: ${escapeAttr(String(с.base ?? ''))}</div>`
-          + `<div>вы хотели: ${escapeAttr(String(с.yours ?? ''))}</div>`
-          + `<div>сейчас там: ${escapeAttr(String(с.current ?? ''))}</div>`
+          + `<div><b>${escapeAttr(clash.field)}</b></div>`
+          + `<div>вы видели: ${escapeAttr(String(clash.base ?? ''))}</div>`
+          + `<div>вы хотели: ${escapeAttr(String(clash.yours ?? ''))}</div>`
+          + `<div>сейчас там: ${escapeAttr(String(clash.current ?? ''))}</div>`
           + '</div>';
       }).join('');
 
@@ -40824,7 +40930,7 @@
       if (!modal || !body) {
         // Разметки нет (старая страница) — хотя бы не молчим.
         reportSubmit('столкновение',
-          'Правка столкнулась с чужой: ' + столкновения.map(с => с.field).join(', '));
+          'Правка столкнулась с чужой: ' + clashes.map(clash => clash.field).join(', '));
         return;
       }
       body.innerHTML = lines
@@ -40875,25 +40981,25 @@
     let knownGraphVersion = 0;   // до какой версии дошла эта страница
 
     /** Заменить одну запись набора; вернуть true, если что-то изменилось. */
-    function replaceEntity(set, id, запись) {
+    function replaceEntity(set, id, record) {
       const at = set.findIndex(z => z.id === id);
-      if (запись === null) {
+      if (record === null) {
         if (at === -1) return false;
         set.splice(at, 1); return true;
       }
-      if (at === -1) { set.push(запись); return true; }
-      set[at] = запись; return true;
+      if (at === -1) { set.push(record); return true; }
+      set[at] = record; return true;
     }
 
     /**
      * Приложить приращение. Возвращает список тронутых адресов — по нему
      * решается, надо ли предупредить того, кто как раз правит эту запись.
      */
-    function applyIncrement(приращение) {
+    function applyIncrement(increment) {
       const sets = { concepts, relations, philosophers,
                        traditions, rubrics, relationTypes };
       const touched = [];
-      for (const i of приращение.изменения || []) {
+      for (const i of increment.изменения || []) {
         const set = sets[i.набор];
         if (!set) continue;
         if (replaceEntity(set, i.entityId, i.удалена ? null : i.запись)) {
@@ -40904,7 +41010,7 @@
         rebuildDerived();
         afterDataChange({ philosophers: true, nodes: true, links: true });
       }
-      knownGraphVersion = приращение.версия;
+      knownGraphVersion = increment.версия;
       return touched;
     }
 
@@ -40954,9 +41060,9 @@
                   + location.host + '/ws';
       let socket;
       try { socket = new WebSocket(address); } catch (e) { return null; }
-      socket.addEventListener('message', событие => {
+      socket.addEventListener('message', event => {
         let message;
-        try { message = JSON.parse(событие.data); } catch (e) { return; }
+        try { message = JSON.parse(event.data); } catch (e) { return; }
         if (message.type === 'broadcast' || message.type === 'notification') {
           pullGraphSince();
         }
@@ -41313,29 +41419,29 @@
         return;
       }
       // Свежие сверху: человек ищет «что изменилось на днях», а не начало времён.
-      const rows = [...historyItems].reverse().map(к => {
-        const mine = (к.changes || []).filter(и => и.kind === kind && и.entityId === entityId);
-        const fields = mine.flatMap(и => Object.entries(и.fields || {})
-          .map(([имя, пара]) => `
-            <div class="history-field"><b>${escapeAttr(имя)}</b>
-              <div class="history-was">было: ${escapeAttr(String(пара.base ?? '—')).slice(0, 400)}</div>
-              <div class="history-now">стало: ${escapeAttr(String(пара.next ?? '—')).slice(0, 400)}</div>
+      const rows = [...historyItems].reverse().map(commit => {
+        const mine = (commit.changes || []).filter(change => change.kind === kind && change.entityId === entityId);
+        const fields = mine.flatMap(change => Object.entries(change.fields || {})
+          .map(([fieldKey, beforeAfter]) => `
+            <div class="history-field"><b>${escapeAttr(fieldKey)}</b>
+              <div class="history-was">было: ${escapeAttr(String(beforeAfter.base ?? '—')).slice(0, 400)}</div>
+              <div class="history-now">стало: ${escapeAttr(String(beforeAfter.next ?? '—')).slice(0, 400)}</div>
             </div>`));
-        const action = mine.some(и => и.action === 'add') ? 'заведена'
-                     : mine.some(и => и.action === 'delete') ? 'удалена' : 'правлена';
+        const action = mine.some(change => change.action === 'add') ? 'заведена'
+                     : mine.some(change => change.action === 'delete') ? 'удалена' : 'правлена';
         // Вернуть можно К ВЕРСИИ, а не к коммиту: коммит — это правка,
         // а версия — состояние. Возврат применяется сразу, тем же правом,
         // что и откат коммита.
         const back = can(PERM.REVERT_COMMIT)
           ? `<button class="history-revert"
-                     onclick="revertEntityToVersion('${escapeAttr(kind)}', '${escapeAttr(entityId)}', ${Number(к.версия)})"
-                     >Вернуть к версии ${escapeAttr(String(к.версия))}</button>`
+                     onclick="revertEntityToVersion('${escapeAttr(kind)}', '${escapeAttr(entityId)}', ${Number(commit.версия)})"
+                     >Вернуть к версии ${escapeAttr(String(commit.версия))}</button>`
           : '';
-        return `<div class="history-item${к.status === 'reverted' ? ' reverted' : ''}">
-          <div class="history-head">версия ${escapeAttr(String(к.версия))} · ${escapeAttr(action)}
-            · ${escapeAttr(к.author || '')}
-            ${к.status === 'reverted' ? '<span class="history-undone">отменён</span>' : ''}</div>
-          <div class="history-message">${escapeAttr(к.message || '')}</div>
+        return `<div class="history-item${commit.status === 'reverted' ? ' reverted' : ''}">
+          <div class="history-head">версия ${escapeAttr(String(commit.версия))} · ${escapeAttr(action)}
+            · ${escapeAttr(commit.author || '')}
+            ${commit.status === 'reverted' ? '<span class="history-undone">отменён</span>' : ''}</div>
+          <div class="history-message">${escapeAttr(commit.message || '')}</div>
           ${fields.join('')}
           ${back}
         </div>`;
@@ -42174,9 +42280,9 @@
       const text = own ? prevSide.slice(2).trim() : prevSide;
       const state2 = (data && data.provenanceStatus)
         || (own ? 'editorial_reasoning' : (text ? 'sourced' : 'unspecified'));
-      const stateSelect = PROVENANCE_STATES.map(([код, имя, пояснение]) =>
-        `<option value="${код}"${код === state2 ? ' selected' : ''}>`
-        + `${имя} — ${пояснение}</option>`).join('');
+      const stateSelect = PROVENANCE_STATES.map(([stateCode, stateLabel, hint]) =>
+        `<option value="${stateCode}"${stateCode === state2 ? ' selected' : ''}>`
+        + `${stateLabel} — ${hint}</option>`).join('');
       return `
         <div class="modal-form-group">
           <label for="entityProvenanceStatus">Происхождение</label>
@@ -42231,15 +42337,15 @@
      * концепции, разойтись с файлами и снова смешать «нет» с «не указано» —
      * ровно то, от чего состояние и заводилось.
      */
-    function provenanceFields(line, состояние) {
+    function provenanceFields(line, state) {
       const fields = {};
       if (line) fields.provenance = line;
-      if (состояние && состояние !== 'unspecified') fields.provenanceStatus = состояние;
+      if (state && state !== 'unspecified') fields.provenanceStatus = state;
       return fields;
     }
 
-    function needsCitation(состояние) {
-      return состояние === 'sourced' || состояние === 'editorial_reasoning';
+    function needsCitation(state) {
+      return state === 'sourced' || state === 'editorial_reasoning';
     }
 
 
@@ -43755,7 +43861,7 @@
       return own.map(tr => {
         const others = philosophers
           .filter(f => f.nameRu !== name && (philosopherTraditions[f.nameRu] || []).includes(tr.id))
-          .sort((a, b) => (a.birth || 0) - (b.birth || 0));
+          .sort(comparePhilosophers);
         return `
           <div class="rubric-section">
             <div class="rubric-title">🏛 Традиция: ${tr.name}</div>
@@ -44451,8 +44557,8 @@
     // Есть ли сервер — выясняется ОДИН РАЗ и НИЧЕГО НЕ ЖДЁТ: страница уже
     // работает, а ответ придёт, когда придёт. Без сервера обещание запроса
     // держится буквально: ни одного изменения в поведении.
-    detectServerMode().then(async нашёлся => {
-      if (!нашёлся) return;
+    detectServerMode().then(async found => {
+      if (!found) return;
       renderAuthControls();
       refreshEditHints();
       // Граф берётся у сервера ЦЕЛИКОМ один раз — дальше только приращения.

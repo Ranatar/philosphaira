@@ -47,22 +47,22 @@ export async function readGraphSince(pool, { actor, since }) {
     раскладка: layoutIsNewer
       ? { версияГрафа: layout.версияГрафа, позиции: layout.позиции }
       : null,
-    изменения: rows.map(с => ({
-      набор: SET_BY_KIND[с.kind],
-      kind: с.kind,
-      entityId: с.entityId,
-      удалена: с.удалена,
-      порядок: с.порядок,
-      запись: с.удалена ? null : assemble(с.kind, с.entityId, с.тело),
+    изменения: rows.map(row => ({
+      набор: SET_BY_KIND[row.kind],
+      kind: row.kind,
+      entityId: row.entityId,
+      удалена: row.удалена,
+      порядок: row.порядок,
+      запись: row.удалена ? null : assemble(row.kind, row.entityId, row.тело),
     })),
   };
 }
 
-function assemble(kind, entityId, тело) {
+function assemble(kind, entityId, payload) {
   const record = {};
   for (const fieldKey of SETS[SET_BY_KIND[kind]].keys) {
     if (fieldKey === 'id') record.id = entityId;
-    else if (fieldKey in тело) record[fieldKey] = тело[fieldKey];
+    else if (fieldKey in payload) record[fieldKey] = payload[fieldKey];
   }
   return record;
 }

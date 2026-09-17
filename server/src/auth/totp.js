@@ -13,24 +13,24 @@ export const CHARS  = 6;
 // вроде FreeOTP и попадает в ссылку otpauth://.
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
-export function base32Encode(буфер) {
-  let bits = 0, накоплено = 0, вышло = '';
-  for (const byte of буфер) {
-    накоплено = (накоплено << 8) | byte; bits += 8;
-    while (bits >= 5) { вышло += ALPHABET[(накоплено >>> (bits - 5)) & 31]; bits -= 5; }
+export function base32Encode(bytes) {
+  let bits = 0, acc = 0, out = '';
+  for (const byte of bytes) {
+    acc = (acc << 8) | byte; bits += 8;
+    while (bits >= 5) { out += ALPHABET[(acc >>> (bits - 5)) & 31]; bits -= 5; }
   }
-  if (bits > 0) вышло += ALPHABET[(накоплено << (5 - bits)) & 31];
-  return вышло;
+  if (bits > 0) out += ALPHABET[(acc << (5 - bits)) & 31];
+  return out;
 }
 
 export function base32Decode(row) {
-  let bits = 0, накоплено = 0;
+  let bits = 0, acc = 0;
   const bytes = [];
   for (const symbol of row.replace(/=+$/, '').toUpperCase()) {
     const i = ALPHABET.indexOf(symbol);
     if (i === -1) throw new Error(`base32: недопустимый знак «${symbol}»`);
-    накоплено = (накоплено << 5) | i; bits += 5;
-    if (bits >= 8) { bytes.push((накоплено >>> (bits - 8)) & 255); bits -= 8; }
+    acc = (acc << 5) | i; bits += 5;
+    if (bits >= 8) { bytes.push((acc >>> (bits - 8)) & 255); bits -= 8; }
   }
   return Buffer.from(bytes);
 }
@@ -38,11 +38,11 @@ export function base32Decode(row) {
 /** Секрет в 20 байт — как советует RFC 4226 для HMAC-SHA1. */
 export const createSecret = () => base32Encode(crypto.randomBytes(20));
 
-export function totpCode(секретBase32, время = Date.now()) {
-  const timeStep = Math.floor(время / 1000 / STEP_SEC);
+export function totpCode(secretBase32, atTime = Date.now()) {
+  const timeStep = Math.floor(atTime / 1000 / STEP_SEC);
   const counterBuf = Buffer.alloc(8);
   counterBuf.writeBigUInt64BE(BigInt(timeStep));
-  const hmac = crypto.createHmac('sha1', base32Decode(секретBase32))
+  const hmac = crypto.createHmac('sha1', base32Decode(secretBase32))
     .update(counterBuf).digest();
   // Динамическая усечка по RFC 4226 §5.4.
   const offset = hmac[hmac.length - 1] & 0x0f;
@@ -57,18 +57,18 @@ export function totpCode(секретBase32, время = Date.now()) {
  * Сравнение постоянного времени — код короткий, но и он не должен выдавать
  * длину общего начала.
  */
-export function verifyCode(секретBase32, предъявленный, время = Date.now()) {
-  const given = String(предъявленный ?? '').trim();
+export function verifyCode(secretBase32, presented, atTime = Date.now()) {
+  const given = String(presented ?? '').trim();
   if (!/^\d{6}$/.test(given)) return false;
   for (const timeStep of [-1, 0, 1]) {
-    const expected = totpCode(секретBase32, время + timeStep * STEP_SEC * 1000);
+    const expected = totpCode(secretBase32, atTime + timeStep * STEP_SEC * 1000);
     if (crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(given))) return true;
   }
   return false;
 }
 
 /** Ссылка для приложения-аутентификатора. */
-export const otpauth = ({ секрет: secret, логин, издатель = 'PhilosPhaira' }) =>
-  `otpauth://totp/${encodeURIComponent(издатель)}:${encodeURIComponent(логин)}`
-  + `?secret=${secret}&issuer=${encodeURIComponent(издатель)}`
+export const otpauth = ({ секрет: secret, логин: login, издатель: issuer = 'PhilosPhaira' }) =>
+  `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(login)}`
+  + `?secret=${secret}&issuer=${encodeURIComponent(issuer)}`
   + `&algorithm=SHA1&digits=${CHARS}&period=${STEP_SEC}`;

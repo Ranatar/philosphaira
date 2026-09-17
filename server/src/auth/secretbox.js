@@ -33,18 +33,18 @@ function fieldKey() {
  */
 export function assertKey() { fieldKey(); }
 
-export function encrypt(текст) {
+export function encrypt(plain) {
   const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv(ALG, fieldKey(), iv);
-  const payloadBuf = Buffer.concat([cipher.update(текст, 'utf8'), cipher.final()]);
+  const payloadBuf = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]);
   return Buffer.concat([iv, cipher.getAuthTag(), payloadBuf]);
 }
 
-export function decrypt(буфер) {
-  const second = Buffer.from(буфер);
-  const iv = second.subarray(0, 12), метка = second.subarray(12, 28), payloadBuf = second.subarray(28);
+export function decrypt(blob) {
+  const second = Buffer.from(blob);
+  const iv = second.subarray(0, 12), tag = second.subarray(12, 28), payloadBuf = second.subarray(28);
   const decipher = crypto.createDecipheriv(ALG, fieldKey(), iv);
-  decipher.setAuthTag(метка);
+  decipher.setAuthTag(tag);
   return Buffer.concat([decipher.update(payloadBuf), decipher.final()]).toString('utf8');
 }
 

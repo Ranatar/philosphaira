@@ -1,6 +1,5 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
-import { DATA, S } from '../core/ns.js';
-import '../core/graph-index.js';
+import { S } from '../core/ns.js';
 import { renderState } from './canvas-core.js';
 
 function linkStrokeWidth(d) {
@@ -85,10 +84,4 @@ function arrowPointsStart(d, swOverride) {
       });
     }
 
-function linkHasTwoHeads(l) {
-      if (l.bidirectional) return true;
-      const t = DATA.relationTypesObj[l.type];
-      return !!(t && t.symmetric);
-    }
-
-export { arcParams, arrowPoints, arrowPointsStart, linkHasTwoHeads, linkHoverStrokeWidth, linkStrokeWidth };
+export { arcParams, arrowPoints, arrowPointsStart, linkHoverStrokeWidth, linkStrokeWidth };

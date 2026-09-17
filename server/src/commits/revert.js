@@ -34,8 +34,8 @@ export async function invertChanges(client, changes) {
   for (const change of changes) {
     if (change.action === 'edit') {
       const fieldPairs = {};
-      for (const [имя, з] of Object.entries(change.fields ?? {})) {
-        fieldPairs[имя] = { base: з.next, next: з.base };
+      for (const [fieldKey, pair] of Object.entries(change.fields ?? {})) {
+        fieldPairs[fieldKey] = { base: pair.next, next: pair.base };
       }
       inverted.push({ action: 'edit', kind: change.kind, entityId: change.entityId, fields: fieldPairs });
       continue;

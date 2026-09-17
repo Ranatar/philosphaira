@@ -41,14 +41,14 @@ function observationValues(viewName) {
         if (top.length < 20) top.push({ имя: cells[0].textContent.trim(), значение: cellNumber });
       }
       if (!numbers.length) return null;
-      const ascending = [...numbers].sort((а, б) => а - б);
-      const mean = numbers.reduce((с, z2) => с + z2, 0) / numbers.length;
+      const ascending = [...numbers].sort((x, y) => x - y);
+      const mean = numbers.reduce((acc, z2) => acc + z2, 0) / numbers.length;
       return {
         top: top,
         summary: {
           mean: +mean.toFixed(6),
           median: +ascending[Math.floor(ascending.length / 2)].toFixed(6),
-          spread: +Math.sqrt(numbers.reduce((с, z3) => с + (z3 - mean) ** 2, 0)
+          spread: +Math.sqrt(numbers.reduce((acc, z3) => acc + (z3 - mean) ** 2, 0)
                              / numbers.length).toFixed(6),
           nonzero: numbers.filter(z4 => z4 !== 0).length,
           count: numbers.length,
@@ -194,22 +194,22 @@ function pickObservation(id) {
 async function compareObservationsInPanel() {
       const slot = document.getElementById('obsCompare');
       if (!slot) return;
-      const [а, б] = observationPicked;
-      const reply = await api('/api/metrics/compare?a=' + encodeURIComponent(а)
-        + '&b=' + encodeURIComponent(б));
+      const [firstId, secondId] = observationPicked;
+      const reply = await api('/api/metrics/compare?a=' + encodeURIComponent(firstId)
+        + '&b=' + encodeURIComponent(secondId));
       if (!reply.годно) { slot.innerHTML = '<div class="commits-error">Не вышло сличить</div>'; return; }
       const verdict = reply.тело.data;
       if (!verdict.сравнимы) {
         slot.innerHTML = '<div class="obs-refusal"><b>Сравнивать нельзя</b><div>'
           + escapeAttr(verdict.почему) + '</div>'
-          + (verdict.разошлось || []).map(р => `<div class="obs-diff">${escapeAttr(р.что)}:
-             у первого ${escapeAttr(String(р.у_первого))},
-             у второго ${escapeAttr(String(р.у_второго))}</div>`).join('')
+          + (verdict.разошлось || []).map(diffLine => `<div class="obs-diff">${escapeAttr(diffLine.что)}:
+             у первого ${escapeAttr(String(diffLine.у_первого))},
+             у второго ${escapeAttr(String(diffLine.у_второго))}</div>`).join('')
           + '</div>';
         return;
       }
-      const lines = Object.entries(verdict.сводка || {}).map(([имя, z]) =>
-        `<tr><td>${escapeAttr(имя)}</td><td>${z.было ?? '—'}</td><td>${z.стало ?? '—'}</td>
+      const lines = Object.entries(verdict.сводка || {}).map(([metricName, z]) =>
+        `<tr><td>${escapeAttr(metricName)}</td><td>${z.было ?? '—'}</td><td>${z.стало ?? '—'}</td>
          <td class="${Number(z.разница) > 0 ? 'obs-up' : Number(z.разница) < 0 ? 'obs-down' : ''}">${
            z.разница == null ? '—' : (z.разница > 0 ? '+' : '') + z.разница}</td></tr>`).join('');
       slot.innerHTML = `<div class="obs-verdict">${escapeAttr(verdict.метрика)}:

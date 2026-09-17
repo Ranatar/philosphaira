@@ -42,11 +42,11 @@ import { P } from '../access/roles.js';
 import { errorHandler, Conflict, NotFound, TooMany } from './errors.js';
 import { noteAttempt, overLimit, REGISTER_LIMIT } from '../auth/throttle.js';
 import { requireAuth } from './guards.js';
-import { checkCsrf, newCsrfToken, cookieСеанса, cookieCsrf,
+import { checkCsrf, newCsrfToken, sessionCookie, cookieCsrf,
          SESSION_COOKIE, CSRF_COOKIE } from './cookies.js';
 
-export function createApp({ pool, безопасныеCookie = true,
-                                    папкаПриложения = null, trustProxy = 0 }) {
+export function createApp({ pool, безопасныеCookie: secureCookies = true,
+                                    папкаПриложения: appDir = null, trustProxy = 0 }) {
   const app = express();
   // ДОВЕРИЕ ОБРАТНОМУ СТАВНЮ — ТОЛЬКО ПО ОБЪЯВЛЕНИЮ.
   // За ставнем `req.ip` без этого равен 127.0.0.1 у всех и всегда: адреса в
@@ -80,10 +80,10 @@ export function createApp({ pool, безопасныеCookie = true,
   app.use((req, res, next) =>
     WITHOUT_CSRF.has(req.path) ? next() : checkCsrf(req, res, next));
 
-  const issueSession = (res, токен) => {
+  const issueSession = (res, token) => {
     const csrfToken = newCsrfToken();
-    res.cookie(SESSION_COOKIE, токен, cookieСеанса(безопасныеCookie));
-    res.cookie(CSRF_COOKIE, csrfToken, cookieCsrf(безопасныеCookie));
+    res.cookie(SESSION_COOKIE, token, sessionCookie(secureCookies));
+    res.cookie(CSRF_COOKIE, csrfToken, cookieCsrf(secureCookies));
     return csrfToken;
   };
 
@@ -138,10 +138,10 @@ export function createApp({ pool, безопасныеCookie = true,
   // тела не читаются вовсе: иначе всякий вошедший заводил бы второй шаг
   // чужой записи и запирал бы её на свой телефон.
   app.post('/api/auth/mfa/enroll', requireAuth, wrap(async (req, res) => {
-    const { секрет: secret, ссылка } = await beginEnroll(pool, req.user);
+    const { секрет: secret, ссылка: otpauthUrl } = await beginEnroll(pool, req.user);
     // Шаг ЕЩЁ НЕ ВКЛЮЧЁН: включает только предъявленный код. Иначе можно
     // запереть себя, сохранив в базе секрет, который никуда не записан.
-    res.json({ data: { секрет: secret, ссылка, включён: false } });
+    res.json({ data: { секрет: secret, ссылка: otpauthUrl, включён: false } });
   }));
 
   app.post('/api/auth/mfa/enroll/confirm', requireAuth, wrap(async (req, res) => {
@@ -192,15 +192,15 @@ export function createApp({ pool, безопасныеCookie = true,
    * сервер запросом наугад и на статическом сервере печатала 404 в консоль,
    * а прибор справедливо считал бы это изменением поведения.
    */
-  if (папкаПриложения) {
+  if (appDir) {
     app.get('/index.html', wrap(async (_req, res) => {
-      const filePath = path.join(папкаПриложения, 'index.html');
+      const filePath = path.join(appDir, 'index.html');
       const pageHtml = await fs.readFile(filePath, 'utf8');
       res.type('html').send(pageHtml.replace('</head>',
         '<meta name="philos-api" content="1"></head>'));
     }));
     app.get('/', (_req, res) => res.redirect('/index.html'));
-    app.use(express.static(папкаПриложения));
+    app.use(express.static(appDir));
   }
 
   /**

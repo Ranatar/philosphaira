@@ -15,17 +15,17 @@ export const asAppWrites = payload => JSON.stringify(payload, null, 1);
  * Разложить запись на адрес и тело. Ключ id в тело НЕ кладётся: он и так
  * лежит в entity_id, а два места для одного знания расходятся.
  */
-function parseRecord(имяНабора, record) {
-  const spec = SETS[имяНабора];
+function parseRecord(setName, record) {
+  const spec = SETS[setName];
   const unknownKeys = Object.keys(record).filter(commitRow => !spec.keys.includes(commitRow));
   if (unknownKeys.length) {
     throw new Error(
-      `перенос ${имяНабора}: в записи ${record.id} посторонние поля ` +
+      `перенос ${setName}: в записи ${record.id} посторонние поля ` +
       `${unknownKeys.join(', ')}. Молча выкинуть их нельзя — допишите опись ` +
       'в src/graph/schema.js или разберитесь, откуда они взялись.');
   }
   if (record.id == null) {
-    throw new Error(`перенос ${имяНабора}: запись без id`);
+    throw new Error(`перенос ${setName}: запись без id`);
   }
   const payloadBuf = {};
   for (const commitRow of spec.keys) {
@@ -36,9 +36,9 @@ function parseRecord(имяНабора, record) {
 }
 
 /** Собрать запись обратно: id первым, остальные — по описи. */
-function assemble(имяНабора, entityId, payloadBuf) {
+function assemble(setName, entityId, payloadBuf) {
   const record = {};
-  for (const commitRow of SETS[имяНабора].keys) {
+  for (const commitRow of SETS[setName].keys) {
     if (commitRow === 'id') record.id = entityId;
     else if (commitRow in payloadBuf) record[commitRow] = payloadBuf[commitRow];
   }
@@ -46,11 +46,11 @@ function assemble(имяНабора, entityId, payloadBuf) {
 }
 
 /** Перенос одного набора. Идемпотентен: повтор даёт то же состояние. */
-export async function importSet(client, имяНабора, записи) {
-  const { kind } = SETS[имяНабора];
+export async function importSet(client, setName, records) {
+  const { kind } = SETS[setName];
   let n = 0;
-  for (const [ord, record] of записи.entries()) {
-    const { entityId, тело: payloadBuf } = parseRecord(имяНабора, record);
+  for (const [ord, record] of records.entries()) {
+    const { entityId, тело: payloadBuf } = parseRecord(setName, record);
     await client.query(`
       INSERT INTO graph_entities (kind, entity_id, ord, data, changed_at_version)
       VALUES ($1, $2, $3, $4, 0)
@@ -65,14 +65,14 @@ export async function importSet(client, имяНабора, записи) {
 }
 
 /** Выгрузка одного набора в том же виде, в каком его пишет приложение. */
-export async function exportSet(db, имяНабора) {
-  const { kind } = SETS[имяНабора];
+export async function exportSet(db, setName) {
+  const { kind } = SETS[setName];
   const { rows } = await db.query(`
     SELECT entity_id AS "entityId", data AS "тело"
       FROM graph_entities
      WHERE kind = $1 AND deleted_at IS NULL
      ORDER BY ord`, [kind]);
-  return rows.map(since => assemble(имяНабора, since.entityId, since.тело));
+  return rows.map(since => assemble(setName, since.entityId, since.тело));
 }
 
 export async function exportAll(db) {

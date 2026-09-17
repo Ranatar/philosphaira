@@ -36,7 +36,7 @@ export const SETS = Object.freeze({
 
 /** Имя набора по роду сущности — обратный указатель, чтобы не искать перебором. */
 export const SET_BY_KIND = Object.freeze(Object.fromEntries(
-  Object.entries(SETS).map(([имя, о]) => [о.kind, имя])));
+  Object.entries(SETS).map(([fieldKey, spec]) => [spec.kind, fieldKey])));
 
 /**
  * СОСТОЯНИЯ ПРОИСХОЖДЕНИЯ.

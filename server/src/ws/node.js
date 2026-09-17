@@ -8,23 +8,23 @@ import { Connections } from './manager.js';
 import { subscribe, publish } from './bus.js';
 import { notificationForDelivery } from '../db/notifications.js';
 
-export async function startNode({ db, строкаПодключения, origins = null }) {
+export async function startNode({ db, строкаПодключения: connectionString, origins = null }) {
   const connections = new Connections({ db, origins });
 
-  const subscription = await subscribe(строкаПодключения, async и => {
-    if (и.вид === 'уведомление') {
-      const notification = await notificationForDelivery(db, и.notificationId).catch(() => null);
+  const subscription = await subscribe(connectionString, async change => {
+    if (change.вид === 'уведомление') {
+      const notification = await notificationForDelivery(db, change.notificationId).catch(() => null);
       if (!notification) return;
-      connections.кЧеловеку(и.userId,
+      connections.кЧеловеку(change.userId,
         { type: 'notification', notification: { type: notification.type, data: notification.data } });
       return;
     }
-    if (и.вид === 'вещание') {
-      connections.кВсем({ type: 'broadcast', broadcastId: и.broadcastId, тип: и.type });
+    if (change.вид === 'вещание') {
+      connections.кВсем({ type: 'broadcast', broadcastId: change.broadcastId, тип: change.type });
       return;
     }
-    if (и.вид === 'сессия-отозвана') { connections.порватьСессию(и.sessionId); return; }
-    if (и.вид === 'доступ-отозван')  { connections.порватьЧеловека(и.userId); return; }
+    if (change.вид === 'сессия-отозвана') { connections.порватьСессию(change.sessionId); return; }
+    if (change.вид === 'доступ-отозван')  { connections.порватьЧеловека(change.userId); return; }
   });
 
   return {

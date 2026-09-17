@@ -15,27 +15,27 @@ const counters = new Map();          // ключ → { сколько, доКо�
 export const WINDOW_MS = 3600_000;
 export const LIMIT  = 10;
 
-export function noteFailure(ключ, сейчас = Date.now()) {
-  const prevCount = counters.get(ключ);
-  if (!prevCount || prevCount.доКогда < сейчас) {
-    counters.set(ключ, { сколько: 1, доКогда: сейчас + WINDOW_MS });
+export function noteFailure(key, now = Date.now()) {
+  const prevCount = counters.get(key);
+  if (!prevCount || prevCount.доКогда < now) {
+    counters.set(key, { сколько: 1, доКогда: now + WINDOW_MS });
     return 1;
   }
   prevCount.сколько += 1;
   return prevCount.сколько;
 }
 
-export function resetCounter(ключ) { counters.delete(ключ); }
+export function resetCounter(key) { counters.delete(key); }
 
-export function isBruteForce(ключ, сейчас = Date.now()) {
-  const prevCount = counters.get(ключ);
-  if (!prevCount || prevCount.доКогда < сейчас) return false;
+export function isBruteForce(key, now = Date.now()) {
+  const prevCount = counters.get(key);
+  if (!prevCount || prevCount.доКогда < now) return false;
   return prevCount.сколько >= LIMIT;
 }
 
 /** Задержка растёт: пятая неудача ждёт секунду, десятая — полминуты. */
-export function delayMs(ключ) {
-  const prevCount = counters.get(ключ);
+export function delayMs(key) {
+  const prevCount = counters.get(key);
   if (!prevCount || prevCount.сколько < 4) return 0;
   return Math.min(30_000, 2 ** (prevCount.сколько - 4) * 250);
 }
@@ -51,10 +51,10 @@ export function clearCounters() { counters.clear(); }
 export const noteAttempt = noteFailure;
 
 /** Предел здесь доводом: у входа он свой, у регистрации свой. */
-export function overLimit(ключ, предел, сейчас = Date.now()) {
-  const prevCount = counters.get(ключ);
-  if (!prevCount || prevCount.доКогда < сейчас) return false;
-  return prevCount.сколько >= предел;
+export function overLimit(key, limit, now = Date.now()) {
+  const prevCount = counters.get(key);
+  if (!prevCount || prevCount.доКогда < now) return false;
+  return prevCount.сколько >= limit;
 }
 
 /**

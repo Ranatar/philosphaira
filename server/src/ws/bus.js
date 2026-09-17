@@ -15,24 +15,24 @@ import pg from 'pg';
 
 export const CHANNEL = 'philos_ws';
 
-export async function publish(client, извещение) {
+export async function publish(client, notice) {
   await client.query(`SELECT pg_notify($1, $2)`,
-    [CHANNEL, JSON.stringify(извещение)]);
+    [CHANNEL, JSON.stringify(notice)]);
 }
 
 /**
  * Подписка. Держит ОТДЕЛЬНОЕ соединение: слушающий клиент занят и в пул
  * не возвращается — иначе LISTEN потеряется вместе с соединением.
  */
-export async function subscribe(строкаПодключения, наИзвещение) {
-  const client = new pg.Client({ connectionString: строкаПодключения });
+export async function subscribe(connectionString, onNotice) {
+  const client = new pg.Client({ connectionString: connectionString });
   await client.connect();
   await client.query(`LISTEN ${CHANNEL}`);
-  client.on('notification', с => {
+  client.on('notification', message => {
     let result;
     // Кривое извещение не роняет узел: шина — вход извне, пусть и свой.
-    try { result = JSON.parse(с.payload); } catch { return; }
-    try { наИзвещение(result); } catch { /* обработчик сам себе судья */ }
+    try { result = JSON.parse(message.payload); } catch { return; }
+    try { onNotice(result); } catch { /* обработчик сам себе судья */ }
   });
   return {
     client,

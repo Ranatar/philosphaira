@@ -57,7 +57,7 @@ export async function register(pool, { username, email, password,
     }
 
     // Сессия выдаётся ТУТ ЖЕ, иначе первый же запрос получит 401.
-    const { токен, sessionId } = await createSession(client,
+    const { токен: token, sessionId } = await createSession(client,
       { userId: user.userId, ip, userAgent: ua });
     const verifyToken = await issueVerification(client,
       { userId: user.userId, email });
@@ -75,7 +75,7 @@ export async function register(pool, { username, email, password,
 
     await audit(client, { actorId: user.userId, action: 'auth.register',
                           subjectType: 'user', subjectId: user.userId, ip });
-    return { user, токен, sessionId, подтверждение: verifyToken };
+    return { user, токен: token, sessionId, подтверждение: verifyToken };
   });
 }
 
@@ -150,12 +150,12 @@ export async function login(pool, { login: loginOrEmail, email, password,
     // У кого второй шаг заведён, тот получает ЧАСТИЧНУЮ сессию: она не даёт
     // ничего, кроме права предъявить код. Иначе окно между шагами оказалось
     // бы полноценной сессией.
-    const { токен, sessionId } = await createSession(client,
+    const { токен: token, sessionId } = await createSession(client,
       { userId: user.userId, ip, userAgent: ua, mfaPending: user.mfaReady });
     await setLastLogin(client, user.userId);
     await audit(client, { actorId: user.userId, action: 'auth.login',
                           subjectType: 'user', subjectId: user.userId, ip });
-    return { user, токен, sessionId, ждётКода: user.mfaReady };
+    return { user, токен: token, sessionId, ждётКода: user.mfaReady };
   });
 }
 
@@ -170,9 +170,9 @@ export const logoutAll = (pool, userId) =>
  * ВЫДАЧИ: если человек успел сменить почту, старое письмо подтверждать
  * нечего — иначе подтверждённым окажется адрес, которого уже нет.
  */
-export async function verifyEmail(pool, токен) {
+export async function verifyEmail(pool, token) {
   return withTransaction(pool, async client => {
-    const verification = await findVerification(client, токен);
+    const verification = await findVerification(client, token);
     if (!verification) throw new NotFound('Ссылка недействительна');
     if (verification.usedAt) throw new Conflict('Ссылкой уже воспользовались');
     if (new Date(verification.expiresAt) < new Date()) throw new Conflict('Срок ссылки истёк');

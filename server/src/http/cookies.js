@@ -12,17 +12,17 @@ import { Forbidden } from './errors.js';
 export const SESSION_COOKIE = 'session';
 export const CSRF_COOKIE   = 'csrf';
 
-export const cookieСеанса = (безопасно = true) => ({
+export const sessionCookie = (secure = true) => ({
   httpOnly: true,
-  secure: безопасно,
+  secure: secure,
   sameSite: 'lax',
   path: '/',
   maxAge: 30 * 24 * 3600 * 1000,
 });
 
-export const cookieCsrf = (безопасно = true) => ({
+export const cookieCsrf = (secure = true) => ({
   httpOnly: false,          // её обязан прочитать клиент — в этом весь приём
-  secure: безопасно,
+  secure: secure,
   sameSite: 'lax',
   path: '/',
   maxAge: 30 * 24 * 3600 * 1000,

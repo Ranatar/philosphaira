@@ -20,11 +20,11 @@ export const OPTIONS = Object.freeze({
   parallelism: 1,
 });
 
-export const hashPassword = пароль => argon2.hash(пароль, OPTIONS);
+export const hashPassword = password => argon2.hash(password, OPTIONS);
 
 /** Никогда не бросает: неверный пароль и битый хеш — оба «не сошлось». */
-export const verifyPassword = (passwordHash, пароль) =>
-  argon2.verify(passwordHash, пароль, OPTIONS).catch(() => false);
+export const verifyPassword = (passwordHash, password) =>
+  argon2.verify(passwordHash, password, OPTIONS).catch(() => false);
 
 // ХОЛОСТОЙ ХЕШ. При неизвестном адресе сверка всё равно выполняется, чтобы
 // время ответа не выдавало, существует ли запись. Считается один раз при
@@ -42,16 +42,16 @@ const COMMON_PASSWORDS = new Set([
   'philosophy12', 'graph1234567', 'passwordpassword', 'qwerty123456',
 ]);
 
-export function assertPasswordPolicy(пароль) {
-  if (typeof пароль !== 'string' || пароль.length < MIN_LENGTH) {
+export function assertPasswordPolicy(password) {
+  if (typeof password !== 'string' || password.length < MIN_LENGTH) {
     throw new Forbidden(`Пароль короче ${MIN_LENGTH} знаков`);
   }
   // Пробелы по краям — обычная опечатка при вставке; молча их обрезать
   // нельзя (пароль станет другим), а вот сказать о них надо.
-  if (пароль !== пароль.trim()) {
+  if (password !== password.trim()) {
     throw new Forbidden('Пароль начинается или кончается пробелом');
   }
-  if (COMMON_PASSWORDS.has(пароль.toLowerCase())) {
+  if (COMMON_PASSWORDS.has(password.toLowerCase())) {
     throw new Forbidden('Такой пароль слишком частый');
   }
 }

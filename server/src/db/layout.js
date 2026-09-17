@@ -26,16 +26,16 @@ export async function currentLayout(db) {
 
 /** Записать новую раскладку. Возвращает её идентификатор. */
 export async function saveLayout(client, {
-  версияГрафа, род, изЧего = null, позиции, ктоId = null, расхождение: divergence = null,
-  отпечаток = null,
+  версияГрафа: graphVersion, род: kind, изЧего: basedOn = null, позиции: positions, ктоId: actorId = null, расхождение: divergence = null,
+  отпечаток: fingerprint = null,
 }) {
   const { rows } = await client.query(
     `INSERT INTO graph_layout
        (graph_version, kind, based_on, positions, created_by, shift_median, shift_far, fingerprint)
      VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8)
      RETURNING layout_id`,
-    [версияГрафа, род, изЧего, JSON.stringify(позиции), ктоId,
-     divergence?.медиана ?? null, divergence?.далеко ?? null, отпечаток]);
+    [graphVersion, kind, basedOn, JSON.stringify(positions), actorId,
+     divergence?.медиана ?? null, divergence?.далеко ?? null, fingerprint]);
   return Number(rows[0].layout_id);
 }
 

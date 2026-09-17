@@ -44,13 +44,13 @@ export async function beginEnroll(pool, user) {
 }
 
 /** Шаг второй: код сошёлся — включаем и выдаём коды восстановления. */
-export async function confirmEnroll(pool, user, код) {
+export async function confirmEnroll(pool, user, code) {
   const stored = await getSecret(pool, user.userId);
   if (!stored?.шифр) throw new Conflict('Секрет не выдан: начните заведение заново');
   if (stored.включён) throw new Conflict('Второй шаг уже заведён');
 
   const secret = decrypt(stored.шифр);
-  if (!verifyCode(secret, код)) throw new Unauthorized('Код не сошёлся');
+  if (!verifyCode(secret, code)) throw new Unauthorized('Код не сошёлся');
 
   return withTransaction(pool, async client => {
     await enableMfa(client, user.userId);
@@ -66,18 +66,18 @@ export async function confirmEnroll(pool, user, код) {
  * второй одноразовый. Различать их отдельным ходом незачем: человек, который
  * потерял телефон, вводит то, что у него есть.
  */
-export async function submitCode(pool, sessionId, код) {
+export async function submitCode(pool, sessionId, code) {
   const mfaState = await sessionMfaState(pool, sessionId);
   if (!mfaState) throw new Unauthorized('Сессия недействительна');
 
   const stored = await getSecret(pool, mfaState.userId);
   if (!stored?.включён) throw new Conflict('Второй шаг не заведён');
 
-  const byAuthenticator = verifyCode(decrypt(stored.шифр), код);
+  const byAuthenticator = verifyCode(decrypt(stored.шифр), code);
 
   return withTransaction(pool, async client => {
     const byRecoveryCode = byAuthenticator
-      ? false : await spendRecoveryCode(client, mfaState.userId, код);
+      ? false : await spendRecoveryCode(client, mfaState.userId, code);
     if (!byAuthenticator && !byRecoveryCode) {
       throw new Unauthorized('Код не сошёлся');
     }
@@ -96,10 +96,10 @@ export async function submitCode(pool, sessionId, код) {
  * Отзыв второго шага. Требует кода: иначе украденная сессия снимает защиту
  * одним запросом. Все сессии гасятся — включая ту, из которой отзывали.
  */
-export async function disable(pool, user, код) {
+export async function disable(pool, user, code) {
   const stored = await getSecret(pool, user.userId);
   if (!stored?.включён) throw new Conflict('Второй шаг не заведён');
-  if (!verifyCode(decrypt(stored.шифр), код)) {
+  if (!verifyCode(decrypt(stored.шифр), code)) {
     throw new Unauthorized('Код не сошёлся');
   }
   return withTransaction(pool, async client => {
@@ -113,17 +113,17 @@ export async function disable(pool, user, код) {
 }
 
 /** Свежо ли подтверждение. Отсутствие отметки — не свежо. */
-export function isFreshMfa(пройденВ, минут = FRESH_MINUTES, сейчас = Date.now()) {
-  if (!пройденВ) return false;
-  return сейчас - +new Date(пройденВ) <= минут * 60_000;
+export function isFreshMfa(passedAt, minutes = FRESH_MINUTES, now = Date.now()) {
+  if (!passedAt) return false;
+  return now - +new Date(passedAt) <= minutes * 60_000;
 }
 
 /** Застава для опасных действий. */
-export const requireFreshMfa = (минут = FRESH_MINUTES) => async (req, _res, next) => {
+export const requireFreshMfa = (minutes = FRESH_MINUTES) => async (req, _res, next) => {
   try {
     if (!req.user) throw new Unauthorized();
     const mfaState = await sessionMfaState(req.db, req.sessionId);
-    if (!isFreshMfa(mfaState?.пройденВ, минут)) {
+    if (!isFreshMfa(mfaState?.пройденВ, minutes)) {
       throw Object.assign(new Forbidden('Подтвердите вход одноразовым кодом'),
                           { status: 401, code: 'mfa_required' });
     }

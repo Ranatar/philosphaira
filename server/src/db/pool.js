@@ -16,14 +16,14 @@ const { Pool, types } = pg;
 // Точность в этих полях заведомо в пределах безопасной.
 types.setTypeParser(20, v => (v === null ? null : Number(v)));
 
-export function createPool(строкаПодключения = process.env.DATABASE_URL) {
-  if (!строкаПодключения) {
+export function createPool(connectionString = process.env.DATABASE_URL) {
+  if (!connectionString) {
     throw new Error(
       'DATABASE_URL не задан. Умолчания здесь нет нарочно: молча уйти ' +
       'не в ту базу хуже, чем не запуститься.');
   }
   return new Pool({
-    connectionString: строкаПодключения,
+    connectionString: connectionString,
     max: Number(process.env.PG_POOL_MAX || 10),
     idleTimeoutMillis: 30_000,
     // Запрос, повисший навсегда, держит соединение и не даёт ничего понять.

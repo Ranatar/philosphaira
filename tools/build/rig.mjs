@@ -50,7 +50,7 @@ toggleEntityHistory renderEntityHistory revertEntityToVersion deleteObservation
 openSelectionListModal closeSelectionListModal renderSelectionList
 toggleSelectionBlock toggleSelectionBody selectionListMore selectionListSets
 toggleSelectionBodies setSelectionProvenance provenanceState directionMark
-selectionListOpenBlocks`.split(/\s+/).filter(Boolean);
+selectionListOpenBlocks linkHasTwoHeads conceptById comparePhilosophers compareConcepts compareLinks getConceptConnections nodesByPhilosopher`.split(/\s+/).filter(Boolean);
 
 // ГДЕ ЧТО ВЫВОЗИТСЯ и ЧТО ПЕРЕПРИСВАИВАЕТСЯ.
 //

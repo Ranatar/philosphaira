@@ -4,9 +4,9 @@ import crypto from 'node:crypto';
 import { sha256 } from './sessions.js';
 
 /** Секрет кладётся, но НЕ включается: включает его только подтверждённый код. */
-export const putSecret = (client, userId, шифр) => client.query(
+export const putSecret = (client, userId, cipher) => client.query(
   `UPDATE users SET mfa_secret_enc = $1, mfa_enabled = FALSE, mfa_enabled_at = NULL
-    WHERE user_id = $2`, [шифр, userId]);
+    WHERE user_id = $2`, [cipher, userId]);
 
 export async function getSecret(db, userId) {
   const { rows } = await db.query(
@@ -27,12 +27,12 @@ export const disableMfa = (client, userId) => client.query(
  * Выдать коды восстановления. Прежние гасятся: два действующих набора — это
  * набор, о котором человек забыл, и он-то и утечёт.
  */
-export async function issueRecoveryCodes(client, userId, сколько = 10) {
+export async function issueRecoveryCodes(client, userId, count = 10) {
   await client.query(
     `UPDATE mfa_recovery_codes SET used_at = NOW()
       WHERE user_id = $1 AND used_at IS NULL`, [userId]);
   const recoveryCodes = [];
-  for (let i = 0; i < сколько; i++) {
+  for (let i = 0; i < count; i++) {
     // Читаемая группировка: код переписывают с экрана на бумагу.
     const recoveryCode = crypto.randomBytes(5).toString('hex').match(/.{5}/g).join('-');
     recoveryCodes.push(recoveryCode);

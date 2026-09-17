@@ -40,10 +40,10 @@ export async function assertNotLastAdministrator(client, { userId, newRole = nul
   // rowCount, а не rows[0]: читать поля строки за пределами src/db/ нельзя,
   // и проба строения это стережёт. Считаем не count(), а число строк —
   // ответ тот же, а строка наружу не выходит.
-  const { rowCount: останутся } = await client.query(
+  const { rowCount: remaining } = await client.query(
     `SELECT 1 ${ACTIVE_ROLES} AND user_id <> $1`, [userId]);
 
-  if (останутся === 0) {
+  if (remaining === 0) {
     throw new Conflict(
       'Это последний действующий администратор: сначала назначьте другого');
   }

@@ -30,11 +30,11 @@ export async function applyCommit(client, { changes, actorId = null }) {
   const toWrite = [];
 
   for (const change of changes) {
-    const { есть, живая, порядок } = await lockEntity(client, change.kind, change.entityId);
+    const { есть: exists, живая: alive, порядок: position } = await lockEntity(client, change.kind, change.entityId);
     const merged = mergeEntityChange({
       action: change.action,
       fields: change.fields ?? {},
-      current: живая,
+      current: alive,
     });
 
     if (merged.outcome === MERGE.CONFLICT) {
@@ -46,7 +46,7 @@ export async function applyCommit(client, { changes, actorId = null }) {
       }
       continue;
     }
-    toWrite.push({ изм: change, итог: merged, есть, порядок });
+    toWrite.push({ изм: change, итог: merged, есть: exists, порядок: position });
   }
 
   if (conflicts.length) {
@@ -56,13 +56,13 @@ export async function applyCommit(client, { changes, actorId = null }) {
   // Сколько записей выйдет — известно ДО записи, и это важно: версию графа
   // надо поднять ПЕРЕД тем, как ставить её сущностям. Иначе приращение
   // «что изменилось с версии N» пропустит собственный коммит.
-  const toApply = toWrite.filter(з => з.итог.outcome !== MERGE.SAME);
+  const toApply = toWrite.filter(entry => entry.итог.outcome !== MERGE.SAME);
   if (!toApply.length) return { исход: 'coincided', версия: null, применено: 0 };
 
   const version = await bumpGraphVersion(client);
 
   let touched = 0;
-  for (const { изм: change, итог: merged, есть, порядок } of toApply) {
+  for (const { изм: change, итог: merged, есть: exists, порядок: position } of toApply) {
 
     if (change.action === 'delete') {
       await markEntityDeleted(client, change.kind, change.entityId, actorId);
@@ -73,10 +73,10 @@ export async function applyCommit(client, { changes, actorId = null }) {
 
     if (change.action === 'add') {
       const payload = {};
-      for (const [поле, з] of Object.entries(change.fields)) payload[поле] = з.next;
+      for (const [fieldKey, entry] of Object.entries(change.fields)) payload[fieldKey] = entry.next;
       // Сущность могла существовать и быть удалённой — тогда её воскрешают,
       // а не заводят рядом вторую: адрес занят навсегда.
-      const ord = есть ? порядок : await nextOrd(client, change.kind);
+      const ord = exists ? position : await nextOrd(client, change.kind);
       await upsertEntity(client, { kind: change.kind, entityId: change.entityId,
                                    ord, тело: payload, actorId });
       await stampVersion(client, { kind: change.kind, entityId: change.entityId, версия: version });
@@ -109,13 +109,13 @@ export async function applyCommit(client, { changes, actorId = null }) {
     const previous = await currentLayout(client);
     if (previous) {
       const graph = await exportAll(client);
-      const { позиции, новых } = growLayout(graph, previous.позиции);
-      const measure = divergence(previous.позиции, позиции);
+      const { позиции: positions, новых: added } = growLayout(graph, previous.позиции);
+      const measure = divergence(previous.позиции, positions);
       const id = await saveLayout(client, {
         версияГрафа: version, род: 'warm', изЧего: previous.id,
-        позиции, ктоId: actorId, расхождение: measure,
+        позиции: positions, ктоId: actorId, расхождение: measure,
       });
-      layout = { id, новых, ...measure };
+      layout = { id, новых: added, ...measure };
     }
     else {
       // Прежней раскладки нет — значит её ещё ни разу не считали. Полный
@@ -133,5 +133,5 @@ export async function applyCommit(client, { changes, actorId = null }) {
 }
 
 /** Опись нужна разбору столкновений: показать поле по-человечески. */
-export const setField = (kind, поле) =>
-  SETS[SET_BY_KIND[kind]]?.keys.includes(поле) ? поле : `${поле} (нет в описи)`;
+export const setField = (kind, fieldKey) =>
+  SETS[SET_BY_KIND[kind]]?.keys.includes(fieldKey) ? fieldKey : `${fieldKey} (нет в описи)`;
