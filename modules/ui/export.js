@@ -1,12 +1,12 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
-import { isSymmetricLink } from '../core/link-facts.js';
+import { isSymmetricLink, linkHasTwoHeads } from '../core/link-facts.js';
 import { showTemporaryMessage } from '../core/long-task.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
 import { renderState } from '../render/canvas-core.js';
 import { linkDrawAlpha, linkDrawWidth, linkVisualState } from '../render/draw-link.js';
-import { arrowPoints, arrowPointsStart, linkHasTwoHeads } from '../render/geometry.js';
+import { arrowPoints, arrowPointsStart } from '../render/geometry.js';
 import { hasNodeClass, nodeLabelDy, nodeRadius } from '../render/render-state.js';
 import { DRAW_ORDER, renderScene } from '../render/scene.js';
 import { selectedNodes } from '../state/render.js';

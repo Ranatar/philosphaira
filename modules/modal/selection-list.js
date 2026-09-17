@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
-import { conceptById } from '../core/graph-index.js';
+import { compareConcepts, compareLinks, comparePhilosophers, conceptById } from '../core/graph-index.js';
 import { directionMark } from '../core/link-facts.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
 
@@ -70,11 +70,16 @@ function selectionListSets() {
       // прочесть адрес сущности из окна вместо схемы. Спрашивать надо схему.
       const byProvenance = items => selectionProvenance === 'all'
         ? items : items.filter(z => provenanceState(z) === selectionProvenance);
+      // Порядок — тот же, что везде: философы по хронологии (при равном
+      // годе по алфавиту), концепции по философу и названию, связи —
+      // внутренние вперёд. Указатели упорядочены при построении, но здесь
+      // списки собираются отбором из nodes и links, а не из них.
       return {
         philosopher: byProvenance(
-          DATA.philosophers.filter(p => selectionPhilCount[p.nameRu] > 0)),
-        concept: byProvenance(nodesShown),
-        relation: byProvenance(DATA.links.filter(isLinkVisible)),
+          DATA.philosophers.filter(p => selectionPhilCount[p.nameRu] > 0))
+          .sort(comparePhilosophers),
+        concept: byProvenance(nodesShown).sort(compareConcepts),
+        relation: byProvenance(DATA.links.filter(isLinkVisible)).sort(compareLinks),
       };
     }
 

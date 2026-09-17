@@ -50,11 +50,23 @@ function otherPhilosopher(r, conceptId) {
       return other ? S._philosopherMap.get(other.philosopher) : null;
     }
 
+function linkHasTwoHeads(l) {
+      if (l.bidirectional) return true;
+      const t = DATA.relationTypesObj[l.type];
+      return !!(t && t.symmetric);
+    }
+
 function directionMark(l) {
       const s = l.source.id || l.source;
       const t = l.target.id || l.target;
       if (s === t) return '↻';          // возвратная: сама на себя
-      return l.bidirectional ? '↔' : '→';
+      // СПРАШИВАЕТ, А НЕ ПЕРЕСКАЗЫВАЕТ. Первая редакция писала здесь
+      // `l.bidirectional ? '↔' : '→'` — то же неполное правило, что было
+      // в четырёх текстовых местах, и 202 связи симметричных ТИПОВ
+      // получали одностороннюю стрелку. При этом полотно рисовало им два
+      // наконечника: текст и картинка расходились на глазах у человека.
+      // Правило было в пяти местах, из них верно в одном — рисующем.
+      return linkHasTwoHeads(l) ? '↔' : '→';
     }
 
-export { buildReflexiveMap, directionMark, isReflexiveLink, isSymmetricLink, isTypologicalLink, linksBothWays, otherPhilosopher, reflexiveLinkOf, sumWeight };
+export { buildReflexiveMap, directionMark, isReflexiveLink, isSymmetricLink, isTypologicalLink, linkHasTwoHeads, linksBothWays, otherPhilosopher, reflexiveLinkOf, sumWeight };

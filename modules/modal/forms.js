@@ -17,9 +17,9 @@ function provenanceField(data) {
       const text = own ? prevSide.slice(2).trim() : prevSide;
       const state2 = (data && data.provenanceStatus)
         || (own ? 'editorial_reasoning' : (text ? 'sourced' : 'unspecified'));
-      const stateSelect = PROVENANCE_STATES.map(([код, имя, пояснение]) =>
-        `<option value="${код}"${код === state2 ? ' selected' : ''}>`
-        + `${имя} — ${пояснение}</option>`).join('');
+      const stateSelect = PROVENANCE_STATES.map(([stateCode, stateLabel, hint]) =>
+        `<option value="${stateCode}"${stateCode === state2 ? ' selected' : ''}>`
+        + `${stateLabel} — ${hint}</option>`).join('');
       return `
         <div class="modal-form-group">
           <label for="entityProvenanceStatus">Происхождение</label>
@@ -63,8 +63,8 @@ function provenanceValue() {
       return { строка: needsCitation(state2) ? line : '', состояние: state2 };
     }
 
-function needsCitation(состояние) {
-      return состояние === 'sourced' || состояние === 'editorial_reasoning';
+function needsCitation(state) {
+      return state === 'sourced' || state === 'editorial_reasoning';
     }
 
 function commitReasonField() {

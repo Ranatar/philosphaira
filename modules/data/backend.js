@@ -6,11 +6,11 @@ import { applyFreshGraph } from './remote.js';
 
 let lastSubmitted = null;
 
-function submitChange(descr, применить) {
+function submitChange(descr, apply) {
       lastSubmitted = descr;
 
       // МЕСТНОЕ ВОПЛОЩЕНИЕ — как было: применить немедленно.
-      if (!serverMode) { применить(); return true; }
+      if (!serverMode) { apply(); return true; }
 
       // СЕРВЕРНОЕ. У кого есть право прямой правки — тот правит и на месте
       // (сервер сделает то же у себя); у остальных правка НЕ ТРОГАЕТ базу
@@ -18,7 +18,7 @@ function submitChange(descr, применить) {
       // которой ещё нет, было бы обманом: человек уйдёт с экрана в
       // уверенности, что дело сделано.
       const direct = can(PERM.REVIEW_COMMIT);
-      if (direct) применить();
+      if (direct) apply();
 
       sendCommit(descr, direct);
       return direct;

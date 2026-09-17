@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
-import { philosopherByName } from '../core/graph-index.js';
+import { comparePhilosophers, philosopherByName } from '../core/graph-index.js';
 
 function philosopherBirth(nameRu) {
       const p = philosopherByName.get(nameRu);
@@ -13,7 +13,7 @@ function formatBirthYear(b) {
     }
 
 function sortPhilosophersByBirth(list) {
-      return Array.from(list).sort((a, b) => philosopherBirth(a) - philosopherBirth(b));
+      return Array.from(list).sort(comparePhilosophers);
     }
 
 function philosopherYears(nameRu) {

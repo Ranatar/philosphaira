@@ -439,10 +439,10 @@ function deleteConnection(sourceId = null, targetId = null) {
       }
     }
 
-function provenanceFields(line, состояние) {
+function provenanceFields(line, state) {
       const fields = {};
       if (line) fields.provenance = line;
-      if (состояние && состояние !== 'unspecified') fields.provenanceStatus = состояние;
+      if (state && state !== 'unspecified') fields.provenanceStatus = state;
       return fields;
     }
 

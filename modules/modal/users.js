@@ -51,9 +51,9 @@ function renderUsers() {
       slot.innerHTML = userItems.map(u => {
         // Список ролей ПРИСЛАН. Пустой — значит этому человеку роль менять
         // нельзя, и выбора не рисуем вовсе.
-        const roles = (u.allowedRoles || []).map(р =>
+        const roles = (u.allowedRoles || []).map(role =>
           `<button class="user-role" data-id="${escapeAttr(u.userId)}" `
-          + `data-role="${escapeAttr(р)}">${escapeAttr(р)}</button>`).join('');
+          + `data-role="${escapeAttr(role)}">${escapeAttr(role)}</button>`).join('');
         const ban = u.state && u.state.isBanned
           ? `<button class="user-unban" data-id="${escapeAttr(u.userId)}">Снять бан</button>`
           : `<button class="user-ban" data-id="${escapeAttr(u.userId)}">Забанить</button>`;

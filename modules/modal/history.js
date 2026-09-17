@@ -59,29 +59,29 @@ function renderEntityHistory(kind, entityId) {
         return;
       }
       // Свежие сверху: человек ищет «что изменилось на днях», а не начало времён.
-      const rows = [...historyItems].reverse().map(к => {
-        const mine = (к.changes || []).filter(и => и.kind === kind && и.entityId === entityId);
-        const fields = mine.flatMap(и => Object.entries(и.fields || {})
-          .map(([имя, пара]) => `
-            <div class="history-field"><b>${escapeAttr(имя)}</b>
-              <div class="history-was">было: ${escapeAttr(String(пара.base ?? '—')).slice(0, 400)}</div>
-              <div class="history-now">стало: ${escapeAttr(String(пара.next ?? '—')).slice(0, 400)}</div>
+      const rows = [...historyItems].reverse().map(commit => {
+        const mine = (commit.changes || []).filter(change => change.kind === kind && change.entityId === entityId);
+        const fields = mine.flatMap(change => Object.entries(change.fields || {})
+          .map(([fieldKey, beforeAfter]) => `
+            <div class="history-field"><b>${escapeAttr(fieldKey)}</b>
+              <div class="history-was">было: ${escapeAttr(String(beforeAfter.base ?? '—')).slice(0, 400)}</div>
+              <div class="history-now">стало: ${escapeAttr(String(beforeAfter.next ?? '—')).slice(0, 400)}</div>
             </div>`));
-        const action = mine.some(и => и.action === 'add') ? 'заведена'
-                     : mine.some(и => и.action === 'delete') ? 'удалена' : 'правлена';
+        const action = mine.some(change => change.action === 'add') ? 'заведена'
+                     : mine.some(change => change.action === 'delete') ? 'удалена' : 'правлена';
         // Вернуть можно К ВЕРСИИ, а не к коммиту: коммит — это правка,
         // а версия — состояние. Возврат применяется сразу, тем же правом,
         // что и откат коммита.
         const back = can(PERM.REVERT_COMMIT)
           ? `<button class="history-revert"
-                     data-act-click="revert-entity-to-version" data-a1="${escapeAttr(kind)}" data-a2="${escapeAttr(entityId)}" data-a3="${Number(к.версия)}"
-                     >Вернуть к версии ${escapeAttr(String(к.версия))}</button>`
+                     data-act-click="revert-entity-to-version" data-a1="${escapeAttr(kind)}" data-a2="${escapeAttr(entityId)}" data-a3="${Number(commit.версия)}"
+                     >Вернуть к версии ${escapeAttr(String(commit.версия))}</button>`
           : '';
-        return `<div class="history-item${к.status === 'reverted' ? ' reverted' : ''}">
-          <div class="history-head">версия ${escapeAttr(String(к.версия))} · ${escapeAttr(action)}
-            · ${escapeAttr(к.author || '')}
-            ${к.status === 'reverted' ? '<span class="history-undone">отменён</span>' : ''}</div>
-          <div class="history-message">${escapeAttr(к.message || '')}</div>
+        return `<div class="history-item${commit.status === 'reverted' ? ' reverted' : ''}">
+          <div class="history-head">версия ${escapeAttr(String(commit.версия))} · ${escapeAttr(action)}
+            · ${escapeAttr(commit.author || '')}
+            ${commit.status === 'reverted' ? '<span class="history-undone">отменён</span>' : ''}</div>
+          <div class="history-message">${escapeAttr(commit.message || '')}</div>
           ${fields.join('')}
           ${back}
         </div>`;

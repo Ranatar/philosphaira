@@ -91,7 +91,7 @@ async function confirmMfaEnroll() {
         // случайным щелчком мимо значило бы потерять их насовсем.
         body.innerHTML =
           '<div class="auth-field"><label>Коды восстановления</label>'
-        + '<div id="securityCodes">' + codes.map(к => escapeAttr(к)).join('<br>') + '</div></div>'
+        + '<div id="securityCodes">' + codes.map(code => escapeAttr(code)).join('<br>') + '</div></div>'
         + '<div class="auth-field">'
         + '<label for="securitySaved">Я сохранил коды вне этого устройства</label>'
         + '<input type="checkbox" id="securitySaved" data-act-change="refresh-security-done-change"></div>'

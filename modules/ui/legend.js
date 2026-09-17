@@ -67,13 +67,13 @@ function initFilters() {
         // Число в строке ставит syncTraditionRows: при сборке набор ещё не
         // известен, а писать сюда общее число членов значило бы завести
         // второй ответ на тот же вопрос.
-        const traditionRow = (id, имя, подсказка) => {
+        const traditionRow = (id, title, tip) => {
           const item = document.createElement('div');
           item.className = 'legend-item';
           item.innerHTML = `
             <input type="checkbox" id="trad-${id}" data-act-change="toggle-tradition-change" data-a1="${id}">
-            <label for="trad-${id}" data-tip="${подсказка}" style="flex:1;">
-              <span>${имя}<small id="trad-count-${id}" style="color: var(--fg-muted);font-size:9px;"></small></span>
+            <label for="trad-${id}" data-tip="${tip}" style="flex:1;">
+              <span>${title}<small id="trad-count-${id}" style="color: var(--fg-muted);font-size:9px;"></small></span>
             </label>
             <button class="tradition-pick" data-tip="Оставить в отборе только этих философов"
                 data-act-click="only-tradition" data-a1="${id}">=</button>
@@ -342,9 +342,9 @@ function updateProvenanceCoverage() {
       // полей не пусто, — а не сколько утверждений подкреплено.
       // «Процента достоверности» здесь нет и не будет: достоверность не
       // считается делением, и такой процент немедленно стал бы враньём.
-      const byState = список => {
+      const byState = items => {
         const fields = { sourced: 0, editorial_reasoning: 0, source_not_found: 0 };
-        for (const z of список || []) {
+        for (const z of items || []) {
           if (!z) continue;
           const line = String(z.provenance || '').trim();
           const state = z.provenanceStatus
@@ -356,15 +356,15 @@ function updateProvenanceCoverage() {
       };
       const byRelations = byState(DATA.relations);
       const byConcepts = byState(DATA.concepts);
-      const classified = о => о.sourced + о.editorial_reasoning + о.source_not_found;
+      const classified = counts => counts.sourced + counts.editorial_reasoning + counts.source_not_found;
       if (!classified(byRelations) && !classified(byConcepts)) {
         slot.textContent = '';
         return;
       }
-      const asLine = (имя, о, длина) => имя + ': источник ' + о.sourced
-        + ' · основание ' + о.editorial_reasoning
-        + ' · не найден ' + о.source_not_found
-        + ' · не разобрано ' + (длина - classified(о));
+      const asLine = (kindLabel, counts, total) => kindLabel + ': источник ' + counts.sourced
+        + ' · основание ' + counts.editorial_reasoning
+        + ' · не найден ' + counts.source_not_found
+        + ' · не разобрано ' + (total - classified(counts));
       slot.textContent = asLine('связи', byRelations, (DATA.relations || []).length)
         + '; ' + asLine('концепции', byConcepts, (DATA.concepts || []).length);
     }

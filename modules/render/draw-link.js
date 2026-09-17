@@ -1,7 +1,8 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { S } from '../core/ns.js';
+import { linkHasTwoHeads } from '../core/link-facts.js';
 import { renderState } from './canvas-core.js';
-import { arcParams, arrowPoints, arrowPointsStart, linkHasTwoHeads, linkHoverStrokeWidth, linkStrokeWidth } from './geometry.js';
+import { arcParams, arrowPoints, arrowPointsStart, linkHoverStrokeWidth, linkStrokeWidth } from './geometry.js';
 import { hasLinkClass, nodeRadius } from './render-state.js';
 
 import { linkAmongHighlighted } from './similarity-overlay.js';

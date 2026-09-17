@@ -51,11 +51,11 @@ function applyStoredLayout() {
       return true;
     }
 
-function applyServerLayout(позиции) {
-      if (!позиции) return false;
+function applyServerLayout(positions) {
+      if (!positions) return false;
       let placed = 0;
       for (const n of DATA.nodes) {
-        const p = позиции[n.id];
+        const p = positions[n.id];
         if (!p) continue;
         n.x = p[0]; n.y = p[1]; n.vx = 0; n.vy = 0;
         placed++;

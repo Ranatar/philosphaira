@@ -67,12 +67,68 @@ function rebuildIndexes() {
           b.push(l);
         }
       });
+
+      // ПОРЯДОК ЗАДАЁТСЯ ЗДЕСЬ, ОДИН РАЗ НА ВСЕХ.
+      //
+      // Прежде списки шли в порядке базы, то есть в порядке заведения по
+      // заходам A–H: правила, которое можно назвать вслух, не было. Назвать
+      // его в каждом из девяти показывающих мест значило бы завести девять
+      // правил, которые однажды разойдутся.
+      //
+      // Сортировка при построении, а не при показе: указатели строятся
+      // заново только при правке базы (afterDataChange), а показ идёт
+      // постоянно. Платим редко, получаем везде — включая те места, где
+      // порядком никто не занимался и не вспомнит.
+      nodesByPhilosopher.forEach(a => a.sort(compareConcepts));
+      linksByConcept.forEach(a => a.sort(compareLinks));
     }
 
 // DATA.philosophers.forEach(p => { DATA.philosopherTraditions[p.name) @bb1f233a
 function buildPhilosopherTraditions() {
 DATA.philosophers.forEach(p => { DATA.philosopherTraditions[p.nameRu] = p.traditions || []; });
 }
+
+function comparePhilosophers(a, b) {
+      // Принимает и ИМЯ, и запись философа: зовут отсюда и там, где в руках
+      // список имён (концепции хранят имя в поле concept), и там, где список
+      // записей (поиск, традиции). Две почти одинаковые функции разошлись бы.
+      const nameOf = x => (x && typeof x === 'object') ? x.nameRu : x;
+      const na = nameOf(a), nb = nameOf(b);
+      // Год берётся из указателя НАПРЯМУЮ, а не через philosopherBirth:
+      // тот живёт в util/philosopher-label.js, и обращение к нему замкнуло
+      // бы круг ввозов core/graph-index ↔ util/philosopher-label. Сравнения
+      // опираются на указатели, значит и жить должны рядом с ними.
+      const birthOf = n => { const p = philosopherByName.get(n); return p ? p.birth : 0; };
+      const d = birthOf(na) - birthOf(nb);
+      return d !== 0 ? d : String(na).localeCompare(String(nb), 'ru');
+    }
+
+function compareConcepts(a, b) {
+      const d = comparePhilosophers(a.concept, b.concept);
+      return d !== 0 ? d : String(a.label || '').localeCompare(String(b.label || ''), 'ru');
+    }
+
+function linkIsInternal(l) {
+      const s = conceptById.get(l.source.id || l.source);
+      const t = conceptById.get(l.target.id || l.target);
+      return !!(s && t && s.concept === t.concept);
+    }
+
+function compareLinks(a, b) {
+      const aInner = linkIsInternal(a), bInner = linkIsInternal(b);
+      if (aInner !== bInner) return aInner ? -1 : 1;
+      const nodeOf = id => conceptById.get(id.id || id) || {};
+      const aS = nodeOf(a.source), aT = nodeOf(a.target);
+      const bS = nodeOf(b.source), bT = nodeOf(b.target);
+      const byLabel = (x, y) =>
+        String(x.label || '').localeCompare(String(y.label || ''), 'ru');
+      if (aInner) {
+        return byLabel(aS, bS) || byLabel(aT, bT);
+      }
+      return comparePhilosophers(aS.concept, bS.concept)
+          || comparePhilosophers(aT.concept, bT.concept)
+          || byLabel(aS, bS) || byLabel(aT, bT);
+    }
 
 function buildIndexes() {
   DATA.philosopherIdToName = {};
@@ -156,4 +212,4 @@ function buildIndexes() {
 // всё, что от них считается, приходилось откладывать в boot.
 buildIndexes();
 
-export { buildConceptToRubrics, buildPhilosopherTraditions, buildRubricsIndex, conceptById, linksByConcept, nodesByPhilosopher, philosopherByName, rebuildIndexes, rubricById, traditionById };
+export { buildConceptToRubrics, buildPhilosopherTraditions, buildRubricsIndex, compareConcepts, compareLinks, comparePhilosophers, conceptById, linksByConcept, nodesByPhilosopher, philosopherByName, rebuildIndexes, rubricById, traditionById };

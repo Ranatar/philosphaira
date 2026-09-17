@@ -127,11 +127,11 @@ export async function boot() {
   
   installUnsavedGuard();
   
-  subscribe('commit-conflicted', ({ descr, столкновения }) =>
-        showConflict(descr, столкновения));
+  subscribe('commit-conflicted', ({ descr, столкновения: clashes }) =>
+        showConflict(descr, clashes));
   
-  document.addEventListener('click', событие => {
-        const target = событие.target;
+  document.addEventListener('click', ev => {
+        const target = ev.target;
         if (!target || !target.closest) return;
         const role = target.closest('.user-role');
         const banBtn = target.closest('.user-ban');
@@ -142,8 +142,8 @@ export async function boot() {
         else if (unban) banUserFromPanel(unban.getAttribute('data-id'), true);
       });
   
-  document.addEventListener('click', событие => {
-        const target = событие.target;
+  document.addEventListener('click', ev => {
+        const target = ev.target;
         if (!target || !target.closest) return;
         const approveBtn = target.closest('.commit-approve');
         const rejectBtn = target.closest('.commit-reject');
@@ -159,11 +159,11 @@ export async function boot() {
   
   subscribe('session-changed', () => { renderBell(); refreshUnread(); });
   
-  document.addEventListener('click', событие => {
-        const button = событие.target && событие.target.closest
-                     && событие.target.closest('.notify-mark');
+  document.addEventListener('click', ev => {
+        const button = ev.target && ev.target.closest
+                     && ev.target.closest('.notify-mark');
         if (!button) return;
-        событие.stopPropagation();
+        ev.stopPropagation();
         markNotificationRead(button.getAttribute('data-id'));
       });
   
@@ -180,8 +180,8 @@ export async function boot() {
   
   renderAuthControls();
   
-  detectServerMode().then(async нашёлся => {
-        if (!нашёлся) return;
+  detectServerMode().then(async found => {
+        if (!found) return;
         renderAuthControls();
         refreshEditHints();
         // Граф берётся у сервера ЦЕЛИКОМ один раз — дальше только приращения.

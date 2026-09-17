@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
+import { comparePhilosophers } from '../core/graph-index.js';
 import { emptyList } from '../core/search.js';
 import { openUniversalModal } from '../modal/core.js';
 import { highlightPhilosopherOnGraph } from '../render/selection.js';
@@ -49,8 +50,7 @@ function pickPhilosophers(query) {
         const words = (p.nameRu + ' ' + (p.nameEn || '')).toLowerCase().split(/\s+/);
         return queryWords.every(q => words.some(w => w.startsWith(q)));
       };
-      return DATA.philosophers.filter(fits)
-        .sort((a, b) => (a.birth || 0) - (b.birth || 0));
+      return DATA.philosophers.filter(fits).sort(comparePhilosophers);
     }
 
 function handlePhilosopherSearch(query) {
