@@ -114,6 +114,14 @@ function linkIsInternal(l) {
       return !!(s && t && s.concept === t.concept);
     }
 
+function otherEndColor(l, ownerName) {
+      const nodeOf = id => conceptById.get(id && id.id ? id.id : id) || {};
+      const s2 = nodeOf(l.source), t2 = nodeOf(l.target);
+      const other = (s2.concept === ownerName) ? t2 : s2;
+      const record = philosopherByName.get(other.concept || ownerName);
+      return (record && record.color) || 'var(--fg-muted)';
+    }
+
 function compareLinks(a, b) {
       const nodeOf = id => conceptById.get(id.id || id) || {};
       const aS = nodeOf(a.source), aT = nodeOf(a.target);
@@ -209,4 +217,4 @@ function buildIndexes() {
 // всё, что от них считается, приходилось откладывать в boot.
 buildIndexes();
 
-export { buildConceptToRubrics, buildPhilosopherTraditions, buildRubricsIndex, compareConcepts, compareLinks, comparePhilosophers, conceptById, linkIsInternal, linksByConcept, nodesByPhilosopher, philosopherByName, rebuildIndexes, rubricById, traditionById };
+export { buildConceptToRubrics, buildPhilosopherTraditions, buildRubricsIndex, compareConcepts, compareLinks, comparePhilosophers, conceptById, linkIsInternal, linksByConcept, nodesByPhilosopher, otherEndColor, philosopherByName, rebuildIndexes, rubricById, traditionById };

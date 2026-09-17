@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
-import { conceptById, rubricById } from '../core/graph-index.js';
+import { conceptById, otherEndColor, rubricById } from '../core/graph-index.js';
 import { medianNodeDegree, nodeDegreeOf } from '../metrics/network.js';
 import { nearestConcepts, profileIsMeaningful } from '../metrics/similarity-concepts.js';
 import { linkArrow } from './connection-view.js';
@@ -216,7 +216,7 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
             
             html += `
               <div class="connection-item">
-                <div class="concept-color" style="background: ${DATA.philosopherConcepts[connectedNode.concept].color}"></div>
+                <div class="concept-color" style="background: ${otherEndColor(conn, conceptData.concept)}"></div>
                 ${linkArrow(arrow, linkColor, conn.weight, linkLabel, '', src, tgt)}
                 <div style="flex-grow: 1;" data-act-click="open-universal-modal-2" data-a1="${connectedNode.id}">
                   <div class="concept-name">${connectedNode.label}</div>
@@ -274,7 +274,7 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
             
             html += `
               <div class="connection-item">
-                <div class="concept-color" style="background: ${DATA.philosopherConcepts[connectedNode.concept].color}"></div>
+                <div class="concept-color" style="background: ${otherEndColor(conn, conceptData.concept)}"></div>
                 ${linkArrow(arrow, linkColor, conn.weight, linkLabel, '', src, tgt)}
                 <div style="flex-grow: 1;" data-act-click="open-universal-modal-2" data-a1="${connectedNode.id}">
                   <div class="concept-name">${connectedNode.label}</div>

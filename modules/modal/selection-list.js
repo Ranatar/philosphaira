@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
-import { compareConcepts, compareLinks, comparePhilosophers, conceptById, linkIsInternal } from '../core/graph-index.js';
+import { compareConcepts, compareLinks, comparePhilosophers, conceptById, linkIsInternal, otherEndColor } from '../core/graph-index.js';
 import { directionMark, linkHasTwoHeads } from '../core/link-facts.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
 import { openUniversalModal } from './core.js';
@@ -224,8 +224,8 @@ function selectionRowRelation(l) {
       return `
         <div class="sel-row">
           <div class="sel-row-head">
-            <span class="sel-dot" style="background:${linkType.color || 'var(--fg-muted)'};"></span>
-            <span class="sel-name" data-act-click="open-selection-link" data-a1="${escapeAttr(s)}" data-a2="${escapeAttr(t)}">${escapeAttr(selectionLabel(s))} ${directionMark(l)} ${escapeAttr(selectionLabel(t))}</span>
+            <span class="sel-dot" style="background:${otherEndColor(l, philOf(s))};"></span>
+            <span class="sel-name" data-act-click="open-selection-link" data-a1="${escapeAttr(s)}" data-a2="${escapeAttr(t)}">${escapeAttr(selectionLabel(s))} <span class="sel-mark" style="color:${linkType.color || 'var(--fg-muted)'};">${directionMark(l)}</span> ${escapeAttr(selectionLabel(t))}</span>
             <span class="sel-meta">${escapeAttr(linkType.label || l.type)} · вес ${l.weight}</span>
             <button class="sel-toggle" data-act-click="toggle-selection-body" data-a1="${escapeAttr(bodyKey)}">${openBody ? '▲' : '▼'}</button>
           </div>
