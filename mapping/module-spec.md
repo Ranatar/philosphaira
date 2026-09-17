@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 129 модулей, 20970 строк.
+Составлено из готовой сборки: 129 модулей, 20981 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -49,7 +49,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/core/api.js` | 90 | 3 | 1 |
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
 | `modules/core/events.js` | 65 | 2 | 0 |
-| `modules/core/graph-index.js` | 213 | 14 | 1 |
+| `modules/core/graph-index.js` | 221 | 15 | 1 |
 | `modules/core/link-facts.js` | 73 | 10 | 2 |
 | `modules/core/long-task.js` | 120 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
@@ -109,7 +109,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/history.js` | 114 | 4 | 5 |
 | `modules/modal/integrity.js` | 265 | 7 | 7 |
 | `modules/modal/persist.js` | 450 | 6 | 14 |
-| `modules/modal/philosopher-view.js` | 635 | 1 | 15 |
+| `modules/modal/philosopher-view.js` | 638 | 1 | 15 |
 | `modules/modal/profile-concept.js` | 182 | 4 | 8 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
@@ -442,15 +442,15 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/graph-index.js`
 
-Строк 213.
+Строк 221.
 
-**Вывозит:** `buildConceptToRubrics`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `linksByConcept`, `nodesByPhilosopher`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
+**Вывозит:** `buildConceptToRubrics`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `linksByConcept`, `nodesByPhilosopher`, `otherEndColor`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
 
 **Ввозит:**
 
 - из `./ns.js`: `DATA`
 
-**Содержит:** `buildConceptToRubrics`, `buildIndexes`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `linksByConcept`, `nodesByPhilosopher`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
+**Содержит:** `buildConceptToRubrics`, `buildIndexes`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `linksByConcept`, `nodesByPhilosopher`, `otherEndColor`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
 
 ### `modules/core/link-facts.js`
 
@@ -1089,7 +1089,7 @@ tools/build/split_css.mjs <дерево>                              стили
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
-- из `../core/graph-index.js`: `conceptById`, `rubricById`
+- из `../core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`
 - из `../metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
 - из `../metrics/similarity-concepts.js`: `nearestConcepts`, `profileIsMeaningful`
 - из `./connection-view.js`: `linkArrow`
@@ -1354,14 +1354,14 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/philosopher-view.js`
 
-Строк 635.
+Строк 638.
 
 **Вывозит:** `makeLegendsEditable`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
-- из `../core/graph-index.js`: `comparePhilosophers`, `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `rubricById`, `traditionById`
+- из `../core/graph-index.js`: `comparePhilosophers`, `conceptById`, `nodesByPhilosopher`, `otherEndColor`, `philosopherByName`, `rubricById`, `traditionById`
 - из `../core/link-facts.js`: `directionMark`
 - из `../core/perms.js`: `PERM`, `can`
 - из `../metrics/similarity-philosophers.js`: `nearestPhilosophers`
@@ -1452,7 +1452,7 @@ tools/build/split_css.mjs <дерево>                              стили
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
-- из `../core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`
+- из `../core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `otherEndColor`
 - из `../core/link-facts.js`: `directionMark`, `linkHasTwoHeads`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `./core.js`: `openUniversalModal`

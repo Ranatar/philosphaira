@@ -2481,6 +2481,12 @@
     /* Подпись видна всегда — по образцу окна философа, где короткое
        описание стоит под именем. Одна строка с многоточием: список должен
        оставаться списком, а не превращаться в сплошной текст. */
+    /* Знак направленности красится ЦВЕТОМ ТИПА — как в окнах просмотра,
+       где тот же цвет несёт linkArrow. Тип назван и словами рядом («влияние
+       · вес 2»), так что цвет здесь подкрепление, а не единственный
+       носитель: различить двадцать один тип по цвету никто не сможет. */
+    .sel-mark { font-weight: 600; }
+
     .sel-caption {
       margin-left: 17px; font-size: 11px; color: var(--fg-muted);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -32481,8 +32487,8 @@
       return `
         <div class="sel-row">
           <div class="sel-row-head">
-            <span class="sel-dot" style="background:${linkType.color || 'var(--fg-muted)'};"></span>
-            <span class="sel-name" onclick="openSelectionLink('${escapeAttr(s)}', '${escapeAttr(t)}')">${escapeAttr(selectionLabel(s))} ${directionMark(l)} ${escapeAttr(selectionLabel(t))}</span>
+            <span class="sel-dot" style="background:${otherEndColor(l, philOf(s))};"></span>
+            <span class="sel-name" onclick="openSelectionLink('${escapeAttr(s)}', '${escapeAttr(t)}')">${escapeAttr(selectionLabel(s))} <span class="sel-mark" style="color:${linkType.color || 'var(--fg-muted)'};">${directionMark(l)}</span> ${escapeAttr(selectionLabel(t))}</span>
             <span class="sel-meta">${escapeAttr(linkType.label || l.type)} · вес ${l.weight}</span>
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
@@ -33160,6 +33166,32 @@
       const s = conceptById.get(l.source.id || l.source);
       const t = conceptById.get(l.target.id || l.target);
       return !!(s && t && s.concept === t.concept);
+    }
+
+    /**
+     * ЦВЕТ КРУЖКА У СТРОКИ СВЯЗИ — ЦВЕТ ЧУЖОГО КОНЦА.
+     *
+     * Свой конец известен из заголовка окна или из черты над группой;
+     * красить его значит повторять то, что уже сказано. Чужой — это и есть
+     * то, что хочется увидеть: с кем связано.
+     *
+     * Правило было записано ЧЕТЫРЬМЯ способами в четырёх местах. В окне
+     * концепции — по чужому концу (верно). В окне философа у внутренних —
+     * своим цветом, один на все строки. У внешних — по ИСТОЧНИКУ, а внешние
+     * там берутся в обе стороны, и цвет чередовался без правила: у половины
+     * строк показывал самого хозяина окна. В списке отобранного — вовсе
+     * цветом ТИПА связи, отчего вопрос «с кем» оставался без ответа, а тип
+     * занимал его место.
+     *
+     * У внутренней связи чужого конца нет — возвращается свой, и это не
+     * исключение, а тот же ответ: связь ведёт к себе.
+     */
+    function otherEndColor(l, ownerName) {
+      const nodeOf = id => conceptById.get(id && id.id ? id.id : id) || {};
+      const s2 = nodeOf(l.source), t2 = nodeOf(l.target);
+      const other = (s2.concept === ownerName) ? t2 : s2;
+      const record = philosopherByName.get(other.concept || ownerName);
+      return (record && record.color) || 'var(--fg-muted)';
     }
 
     function compareLinks(a, b) {
@@ -43619,7 +43651,7 @@
             
             html += `
               <div class="connection-item">
-                <div class="concept-color" style="background: ${philosopherConcepts[connectedNode.concept].color}"></div>
+                <div class="concept-color" style="background: ${otherEndColor(conn, conceptData.concept)}"></div>
                 ${linkArrow(arrow, linkColor, conn.weight, linkLabel, '', src, tgt)}
                 <div style="flex-grow: 1;" onclick="openUniversalModal('concept', nodes.find(n => n.id === '${connectedNode.id}'), 'view');">
                   <div class="concept-name">${connectedNode.label}</div>
@@ -43677,7 +43709,7 @@
             
             html += `
               <div class="connection-item">
-                <div class="concept-color" style="background: ${philosopherConcepts[connectedNode.concept].color}"></div>
+                <div class="concept-color" style="background: ${otherEndColor(conn, conceptData.concept)}"></div>
                 ${linkArrow(arrow, linkColor, conn.weight, linkLabel, '', src, tgt)}
                 <div style="flex-grow: 1;" onclick="openUniversalModal('concept', nodes.find(n => n.id === '${connectedNode.id}'), 'view');">
                   <div class="concept-name">${connectedNode.label}</div>
@@ -44399,7 +44431,7 @@
             
             html += `
               <div class="connection-item">
-                <div class="concept-color" style="background: ${philColor}"></div>
+                <div class="concept-color" style="background: ${otherEndColor(conn, philosopherName)}"></div>
                 <div style="flex-grow: 1; display: flex; align-items: center; gap: 8px;">
                   <span onclick="openUniversalModal('concept', nodes.find(n => n.id === '${srcNode.id}'), 'view');" style="cursor: pointer;">${srcNode.label}</span>
                   ${linkArrow(arrow, linkColor, conn.weight, linkLabel, '', srcNode.id, tgtNode.id)}
@@ -44446,7 +44478,10 @@
             
             html += `
               <div class="connection-item">
-                <div class="concept-color" style="background: ${philosopherConcepts[srcNode.concept].color}"></div>
+                <!-- ЧУЖОЙ КОНЕЦ, А НЕ ИСТОЧНИК. Внешние связи берутся в обе
+                     стороны, и цвет по источнику у половины строк показывал
+                     самого хозяина окна. -->
+                <div class="concept-color" style="background: ${otherEndColor(conn, philosopherName)}"></div>
                 <div style="flex-grow: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                   <span onclick="openUniversalModal('concept', nodes.find(n => n.id === '${srcNode.id}'), 'view');" style="cursor: pointer;">${srcNode.label}</span>
                   <span style="font-size: 10px; color: var(--fg-muted);">(${srcNode.concept})</span>

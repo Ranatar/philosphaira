@@ -927,7 +927,8 @@
   "compareLinks": "core/graph-index.js",
   "comparePhilosophers": "core/graph-index.js",
   "openSelectionLink": "modal/selection-list.js",
-  "selectionMirrorCount": "modal/selection-list.js"
+  "selectionMirrorCount": "modal/selection-list.js",
+  "otherEndColor": "core/graph-index.js"
  },
  "новые": [
   "BUS_PHASES"

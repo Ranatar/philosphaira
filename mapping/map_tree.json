@@ -1,9 +1,9 @@
 {
  "меры": {
   "модулей": 129,
-  "строк": 20970,
-  "объявлений": 843,
-  "вывозов": 592,
+  "строк": 20981,
+  "объявлений": 844,
+  "вывозов": 593,
   "рёбер": 811,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
@@ -11,7 +11,7 @@
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-09-17 06:32:44"
+  "составлено": "2026-09-17 11:30:45"
  },
  "модули": [
   {
@@ -1226,9 +1226,9 @@
   },
   {
    "путь": "modules/core/graph-index.js",
-   "строк": 213,
-   "объявлений": 15,
-   "вывозит": 14,
+   "строк": 221,
+   "объявлений": 16,
+   "вывозит": 15,
    "ввозитИз": 2,
    "вНС": {
     "DATA": 16
@@ -1244,6 +1244,7 @@
     "linkIsInternal",
     "linksByConcept",
     "nodesByPhilosopher",
+    "otherEndColor",
     "philosopherByName",
     "rebuildIndexes",
     "rubricById",
@@ -1326,6 +1327,11 @@
      "имя": "linkIsInternal",
      "вид": "function",
      "строк": 5
+    },
+    {
+     "имя": "otherEndColor",
+     "вид": "function",
+     "строк": 7
     },
     {
      "имя": "compareLinks",
@@ -5541,6 +5547,7 @@
      "откуда": "modules/core/graph-index.js",
      "имена": [
       "conceptById",
+      "otherEndColor",
       "rubricById"
      ]
     },
@@ -5593,7 +5600,7 @@
    "чащеВсего": [
     {
      "имя": "DATA",
-     "раз": 13,
+     "раз": 11,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -7354,7 +7361,7 @@
   },
   {
    "путь": "modules/modal/philosopher-view.js",
-   "строк": 635,
+   "строк": 638,
    "объявлений": 4,
    "вывозит": 1,
    "ввозитИз": 15,
@@ -7383,6 +7390,7 @@
       "comparePhilosophers",
       "conceptById",
       "nodesByPhilosopher",
+      "otherEndColor",
       "philosopherByName",
       "rubricById",
       "traditionById"
@@ -7498,7 +7506,7 @@
     },
     {
      "имя": "DATA",
-     "раз": 16,
+     "раз": 15,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -7966,7 +7974,8 @@
       "compareLinks",
       "comparePhilosophers",
       "conceptById",
-      "linkIsInternal"
+      "linkIsInternal",
+      "otherEndColor"
      ]
     },
     {
@@ -14920,7 +14929,7 @@
     },
     {
      "поле": "philosopherConcepts",
-     "раз": 49,
+     "раз": 46,
      "модулей": 20
     },
     {

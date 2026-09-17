@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
-import { comparePhilosophers, conceptById, nodesByPhilosopher, philosopherByName, rubricById, traditionById } from '../core/graph-index.js';
+import { comparePhilosophers, conceptById, nodesByPhilosopher, otherEndColor, philosopherByName, rubricById, traditionById } from '../core/graph-index.js';
 import { directionMark } from '../core/link-facts.js';
 import { PERM, can } from '../core/perms.js';
 import { nearestPhilosophers } from '../metrics/similarity-philosophers.js';
@@ -465,7 +465,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
             
             html += `
               <div class="connection-item">
-                <div class="concept-color" style="background: ${philColor}"></div>
+                <div class="concept-color" style="background: ${otherEndColor(conn, philosopherName)}"></div>
                 <div style="flex-grow: 1; display: flex; align-items: center; gap: 8px;">
                   <span data-act-click="open-universal-modal-11" data-a1="${srcNode.id}" style="cursor: pointer;">${srcNode.label}</span>
                   ${linkArrow(arrow, linkColor, conn.weight, linkLabel, '', srcNode.id, tgtNode.id)}
@@ -512,7 +512,10 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
             
             html += `
               <div class="connection-item">
-                <div class="concept-color" style="background: ${DATA.philosopherConcepts[srcNode.concept].color}"></div>
+                <!-- ЧУЖОЙ КОНЕЦ, А НЕ ИСТОЧНИК. Внешние связи берутся в обе
+                     стороны, и цвет по источнику у половины строк показывал
+                     самого хозяина окна. -->
+                <div class="concept-color" style="background: ${otherEndColor(conn, philosopherName)}"></div>
                 <div style="flex-grow: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                   <span data-act-click="open-universal-modal-11" data-a1="${srcNode.id}" style="cursor: pointer;">${srcNode.label}</span>
                   <span style="font-size: 10px; color: var(--fg-muted);">(${srcNode.concept})</span>

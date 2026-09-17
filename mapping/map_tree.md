@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-129 модулей, 20970 строк, 843 объявлений,
-592 вывозов, 811 рёбер ввоза. Составлено 2026-09-17 06:32:44.
+129 модулей, 20981 строк, 844 объявлений,
+593 вывозов, 811 рёбер ввоза. Составлено 2026-09-17 11:30:45.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -91,7 +91,7 @@
 | `modules/core/api.js` | 90 | 4 | 3 | 1 | — |
 | `modules/core/base-cells.js` | 19 | 0 | 0 | 1 | S:8 |
 | `modules/core/events.js` | 65 | 5 | 2 | 0 | — |
-| `modules/core/graph-index.js` | 213 | 15 | 14 | 2 | DATA:16 |
+| `modules/core/graph-index.js` | 221 | 16 | 15 | 2 | DATA:16 |
 | `modules/core/link-facts.js` | 73 | 10 | 10 | 2 | DATA:1, S:6 |
 | `modules/core/long-task.js` | 120 | 3 | 3 | 0 | — |
 | `modules/core/ns.js` | 33 | 2 | 4 | 0 | — |
@@ -151,7 +151,7 @@
 | `modules/modal/history.js` | 114 | 7 | 4 | 5 | — |
 | `modules/modal/integrity.js` | 265 | 11 | 7 | 7 | DATA:4 |
 | `modules/modal/persist.js` | 450 | 11 | 6 | 14 | DATA:9, S:1 |
-| `modules/modal/philosopher-view.js` | 635 | 4 | 1 | 15 | DATA:6, VIEWS:1 |
+| `modules/modal/philosopher-view.js` | 638 | 4 | 1 | 15 | DATA:6, VIEWS:1 |
 | `modules/modal/profile-concept.js` | 182 | 8 | 4 | 8 | DATA:4, S:3, MET:19 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 2 | 8 | DATA:3, S:3, MET:3 |
 | `modules/modal/search.js` | 43 | 3 | 3 | 1 | — |
@@ -249,7 +249,7 @@
 | `busSubscribers` | const | 1 | — |
 | `BUS_PHASES` | const | 1 | — |
 
-### `modules/core/graph-index.js` — 213 строк, объявлений 15
+### `modules/core/graph-index.js` — 221 строк, объявлений 16
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -258,6 +258,7 @@
 | `comparePhilosophers` | function | 14 | да |
 | `compareLinks` | function | 12 | да |
 | `buildRubricsIndex` | function | 8 | да |
+| `otherEndColor` | function | 7 | да |
 | `buildConceptToRubrics` | function | 5 | да |
 | `linkIsInternal` | function | 5 | да |
 | `compareConcepts` | function | 4 | да |
@@ -965,7 +966,7 @@
 | `confirmWarnings` | function | 5 | — |
 | `generateId` | function | 3 | — |
 
-### `modules/modal/philosopher-view.js` — 635 строк, объявлений 4
+### `modules/modal/philosopher-view.js` — 638 строк, объявлений 4
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -2239,7 +2240,7 @@
 
 - из `modules/core/ns.js`: `DATA`, `VIEWS`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `conceptById`, `rubricById`
+- из `modules/core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`
 - из `modules/metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
 - из `modules/metrics/similarity-concepts.js`: `nearestConcepts`, `profileIsMeaningful`
 - из `modules/modal/connection-view.js`: `linkArrow`
@@ -2247,7 +2248,7 @@
 - из `modules/util/color.js`: `getContrastColor`
 - из `modules/util/html.js`: `provenanceBlock`
 
-Чаще всего поминает: `DATA`×13, `nearestConcepts`×2, `conceptById`×2, `nodeDegreeOf`×2, `medianNodeDegree`×2
+Чаще всего поминает: `DATA`×11, `nearestConcepts`×2, `conceptById`×2, `nodeDegreeOf`×2, `medianNodeDegree`×2
 
 ### `modules/modal/conflict.js`
 
@@ -2414,7 +2415,7 @@
 
 - из `modules/core/ns.js`: `DATA`, `VIEWS`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `comparePhilosophers`, `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `rubricById`, `traditionById`
+- из `modules/core/graph-index.js`: `comparePhilosophers`, `conceptById`, `nodesByPhilosopher`, `otherEndColor`, `philosopherByName`, `rubricById`, `traditionById`
 - из `modules/core/link-facts.js`: `directionMark`
 - из `modules/core/perms.js`: `PERM`, `can`
 - из `modules/metrics/similarity-philosophers.js`: `nearestPhilosophers`
@@ -2428,7 +2429,7 @@
 - из `modules/util/philosopher-label.js`: `formatBirthYear`, `philosopherBirth`, `philosopherYears`, `sortPhilosophersByBirth`
 - из `modules/util/ru.js`: `conjugateVerb`, `declinePhilosopher`
 
-Чаще всего поминает: `declinePhilosopher`×22, `DATA`×16, `conceptById`×6, `conjugateVerb`×5, `getContrastColor`×4
+Чаще всего поминает: `declinePhilosopher`×22, `DATA`×15, `conceptById`×6, `conjugateVerb`×5, `getContrastColor`×4
 
 ### `modules/modal/profile-concept.js`
 
@@ -2475,7 +2476,7 @@
 
 - из `modules/core/ns.js`: `DATA`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`
+- из `modules/core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `otherEndColor`
 - из `modules/core/link-facts.js`: `directionMark`, `linkHasTwoHeads`
 - из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `modules/modal/core.js`: `openUniversalModal`
