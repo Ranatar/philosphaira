@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 129 модулей, 21335 строк.
+Составлено из готовой сборки: 130 модулей, 21704 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -43,15 +43,15 @@ tools/build/split_css.mjs <дерево>                              стили
 
 | Модуль | Строк | Вывозит | Ввозит из |
 |---|---|---|---|
-| `boot.js` | 313 | 1 | 65 |
-| `main.js` | 135 | 0 | 124 |
+| `boot.js` | 317 | 1 | 66 |
+| `main.js` | 136 | 0 | 125 |
 | `modules/boot-defs.js` | 62 | 2 | 8 |
 | `modules/core/api.js` | 90 | 3 | 1 |
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
-| `modules/core/events.js` | 65 | 2 | 0 |
+| `modules/core/events.js` | 66 | 2 | 0 |
 | `modules/core/graph-index.js` | 221 | 15 | 1 |
 | `modules/core/link-facts.js` | 73 | 10 | 2 |
-| `modules/core/long-task.js` | 120 | 3 | 0 |
+| `modules/core/long-task.js` | 121 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
 | `modules/core/perms.js` | 28 | 3 | 0 |
 | `modules/core/ready.js` | 15 | 2 | 0 |
@@ -69,7 +69,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/dead.js` | 86 | 6 | 5 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 |
 | `modules/filters/chains.js` | 273 | 3 | 4 |
-| `modules/filters/filters.js` | 445 | 2 | 14 |
+| `modules/filters/filters.js` | 446 | 2 | 14 |
 | `modules/graph/click-actions.js` | 201 | 2 | 8 |
 | `modules/graph/graph-data.js` | 121 | 10 | 9 |
 | `modules/graph/graph-selection.js` | 61 | 3 | 3 |
@@ -86,20 +86,20 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/metrics/rankings.js` | 141 | 4 | 3 |
 | `modules/metrics/scope-reset.js` | 64 | 1 | 12 |
 | `modules/metrics/scope-select.js` | 99 | 6 | 2 |
-| `modules/metrics/scope.js` | 135 | 6 | 8 |
-| `modules/metrics/similarity-concepts.js` | 463 | 21 | 3 |
+| `modules/metrics/scope.js` | 149 | 7 | 8 |
+| `modules/metrics/similarity-concepts.js` | 493 | 22 | 3 |
 | `modules/metrics/similarity-philosophers.js` | 166 | 7 | 2 |
 | `modules/metrics/tension-cache.js` | 13 | 1 | 1 |
 | `modules/metrics/tradition-bridging.js` | 89 | 3 | 2 |
 | `modules/modal/assembly.js` | 56 | 3 | 2 |
 | `modules/modal/auth.js` | 220 | 4 | 8 |
 | `modules/modal/commits.js` | 420 | 19 | 7 |
-| `modules/modal/concept-view.js` | 394 | 1 | 9 |
+| `modules/modal/concept-view.js` | 398 | 1 | 9 |
 | `modules/modal/conflict.js` | 88 | 5 | 7 |
 | `modules/modal/connection-edit.js` | 288 | 5 | 13 |
 | `modules/modal/connection-view.js` | 421 | 5 | 12 |
 | `modules/modal/context.js` | 11 | 1 | 0 |
-| `modules/modal/core.js` | 154 | 5 | 9 |
+| `modules/modal/core.js` | 159 | 5 | 10 |
 | `modules/modal/descriptions.js` | 162 | 6 | 0 |
 | `modules/modal/dirty.js` | 112 | 1 | 5 |
 | `modules/modal/edit-forms.js` | 295 | 2 | 12 |
@@ -119,7 +119,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/paths/analysis.js` | 74 | 2 | 7 |
 | `modules/paths/chronology.js` | 175 | 6 | 4 |
 | `modules/paths/path-descriptions.js` | 179 | 3 | 8 |
-| `modules/paths/path-ui.js` | 416 | 5 | 9 |
+| `modules/paths/path-ui.js` | 418 | 5 | 10 |
 | `modules/paths/shortest-path.js` | 203 | 1 | 5 |
 | `modules/render/canvas-core.js` | 45 | 9 | 2 |
 | `modules/render/d3-layer.js` | 107 | 9 | 6 |
@@ -133,7 +133,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/render/render-state.js` | 17 | 6 | 1 |
 | `modules/render/scene.js` | 350 | 7 | 13 |
 | `modules/render/selection.js` | 261 | 7 | 10 |
-| `modules/render/similarity-overlay.js` | 240 | 5 | 8 |
+| `modules/render/similarity-overlay.js` | 256 | 5 | 9 |
 | `modules/render/simulation.js` | 131 | 8 | 11 |
 | `modules/render/tooltip-el.js` | 7 | 1 | 0 |
 | `modules/state/edit.js` | 12 | 1 | 0 |
@@ -143,12 +143,12 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/state/render.js` | 141 | 11 | 4 |
 | `modules/state/stats.js` | 33 | 0 | 1 |
 | `modules/stats/coverage.js` | 66 | 3 | 6 |
-| `modules/stats/modal.js` | 240 | 8 | 17 |
+| `modules/stats/modal.js` | 245 | 8 | 17 |
 | `modules/stats/observations.js` | 223 | 5 | 6 |
 | `modules/stats/results.js` | 414 | 8 | 4 |
 | `modules/stats/run.js` | 128 | 1 | 3 |
 | `modules/stats/views/advanced.js` | 275 | 10 | 4 |
-| `modules/stats/views/comparison.js` | 504 | 12 | 10 |
+| `modules/stats/views/comparison.js` | 508 | 12 | 11 |
 | `modules/stats/views/network.js` | 223 | 9 | 4 |
 | `modules/stats/views/philosopher.js` | 171 | 4 | 6 |
 | `modules/stats/views/philosophical.js` | 473 | 12 | 7 |
@@ -161,14 +161,15 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
 | `modules/ui/export.js` | 126 | 2 | 11 |
 | `modules/ui/hint.js` | 60 | 4 | 1 |
-| `modules/ui/legend.js` | 387 | 24 | 7 |
+| `modules/ui/legend.js` | 387 | 25 | 7 |
+| `modules/ui/link-state.js` | 272 | 6 | 17 |
 | `modules/ui/notifications.js` | 99 | 8 | 2 |
 | `modules/ui/panels.js` | 40 | 2 | 0 |
 | `modules/ui/search-legend.js` | 141 | 6 | 16 |
 | `modules/ui/search-link.js` | 135 | 5 | 11 |
 | `modules/ui/search-philosopher.js` | 98 | 6 | 6 |
 | `modules/util/color.js` | 23 | 1 | 0 |
-| `modules/util/html.js` | 41 | 3 | 0 |
+| `modules/util/html.js` | 50 | 5 | 0 |
 | `modules/util/philosopher-label.js` | 40 | 5 | 3 |
 | `modules/util/ru.js` | 49 | 3 | 0 |
 | `modules/widgets/custom-select.js` | 103 | 4 | 5 |
@@ -178,7 +179,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `boot.js`
 
-Строк 313.
+Строк 317.
 
 **Вывозит:** `boot`
 
@@ -245,6 +246,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./modules/stats/modal.js`: `closeStatsModal`, `loadStatsContent`, `switchStatsView`
 - из `./modules/stats/views/comparison.js`: `renderComparison`
 - из `./modules/ui/legend.js`: `initFilters`, `markChosenInLegend`, `syncTraditionRows`, `updateFilterStats`
+- из `./modules/ui/link-state.js`: `initLinkState`
 - из `./modules/ui/notifications.js`: `markNotificationRead`, `refreshUnread`, `renderBell`
 - из `./modules/ui/panels.js`: `restorePanelStates`
 - из `./modules/widgets/custom-select.js`: `initializeCustomSelects`
@@ -254,7 +256,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `main.js`
 
-Строк 135.
+Строк 136.
 
 **Вывозит:** _ничего_
 
@@ -371,6 +373,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./modules/ui/export.js`: _ради побочного действия_
 - из `./modules/ui/hint.js`: _ради побочного действия_
 - из `./modules/ui/legend.js`: _ради побочного действия_
+- из `./modules/ui/link-state.js`: _ради побочного действия_
 - из `./modules/ui/notifications.js`: _ради побочного действия_
 - из `./modules/ui/panels.js`: _ради побочного действия_
 - из `./modules/ui/search-legend.js`: _ради побочного действия_
@@ -432,7 +435,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/events.js`
 
-Строк 65.
+Строк 66.
 
 **Вывозит:** `emit`, `subscribe`
 
@@ -467,7 +470,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/long-task.js`
 
-Строк 120.
+Строк 121.
 
 **Вывозит:** `CHAIN_SEARCH`, `LoadingIndicator`, `showTemporaryMessage`
 
@@ -695,7 +698,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/filters/filters.js`
 
-Строк 445.
+Строк 446.
 
 **Вывозит:** `applyFilters`, `applyFiltersImmediate`
 
@@ -961,9 +964,9 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/metrics/scope.js`
 
-Строк 135.
+Строк 149.
 
-**Вывозит:** `applyMetricsScope`, `handleMetricsScopeChange`, `installMetricScopeWrappers`, `metricsScopeCounts`, `updateMetricsScopeHint`, `updateScopeToggles`
+**Вывозит:** `applyMetricsScope`, `handleMetricsScopeChange`, `installMetricScopeWrappers`, `liveScopeKey`, `metricsScopeCounts`, `updateMetricsScopeHint`, `updateScopeToggles`
 
 **Ввозит:**
 
@@ -976,13 +979,13 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./scope-select.js`: `METRIC_FLAGS`, `VIEW_METRIC`, `effectiveScopeFlags`, `transformForScope`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `S.lastScopeKey`, `applyMetricsScope`, `handleMetricsScopeChange`, `installMetricScopeWrappers`, `metricScopeFactor`, `metricsScopeCounts`, `updateMetricsScopeHint`, `updateScopeToggles`
+**Содержит:** `S.cachesMatchLive`, `S.lastScopeKey`, `applyMetricsScope`, `handleMetricsScopeChange`, `installMetricScopeWrappers`, `liveScopeKey`, `metricScopeFactor`, `metricsScopeCounts`, `updateMetricsScopeHint`, `updateScopeToggles`
 
 ### `modules/metrics/similarity-concepts.js`
 
-Строк 463.
+Строк 493.
 
-**Вывозит:** `NETWORK_ROLE_WORDS`, `SIGNED_SIMILARITY`, `SIM_SHARED_HIGH`, `_pairCalculating`, `_simCache`, `allConceptPairs`, `allConceptPairsAsync`, `ensureNetworkProfile`, `fillPairsNetwork`, `invalidateSimilarityCache`, `nearestConcepts`, `networkRoleOf`, `networkSimilarity`, `networkSimilarityData`, `profileIsMeaningful`, `profileSimilarity`, `similarityData`, `similarityNeedsDegree`, `similarityThresholds`, `structuralSimilarity`, `typeStyleSimilarity`
+**Вывозит:** `NETWORK_ROLE_WORDS`, `SIGNED_SIMILARITY`, `SIM_SHARED_HIGH`, `_pairCalculating`, `_simCache`, `allConceptPairs`, `allConceptPairsAsync`, `ensureNetworkProfile`, `fillPairsNetwork`, `invalidateSimilarityCache`, `nearestConcepts`, `networkProgressPercent`, `networkRoleOf`, `networkSimilarity`, `networkSimilarityData`, `profileIsMeaningful`, `profileSimilarity`, `similarityData`, `similarityNeedsDegree`, `similarityThresholds`, `structuralSimilarity`, `typeStyleSimilarity`
 
 **Ввозит:**
 
@@ -990,7 +993,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./network.js`: `betweennessCache`, `calculateBetweennessAsync`, `closenessCache`, `eigenvectorCache`, `medianNodeDegree`, `nodeDegreeOf`, `pageRankCache`
 - из `./similarity-philosophers.js`: `invalidatePhilosopherSimilarityCache`
 
-**Содержит:** `NETWORK_ROLE_OF`, `NETWORK_ROLE_WORDS`, `NETWORK_SIM_NAMES`, `PAIRS_CHUNK_ROWS`, `SIGNED_SIMILARITY`, `SIM_SHARED_HIGH`, `SIM_VERDICT_HIGH_Q`, `SIM_VERDICT_LOW_Q`, `_neighborCache`, `_netSimCache`, `_netSimPending`, `_pairCache`, `_pairCalculating`, `_simCache`, `_simThresholdCache`, `_typeStyleCache`, `allConceptPairs`, `allConceptPairsAsync`, `centerRows`, `ensureNetworkProfile`, `fillPairsNetwork`, `invalidateSimilarityCache`, `metricValueMap`, `nearestConcepts`, `neighborSets`, `networkRoleOf`, `networkSimilarity`, `networkSimilarityData`, `normedDot`, `profileIsMeaningful`, `profileSimilarity`, `similarityData`, `similarityNeedsDegree`, `similarityOf`, `similarityThresholds`, `structuralSimilarity`, `typeProfileOf`, `typeStyleData`, `typeStyleSimilarity`, `vectorNorm`, `zColumns`
+**Содержит:** `NETWORK_PROGRESS_WEIGHTS`, `NETWORK_ROLE_OF`, `NETWORK_ROLE_WORDS`, `NETWORK_SIM_NAMES`, `PAIRS_CHUNK_ROWS`, `SIGNED_SIMILARITY`, `SIM_SHARED_HIGH`, `SIM_VERDICT_HIGH_Q`, `SIM_VERDICT_LOW_Q`, `_neighborCache`, `_netProgress`, `_netProgressListeners`, `_netSimCache`, `_netSimPending`, `_pairCache`, `_pairCalculating`, `_simCache`, `_simThresholdCache`, `_typeStyleCache`, `allConceptPairs`, `allConceptPairsAsync`, `centerRows`, `ensureNetworkProfile`, `fillPairsNetwork`, `invalidateSimilarityCache`, `metricValueMap`, `nearestConcepts`, `neighborSets`, `networkProgressPercent`, `networkRoleOf`, `networkSimilarity`, `networkSimilarityData`, `normedDot`, `profileIsMeaningful`, `profileSimilarity`, `similarityData`, `similarityNeedsDegree`, `similarityOf`, `similarityThresholds`, `structuralSimilarity`, `typeProfileOf`, `typeStyleData`, `typeStyleSimilarity`, `vectorNorm`, `zColumns`
 
 ### `modules/metrics/similarity-philosophers.js`
 
@@ -1082,7 +1085,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/concept-view.js`
 
-Строк 394.
+Строк 398.
 
 **Вывозит:** `computeSimilarNetworkColumn`
 
@@ -1091,11 +1094,11 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/ns.js`: `DATA`, `VIEWS`
 - из `../core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`
 - из `../metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
-- из `../metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `profileIsMeaningful`
+- из `../metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `networkProgressPercent`, `profileIsMeaningful`
 - из `./connection-view.js`: `linkArrow`
 - из `./history.js`: `historyBlock`
 - из `../util/color.js`: `getContrastColor`
-- из `../util/html.js`: `provenanceBlock`
+- из `../util/html.js`: `liveProgressHtml`, `provenanceBlock`, `updateLiveProgress`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `VIEWS.generateConceptViewContent`, `computeSimilarNetworkColumn`, `refreshSimilarNetworkColumn`, `similarColumnHtml`, `similarConceptsBlock`, `similarItemHtml`, `similarNetworkColumnHtml`
@@ -1177,13 +1180,14 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/core.js`
 
-Строк 154.
+Строк 159.
 
 **Вывозит:** `closeUniversalModal`, `modalStack`, `openUniversalModal`, `popModalState`, `toggleModalMode`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `S`
+- из `../core/events.js`: `emit`
 - из `../core/perms.js`: `PERM`, `can`
 - из `../graph/graph-selection.js`: `cancelGraphSelection`
 - из `./assembly.js`: `modalContentFor`, `modalEntityExists`
@@ -1530,13 +1534,14 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/paths/path-ui.js`
 
-Строк 416.
+Строк 418.
 
 **Вывозит:** `clearPathHighlight`, `findAndShowPath`, `handlePathArrowHover`, `initPathFinder`, `resolvePathLinkList`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
+- из `../core/events.js`: `emit`
 - из `../core/graph-index.js`: `conceptById`, `philosopherByName`
 - из `../core/link-facts.js`: `isSymmetricLink`
 - из `../core/time.js`: `CHRONOLOGY_MODES`
@@ -1774,7 +1779,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/similarity-overlay.js`
 
-Строк 240.
+Строк 256.
 
 **Вывозит:** `clearSimilarityOverlay`, `linkAmongHighlighted`, `setSimilarityLinks`, `showSimilarityOverlay`, `similarityColor`
 
@@ -1785,8 +1790,9 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/graph-index.js`: `conceptById`
 - из `../core/long-task.js`: `showTemporaryMessage`
 - из `../metrics/link-indexes.js`: `initializePhilosophyMetrics`
-- из `../metrics/similarity-concepts.js`: `SIGNED_SIMILARITY`, `_simCache`, `ensureNetworkProfile`, `networkSimilarity`, `networkSimilarityData`, `profileIsMeaningful`, `profileSimilarity`, `similarityNeedsDegree`, `structuralSimilarity`, `typeStyleSimilarity`
+- из `../metrics/similarity-concepts.js`: `SIGNED_SIMILARITY`, `_simCache`, `ensureNetworkProfile`, `networkProgressPercent`, `networkSimilarity`, `networkSimilarityData`, `profileIsMeaningful`, `profileSimilarity`, `similarityNeedsDegree`, `structuralSimilarity`, `typeStyleSimilarity`
 - из `./loop.js`: `requestDraw`
+- из `../util/html.js`: `liveProgressHtml`, `updateLiveProgress`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `SIMILARITY_ARCS`, `SIMILARITY_KEEP_QUANTILE`, `clearSimilarityOverlay`, `linkAmongHighlighted`, `nodeLitBySimilarity`, `setSimilarityLinks`, `showSimilarityOverlay`, `similarityColor`, `similarityLinkCount`, `updateSimilarityLegend`
@@ -1917,7 +1923,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/stats/modal.js`
 
-Строк 240.
+Строк 245.
 
 **Вывозит:** `closeStatsModal`, `handleStatsParameterChange`, `installStatsEscape`, `installStatsModalDismiss`, `loadStatsContent`, `openStatsModal`, `switchStatsView`, `updateActiveNavItem`
 
@@ -1928,7 +1934,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../metrics/graph-cache.js`: `invalidateGraphCache`
 - из `../metrics/link-indexes.js`: `initializePhilosophyMetrics`
 - из `../metrics/scope-reset.js`: `invalidateEverythingForScope`
-- из `../metrics/scope.js`: `applyMetricsScope`, `installMetricScopeWrappers`, `updateMetricsScopeHint`, `updateScopeToggles`
+- из `../metrics/scope.js`: `applyMetricsScope`, `installMetricScopeWrappers`, `liveScopeKey`, `updateMetricsScopeHint`, `updateScopeToggles`
 - из `../render/metric-visualization.js`: `resetNodeSizes`
 - из `../render/scene.js`: `ensureAnimLoop`, `needsContinuousAnimation`
 - из `../render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
@@ -2006,7 +2012,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/stats/views/comparison.js`
 
-Строк 504.
+Строк 508.
 
 **Вывозит:** `computeComparisonNetwork`, `generateClosestPairsContent`, `generateComparisonContent`, `generatePhilosopherComparisonContent`, `generatePhilosopherPairsContent`, `openPairInComparison`, `openPhilosopherPair`, `renderClosestPairs`, `renderComparison`, `renderPhilosopherComparison`, `renderPhilosopherPairs`, `similarityVerdict`
 
@@ -2018,9 +2024,10 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../../core/long-task.js`: `LoadingIndicator`
 - из `../../metrics/link-indexes.js`: `initializePhilosophyMetrics`
 - из `../../metrics/philosopher.js`: `philosopherProfile`
-- из `../../metrics/similarity-concepts.js`: `NETWORK_ROLE_WORDS`, `SIM_SHARED_HIGH`, `_pairCalculating`, `allConceptPairs`, `allConceptPairsAsync`, `ensureNetworkProfile`, `fillPairsNetwork`, `networkRoleOf`, `networkSimilarity`, `profileIsMeaningful`, `profileSimilarity`, `similarityData`, `similarityThresholds`, `structuralSimilarity`, `typeStyleSimilarity`
+- из `../../metrics/similarity-concepts.js`: `NETWORK_ROLE_WORDS`, `SIM_SHARED_HIGH`, `_pairCalculating`, `allConceptPairs`, `allConceptPairsAsync`, `ensureNetworkProfile`, `fillPairsNetwork`, `networkProgressPercent`, `networkRoleOf`, `networkSimilarity`, `profileIsMeaningful`, `profileSimilarity`, `similarityData`, `similarityThresholds`, `structuralSimilarity`, `typeStyleSimilarity`
 - из `../../metrics/similarity-philosophers.js`: `PHIL_SIM_LABELS`, `SIM_METRIC_LABELS`, `philosopherSimilarity`, `philosopherSimilarityData`
 - из `../results.js`: `generateMetricDescriptionBlock`
+- из `../../util/html.js`: `liveProgressHtml`, `updateLiveProgress`
 - из `../../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `computeComparisonNetwork`, `generateClosestPairsContent`, `generateComparisonContent`, `generatePhilosopherComparisonContent`, `generatePhilosopherPairsContent`, `openPairInComparison`, `openPhilosopherPair`, `renderClosestPairs`, `renderComparison`, `renderPhilosopherComparison`, `renderPhilosopherPairs`, `similarityVerdict`
@@ -2262,7 +2269,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 Строк 387.
 
-**Вывозит:** `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `markChosenInLegend`, `onlyTradition`, `resetTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `syncTraditionRows`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `traditionMembers`, `updateFilterStats`
+**Вывозит:** `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `markChosenInLegend`, `onlyTradition`, `resetTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `syncPhilosopherCheckboxes`, `syncTraditionRows`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `traditionMembers`, `updateFilterStats`
 
 **Ввозит:**
 
@@ -2275,6 +2282,34 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `WITHOUT_TRADITION`, `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `legendDirectionToggle`, `legendWeightsToggle`, `markChosenInLegend`, `onlyTradition`, `resetTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `syncPhilosopherCheckboxes`, `syncTraditionRows`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `traditionMembers`, `updateFilterStats`, `updateProvenanceCoverage`
+
+### `modules/ui/link-state.js`
+
+Строк 272.
+
+**Вывозит:** `_linkMissed`, `applyLinkState`, `currentLinkState`, `hashToLinkState`, `initLinkState`, `linkStateToHash`
+
+**Ввозит:**
+
+- из `../core/ns.js`: `DATA`, `S`
+- из `../core/events.js`: `subscribe`
+- из `../core/graph-index.js`: `conceptById`
+- из `../core/long-task.js`: `showTemporaryMessage`
+- из `../filters/filters.js`: `applyFiltersImmediate`
+- из `../metrics/scope.js`: `handleMetricsScopeChange`
+- из `../metrics/similarity-concepts.js`: `networkSimilarityData`
+- из `../modal/context.js`: `ModalContext`
+- из `../modal/core.js`: `openUniversalModal`
+- из `../modal/entry.js`: `openConceptById`
+- из `../paths/path-ui.js`: `findAndShowPath`
+- из `../render/similarity-overlay.js`: `setSimilarityLinks`, `showSimilarityOverlay`
+- из `../stats/modal.js`: `handleStatsParameterChange`, `openStatsModal`, `switchStatsView`
+- из `../stats/views/comparison.js`: `renderComparison`
+- из `./legend.js`: `changeFilterMode`, `syncPhilosopherCheckboxes`
+- из `../widgets/custom-select.js`: `selectCustomOption`
+- из `../core/graph-index.js`: _ради побочного действия_
+
+**Содержит:** `LINK_KEYS`, `_linkApplying`, `_linkLastHash`, `_linkMissed`, `applyLinkState`, `currentLinkState`, `excludedList`, `hashToLinkState`, `initLinkState`, `linkStateToHash`, `philosopherIdByName`, `philosopherNameById`, `syncLinkHash`
 
 ### `modules/ui/notifications.js`
 
@@ -2377,13 +2412,13 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/util/html.js`
 
-Строк 41.
+Строк 50.
 
-**Вывозит:** `escapeAttr`, `provenanceBlock`, `scrollToPickedRow`
+**Вывозит:** `escapeAttr`, `liveProgressHtml`, `provenanceBlock`, `scrollToPickedRow`, `updateLiveProgress`
 
 **Ввозит:** _ничего_
 
-**Содержит:** `escapeAttr`, `provenanceBlock`, `scrollToPickedRow`
+**Содержит:** `escapeAttr`, `liveProgressHtml`, `provenanceBlock`, `scrollToPickedRow`, `updateLiveProgress`
 
 ### `modules/util/philosopher-label.js`
 

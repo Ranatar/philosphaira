@@ -330,15 +330,42 @@ function networkRoleOf(id) {
       return NETWORK_ROLE_OF[W.names[best]];
     }
 
-function ensureNetworkProfile() {
-      if (networkSimilarityData()) return Promise.resolve(true);
+const NETWORK_PROGRESS_WEIGHTS = { betweenness: 0.51, closeness: 0.46, eigenvector: 0.02, pagerank: 0.01 };
+
+let _netProgress = { betweenness: 0, closeness: 0, eigenvector: 0, pagerank: 0 };
+
+const _netProgressListeners = new Set();
+
+function networkProgressPercent() {
+      if (networkSimilarityData()) return 100;
+      const ready = { betweenness: betweennessCache, closeness: closenessCache,
+                      eigenvector: eigenvectorCache, pagerank: pageRankCache };
+      let p = 0;
+      for (const k of Object.keys(NETWORK_PROGRESS_WEIGHTS)) {
+        p += NETWORK_PROGRESS_WEIGHTS[k] * (ready[k] ? 1 : Math.min(1, _netProgress[k] || 0));
+      }
+      return Math.min(99, Math.floor(p * 100));
+    }
+
+function ensureNetworkProfile(onProgress) {
+      if (networkSimilarityData()) {
+        if (onProgress) onProgress(100);
+        return Promise.resolve(true);
+      }
+      if (onProgress) _netProgressListeners.add(onProgress);
       if (_netSimPending) return _netSimPending;
+      const track = key => (current, total) => { _netProgress[key] = total ? current / total : 0; };
       const kick = () => {
-        if (!pageRankCache) MET.calculatePageRank();
-        if (!betweennessCache) calculateBetweennessAsync();
-        if (!closenessCache) MET.calculateClosenessCentrality();
-        if (!eigenvectorCache) MET.calculateEigenvectorCentrality();
+        if (!pageRankCache) MET.calculatePageRank(20, 0.85, track('pagerank'));
+        if (!betweennessCache) calculateBetweennessAsync(track('betweenness'));
+        if (!closenessCache) MET.calculateClosenessCentrality(track('closeness'));
+        if (!eigenvectorCache) MET.calculateEigenvectorCentrality(100, track('eigenvector'));
       };
+      const tell = () => {
+        const pct = networkProgressPercent();
+        for (const f of _netProgressListeners) { try { f(pct); } catch (e) { /* ждущий исчез */ } }
+      };
+      _netProgress = { betweenness: 0, closeness: 0, eigenvector: 0, pagerank: 0 };
       _netSimPending = (async () => {
         try {
           const started = Date.now();
@@ -346,10 +373,13 @@ function ensureNetworkProfile() {
           while (!networkSimilarityData()) {
             if (Date.now() - lastKick > 1000) { kick(); lastKick = Date.now(); }
             if (Date.now() - started > 120000) return false;
+            tell();
             await new Promise(r => setTimeout(r, 200));
           }
           return true;
         } finally {
+          tell();
+          _netProgressListeners.clear();
           _netSimPending = null;
         }
       })();
@@ -459,4 +489,4 @@ function nearestConcepts(conceptId, kind, k) {
       return res;
     }
 
-export { NETWORK_ROLE_WORDS, SIGNED_SIMILARITY, SIM_SHARED_HIGH, _pairCalculating, _simCache, allConceptPairs, allConceptPairsAsync, ensureNetworkProfile, fillPairsNetwork, invalidateSimilarityCache, nearestConcepts, networkRoleOf, networkSimilarity, networkSimilarityData, profileIsMeaningful, profileSimilarity, similarityData, similarityNeedsDegree, similarityThresholds, structuralSimilarity, typeStyleSimilarity };
+export { NETWORK_ROLE_WORDS, SIGNED_SIMILARITY, SIM_SHARED_HIGH, _pairCalculating, _simCache, allConceptPairs, allConceptPairsAsync, ensureNetworkProfile, fillPairsNetwork, invalidateSimilarityCache, nearestConcepts, networkProgressPercent, networkRoleOf, networkSimilarity, networkSimilarityData, profileIsMeaningful, profileSimilarity, similarityData, similarityNeedsDegree, similarityThresholds, structuralSimilarity, typeStyleSimilarity };

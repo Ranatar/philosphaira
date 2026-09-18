@@ -85,6 +85,8 @@ def от(*ч):
     'probe6.mjs':                'probes',
     'probe7.mjs':                'probes',
     'probe8.mjs':                'probes',
+    'progress_probe.mjs':                'probes',
+    'link_probe.mjs':                'probes',
     'prune_exports.mjs':         'build',
     'prune_imports.mjs':         'build',
     'remap.mjs':                 '',

@@ -28,7 +28,7 @@ const LoadingIndicator = {
           <div style="background: rgba(255,255,255,0.2); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 8px;">
             <div class="progress-bar" style="background: ${color}; height: 100%; width: 0%; transition: width 0.3s ease-out;"></div>
           </div>
-          <div class="progress-text" style="font-size: 12px; text-align: center; opacity: 0.9;">0%</div>
+          <div class="progress-text" data-live-progress style="font-size: 12px; text-align: center; opacity: 0.9;">0%</div>
           <div style="text-align: center; margin-top: 12px;">
             <button class="cancel-btn" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 5px 14px; font-size: 11px; cursor: pointer;">Прервать</button>
           </div>
@@ -74,6 +74,7 @@ function showTemporaryMessage(message, duration = 3000) {
         font-size: 13px;
         animation: slideDown 0.3s ease-out;
       `;
+      msgBox.className = 'temporary-message';
       msgBox.textContent = message;
       document.body.appendChild(msgBox);
       

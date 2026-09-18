@@ -416,6 +416,7 @@ function refreshMetricsIfScoped() {
     }
 
 function applyFiltersImmediate() {
+      setTimeout(() => emit('state-changed', false), 0);   // фильтры правят текущую запись
       // Специальные режимы с цепочками
       if (S.filterMode === 'chains') {
         handleChainsMode();

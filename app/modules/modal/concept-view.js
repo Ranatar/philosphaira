@@ -3,13 +3,13 @@ import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
 import { conceptById, otherEndColor, rubricById } from '../core/graph-index.js';
 import { medianNodeDegree, nodeDegreeOf } from '../metrics/network.js';
-import { ensureNetworkProfile, nearestConcepts, profileIsMeaningful } from '../metrics/similarity-concepts.js';
+import { ensureNetworkProfile, nearestConcepts, networkProgressPercent, profileIsMeaningful } from '../metrics/similarity-concepts.js';
 import { linkArrow } from './connection-view.js';
 
 import { historyBlock } from './history.js';
 
 import { getContrastColor } from '../util/color.js';
-import { provenanceBlock } from '../util/html.js';
+import { liveProgressHtml, provenanceBlock, updateLiveProgress } from '../util/html.js';
 
 function similarItemHtml(x) {
       const n = conceptById.get(x.id);
@@ -49,7 +49,7 @@ function similarNetworkColumnHtml(conceptId) {
       const list = nearestConcepts(conceptId, 'network', 5);
       if (list === null) {
         return similarColumnHtml(title, hint, [],
-          `Сетевые метрики ещё не посчитаны. <button class="similar-map-btn" data-act-click="compute-similar-network-column" data-a1="${conceptId}">Посчитать</button>`, attrs);
+          `Сетевые метрики ещё не посчитаны. <button class="similar-map-btn" data-sweep-skip data-act-click="compute-similar-network-column" data-a1="${conceptId}">Посчитать</button>`, attrs);
       }
       return similarColumnHtml(title, hint, list, 'Нет концепций со сходным местом', attrs);
     }
@@ -57,8 +57,12 @@ function similarNetworkColumnHtml(conceptId) {
 function computeSimilarNetworkColumn(conceptId) {
       const box = document.getElementById('similarNetworkCol');
       const empty = box && box.querySelector('.similar-empty');
-      if (empty) empty.textContent = 'Считаю сетевые метрики…';
-      ensureNetworkProfile().then(ok => {
+      if (empty) empty.innerHTML = 'Считаю сетевые метрики… ' + liveProgressHtml(networkProgressPercent());
+      const sameColumn = () => {
+        const b = document.getElementById('similarNetworkCol');
+        return b && b.dataset.concept === conceptId ? b : null;
+      };
+      ensureNetworkProfile(pct => updateLiveProgress(sameColumn(), pct)).then(ok => {
         if (ok) refreshSimilarNetworkColumn(conceptId);
         else if (empty) empty.textContent = 'Сетевые метрики не досчитались';
       });

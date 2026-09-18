@@ -10,6 +10,13 @@ import { METRIC_FLAGS, VIEW_METRIC, effectiveScopeFlags, transformForScope } fro
 
 S.lastScopeKey = null;
 
+S.cachesMatchLive = true;
+
+function liveScopeKey() {
+      return (S.useWeightedPaths && S.respectDirection && S.metricsScope === 'full')
+        ? 'wd|' + S.metricsScope : null;
+    }
+
 function applyMetricsScope(viewName) {
       const eff = effectiveScopeFlags(viewName);
       const useWeights   = eff.weights;
@@ -18,6 +25,12 @@ function applyMetricsScope(viewName) {
       const key = (useWeights ? 'w' : '-') + (useDirection ? 'd' : '-')
             + '|' + (typeof S.metricsScope !== 'undefined' ? S.metricsScope : '');
       if (key === S.lastScopeKey) return;   // ничего не изменилось
+      if (S.lastScopeKey === null && S.cachesMatchLive && key === liveScopeKey()) {
+        // окно открыто в том же ладе, в каком считалось снаружи: копии нет,
+        // живые массивы уже на месте — сбрасывать нечего
+        S.lastScopeKey = key;
+        return;
+      }
       S.lastScopeKey = key;
       S.metricsScopeActive = !(useWeights && useDirection);
 
@@ -123,6 +136,7 @@ function updateMetricsScopeHint() {
     }
 
 function handleMetricsScopeChange() {
+      setTimeout(() => emit('state-changed', false), 0);
       const el = document.getElementById('statsScopeToggle');
       S.metricsScope = (el && el.checked) ? 'filtered' : 'full';
       initializePhilosophyMetrics();
@@ -131,4 +145,4 @@ function handleMetricsScopeChange() {
       emit('stats-stale');
     }
 
-export { applyMetricsScope, handleMetricsScopeChange, installMetricScopeWrappers, metricsScopeCounts, updateMetricsScopeHint, updateScopeToggles };
+export { applyMetricsScope, handleMetricsScopeChange, installMetricScopeWrappers, liveScopeKey, metricsScopeCounts, updateMetricsScopeHint, updateScopeToggles };

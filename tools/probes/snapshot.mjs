@@ -17,7 +17,12 @@ export const КУСКОВ = 32;
 
 // Источник страничной части: строкой, потому что исполняется в браузере.
 export const ХЕШ = `(function (s) {
+  // Живой процент (data-live-progress) меняется посреди расчёта и зависит от
+  // скорости машины: его текст и сам признак вычёркиваются. Ход проверяет
+  // отдельный прибор progress_probe.
   s = String(s)
+    .replace(/(<[^>]*\\sdata-live-progress[^>]*>)[^<]*/gi, '$1')
+    .replace(/\\sdata-live-progress(\\s*=\\s*"[^"]*")?/gi, '')
     .replace(/\\son[a-z]+\\s*=\\s*"[^"]*"/gi, '')
     .replace(/\\sdata-act-[a-z]+\\s*=\\s*"[^"]*"/gi, '')
     .replace(/\\sdata-a\\d+\\s*=\\s*"[^"]*"/gi, '')

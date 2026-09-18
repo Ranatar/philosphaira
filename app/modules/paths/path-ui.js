@@ -1,6 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
+import { emit } from '../core/events.js';
 import { conceptById, philosopherByName } from '../core/graph-index.js';
 import { isSymmetricLink } from '../core/link-facts.js';
 import { CHRONOLOGY_MODES } from '../core/time.js';
@@ -61,6 +62,7 @@ function findAndShowPath() {
         return;
       }
       
+      emit('state-changed', true);   // построенный путь — событие истории
       // Временно меняем глобальные переменные для поиска пути
       const originalWeights = S.useWeightedPaths;
       const originalDirection = S.respectDirection;

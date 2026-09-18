@@ -1505,6 +1505,42 @@ if (модуль) {
     'профиль, структура, типы, сеть', о.видовПар);
 }
 
+// ── 10-бис-трет. кеши, посчитанные вне окна статистики, не выбрасываются ──
+//
+// Прежде закрытие окна обнуляло ключ области, и при следующем открытии
+// сбрасывались все кеши — в том числе сетевые метрики, досчитанные кнопкой
+// в окне концепции. Утверждения держат оба конца: в том же ладе (оба
+// переключателя, весь граф) кеш живёт; смена переключателя его сбрасывает.
+{
+  const о = await page.evaluate(async () => {
+    const A = window.__t, ждать = мс => new Promise(r => setTimeout(r, мс)), о = {};
+    // предусловие: оба переключателя включены, область — весь граф
+    A.openStatsModal(); await ждать(600);
+    const uw = document.getElementById('statsUseWeightsToggle');
+    const rd = document.getElementById('statsRespectDirectionToggle');
+    const sc = document.getElementById('statsScopeToggle');
+    if (!uw.checked) { uw.checked = true; A.handleStatsParameterChange(); }
+    if (!rd.checked) { rd.checked = true; A.handleStatsParameterChange(); }
+    if (sc.checked) { sc.checked = false; A.handleMetricsScopeChange(); }
+    await ждать(300);
+    document.querySelector('.stats-close-btn[data-act-click="close-stats-modal"]').click();
+    await ждать(400);
+    await A.ensureNetworkProfile();
+    const до = A.networkSimilarityData();
+    A.openStatsModal(); await ждать(800);
+    о.пережилОткрытие = !!до && A.networkSimilarityData() === до;
+    uw.checked = false; A.handleStatsParameterChange(); await ждать(500);
+    о.сброшенСменой = A.networkSimilarityData() !== до;
+    uw.checked = true; A.handleStatsParameterChange(); await ждать(300);
+    document.querySelector('.stats-close-btn[data-act-click="close-stats-modal"]').click();
+    await ждать(400);
+    return о;
+  });
+  проверить('сетевые метрики, посчитанные вне окна статистики, переживают его открытие',
+    о.пережилОткрытие === true, true, о.пережилОткрытие);
+  проверить('смена переключателя весов сбрасывает их', о.сброшенСменой === true, true, о.сброшенСменой);
+}
+
 // ── 10-трет. строки традиций отвечают набору философов ─────────────
 //
 // Прежде отбор держался на ДВУХ независимых наборах: selectedPhilosophers

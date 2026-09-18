@@ -3164,6 +3164,13 @@
     }
     .cmp-field .custom-select-wrapper { width: 100%; }
     .cmp-vs { color: rgba(255,255,255,0.45); font-size: 12px; padding-bottom: 9px; }
+    .progress-live { font-variant-numeric: tabular-nums; color: #ffd700; }
+    .network-progress-box {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background: rgba(30, 30, 50, 0.95); color: #fff; padding: 10px 18px;
+      border-radius: 8px; z-index: 10000; font-size: 13px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
     .cmp-verdict-lines { margin: 6px 0 0; padding-left: 18px; font-weight: normal; }
     .cmp-verdict-lines li { margin: 2px 0; }
     .cmp-summary { display: flex; gap: 14px; flex-wrap: wrap; margin: 16px 0 10px 0; }
@@ -5878,7 +5885,7 @@
       <div class="stats-progress-bar">
         <div class="stats-progress-fill" id="progressBar" style="width: 0%;"></div>
       </div>
-      <div class="stats-progress-text" id="progressPercent">0%</div>
+      <div class="stats-progress-text" id="progressPercent" data-live-progress>0%</div>
     </div>
 
   </div>
@@ -24719,6 +24726,7 @@
         return;
       }
       
+      emit('state-changed', true);   // построенный путь — событие истории
       // Временно меняем глобальные переменные для поиска пути
       const originalWeights = useWeightedPaths;
       const originalDirection = respectDirection;
@@ -25707,6 +25715,7 @@
       'concept-picked', // выбор с полотна доставлен просившему
       'comparison-refresh',     // выбран участник сравнения концепций
       'switch-stats-view',        // вид статистики просит показать другой вид
+      'state-changed',   // состояние, видимое в адресе страницы, изменилось
       'philosophers-chosen',       // набор выбранных философов изменился
       'selection-cleared',        // на графе не осталось ничего выбранного
       'commit-conflicted',        // правка столкнулась с чужой; окно разбора
@@ -25819,7 +25828,7 @@
           <div style="background: rgba(255,255,255,0.2); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 8px;">
             <div class="progress-bar" style="background: ${color}; height: 100%; width: 0%; transition: width 0.3s ease-out;"></div>
           </div>
-          <div class="progress-text" style="font-size: 12px; text-align: center; opacity: 0.9;">0%</div>
+          <div class="progress-text" data-live-progress style="font-size: 12px; text-align: center; opacity: 0.9;">0%</div>
           <div style="text-align: center; margin-top: 12px;">
             <button class="cancel-btn" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 5px 14px; font-size: 11px; cursor: pointer;">Прервать</button>
           </div>
@@ -25870,6 +25879,7 @@
         font-size: 13px;
         animation: slideDown 0.3s ease-out;
       `;
+      msgBox.className = 'temporary-message';
       msgBox.textContent = message;
       document.body.appendChild(msgBox);
       
@@ -26688,6 +26698,7 @@
     }
 
     function applyFiltersImmediate() {
+      setTimeout(() => emit('state-changed', false), 0);   // фильтры правят текущую запись
       // Специальные режимы с цепочками
       if (filterMode === 'chains') {
         handleChainsMode();
@@ -27253,6 +27264,20 @@
     // асинхронный). Без этой проверки счёт пар перезапускался на каждом
     // щелчке и не доходил до конца никогда, а окно ощутимо тормозило.
     let lastScopeKey = null;
+    // ГОДНЫ ЛИ КЕШИ, ПОСЧИТАННЫЕ ВНЕ ОКНА СТАТИСТИКИ. Вне окна метрики читают
+    // живые массивы; внутри — копию под переключатели. Копии нет ровно при
+    // ключе «wd» (оба переключателя включены), и если при этом область —
+    // весь граф, данные вне и внутри окна совпадают. Прежде закрытие окна
+    // обнуляло ключ, и при следующем открытии сбрасывалось ВСЁ — в том числе
+    // сетевые метрики, посчитанные кнопкой в окне концепции (замер
+    // 2026-09-17: 20 с у пользователя, дважды). Теперь такие кеши живут.
+    // Область «по фильтрам» сюда не входит: фильтры меняются и при закрытом
+    // окне, а кеши об этом не знают.
+    let cachesMatchLive = true;
+    function liveScopeKey() {
+      return (useWeightedPaths && respectDirection && metricsScope === 'full')
+        ? 'wd|' + metricsScope : null;
+    }
 
     // Перевод метрик на копию либо возврат к живым данным.
     function applyMetricsScope(viewName) {
@@ -27263,6 +27288,12 @@
       const key = (useWeights ? 'w' : '-') + (useDirection ? 'd' : '-')
             + '|' + (typeof metricsScope !== 'undefined' ? metricsScope : '');
       if (key === lastScopeKey) return;   // ничего не изменилось
+      if (lastScopeKey === null && cachesMatchLive && key === liveScopeKey()) {
+        // окно открыто в том же ладе, в каком считалось снаружи: копии нет,
+        // живые массивы уже на месте — сбрасывать нечего
+        lastScopeKey = key;
+        return;
+      }
       lastScopeKey = key;
       metricsScopeActive = !(useWeights && useDirection);
 
@@ -31058,18 +31089,49 @@
       return NETWORK_ROLE_OF[W.names[best]];
     }
 
+    // Ход досчёта в процентах. Доли — по замеру времени каждой метрики
+    // (Chrome 131, 718 концепций): посредничество 4,5 с, близость 4,1 с,
+    // собственный вектор 0,19 с, PageRank 0,04 с. Метрика, чей кеш готов,
+    // засчитывается целиком; ход тех, что запустил кто-то другой (вид
+    // статистики со своей полосой), здесь не виден — процент прыгнет, когда
+    // они закончатся. До полной готовности процент не поднимается выше 99.
+    const NETWORK_PROGRESS_WEIGHTS = { betweenness: 0.51, closeness: 0.46, eigenvector: 0.02, pagerank: 0.01 };
+    let _netProgress = { betweenness: 0, closeness: 0, eigenvector: 0, pagerank: 0 };
+    const _netProgressListeners = new Set();
+    function networkProgressPercent() {
+      if (networkSimilarityData()) return 100;
+      const ready = { betweenness: betweennessCache, closeness: closenessCache,
+                      eigenvector: eigenvectorCache, pagerank: pageRankCache };
+      let p = 0;
+      for (const k of Object.keys(NETWORK_PROGRESS_WEIGHTS)) {
+        p += NETWORK_PROGRESS_WEIGHTS[k] * (ready[k] ? 1 : Math.min(1, _netProgress[k] || 0));
+      }
+      return Math.min(99, Math.floor(p * 100));
+    }
+
     // Досчитать сетевые метрики и дождаться. Каждый расчёт отдаёт null, если
     // уже идёт, поэтому ждём по кешам, а не по обещаниям, и раз в секунду
     // подталкиваем те, чей кеш пуст (расчёт мог быть сброшен на ходу).
-    function ensureNetworkProfile() {
-      if (networkSimilarityData()) return Promise.resolve(true);
+    // onProgress(процент) зовётся на каждом шаге ожидания — у всех ждущих.
+    function ensureNetworkProfile(onProgress) {
+      if (networkSimilarityData()) {
+        if (onProgress) onProgress(100);
+        return Promise.resolve(true);
+      }
+      if (onProgress) _netProgressListeners.add(onProgress);
       if (_netSimPending) return _netSimPending;
+      const track = key => (current, total) => { _netProgress[key] = total ? current / total : 0; };
       const kick = () => {
-        if (!pageRankCache) calculatePageRank();
-        if (!betweennessCache) calculateBetweennessAsync();
-        if (!closenessCache) calculateClosenessCentrality();
-        if (!eigenvectorCache) calculateEigenvectorCentrality();
+        if (!pageRankCache) calculatePageRank(20, 0.85, track('pagerank'));
+        if (!betweennessCache) calculateBetweennessAsync(track('betweenness'));
+        if (!closenessCache) calculateClosenessCentrality(track('closeness'));
+        if (!eigenvectorCache) calculateEigenvectorCentrality(100, track('eigenvector'));
       };
+      const tell = () => {
+        const pct = networkProgressPercent();
+        for (const f of _netProgressListeners) { try { f(pct); } catch (e) { /* ждущий исчез */ } }
+      };
+      _netProgress = { betweenness: 0, closeness: 0, eigenvector: 0, pagerank: 0 };
       _netSimPending = (async () => {
         try {
           const started = Date.now();
@@ -31077,14 +31139,30 @@
           while (!networkSimilarityData()) {
             if (Date.now() - lastKick > 1000) { kick(); lastKick = Date.now(); }
             if (Date.now() - started > 120000) return false;
+            tell();
             await new Promise(r => setTimeout(r, 200));
           }
           return true;
         } finally {
+          tell();
+          _netProgressListeners.clear();
           _netSimPending = null;
         }
       })();
       return _netSimPending;
+    }
+
+    // ── живой процент ────────────────────────────────────────────
+    // Всякий меняющийся на ходу процент носит признак data-live-progress:
+    // приборы снимков (обход, compare) вычёркивают его текст, а сам ход
+    // проверяет отдельный прибор progress_probe. Иначе снимок, сделанный
+    // посреди расчёта, зависел бы от скорости машины.
+    function liveProgressHtml(pct) {
+      return `<span class="progress-live" data-live-progress>${pct} %</span>`;
+    }
+    function updateLiveProgress(root, pct) {
+      if (!root) return;
+      root.querySelectorAll('[data-live-progress]').forEach(e => { e.textContent = pct + ' %'; });
     }
 
     // ── вид сходства по имени ────────────────────────────────────
@@ -31821,6 +31899,7 @@
     }
 
     function handleMetricsScopeChange() {
+      setTimeout(() => emit('state-changed', false), 0);
       const el = document.getElementById('statsScopeToggle');
       metricsScope = (el && el.checked) ? 'filtered' : 'full';
       initializePhilosophyMetrics();
@@ -32828,11 +32907,14 @@
     }
 
     function closeStatsModal() {
+      setTimeout(() => emit('state-changed', false), 0);
       // Возврат к живым массивам. Восстанавливать нечего: база не менялась,
       // менялась только копия, которую читали метрики.
       metricsLinkSource = null;
       metricsNodeSource = null;
       metricsScopeActive = false;
+      // Кеши, посчитанные в окне без копии, годны и снаружи — см. liveScopeKey.
+      cachesMatchLive = lastScopeKey !== null && lastScopeKey === liveScopeKey();
       lastScopeKey = null;
       // То же, что в unfreezeSimulation: окно статистики закрылось,
       // граф снова виден.
@@ -32860,6 +32942,7 @@
 
     // Обработка изменения параметров (веса, направленность)
     function handleStatsParameterChange() {
+      setTimeout(() => emit('state-changed', false), 0);
       const newWeights = document.getElementById('statsUseWeightsToggle').checked;
       const newDirection = document.getElementById('statsRespectDirectionToggle').checked;
       
@@ -32899,6 +32982,7 @@
       updateActiveNavItem(viewName);
       
       currentStatsView = viewName;
+      emit('state-changed', true);   // смена вида статистики — событие истории
       // Область учёта зависит от вида: у метрик, объявленных
       // неприменимыми к галочке, данные остаются непреобразованными.
       applyMetricsScope(viewName);
@@ -34884,7 +34968,7 @@
             <button class="pairs-btn" id="pairsBtnProfile" onclick="_pairsKind='profile'; renderClosestPairs();">По профилю</button>
             <button class="pairs-btn" id="pairsBtnStructure" onclick="_pairsKind='structure'; renderClosestPairs();">По структуре</button>
             <button class="pairs-btn" id="pairsBtnTypes" onclick="_pairsKind='types'; renderClosestPairs();">По типам связей</button>
-            <button class="pairs-btn" id="pairsBtnNetwork" onclick="_pairsKind='network'; renderClosestPairs();">По месту в сети</button>
+            <button class="pairs-btn" id="pairsBtnNetwork" data-sweep-skip onclick="_pairsKind='network'; renderClosestPairs();">По месту в сети</button>
           </div>
           <label class="pairs-filter">
             Минимальная связность узла: <b id="pairsDegVal">${_pairsMinDegree}</b>
@@ -34943,9 +35027,11 @@
         }
       }
       const kind = _pairsKind;
+      emit('state-changed', false);
       if (kind === 'network' && !fillPairsNetwork(P)) {
-        box.innerHTML = '<div class="pairs-count">Считаю сетевые метрики…</div>';
-        const ok = await ensureNetworkProfile();
+        box.innerHTML = '<div class="pairs-count">Считаю сетевые метрики… '
+          + liveProgressHtml(networkProgressPercent()) + '</div>';
+        const ok = await ensureNetworkProfile(pct => updateLiveProgress(document.getElementById('pairsBody'), pct));
         if (!ok) { box.innerHTML = '<div class="pairs-count">Сетевые метрики не досчитались.</div>'; return; }
         if (_pairsKind === 'network' && document.getElementById('pairsBody')) renderClosestPairs();
         return;
@@ -35020,6 +35106,7 @@
     }
 
     function openPairInComparison(a, b) {
+      setTimeout(() => emit('state-changed', false), 0);
       _cmpA = a; _cmpB = b;
       emit('switch-stats-view', 'comparison');
     }
@@ -35131,8 +35218,8 @@
 
     function computeComparisonNetwork() {
       const tile = document.querySelector('#cmpBody .similar-map-btn');
-      if (tile) { tile.disabled = true; tile.textContent = 'Считаю…'; }
-      ensureNetworkProfile().then(() => {
+      if (tile) tile.parentElement.innerHTML = 'Считаю… ' + liveProgressHtml(networkProgressPercent());
+      ensureNetworkProfile(pct => updateLiveProgress(document.getElementById('cmpBody'), pct)).then(() => {
         if (document.getElementById('cmpBody')) renderComparison();
       });
     }
@@ -35155,7 +35242,7 @@
       const signedPct = v => (v < 0 ? '−' : '') + Math.abs(Math.round(v * 100)) + ' %';
       const netTile = !meaningful ? 'н/п'
         : (netV === null
-          ? '<button class="similar-map-btn" onclick="computeComparisonNetwork()">Посчитать</button>'
+          ? '<button class="similar-map-btn" data-sweep-skip onclick="computeComparisonNetwork()">Посчитать</button>'
           : signedPct(netV));
 
       const rows = D.names.map((n, k) => {
@@ -36144,7 +36231,284 @@
     // Вызов при инициализации
     window.addEventListener('load', () => {
       saveOriginalRadii();
+      // Состояние из адреса — после первой отрисовки: раскладка и указатели
+      // должны быть на месте, иначе восстанавливать нечего.
+      setTimeout(initLinkState, 1200);
     });
+
+    // ============================================
+    // СОСТОЯНИЕ В АДРЕСЕ СТРАНИЦЫ
+    // ============================================
+    // Что решено (17 сентября 2026):
+    //  • ЯКОРЬ, А НЕ ЗАПРОС. Хеш не уходит на сервер, не ломает кеширование
+    //    и не требует правки маршрутов, а страница остаётся одним файлом:
+    //    ссылка работает и при открытии с диска (на этом держится сторона
+    //    _ref-orig.html в приёмке).
+    //  • ОТЛИЧИЕ ОТ УМОЛЧАНИЯ. Философов сто, типов связи 21, рубрик 15;
+    //    писать выбранное значило бы огромный хвост на обычном виде. Пишем
+    //    исключённых, поэтому нетронутый граф даёт ПУСТОЙ хеш.
+    //  • ЧИТАЕМАЯ ГРАММАТИКА. Ссылку правят руками и вставляют в текст.
+    //  • НАМЕРЕНИЕ, А НЕ РАСЧЁТ. Ссылка не запускает молча долгий счёт:
+    //    карта «по месту в сети» восстанавливается только если сетевые
+    //    метрики уже посчитаны, иначе — извещение с указанием, что нажать.
+    //  • pushState ТОЛЬКО НА ЧЕТЫРЕ СОБЫТИЯ (окно сущности, путь, карта
+    //    сходства, смена вида статистики), остальное — replaceState:
+    //    иначе «Назад» превращается в перебор ползунков.
+    // Философы в адресе — ИДЕНТИФИКАТОРАМИ (латиница), хотя внутри набор
+    // ключуется именами: имя в ссылке было бы кириллицей в процентах.
+    // ДАННЫЕ ЗОВЁМ ГОЛЫМИ ИМЕНАМИ (philosophers, relations), а не через
+    // DATA: пространства имён заводит СБОРКА, в исходнике их нет, и первая
+    // же редакция слоя падала на стороне исходника с «DATA is not defined»
+    // (поймало сличение сторон в compare, 18 сентября 2026).
+    const LINK_KEYS = {
+      concept: 'c', philosopher: 'phil', connection: 'link',
+      path: 'path', pathOpts: 'popts', stats: 'stats', cmp: 'cmp',
+      pairs: 'pairs', sim: 'sim', simLinks: 'simlinks',
+      philosophers: 'ph', relations: 'rel', rubrics: 'rub', mode: 'mode',
+    };
+    let _linkApplying = false;   // идёт восстановление: адрес не переписываем
+    let _linkMissed = [];        // чего в ссылке не нашлось — для прибора и разбора
+    let _linkLastHash = null;
+
+    function philosopherIdByName(name) {
+      const found = philosophers.find(x => (x.nameRu || x.name) === name);
+      return found ? found.id : null;
+    }
+    function philosopherNameById(id) {
+      const found = philosophers.find(x => x.id === id);
+      return found ? (found.nameRu || found.name) : null;
+    }
+
+    // Исключённые из набора — то, чего в нём нет против умолчания.
+    function excludedList(set, all, toKey) {
+      const out = [];
+      for (const x of all) {
+        const key = toKey ? toKey(x) : x;
+        if (key && !set.has(x)) out.push(key);
+      }
+      return out;
+    }
+
+    function currentLinkState() {
+      const st = {};
+      // окно сущности
+      const modal = document.getElementById('universalModal');
+      if (modal && modal.classList.contains('show') && ModalContext.currentData
+          && ModalContext.currentMode === 'view') {
+        const data = ModalContext.currentData;
+        if (ModalContext.currentEntity === 'concept' && data.id) st.concept = data.id;
+        if (ModalContext.currentEntity === 'philosopher') {
+          const id = data.id || philosopherIdByName(data.nameRu || data.name);
+          if (id) st.philosopher = id;
+        }
+        if (ModalContext.currentEntity === 'connection' && data.id) st.connection = data.id;
+      }
+      // путь
+      if (selectedSourceNode && selectedTargetNode) {
+        st.path = selectedSourceNode + '..' + selectedTargetNode;
+        const letterIf = (id, letter) => document.getElementById(id) && document.getElementById(id).checked ? letter : '';
+        const opts = [letterIf('respectChronology', 'x'), letterIf('respectDirectionPath', 'd'),
+                      letterIf('useWeightsPath', 'w'), letterIf('skipTypologicalPath', 't')].join('');
+        const chron = (document.getElementById('chronologyModeSelect') || {}).value;
+        st.pathOpts = opts + (chron ? ':' + chron : '');
+      }
+      // статистика
+      const statsModal = document.getElementById('statsModal');
+      if (statsModal && getComputedStyle(statsModal).display !== 'none' && currentStatsView) {
+        st.stats = currentStatsView;
+        const toggleState = id => { const el = document.getElementById(id); return el ? el.checked : null; };
+        const weights = toggleState('statsUseWeightsToggle'), data = toggleState('statsRespectDirectionToggle'), sc = toggleState('statsScopeToggle');
+        const flags = [];
+        if (weights === false) flags.push('-w');
+        if (data === false) flags.push('-d');
+        if (sc === true) flags.push('filtered');
+        if (flags.length) st.statsFlags = flags.join(',');
+        if (currentStatsView === 'comparison' && _cmpA && _cmpB) st.cmp = _cmpA + '..' + _cmpB;
+        if (currentStatsView === 'closest-pairs' && _pairsKind !== 'profile') st.pairs = _pairsKind;
+      }
+      // карта сходства
+      if (similarityOverlay && similarityOverlay.sourceId) {
+        st.sim = similarityOverlay.sourceId + ':' + similarityOverlay.kind;
+        const linkMode = similarityOverlay.linkMode || 'none';
+        if (linkMode !== 'none') st.simLinks = linkMode;
+      }
+      // фильтры — отличием от умолчания
+      const ph = excludedList(selectedPhilosophers, Object.keys(philosopherConcepts), philosopherIdByName);
+      if (ph.length) st.philosophers = ph.join(',');
+      const rel = excludedList(selectedRelations, Object.keys(relationTypesObj));
+      if (rel.length) st.relations = rel.join(',');
+      const rub = excludedList(selectedRubrics, rubrics.map(r => r.id));
+      if (rub.length) st.rubrics = rub.join(',');
+      if (filterMode !== 'all') st.mode = filterMode;
+      return st;
+    }
+
+    function linkStateToHash(st) {
+      const parts = [];
+      for (const [field, key] of Object.entries(LINK_KEYS)) {
+        if (st[field]) parts.push(key + '=' + st[field]);
+      }
+      if (st.statsFlags) parts.push('sflags=' + st.statsFlags);
+      return parts.join('&');
+    }
+
+    function hashToLinkState(hash) {
+      const st = {};
+      const text = String(hash || '').replace(/^#/, '');
+      if (!text) return st;
+      const byKey = {};
+      for (const [field, key] of Object.entries(LINK_KEYS)) byKey[key] = field;
+      byKey.sflags = 'statsFlags';
+      for (const chunk of text.split('&')) {
+        const i = chunk.indexOf('=');
+        if (i < 1) continue;
+        const field = byKey[chunk.slice(0, i)];
+        if (field) st[field] = decodeURIComponent(chunk.slice(i + 1));
+      }
+      return st;
+    }
+
+    // push — только на четыре события; остальное переписывает текущую запись
+    function syncLinkHash(push) {
+      if (_linkApplying) return;
+      const hash = linkStateToHash(currentLinkState());
+      if (hash === _linkLastHash) return;
+      _linkLastHash = hash;
+      const address = location.pathname + location.search + (hash ? '#' + hash : '');
+      try {
+        if (push) window.history.pushState(null, '', address);
+        else window.history.replaceState(null, '', address);
+      } catch (e) { /* file:// в старых ладах истории не даёт */ }
+    }
+
+    function applyLinkState(st) {
+      const missed = [];
+      _linkApplying = true;
+      try {
+        // 1. фильтры — до всего прочего: они решают, что вообще на графе
+        const splitList = (v, fits) => String(v || '').split(',').map(x => x.trim()).filter(Boolean).filter(fits);
+        if (st.philosophers !== undefined) {
+          selectedPhilosophers = new Set(Object.keys(philosopherConcepts));
+          for (const id of splitList(st.philosophers, () => true)) {
+            const name = philosopherNameById(id);
+            if (name && selectedPhilosophers.has(name)) selectedPhilosophers.delete(name);
+            else missed.push('философ ' + id);
+          }
+        }
+        if (st.relations !== undefined) {
+          selectedRelations = new Set(Object.keys(relationTypesObj));
+          for (const setToggle of splitList(st.relations, () => true)) {
+            if (selectedRelations.has(setToggle)) selectedRelations.delete(setToggle); else missed.push('тип связи ' + setToggle);
+          }
+        }
+        if (st.rubrics !== undefined) {
+          selectedRubrics = new Set(rubrics.map(rubric => rubric.id));
+          for (const rubric of splitList(st.rubrics, () => true)) {
+            if (selectedRubrics.has(rubric)) selectedRubrics.delete(rubric); else missed.push('рубрика ' + rubric);
+          }
+        }
+        if (st.mode && st.mode !== filterMode) {
+          const select = document.getElementById('filterMode');
+          if (select && [...select.options].some(o => o.value === st.mode)) {
+            select.value = st.mode;
+            changeFilterMode(st.mode);
+          } else missed.push('режим ' + st.mode);
+        } else {
+          if (typeof syncPhilosopherCheckboxes === 'function') syncPhilosopherCheckboxes();
+          applyFiltersImmediate();
+        }
+        // 2. путь
+        if (st.path) {
+          const [a, b] = st.path.split('..');
+          if (conceptById.get(a) && conceptById.get(b)) {
+            selectCustomOption('source', a);
+            selectCustomOption('target', b);
+            const [flags, chron] = String(st.pathOpts || '').split(':');
+            const setFlag = (id, letter) => { const el = document.getElementById(id); if (el) el.checked = (flags || '').includes(letter); };
+            if (st.pathOpts !== undefined) {
+              setFlag('respectChronology', 'x'); setFlag('respectDirectionPath', 'd');
+              setFlag('useWeightsPath', 'w'); setFlag('skipTypologicalPath', 't');
+              const select = document.getElementById('chronologyModeSelect');
+              if (select && chron && [...select.options].some(o => o.value === chron)) select.value = chron;
+            }
+            findAndShowPath();
+          } else missed.push('концепция пути');
+        }
+        // 3. статистика
+        if (st.stats) {
+          // openStatsModal через 100 мс щёлкает по «Обзору», если вида ещё
+          // не было; ставим вид заранее, чтобы пошла ветка возврата
+          currentStatsView = st.stats;
+          openStatsModal();
+          const setToggle = (id, wanted) => { const el = document.getElementById(id); if (el && el.checked !== wanted) { el.checked = wanted; return true; } return false; };
+          const flags = String(st.statsFlags || '').split(',');
+          let changed = false;
+          changed = setToggle('statsUseWeightsToggle', !flags.includes('-w')) || changed;
+          changed = setToggle('statsRespectDirectionToggle', !flags.includes('-d')) || changed;
+          if (changed && typeof handleStatsParameterChange === 'function') handleStatsParameterChange();
+          if (setToggle('statsScopeToggle', flags.includes('filtered')) && typeof handleMetricsScopeChange === 'function') handleMetricsScopeChange();
+          if (st.pairs) _pairsKind = st.pairs;
+          switchStatsView(st.stats);
+          // пару ставим ПОСЛЕ входа в вид: вход в сравнение сбрасывает концы
+          if (st.cmp) {
+            const [a, b] = st.cmp.split('..');
+            if (conceptById.get(a) && conceptById.get(b)) {
+              _cmpA = a; _cmpB = b;
+              if (typeof renderComparison === 'function') renderComparison();
+            } else missed.push('концепция сравнения');
+          }
+        }
+        // 4. карта сходства — но не запуская долгого счёта
+        if (st.sim) {
+          const [id, kind] = st.sim.split(':');
+          if (!conceptById.get(id)) missed.push('концепция карты ' + id);
+          else if (kind === 'network' && !networkSimilarityData()) {
+            missed.push('карта по месту в сети (нажмите «По месту в сети»: сетевые метрики считаются несколько секунд)');
+          } else {
+            showSimilarityOverlay(id, kind || 'profile');
+            // режим показа связей живёт в самом наложении и ставится после него
+            if (st.simLinks && similarityOverlay) setSimilarityLinks(st.simLinks);
+          }
+        }
+        // 5. окно сущности — последним, оно поверх всего
+        if (st.concept) {
+          const node = conceptById.get(st.concept);
+          if (node) openConceptById(st.concept); else missed.push('концепция ' + st.concept);
+        } else if (st.philosopher) {
+          const name = philosopherNameById(st.philosopher);
+          const phil = name ? philosophers.find(x => x.id === st.philosopher) : null;
+          if (phil) openUniversalModal('philosopher', phil, 'view'); else missed.push('философ ' + st.philosopher);
+        } else if (st.connection) {
+          const relation = (relations).find(rubric => rubric.id === st.connection);
+          if (relation) openUniversalModal('connection', relation, 'view'); else missed.push('связь ' + st.connection);
+        }
+      } finally {
+        _linkApplying = false;
+      }
+      _linkMissed = missed.slice();   // извещение живёт секунды, запись — нет
+      if (missed.length && typeof showTemporaryMessage === 'function') {
+        showTemporaryMessage('Ссылка восстановлена не целиком: ' + missed.join('; '), 6000);
+      }
+      _linkLastHash = linkStateToHash(currentLinkState());
+      return missed;
+    }
+
+    function initLinkState() {
+      // Крюки в нижних модулях подают СОБЫТИЕ, а не зовут syncLinkHash: слой
+      // ссылок живёт на ui/ (этаж 6), а крюки стоят в filters/, metrics/,
+      // modal/, paths/, render/ и stats/ — прямой зов дал бы семь рёбер ввоза
+      // снизу вверх. Развороты держит шина, для того она и заведена.
+      subscribe('state-changed', push => syncLinkHash(push));
+      window.addEventListener('popstate', () => {
+        applyLinkState(hashToLinkState(location.hash));
+      });
+      if (location.hash && location.hash.length > 1) {
+        applyLinkState(hashToLinkState(location.hash));
+      } else {
+        _linkLastHash = linkStateToHash(currentLinkState());
+      }
+    }
+
 
     
     // ============================================
@@ -37067,6 +37431,8 @@
       return `rgb(${mix(0)},${mix(1)},${mix(2)})`;
     }
 
+    // Крюк адреса стоит в конце (см. установку similarityOverlay ниже):
+    // до неё состояние ещё прежнее.
     function showSimilarityOverlay(sourceId, kind) {
       if (!concepts || !relations) initializePhilosophyMetrics();
       // Первый вызов строит все 17 метрик на весь корпус. Это заметно
@@ -37083,11 +37449,21 @@
         return;
       }
       if (kind === 'network' && !networkSimilarityData()) {
-        // Четыре сетевые метрики считаются порциями: карта откроется по готовности.
-        if (typeof showTemporaryMessage === 'function') {
-          showTemporaryMessage('Считаю сетевые метрики для карты сходства…', 2500);
+        // Четыре сетевые метрики считаются порциями: карта откроется по готовности,
+        // а до того висит плашка с процентом.
+        let plate = document.getElementById('networkProgressBox');
+        if (!plate) {
+          plate = document.createElement('div');
+          plate.id = 'networkProgressBox';
+          plate.className = 'network-progress-box';
+          document.body.appendChild(plate);
         }
-        ensureNetworkProfile().then(ok => { if (ok) showSimilarityOverlay(sourceId, kind); });
+        plate.innerHTML = 'Считаю сетевые метрики для карты сходства… ' + liveProgressHtml(networkProgressPercent());
+        ensureNetworkProfile(pct => updateLiveProgress(document.getElementById('networkProgressBox'), pct)).then(ok => {
+          const p = document.getElementById('networkProgressBox');
+          if (p) p.remove();
+          if (ok) showSimilarityOverlay(sourceId, kind);
+        });
         return;
       }
       if (kind === 'profile' && !profileIsMeaningful(sourceId)) {
@@ -37181,6 +37557,7 @@
       emit('close-modals');
       requestDraw();
       updateSimilarityLegend();
+      emit('state-changed', true);   // карта сходства — событие истории
     }
 
     function toggleSimilarityKind() {
@@ -37217,6 +37594,7 @@
       similarityOverlay.linkMode = mode;
       requestDraw();
       updateSimilarityLegend();
+      emit('state-changed', false);
     }
 
     // Ярок ли узел на карте — тот же признак, по которому renderScene
@@ -37263,6 +37641,7 @@
     }
 
     function clearSimilarityOverlay() {
+      setTimeout(() => emit('state-changed', false), 0);
       similarityOverlay = null;
       requestDraw();
       updateSimilarityLegend();
@@ -37279,8 +37658,10 @@
       const src = conceptById.get(similarityOverlay.sourceId);
       const mode = similarityOverlay.kind;
       const isSigned = SIGNED_SIMILARITY.has(mode);
+      // Вид «по месту в сети» может запустить тяжёлый досчёт — обход его не
+      // жмёт (data-sweep-skip), ход проверяет progress_probe.
       const btn = (k, caption) =>
-        `<button class="simleg-btn ${mode === k ? 'active' : ''}"
+        `<button class="simleg-btn ${mode === k ? 'active' : ''}"${k === 'network' ? ' data-sweep-skip' : ''}
              onclick="showSimilarityOverlay('${similarityOverlay.sourceId}','${k}')">${caption}</button>`;
       box.innerHTML = `
         <div class="simleg-title">Сходство с «${src ? src.label : '—'}»</div>
@@ -38931,7 +39312,7 @@
       const list = nearestConcepts(conceptId, 'network', 5);
       if (list === null) {
         return similarColumnHtml(title, hint, [],
-          `Сетевые метрики ещё не посчитаны. <button class="similar-map-btn" onclick="computeSimilarNetworkColumn('${conceptId}')">Посчитать</button>`, attrs);
+          `Сетевые метрики ещё не посчитаны. <button class="similar-map-btn" data-sweep-skip onclick="computeSimilarNetworkColumn('${conceptId}')">Посчитать</button>`, attrs);
       }
       return similarColumnHtml(title, hint, list, 'Нет концепций со сходным местом', attrs);
     }
@@ -38939,8 +39320,12 @@
     function computeSimilarNetworkColumn(conceptId) {
       const box = document.getElementById('similarNetworkCol');
       const empty = box && box.querySelector('.similar-empty');
-      if (empty) empty.textContent = 'Считаю сетевые метрики…';
-      ensureNetworkProfile().then(ok => {
+      if (empty) empty.innerHTML = 'Считаю сетевые метрики… ' + liveProgressHtml(networkProgressPercent());
+      const sameColumn = () => {
+        const b = document.getElementById('similarNetworkCol');
+        return b && b.dataset.concept === conceptId ? b : null;
+      };
+      ensureNetworkProfile(pct => updateLiveProgress(sameColumn(), pct)).then(ok => {
         if (ok) refreshSimilarNetworkColumn(conceptId);
         else if (empty) empty.textContent = 'Сетевые метрики не досчитались';
       });
@@ -39923,6 +40308,9 @@
       modal.scrollTop = 0;
       modal.classList.add('show');
       overlay.classList.add('show');
+      // адрес пишем ПОСЛЕ показа: currentLinkState спрашивает разметку,
+      // а не намерение, — до этой строки окна на экране ещё нет
+      emit('state-changed', true);   // окно сущности — одно из четырёх событий истории
 
       // поля поиска концепций в окне связи навешиваются после вставки
       if (entityType === 'connection'
@@ -39939,6 +40327,7 @@
       if (!modal || !content) return;
 
       if (typeof clearModalSearch === 'function') clearModalSearch();
+      setTimeout(() => emit('state-changed', false), 0);   // закрытие правит текущую запись
 
       content.innerHTML = '';
       modal.classList.remove('show', 'edit-mode', 'graph-picking',

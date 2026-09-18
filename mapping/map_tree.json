@@ -1,25 +1,25 @@
 {
  "меры": {
-  "модулей": 129,
-  "строк": 21335,
-  "объявлений": 877,
-  "вывозов": 607,
-  "рёбер": 812,
+  "модулей": 130,
+  "строк": 21704,
+  "объявлений": 897,
+  "вывозов": 618,
+  "рёбер": 834,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
-  "вывозовДляПриборов": 30,
+  "вывозовДляПриборов": 35,
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-09-17 15:08:03"
+  "составлено": "2026-09-18 07:14:25"
  },
  "модули": [
   {
    "путь": "boot.js",
-   "строк": 313,
+   "строк": 317,
    "объявлений": 0,
    "вывозит": 1,
-   "ввозитИз": 65,
+   "ввозитИз": 66,
    "вНС": {
     "DATA": 2,
     "S": 8
@@ -422,6 +422,12 @@
      ]
     },
     {
+     "откуда": "modules/ui/link-state.js",
+     "имена": [
+      "initLinkState"
+     ]
+    },
+    {
      "откуда": "modules/ui/notifications.js",
      "имена": [
       "markNotificationRead",
@@ -473,10 +479,10 @@
   },
   {
    "путь": "main.js",
-   "строк": 135,
+   "строк": 136,
    "объявлений": 0,
    "вывозит": 0,
-   "ввозитИз": 124,
+   "ввозитИз": 125,
    "вНС": {},
    "вывоз": [],
    "ввоз": [
@@ -917,6 +923,10 @@
      "имена": []
     },
     {
+     "откуда": "modules/ui/link-state.js",
+     "имена": []
+    },
+    {
      "откуда": "modules/ui/notifications.js",
      "имена": []
     },
@@ -1185,7 +1195,7 @@
   },
   {
    "путь": "modules/core/events.js",
-   "строк": 65,
+   "строк": 66,
    "объявлений": 5,
    "вывозит": 2,
    "ввозитИз": 0,
@@ -1454,7 +1464,7 @@
   },
   {
    "путь": "modules/core/long-task.js",
-   "строк": 120,
+   "строк": 121,
    "объявлений": 3,
    "вывозит": 3,
    "ввозитИз": 0,
@@ -1474,7 +1484,7 @@
     {
      "имя": "showTemporaryMessage",
      "вид": "function",
-     "строк": 29
+     "строк": 30
     },
     {
      "имя": "CHAIN_SEARCH",
@@ -2557,7 +2567,7 @@
   },
   {
    "путь": "modules/filters/filters.js",
-   "строк": 445,
+   "строк": 446,
    "объявлений": 12,
    "вывозит": 2,
    "ввозитИз": 14,
@@ -2711,7 +2721,7 @@
     {
      "имя": "applyFiltersImmediate",
      "вид": "function",
-     "строк": 21
+     "строк": 22
     },
     {
      "имя": "debouncedApplyFilters",
@@ -2737,7 +2747,7 @@
     },
     {
      "имя": "emit",
-     "раз": 9,
+     "раз": 10,
      "откуда": "modules/core/events.js"
     },
     {
@@ -4562,18 +4572,19 @@
   },
   {
    "путь": "modules/metrics/scope.js",
-   "строк": 135,
-   "объявлений": 7,
-   "вывозит": 6,
+   "строк": 149,
+   "объявлений": 8,
+   "вывозит": 7,
    "ввозитИз": 8,
    "вНС": {
     "DATA": 2,
-    "S": 6
+    "S": 8
    },
    "вывоз": [
     "applyMetricsScope",
     "handleMetricsScopeChange",
     "installMetricScopeWrappers",
+    "liveScopeKey",
     "metricsScopeCounts",
     "updateMetricsScopeHint",
     "updateScopeToggles"
@@ -4633,9 +4644,14 @@
    ],
    "свои": [
     {
+     "имя": "liveScopeKey",
+     "вид": "function",
+     "строк": 4
+    },
+    {
      "имя": "applyMetricsScope",
      "вид": "function",
-     "строк": 30
+     "строк": 36
     },
     {
      "имя": "metricScopeFactor",
@@ -4665,13 +4681,13 @@
     {
      "имя": "handleMetricsScopeChange",
      "вид": "function",
-     "строк": 8
+     "строк": 9
     }
    ],
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 16,
+     "раз": 24,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -4698,9 +4714,9 @@
   },
   {
    "путь": "modules/metrics/similarity-concepts.js",
-   "строк": 463,
-   "объявлений": 41,
-   "вывозит": 21,
+   "строк": 493,
+   "объявлений": 45,
+   "вывозит": 22,
    "ввозитИз": 3,
    "вНС": {
     "S": 4,
@@ -4718,6 +4734,7 @@
     "fillPairsNetwork",
     "invalidateSimilarityCache",
     "nearestConcepts",
+    "networkProgressPercent",
     "networkRoleOf",
     "networkSimilarity",
     "networkSimilarityData",
@@ -4913,9 +4930,29 @@
      "строк": 11
     },
     {
+     "имя": "NETWORK_PROGRESS_WEIGHTS",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "_netProgress",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "_netProgressListeners",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "networkProgressPercent",
+     "вид": "function",
+     "строк": 10
+    },
+    {
      "имя": "ensureNetworkProfile",
      "вид": "function",
-     "строк": 25
+     "строк": 38
     },
     {
      "имя": "SIGNED_SIMILARITY",
@@ -4975,18 +5012,18 @@
      "откуда": "modules/core/ns.js"
     },
     {
-     "имя": "nodeDegreeOf",
-     "раз": 2,
-     "откуда": "modules/metrics/network.js"
-    },
-    {
      "имя": "pageRankCache",
-     "раз": 2,
+     "раз": 3,
      "откуда": "modules/metrics/network.js"
     },
     {
      "имя": "betweennessCache",
-     "раз": 2,
+     "раз": 3,
+     "откуда": "modules/metrics/network.js"
+    },
+    {
+     "имя": "closenessCache",
+     "раз": 3,
      "откуда": "modules/metrics/network.js"
     }
    ]
@@ -5668,7 +5705,7 @@
   },
   {
    "путь": "modules/modal/concept-view.js",
-   "строк": 394,
+   "строк": 398,
    "объявлений": 6,
    "вывозит": 1,
    "ввозитИз": 9,
@@ -5711,6 +5748,7 @@
      "имена": [
       "ensureNetworkProfile",
       "nearestConcepts",
+      "networkProgressPercent",
       "profileIsMeaningful"
      ]
     },
@@ -5735,7 +5773,9 @@
     {
      "откуда": "modules/util/html.js",
      "имена": [
-      "provenanceBlock"
+      "liveProgressHtml",
+      "provenanceBlock",
+      "updateLiveProgress"
      ]
     }
    ],
@@ -5758,7 +5798,7 @@
     {
      "имя": "computeSimilarNetworkColumn",
      "вид": "function",
-     "строк": 9
+     "строк": 13
     },
     {
      "имя": "refreshSimilarNetworkColumn",
@@ -6291,10 +6331,10 @@
   },
   {
    "путь": "modules/modal/core.js",
-   "строк": 154,
+   "строк": 159,
    "объявлений": 7,
    "вывозит": 5,
-   "ввозитИз": 9,
+   "ввозитИз": 10,
    "вНС": {
     "S": 1
    },
@@ -6310,6 +6350,12 @@
      "откуда": "modules/core/ns.js",
      "имена": [
       "S"
+     ]
+    },
+    {
+     "откуда": "modules/core/events.js",
+     "имена": [
+      "emit"
      ]
     },
     {
@@ -6388,12 +6434,12 @@
     {
      "имя": "openUniversalModal",
      "вид": "function",
-     "строк": 64
+     "строк": 67
     },
     {
      "имя": "closeUniversalModal",
      "вид": "function",
-     "строк": 27
+     "строк": 28
     },
     {
      "имя": "toggleModalMode",
@@ -6423,9 +6469,9 @@
      "откуда": "modules/core/perms.js"
     },
     {
-     "имя": "initConnectionSearchFields",
+     "имя": "emit",
      "раз": 2,
-     "откуда": "modules/modal/connection-view.js"
+     "откуда": "modules/core/events.js"
     }
    ]
   },
@@ -8772,10 +8818,10 @@
   },
   {
    "путь": "modules/paths/path-ui.js",
-   "строк": 416,
+   "строк": 418,
    "объявлений": 8,
    "вывозит": 5,
-   "ввозитИз": 9,
+   "ввозитИз": 10,
    "вНС": {
     "DATA": 4,
     "S": 7
@@ -8798,6 +8844,12 @@
     {
      "откуда": "modules/core/graph-index.js",
      "имена": []
+    },
+    {
+     "откуда": "modules/core/events.js",
+     "имена": [
+      "emit"
+     ]
     },
     {
      "откуда": "modules/core/graph-index.js",
@@ -8854,7 +8906,7 @@
     {
      "имя": "findAndShowPath",
      "вид": "function",
-     "строк": 268
+     "строк": 269
     },
     {
      "имя": "arrowHoverTimer",
@@ -8909,9 +8961,9 @@
      "откуда": "modules/core/graph-index.js"
     },
     {
-     "имя": "findShortestPath",
+     "имя": "emit",
      "раз": 1,
-     "откуда": "modules/paths/shortest-path.js"
+     "откуда": "modules/core/events.js"
     }
    ]
   },
@@ -10558,10 +10610,10 @@
   },
   {
    "путь": "modules/render/similarity-overlay.js",
-   "строк": 240,
+   "строк": 256,
    "объявлений": 10,
    "вывозит": 5,
-   "ввозитИз": 8,
+   "ввозитИз": 9,
    "вНС": {
     "DATA": 4,
     "S": 1
@@ -10615,6 +10667,7 @@
       "SIGNED_SIMILARITY",
       "_simCache",
       "ensureNetworkProfile",
+      "networkProgressPercent",
       "networkSimilarity",
       "networkSimilarityData",
       "profileIsMeaningful",
@@ -10628,6 +10681,13 @@
      "откуда": "modules/render/loop.js",
      "имена": [
       "requestDraw"
+     ]
+    },
+    {
+     "откуда": "modules/util/html.js",
+     "имена": [
+      "liveProgressHtml",
+      "updateLiveProgress"
      ]
     }
    ],
@@ -10650,12 +10710,12 @@
     {
      "имя": "showSimilarityOverlay",
      "вид": "function",
-     "строк": 115
+     "строк": 126
     },
     {
      "имя": "setSimilarityLinks",
      "вид": "function",
-     "строк": 6
+     "строк": 7
     },
     {
      "имя": "nodeLitBySimilarity",
@@ -10675,12 +10735,12 @@
     {
      "имя": "clearSimilarityOverlay",
      "вид": "function",
-     "строк": 5
+     "строк": 6
     },
     {
      "имя": "updateSimilarityLegend",
      "вид": "function",
-     "строк": 47
+     "строк": 49
     }
    ],
    "чащеВсего": [
@@ -10691,7 +10751,7 @@
     },
     {
      "имя": "showTemporaryMessage",
-     "раз": 8,
+     "раз": 6,
      "откуда": "modules/core/long-task.js"
     },
     {
@@ -10700,14 +10760,14 @@
      "откуда": "modules/core/ns.js"
     },
     {
+     "имя": "emit",
+     "раз": 4,
+     "откуда": "modules/core/events.js"
+    },
+    {
      "имя": "profileIsMeaningful",
      "раз": 3,
      "откуда": "modules/metrics/similarity-concepts.js"
-    },
-    {
-     "имя": "requestDraw",
-     "раз": 3,
-     "откуда": "modules/render/loop.js"
     }
    ]
   },
@@ -11294,13 +11354,13 @@
   },
   {
    "путь": "modules/stats/modal.js",
-   "строк": 240,
+   "строк": 245,
    "объявлений": 8,
    "вывозит": 8,
    "ввозитИз": 17,
    "вНС": {
     "DATA": 2,
-    "S": 9
+    "S": 10
    },
    "вывоз": [
     "closeStatsModal",
@@ -11349,6 +11409,7 @@
      "имена": [
       "applyMetricsScope",
       "installMetricScopeWrappers",
+      "liveScopeKey",
       "updateMetricsScopeHint",
       "updateScopeToggles"
      ]
@@ -11469,17 +11530,17 @@
     {
      "имя": "closeStatsModal",
      "вид": "function",
-     "строк": 30
+     "строк": 33
     },
     {
      "имя": "handleStatsParameterChange",
      "вид": "function",
-     "строк": 31
+     "строк": 32
     },
     {
      "имя": "switchStatsView",
      "вид": "function",
-     "строк": 15
+     "строк": 16
     },
     {
      "имя": "updateActiveNavItem",
@@ -11505,8 +11566,13 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 21,
+     "раз": 24,
      "откуда": "modules/core/ns.js"
+    },
+    {
+     "имя": "emit",
+     "раз": 4,
+     "откуда": "modules/core/events.js"
     },
     {
      "имя": "applyMetricsScope",
@@ -11522,11 +11588,6 @@
      "имя": "DATA",
      "раз": 2,
      "откуда": "modules/core/ns.js"
-    },
-    {
-     "имя": "initializePhilosophyMetrics",
-     "раз": 2,
-     "откуда": "modules/metrics/link-indexes.js"
     }
    ]
   },
@@ -12015,10 +12076,10 @@
   },
   {
    "путь": "modules/stats/views/comparison.js",
-   "строк": 504,
+   "строк": 508,
    "объявлений": 12,
    "вывозит": 12,
-   "ввозитИз": 10,
+   "ввозитИз": 11,
    "вНС": {
     "DATA": 4,
     "S": 11
@@ -12089,6 +12150,7 @@
       "allConceptPairsAsync",
       "ensureNetworkProfile",
       "fillPairsNetwork",
+      "networkProgressPercent",
       "networkRoleOf",
       "networkSimilarity",
       "profileIsMeaningful",
@@ -12112,6 +12174,13 @@
      "откуда": "modules/stats/results.js",
      "имена": [
       "generateMetricDescriptionBlock"
+     ]
+    },
+    {
+     "откуда": "modules/util/html.js",
+     "имена": [
+      "liveProgressHtml",
+      "updateLiveProgress"
      ]
     }
    ],
@@ -12149,12 +12218,12 @@
     {
      "имя": "renderClosestPairs",
      "вид": "async function",
-     "строк": 106
+     "строк": 108
     },
     {
      "имя": "openPairInComparison",
      "вид": "function",
-     "строк": 4
+     "строк": 5
     },
     {
      "имя": "generateComparisonContent",
@@ -13636,7 +13705,7 @@
    "путь": "modules/ui/legend.js",
    "строк": 387,
    "объявлений": 29,
-   "вывозит": 24,
+   "вывозит": 25,
    "ввозитИз": 7,
    "вНС": {
     "DATA": 9,
@@ -13658,6 +13727,7 @@
     "selectAllTraditions",
     "syncLegendDirectionToggle",
     "syncLegendWeightsToggle",
+    "syncPhilosopherCheckboxes",
     "syncTraditionRows",
     "togglePhilosopher",
     "toggleRelation",
@@ -13883,6 +13953,226 @@
      "имя": "relationHint",
      "раз": 1,
      "откуда": "modules/core/relation-types.js"
+    }
+   ]
+  },
+  {
+   "путь": "modules/ui/link-state.js",
+   "строк": 272,
+   "объявлений": 13,
+   "вывозит": 6,
+   "ввозитИз": 17,
+   "вНС": {
+    "DATA": 5,
+    "S": 11
+   },
+   "вывоз": [
+    "_linkMissed",
+    "applyLinkState",
+    "currentLinkState",
+    "hashToLinkState",
+    "initLinkState",
+    "linkStateToHash"
+   ],
+   "ввоз": [
+    {
+     "откуда": "modules/core/ns.js",
+     "имена": [
+      "DATA",
+      "S"
+     ]
+    },
+    {
+     "откуда": "modules/core/graph-index.js",
+     "имена": []
+    },
+    {
+     "откуда": "modules/core/events.js",
+     "имена": [
+      "subscribe"
+     ]
+    },
+    {
+     "откуда": "modules/core/graph-index.js",
+     "имена": [
+      "conceptById"
+     ]
+    },
+    {
+     "откуда": "modules/core/long-task.js",
+     "имена": [
+      "showTemporaryMessage"
+     ]
+    },
+    {
+     "откуда": "modules/filters/filters.js",
+     "имена": [
+      "applyFiltersImmediate"
+     ]
+    },
+    {
+     "откуда": "modules/metrics/scope.js",
+     "имена": [
+      "handleMetricsScopeChange"
+     ]
+    },
+    {
+     "откуда": "modules/metrics/similarity-concepts.js",
+     "имена": [
+      "networkSimilarityData"
+     ]
+    },
+    {
+     "откуда": "modules/modal/context.js",
+     "имена": [
+      "ModalContext"
+     ]
+    },
+    {
+     "откуда": "modules/modal/core.js",
+     "имена": [
+      "openUniversalModal"
+     ]
+    },
+    {
+     "откуда": "modules/modal/entry.js",
+     "имена": [
+      "openConceptById"
+     ]
+    },
+    {
+     "откуда": "modules/paths/path-ui.js",
+     "имена": [
+      "findAndShowPath"
+     ]
+    },
+    {
+     "откуда": "modules/render/similarity-overlay.js",
+     "имена": [
+      "setSimilarityLinks",
+      "showSimilarityOverlay"
+     ]
+    },
+    {
+     "откуда": "modules/stats/modal.js",
+     "имена": [
+      "handleStatsParameterChange",
+      "openStatsModal",
+      "switchStatsView"
+     ]
+    },
+    {
+     "откуда": "modules/stats/views/comparison.js",
+     "имена": [
+      "renderComparison"
+     ]
+    },
+    {
+     "откуда": "modules/ui/legend.js",
+     "имена": [
+      "changeFilterMode",
+      "syncPhilosopherCheckboxes"
+     ]
+    },
+    {
+     "откуда": "modules/widgets/custom-select.js",
+     "имена": [
+      "selectCustomOption"
+     ]
+    }
+   ],
+   "свои": [
+    {
+     "имя": "LINK_KEYS",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "_linkApplying",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "_linkMissed",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "_linkLastHash",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "philosopherIdByName",
+     "вид": "function",
+     "строк": 4
+    },
+    {
+     "имя": "philosopherNameById",
+     "вид": "function",
+     "строк": 4
+    },
+    {
+     "имя": "excludedList",
+     "вид": "function",
+     "строк": 8
+    },
+    {
+     "имя": "currentLinkState",
+     "вид": "function",
+     "строк": 53
+    },
+    {
+     "имя": "linkStateToHash",
+     "вид": "function",
+     "строк": 8
+    },
+    {
+     "имя": "hashToLinkState",
+     "вид": "function",
+     "строк": 15
+    },
+    {
+     "имя": "syncLinkHash",
+     "вид": "function",
+     "строк": 11
+    },
+    {
+     "имя": "applyLinkState",
+     "вид": "function",
+     "строк": 111
+    },
+    {
+     "имя": "initLinkState",
+     "вид": "function",
+     "строк": 15
+    }
+   ],
+   "чащеВсего": [
+    {
+     "имя": "S",
+     "раз": 39,
+     "откуда": "modules/core/ns.js"
+    },
+    {
+     "имя": "DATA",
+     "раз": 10,
+     "откуда": "modules/core/ns.js"
+    },
+    {
+     "имя": "ModalContext",
+     "раз": 6,
+     "откуда": "modules/modal/context.js"
+    },
+    {
+     "имя": "conceptById",
+     "раз": 6,
+     "откуда": "modules/core/graph-index.js"
+    },
+    {
+     "имя": "syncPhilosopherCheckboxes",
+     "раз": 2,
+     "откуда": "modules/ui/legend.js"
     }
    ]
   },
@@ -14496,18 +14786,30 @@
   },
   {
    "путь": "modules/util/html.js",
-   "строк": 41,
-   "объявлений": 3,
-   "вывозит": 3,
+   "строк": 50,
+   "объявлений": 5,
+   "вывозит": 5,
    "ввозитИз": 0,
    "вНС": {},
    "вывоз": [
     "escapeAttr",
+    "liveProgressHtml",
     "provenanceBlock",
-    "scrollToPickedRow"
+    "scrollToPickedRow",
+    "updateLiveProgress"
    ],
    "ввоз": [],
    "свои": [
+    {
+     "имя": "liveProgressHtml",
+     "вид": "function",
+     "строк": 3
+    },
+    {
+     "имя": "updateLiveProgress",
+     "вид": "function",
+     "строк": 4
+    },
     {
      "имя": "scrollToPickedRow",
      "вид": "function",
@@ -14761,19 +15063,19 @@
  "самыеВостребованные": [
   {
    "имя": "S",
-   "ввозятМодулей": 75
+   "ввозятМодулей": 76
   },
   {
    "имя": "DATA",
-   "ввозятМодулей": 60
+   "ввозятМодулей": 61
   },
   {
    "имя": "conceptById",
-   "ввозятМодулей": 23
+   "ввозятМодулей": 24
   },
   {
    "имя": "emit",
-   "ввозятМодулей": 21
+   "ввозятМодулей": 23
   },
   {
    "имя": "MET",
@@ -14812,6 +15114,14 @@
    "ввозятМодулей": 10
   },
   {
+   "имя": "showTemporaryMessage",
+   "ввозятМодулей": 9
+  },
+  {
+   "имя": "openUniversalModal",
+   "ввозятМодулей": 9
+  },
+  {
    "имя": "isNodeVisible",
    "ввозятМодулей": 9
   },
@@ -14828,16 +15138,8 @@
    "ввозятМодулей": 9
   },
   {
-   "имя": "showTemporaryMessage",
-   "ввозятМодулей": 8
-  },
-  {
-   "имя": "openUniversalModal",
-   "ввозятМодулей": 8
-  },
-  {
    "имя": "ModalContext",
-   "ввозятМодулей": 8
+   "ввозятМодулей": 9
   },
   {
    "имя": "serverMode",
@@ -14863,22 +15165,26 @@
  "держатДом": [
   {
    "модуль": "modules/core/ns.js",
-   "ввозятИзНего": 95
+   "ввозятИзНего": 96
   },
   {
    "модуль": "modules/core/graph-index.js",
-   "ввозятИзНего": 56
+   "ввозятИзНего": 57
+  },
+  {
+   "модуль": "modules/core/events.js",
+   "ввозятИзНего": 25
   },
   {
    "модуль": "modules/core/link-facts.js",
    "ввозятИзНего": 24
   },
   {
-   "модуль": "modules/core/events.js",
-   "ввозятИзНего": 22
+   "модуль": "modules/render/canvas-core.js",
+   "ввозятИзНего": 19
   },
   {
-   "модуль": "modules/render/canvas-core.js",
+   "модуль": "modules/util/html.js",
    "ввозятИзНего": 19
   },
   {
@@ -14886,8 +15192,8 @@
    "ввозятИзНего": 18
   },
   {
-   "модуль": "modules/util/html.js",
-   "ввозятИзНего": 17
+   "модуль": "modules/modal/core.js",
+   "ввозятИзНего": 14
   },
   {
    "модуль": "modules/core/api.js",
@@ -14902,20 +15208,16 @@
    "ввозятИзНего": 13
   },
   {
-   "модуль": "modules/modal/core.js",
-   "ввозятИзНего": 13
-  },
-  {
    "модуль": "modules/render/selection.js",
    "ввозятИзНего": 13
   },
   {
-   "модуль": "modules/render/d3-layer.js",
+   "модуль": "modules/core/long-task.js",
    "ввозятИзНего": 12
   },
   {
-   "модуль": "modules/core/long-task.js",
-   "ввозятИзНего": 11
+   "модуль": "modules/render/d3-layer.js",
+   "ввозятИзНего": 12
   },
   {
    "модуль": "modules/render/loop.js",
@@ -15061,6 +15363,31 @@
    "внутри": 6
   },
   {
+   "имя": "_linkMissed",
+   "модуль": "modules/ui/link-state.js",
+   "внутри": 1
+  },
+  {
+   "имя": "applyLinkState",
+   "модуль": "modules/ui/link-state.js",
+   "внутри": 2
+  },
+  {
+   "имя": "currentLinkState",
+   "модуль": "modules/ui/link-state.js",
+   "внутри": 3
+  },
+  {
+   "имя": "hashToLinkState",
+   "модуль": "modules/ui/link-state.js",
+   "внутри": 2
+  },
+  {
+   "имя": "linkStateToHash",
+   "модуль": "modules/ui/link-state.js",
+   "внутри": 3
+  },
+  {
    "имя": "loadNotifications",
    "модуль": "modules/ui/notifications.js",
    "внутри": 1
@@ -15137,13 +15464,13 @@
     },
     {
      "поле": "relationTypesObj",
-     "раз": 46,
-     "модулей": 22
+     "раз": 48,
+     "модулей": 23
     },
     {
      "поле": "philosopherConcepts",
-     "раз": 46,
-     "модулей": 20
+     "раз": 48,
+     "модулей": 21
     },
     {
      "поле": "concepts",
@@ -15152,8 +15479,13 @@
     },
     {
      "поле": "relations",
-     "раз": 52,
-     "модулей": 18
+     "раз": 53,
+     "модулей": 19
+    },
+    {
+     "поле": "philosophers",
+     "раз": 33,
+     "модулей": 12
     },
     {
      "поле": "conceptToRubrics",
@@ -15161,14 +15493,9 @@
      "модулей": 11
     },
     {
-     "поле": "philosophers",
-     "раз": 30,
-     "модулей": 11
-    },
-    {
      "поле": "rubrics",
-     "раз": 14,
-     "модулей": 8
+     "раз": 16,
+     "модулей": 9
     },
     {
      "поле": "philosopherTraditions",
@@ -15178,7 +15505,7 @@
    ]
   },
   "S": {
-   "полей": 67,
+   "полей": 68,
    "самые": [
     {
      "поле": "_concepts",
@@ -15187,13 +15514,13 @@
     },
     {
      "поле": "respectDirection",
-     "раз": 44,
+     "раз": 45,
      "модулей": 13
     },
     {
      "поле": "useWeightedPaths",
-     "раз": 47,
-     "модулей": 11
+     "раз": 48,
+     "модулей": 12
     },
     {
      "поле": "_relations",
@@ -15216,6 +15543,11 @@
      "модулей": 10
     },
     {
+     "поле": "similarityOverlay",
+     "раз": 65,
+     "модулей": 9
+    },
+    {
      "поле": "_incomingLinks",
      "раз": 23,
      "модулей": 9
@@ -15224,11 +15556,6 @@
      "поле": "_outgoingLinks",
      "раз": 25,
      "модулей": 9
-    },
-    {
-     "поле": "similarityOverlay",
-     "раз": 59,
-     "модулей": 8
     }
    ]
   },

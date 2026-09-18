@@ -109,6 +109,7 @@ import './modules/ui/about.js';
 import './modules/ui/export.js';
 import './modules/ui/hint.js';
 import './modules/ui/legend.js';
+import './modules/ui/link-state.js';
 import './modules/ui/notifications.js';
 import './modules/ui/panels.js';
 import './modules/ui/search-legend.js';

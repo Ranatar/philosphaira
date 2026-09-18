@@ -1,5 +1,14 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 
+function liveProgressHtml(pct) {
+      return `<span class="progress-live" data-live-progress>${pct} %</span>`;
+    }
+
+function updateLiveProgress(root, pct) {
+      if (!root) return;
+      root.querySelectorAll('[data-live-progress]').forEach(e => { e.textContent = pct + ' %'; });
+    }
+
 function scrollToPickedRow(box) {
       if (!box) return;
       const row = box.querySelector('.concept-row-picked');
@@ -37,4 +46,4 @@ function escapeAttr(s) {
         .replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-export { escapeAttr, provenanceBlock, scrollToPickedRow };
+export { escapeAttr, liveProgressHtml, provenanceBlock, scrollToPickedRow, updateLiveProgress };

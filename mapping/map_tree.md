@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-129 модулей, 21335 строк, 877 объявлений,
-607 вывозов, 812 рёбер ввоза. Составлено 2026-09-17 15:08:03.
+130 модулей, 21704 строк, 897 объявлений,
+618 вывозов, 834 рёбер ввоза. Составлено 2026-09-18 07:14:25.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -17,27 +17,27 @@
 
 | Модуль | Ввозят из него |
 |---|---|
-| `modules/core/ns.js` | 95 |
-| `modules/core/graph-index.js` | 56 |
+| `modules/core/ns.js` | 96 |
+| `modules/core/graph-index.js` | 57 |
+| `modules/core/events.js` | 25 |
 | `modules/core/link-facts.js` | 24 |
-| `modules/core/events.js` | 22 |
 | `modules/render/canvas-core.js` | 19 |
+| `modules/util/html.js` | 19 |
 | `modules/state/render.js` | 18 |
-| `modules/util/html.js` | 17 |
+| `modules/modal/core.js` | 14 |
 | `modules/core/api.js` | 13 |
 | `modules/core/perms.js` | 13 |
 | `modules/metrics/link-indexes.js` | 13 |
-| `modules/modal/core.js` | 13 |
 | `modules/render/selection.js` | 13 |
 
 ## Самые востребованные имена
 
 | Имя | В скольких модулях ввозится |
 |---|---|
-| `S` | 75 |
-| `DATA` | 60 |
-| `conceptById` | 23 |
-| `emit` | 21 |
+| `S` | 76 |
+| `DATA` | 61 |
+| `conceptById` | 24 |
+| `emit` | 23 |
 | `MET` | 21 |
 | `initializePhilosophyMetrics` | 12 |
 | `PERM` | 12 |
@@ -47,15 +47,15 @@
 | `requestDraw` | 10 |
 | `api` | 10 |
 | `renderState` | 10 |
-| `isNodeVisible` | 9 |
-| `isSymmetricLink` | 9 |
+| `showTemporaryMessage` | 9 |
+| `openUniversalModal` | 9 |
 
 ## Общие пространства имён
 
 | Пространство | Полей | Самое востребованное поле | В скольких модулях |
 |---|---|---|---|
 | `DATA` | 17 | `nodes` | 36 |
-| `S` | 67 | `_concepts` | 15 |
+| `S` | 68 | `_concepts` | 15 |
 | `MET` | 33 | `influenceIndex` | 7 |
 | `VIEWS` | 6 | `generateConceptViewContent` | 1 |
 
@@ -85,15 +85,15 @@
 
 | Модуль | Строк | Объявлений | Вывозит | Ввозит из | Пространства |
 |---|---|---|---|---|---|
-| `boot.js` | 313 | 0 | 1 | 65 | DATA:2, S:8 |
-| `main.js` | 135 | 0 | 0 | 124 | — |
+| `boot.js` | 317 | 0 | 1 | 66 | DATA:2, S:8 |
+| `main.js` | 136 | 0 | 0 | 125 | — |
 | `modules/boot-defs.js` | 62 | 3 | 2 | 8 | S:1 |
 | `modules/core/api.js` | 90 | 4 | 3 | 1 | — |
 | `modules/core/base-cells.js` | 19 | 0 | 0 | 1 | S:8 |
-| `modules/core/events.js` | 65 | 5 | 2 | 0 | — |
+| `modules/core/events.js` | 66 | 5 | 2 | 0 | — |
 | `modules/core/graph-index.js` | 221 | 16 | 15 | 2 | DATA:16 |
 | `modules/core/link-facts.js` | 73 | 10 | 10 | 2 | DATA:1, S:6 |
-| `modules/core/long-task.js` | 120 | 3 | 3 | 0 | — |
+| `modules/core/long-task.js` | 121 | 3 | 3 | 0 | — |
 | `modules/core/ns.js` | 33 | 2 | 4 | 0 | — |
 | `modules/core/perms.js` | 28 | 4 | 3 | 0 | — |
 | `modules/core/ready.js` | 15 | 0 | 2 | 0 | — |
@@ -111,7 +111,7 @@
 | `modules/dead.js` | 86 | 6 | 6 | 5 | DATA:1, S:5, MET:1 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 | 2 | — |
 | `modules/filters/chains.js` | 273 | 6 | 3 | 4 | DATA:3, S:2 |
-| `modules/filters/filters.js` | 445 | 12 | 2 | 14 | DATA:4, S:7 |
+| `modules/filters/filters.js` | 446 | 12 | 2 | 14 | DATA:4, S:7 |
 | `modules/graph/click-actions.js` | 201 | 8 | 2 | 8 | S:1 |
 | `modules/graph/graph-data.js` | 121 | 10 | 10 | 10 | DATA:2, S:6 |
 | `modules/graph/graph-selection.js` | 61 | 3 | 3 | 3 | S:1 |
@@ -128,20 +128,20 @@
 | `modules/metrics/rankings.js` | 141 | 5 | 4 | 3 | S:4, MET:9 |
 | `modules/metrics/scope-reset.js` | 64 | 3 | 1 | 12 | S:2 |
 | `modules/metrics/scope-select.js` | 99 | 6 | 6 | 2 | DATA:2, S:5 |
-| `modules/metrics/scope.js` | 135 | 7 | 6 | 8 | DATA:2, S:6 |
-| `modules/metrics/similarity-concepts.js` | 463 | 41 | 21 | 3 | S:4, MET:23 |
+| `modules/metrics/scope.js` | 149 | 8 | 7 | 8 | DATA:2, S:8 |
+| `modules/metrics/similarity-concepts.js` | 493 | 45 | 22 | 3 | S:4, MET:23 |
 | `modules/metrics/similarity-philosophers.js` | 166 | 11 | 7 | 2 | S:3, MET:3 |
 | `modules/metrics/tension-cache.js` | 13 | 1 | 1 | 1 | S:2 |
 | `modules/metrics/tradition-bridging.js` | 89 | 4 | 3 | 2 | S:4, MET:1 |
 | `modules/modal/assembly.js` | 56 | 3 | 3 | 2 | — |
 | `modules/modal/auth.js` | 220 | 9 | 4 | 8 | S:1 |
 | `modules/modal/commits.js` | 420 | 31 | 19 | 7 | — |
-| `modules/modal/concept-view.js` | 394 | 6 | 1 | 9 | DATA:5, VIEWS:1 |
+| `modules/modal/concept-view.js` | 398 | 6 | 1 | 9 | DATA:5, VIEWS:1 |
 | `modules/modal/conflict.js` | 88 | 5 | 5 | 7 | — |
 | `modules/modal/connection-edit.js` | 288 | 9 | 5 | 13 | DATA:2, VIEWS:1 |
 | `modules/modal/connection-view.js` | 421 | 11 | 5 | 12 | DATA:5, VIEWS:1 |
 | `modules/modal/context.js` | 11 | 1 | 1 | 0 | — |
-| `modules/modal/core.js` | 154 | 7 | 5 | 9 | S:1 |
+| `modules/modal/core.js` | 159 | 7 | 5 | 10 | S:1 |
 | `modules/modal/descriptions.js` | 162 | 10 | 6 | 0 | — |
 | `modules/modal/dirty.js` | 112 | 5 | 1 | 5 | DATA:2 |
 | `modules/modal/edit-forms.js` | 295 | 2 | 2 | 12 | DATA:5, VIEWS:2 |
@@ -161,7 +161,7 @@
 | `modules/paths/analysis.js` | 74 | 2 | 2 | 7 | DATA:2 |
 | `modules/paths/chronology.js` | 175 | 10 | 6 | 4 | DATA:1, S:1 |
 | `modules/paths/path-descriptions.js` | 179 | 4 | 3 | 8 | DATA:2, S:2 |
-| `modules/paths/path-ui.js` | 416 | 8 | 5 | 9 | DATA:4, S:7 |
+| `modules/paths/path-ui.js` | 418 | 8 | 5 | 10 | DATA:4, S:7 |
 | `modules/paths/shortest-path.js` | 203 | 4 | 1 | 5 | DATA:2, S:4 |
 | `modules/render/canvas-core.js` | 45 | 9 | 9 | 3 | S:3 |
 | `modules/render/d3-layer.js` | 107 | 11 | 9 | 7 | DATA:2, S:2 |
@@ -175,7 +175,7 @@
 | `modules/render/render-state.js` | 17 | 6 | 6 | 1 | — |
 | `modules/render/scene.js` | 350 | 18 | 7 | 14 | DATA:4, S:5 |
 | `modules/render/selection.js` | 261 | 8 | 7 | 11 | DATA:2, S:2 |
-| `modules/render/similarity-overlay.js` | 240 | 10 | 5 | 8 | DATA:4, S:1 |
+| `modules/render/similarity-overlay.js` | 256 | 10 | 5 | 9 | DATA:4, S:1 |
 | `modules/render/simulation.js` | 131 | 11 | 8 | 12 | DATA:2, S:5 |
 | `modules/render/tooltip-el.js` | 7 | 1 | 1 | 1 | — |
 | `modules/state/edit.js` | 12 | 1 | 1 | 0 | — |
@@ -185,12 +185,12 @@
 | `modules/state/render.js` | 141 | 12 | 11 | 5 | DATA:5, S:11 |
 | `modules/state/stats.js` | 33 | 0 | 0 | 1 | S:15 |
 | `modules/stats/coverage.js` | 66 | 3 | 3 | 6 | S:3, MET:19 |
-| `modules/stats/modal.js` | 240 | 8 | 8 | 17 | DATA:2, S:9 |
+| `modules/stats/modal.js` | 245 | 8 | 8 | 17 | DATA:2, S:10 |
 | `modules/stats/observations.js` | 223 | 11 | 5 | 6 | S:1 |
 | `modules/stats/results.js` | 414 | 11 | 8 | 4 | S:3 |
 | `modules/stats/run.js` | 128 | 4 | 1 | 3 | S:1, MET:6 |
 | `modules/stats/views/advanced.js` | 275 | 10 | 10 | 4 | DATA:3, MET:10 |
-| `modules/stats/views/comparison.js` | 504 | 12 | 12 | 10 | DATA:4, S:11 |
+| `modules/stats/views/comparison.js` | 508 | 12 | 12 | 11 | DATA:4, S:11 |
 | `modules/stats/views/network.js` | 223 | 9 | 9 | 4 | DATA:2, S:2, MET:1 |
 | `modules/stats/views/philosopher.js` | 171 | 4 | 4 | 6 | DATA:3, MET:3 |
 | `modules/stats/views/philosophical.js` | 473 | 12 | 12 | 7 | DATA:3, S:2, MET:10 |
@@ -203,14 +203,15 @@
 | `modules/ui/delegation.js` | 70 | 3 | 1 | 1 | — |
 | `modules/ui/export.js` | 126 | 2 | 2 | 11 | DATA:4, S:2 |
 | `modules/ui/hint.js` | 60 | 7 | 4 | 1 | S:1 |
-| `modules/ui/legend.js` | 387 | 29 | 24 | 7 | DATA:9, S:9 |
+| `modules/ui/legend.js` | 387 | 29 | 25 | 7 | DATA:9, S:9 |
+| `modules/ui/link-state.js` | 272 | 13 | 6 | 17 | DATA:5, S:11 |
 | `modules/ui/notifications.js` | 99 | 10 | 8 | 2 | — |
 | `modules/ui/panels.js` | 40 | 2 | 2 | 0 | — |
 | `modules/ui/search-legend.js` | 141 | 7 | 6 | 17 | S:2 |
 | `modules/ui/search-link.js` | 135 | 7 | 5 | 12 | DATA:3, S:2 |
 | `modules/ui/search-philosopher.js` | 98 | 7 | 6 | 6 | DATA:3 |
 | `modules/util/color.js` | 23 | 1 | 1 | 0 | — |
-| `modules/util/html.js` | 41 | 3 | 3 | 0 | — |
+| `modules/util/html.js` | 50 | 5 | 5 | 0 | — |
 | `modules/util/philosopher-label.js` | 40 | 7 | 5 | 3 | DATA:1 |
 | `modules/util/ru.js` | 49 | 3 | 3 | 0 | — |
 | `modules/widgets/custom-select.js` | 103 | 6 | 4 | 5 | S:4 |
@@ -239,7 +240,7 @@
 | `readCookie` | function | 10 | — |
 | `serverMode` | let | 1 | да |
 
-### `modules/core/events.js` — 65 строк, объявлений 5
+### `modules/core/events.js` — 66 строк, объявлений 5
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -285,11 +286,11 @@
 | `otherPhilosopher` | function | 4 | да |
 | `sumWeight` | function | 3 | да |
 
-### `modules/core/long-task.js` — 120 строк, объявлений 3
+### `modules/core/long-task.js` — 121 строк, объявлений 3
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `showTemporaryMessage` | function | 29 | да |
+| `showTemporaryMessage` | function | 30 | да |
 | `LoadingIndicator` | const | 1 | да |
 | `CHAIN_SEARCH` | const | 1 | да |
 
@@ -437,14 +438,14 @@
 | `confirmLongChainSearch` | function | 9 | да |
 | `CHAIN_WARN_THRESHOLD` | const | 1 | — |
 
-### `modules/filters/filters.js` — 445 строк, объявлений 12
+### `modules/filters/filters.js` — 446 строк, объявлений 12
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `handleUniqueChainsMode` | async function | 65 | — |
 | `handleChainsMode` | async function | 59 | — |
 | `applyBasicFilter` | function | 53 | — |
-| `applyFiltersImmediate` | function | 21 | да |
+| `applyFiltersImmediate` | function | 22 | да |
 | `cleanupInvisibleSelections` | function | 14 | — |
 | `debounce` | function | 11 | — |
 | `applyChainVisibility` | function | 8 | — |
@@ -668,27 +669,28 @@
 | `METRIC_FLAGS` | const | 1 | да |
 | `VIEW_METRIC` | const | 1 | да |
 
-### `modules/metrics/scope.js` — 135 строк, объявлений 7
+### `modules/metrics/scope.js` — 149 строк, объявлений 8
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
+| `applyMetricsScope` | function | 36 | да |
 | `updateScopeToggles` | function | 33 | да |
-| `applyMetricsScope` | function | 30 | да |
 | `installMetricScopeWrappers` | function | 18 | да |
 | `metricsScopeCounts` | function | 10 | да |
 | `metricScopeFactor` | function | 9 | — |
-| `handleMetricsScopeChange` | function | 8 | да |
+| `handleMetricsScopeChange` | function | 9 | да |
 | `updateMetricsScopeHint` | function | 6 | да |
+| `liveScopeKey` | function | 4 | да |
 
-### `modules/metrics/similarity-concepts.js` — 463 строк, объявлений 41
+### `modules/metrics/similarity-concepts.js` — 493 строк, объявлений 45
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `allConceptPairsAsync` | async function | 63 | да |
 | `nearestConcepts` | function | 51 | да |
 | `similarityData` | function | 48 | да |
+| `ensureNetworkProfile` | function | 38 | да |
 | `similarityThresholds` | function | 28 | да |
-| `ensureNetworkProfile` | function | 25 | да |
 | `zColumns` | function | 15 | — |
 | `typeStyleData` | function | 15 | — |
 | `networkSimilarityData` | function | 15 | да |
@@ -696,6 +698,7 @@
 | `neighborSets` | function | 12 | — |
 | `fillPairsNetwork` | function | 11 | да |
 | `networkRoleOf` | function | 11 | да |
+| `networkProgressPercent` | function | 10 | да |
 | `invalidateSimilarityCache` | function | 9 | да |
 | `profileSimilarity` | function | 9 | да |
 | `metricValueMap` | function | 9 | — |
@@ -720,6 +723,9 @@
 | `NETWORK_ROLE_WORDS` | const | 1 | да |
 | `_netSimCache` | let | 1 | — |
 | `_netSimPending` | let | 1 | — |
+| `NETWORK_PROGRESS_WEIGHTS` | const | 1 | — |
+| `_netProgress` | let | 1 | — |
+| `_netProgressListeners` | const | 1 | — |
 | `SIGNED_SIMILARITY` | const | 1 | да |
 | `SIM_VERDICT_HIGH_Q` | const | 1 | — |
 | `SIM_VERDICT_LOW_Q` | const | 1 | — |
@@ -815,15 +821,15 @@
 | `COMMIT_STATES` | const | 1 | — |
 | `LAYOUT_KINDS` | const | 1 | — |
 
-### `modules/modal/concept-view.js` — 394 строк, объявлений 6
+### `modules/modal/concept-view.js` — 398 строк, объявлений 6
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `similarConceptsBlock` | function | 51 | — |
 | `similarItemHtml` | function | 15 | — |
 | `similarNetworkColumnHtml` | function | 15 | — |
+| `computeSimilarNetworkColumn` | function | 13 | да |
 | `similarColumnHtml` | function | 10 | — |
-| `computeSimilarNetworkColumn` | function | 9 | да |
 | `refreshSimilarNetworkColumn` | function | 5 | — |
 
 ### `modules/modal/conflict.js` — 88 строк, объявлений 5
@@ -872,12 +878,12 @@
 |---|---|---|---|
 | `ModalContext` | const | 1 | да |
 
-### `modules/modal/core.js` — 154 строк, объявлений 7
+### `modules/modal/core.js` — 159 строк, объявлений 7
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `openUniversalModal` | function | 64 | да |
-| `closeUniversalModal` | function | 27 | да |
+| `openUniversalModal` | function | 67 | да |
+| `closeUniversalModal` | function | 28 | да |
 | `toggleModalMode` | function | 17 | да |
 | `pushModalState` | function | 14 | — |
 | `popModalState` | function | 10 | да |
@@ -1118,11 +1124,11 @@
 | `closePathDescriptionsModal` | function | 15 | да |
 | `nodesDescriptionsVisible` | let | 1 | — |
 
-### `modules/paths/path-ui.js` — 416 строк, объявлений 8
+### `modules/paths/path-ui.js` — 418 строк, объявлений 8
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `findAndShowPath` | function | 268 | да |
+| `findAndShowPath` | function | 269 | да |
 | `handlePathArrowHover` | function | 39 | да |
 | `resolvePathLinkList` | function | 37 | да |
 | `initPathFinder` | function | 23 | да |
@@ -1299,18 +1305,18 @@
 | `isEdgeConnectedToSelectedNodes` | function | 8 | да |
 | `isEdgeConnectedToNode` | function | 5 | — |
 
-### `modules/render/similarity-overlay.js` — 240 строк, объявлений 10
+### `modules/render/similarity-overlay.js` — 256 строк, объявлений 10
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `showSimilarityOverlay` | function | 115 | да |
-| `updateSimilarityLegend` | function | 47 | — |
+| `showSimilarityOverlay` | function | 126 | да |
+| `updateSimilarityLegend` | function | 49 | — |
 | `similarityLinkCount` | function | 13 | — |
 | `linkAmongHighlighted` | function | 12 | да |
 | `similarityColor` | function | 9 | да |
 | `nodeLitBySimilarity` | function | 9 | — |
-| `setSimilarityLinks` | function | 6 | да |
-| `clearSimilarityOverlay` | function | 5 | да |
+| `setSimilarityLinks` | function | 7 | да |
+| `clearSimilarityOverlay` | function | 6 | да |
 | `SIMILARITY_KEEP_QUANTILE` | const | 1 | — |
 | `SIMILARITY_ARCS` | const | 1 | — |
 
@@ -1375,15 +1381,15 @@
 | `generateMetricCoverageBlock` | function | 12 | да |
 | `METRIC_COVERAGE_WARN` | const | 1 | да |
 
-### `modules/stats/modal.js` — 240 строк, объявлений 8
+### `modules/stats/modal.js` — 245 строк, объявлений 8
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `loadStatsContent` | function | 69 | да |
 | `openStatsModal` | function | 38 | да |
-| `handleStatsParameterChange` | function | 31 | да |
-| `closeStatsModal` | function | 30 | да |
-| `switchStatsView` | function | 15 | да |
+| `closeStatsModal` | function | 33 | да |
+| `handleStatsParameterChange` | function | 32 | да |
+| `switchStatsView` | function | 16 | да |
 | `updateActiveNavItem` | function | 10 | да |
 | `installStatsModalDismiss` | function | 9 | да |
 | `installStatsEscape` | function | 7 | да |
@@ -1444,11 +1450,11 @@
 | `generateInstrumentalContent` | function | 19 | да |
 | `generateDeductiveContent` | function | 19 | да |
 
-### `modules/stats/views/comparison.js` — 504 строк, объявлений 12
+### `modules/stats/views/comparison.js` — 508 строк, объявлений 12
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `renderClosestPairs` | async function | 106 | да |
+| `renderClosestPairs` | async function | 108 | да |
 | `renderComparison` | function | 68 | да |
 | `renderPhilosopherComparison` | function | 63 | да |
 | `similarityVerdict` | function | 49 | да |
@@ -1458,8 +1464,8 @@
 | `generatePhilosopherComparisonContent` | function | 32 | да |
 | `generatePhilosopherPairsContent` | function | 21 | да |
 | `computeComparisonNetwork` | function | 7 | да |
+| `openPairInComparison` | function | 5 | да |
 | `openPhilosopherPair` | function | 4 | да |
-| `openPairInComparison` | function | 4 | да |
 
 ### `modules/stats/views/network.js` — 223 строк, объявлений 9
 
@@ -1579,7 +1585,7 @@
 | `selectAllRubrics` | function | 7 | да |
 | `deselectAllRubrics` | function | 7 | да |
 | `markChosenInLegend` | function | 6 | да |
-| `syncPhilosopherCheckboxes` | function | 6 | — |
+| `syncPhilosopherCheckboxes` | function | 6 | да |
 | `resetTradition` | function | 5 | да |
 | `selectAllTraditions` | function | 5 | да |
 | `deselectAllTraditions` | function | 5 | да |
@@ -1590,6 +1596,24 @@
 | `WITHOUT_TRADITION` | const | 1 | — |
 | `legendWeightsToggle` | const | 1 | — |
 | `legendDirectionToggle` | const | 1 | — |
+
+### `modules/ui/link-state.js` — 272 строк, объявлений 13
+
+| Имя | Вид | Строк | Вывозится |
+|---|---|---|---|
+| `applyLinkState` | function | 111 | да |
+| `currentLinkState` | function | 53 | да |
+| `hashToLinkState` | function | 15 | да |
+| `initLinkState` | function | 15 | да |
+| `syncLinkHash` | function | 11 | — |
+| `excludedList` | function | 8 | — |
+| `linkStateToHash` | function | 8 | да |
+| `philosopherIdByName` | function | 4 | — |
+| `philosopherNameById` | function | 4 | — |
+| `LINK_KEYS` | const | 1 | — |
+| `_linkApplying` | let | 1 | — |
+| `_linkMissed` | let | 1 | да |
+| `_linkLastHash` | let | 1 | — |
 
 ### `modules/ui/notifications.js` — 99 строк, объявлений 10
 
@@ -1655,13 +1679,15 @@
 |---|---|---|---|
 | `getContrastColor` | function | 18 | да |
 
-### `modules/util/html.js` — 41 строк, объявлений 3
+### `modules/util/html.js` — 50 строк, объявлений 5
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `provenanceBlock` | function | 24 | да |
 | `scrollToPickedRow` | function | 6 | да |
+| `updateLiveProgress` | function | 4 | да |
 | `escapeAttr` | function | 4 | да |
+| `liveProgressHtml` | function | 3 | да |
 
 ### `modules/util/philosopher-label.js` — 40 строк, объявлений 7
 
@@ -1761,6 +1787,7 @@
 - из `modules/stats/modal.js`: `closeStatsModal`, `loadStatsContent`, `switchStatsView`
 - из `modules/stats/views/comparison.js`: `renderComparison`
 - из `modules/ui/legend.js`: `initFilters`, `markChosenInLegend`, `syncTraditionRows`, `updateFilterStats`
+- из `modules/ui/link-state.js`: `initLinkState`
 - из `modules/ui/notifications.js`: `markNotificationRead`, `refreshUnread`, `renderBell`
 - из `modules/ui/panels.js`: `restorePanelStates`
 - из `modules/widgets/custom-select.js`: `initializeCustomSelects`
@@ -1878,6 +1905,7 @@
 - из `modules/ui/export.js`: _ради побочного действия_
 - из `modules/ui/hint.js`: _ради побочного действия_
 - из `modules/ui/legend.js`: _ради побочного действия_
+- из `modules/ui/link-state.js`: _ради побочного действия_
 - из `modules/ui/notifications.js`: _ради побочного действия_
 - из `modules/ui/panels.js`: _ради побочного действия_
 - из `modules/ui/search-legend.js`: _ради побочного действия_
@@ -2048,7 +2076,7 @@
 - из `modules/state/filters.js`: `pinnedDespiteFilter`, `pinnedVisibleNodes`
 - из `modules/state/render.js`: `selectedNodes`
 
-Чаще всего поминает: `S`×60, `DATA`×20, `emit`×9, `showTemporaryMessage`×9, `CHAIN_SEARCH`×8
+Чаще всего поминает: `S`×60, `DATA`×20, `emit`×10, `showTemporaryMessage`×9, `CHAIN_SEARCH`×8
 
 ### `modules/graph/click-actions.js`
 
@@ -2207,7 +2235,7 @@
 - из `modules/metrics/scope-reset.js`: `invalidateEverythingForScope`
 - из `modules/metrics/scope-select.js`: `METRIC_FLAGS`, `VIEW_METRIC`, `effectiveScopeFlags`, `transformForScope`
 
-Чаще всего поминает: `S`×16, `DATA`×6, `METRIC_FLAGS`×3, `initializePhilosophyMetrics`×2, `invalidateEverythingForScope`×2
+Чаще всего поминает: `S`×24, `DATA`×6, `METRIC_FLAGS`×3, `initializePhilosophyMetrics`×2, `invalidateEverythingForScope`×2
 
 ### `modules/metrics/similarity-concepts.js`
 
@@ -2215,7 +2243,7 @@
 - из `modules/metrics/network.js`: `betweennessCache`, `calculateBetweennessAsync`, `closenessCache`, `eigenvectorCache`, `medianNodeDegree`, `nodeDegreeOf`, `pageRankCache`
 - из `modules/metrics/similarity-philosophers.js`: `invalidatePhilosopherSimilarityCache`
 
-Чаще всего поминает: `MET`×23, `S`×8, `nodeDegreeOf`×2, `pageRankCache`×2, `betweennessCache`×2
+Чаще всего поминает: `MET`×23, `S`×8, `pageRankCache`×3, `betweennessCache`×3, `closenessCache`×3
 
 ### `modules/metrics/similarity-philosophers.js`
 
@@ -2275,11 +2303,11 @@
 - из `modules/core/graph-index.js`: _ради побочного действия_
 - из `modules/core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`
 - из `modules/metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
-- из `modules/metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `profileIsMeaningful`
+- из `modules/metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `networkProgressPercent`, `profileIsMeaningful`
 - из `modules/modal/connection-view.js`: `linkArrow`
 - из `modules/modal/history.js`: `historyBlock`
 - из `modules/util/color.js`: `getContrastColor`
-- из `modules/util/html.js`: `provenanceBlock`
+- из `modules/util/html.js`: `liveProgressHtml`, `provenanceBlock`, `updateLiveProgress`
 
 Чаще всего поминает: `DATA`×11, `nearestConcepts`×4, `nodeDegreeOf`×3, `medianNodeDegree`×3, `conceptById`×2
 
@@ -2333,6 +2361,7 @@
 ### `modules/modal/core.js`
 
 - из `modules/core/ns.js`: `S`
+- из `modules/core/events.js`: `emit`
 - из `modules/core/perms.js`: `PERM`, `can`
 - из `modules/graph/graph-selection.js`: `cancelGraphSelection`
 - из `modules/modal/assembly.js`: `modalContentFor`, `modalEntityExists`
@@ -2342,7 +2371,7 @@
 - из `modules/modal/search.js`: `clearModalSearch`
 - из `modules/render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
 
-Чаще всего поминает: `ModalContext`×17, `hasUnsavedChanges`×2, `can`×2, `PERM`×2, `initConnectionSearchFields`×2
+Чаще всего поминает: `ModalContext`×17, `hasUnsavedChanges`×2, `can`×2, `PERM`×2, `emit`×2
 
 ### `modules/modal/dirty.js`
 
@@ -2564,6 +2593,7 @@
 
 - из `modules/core/ns.js`: `DATA`, `S`
 - из `modules/core/graph-index.js`: _ради побочного действия_
+- из `modules/core/events.js`: `emit`
 - из `modules/core/graph-index.js`: `conceptById`, `philosopherByName`
 - из `modules/core/link-facts.js`: `isSymmetricLink`
 - из `modules/core/time.js`: `CHRONOLOGY_MODES`
@@ -2572,7 +2602,7 @@
 - из `modules/render/d3-layer.js`: `gfxLinkAll`, `gfxNode`
 - из `modules/render/selection.js`: `resetHighlight`
 
-Чаще всего поминает: `S`×15, `DATA`×6, `resetHighlight`×3, `philosopherByName`×2, `findShortestPath`×1
+Чаще всего поминает: `S`×15, `DATA`×6, `resetHighlight`×3, `philosopherByName`×2, `emit`×1
 
 ### `modules/paths/shortest-path.js`
 
@@ -2731,10 +2761,11 @@
 - из `modules/core/graph-index.js`: `conceptById`
 - из `modules/core/long-task.js`: `showTemporaryMessage`
 - из `modules/metrics/link-indexes.js`: `initializePhilosophyMetrics`
-- из `modules/metrics/similarity-concepts.js`: `SIGNED_SIMILARITY`, `_simCache`, `ensureNetworkProfile`, `networkSimilarity`, `networkSimilarityData`, `profileIsMeaningful`, `profileSimilarity`, `similarityNeedsDegree`, `structuralSimilarity`, `typeStyleSimilarity`
+- из `modules/metrics/similarity-concepts.js`: `SIGNED_SIMILARITY`, `_simCache`, `ensureNetworkProfile`, `networkProgressPercent`, `networkSimilarity`, `networkSimilarityData`, `profileIsMeaningful`, `profileSimilarity`, `similarityNeedsDegree`, `structuralSimilarity`, `typeStyleSimilarity`
 - из `modules/render/loop.js`: `requestDraw`
+- из `modules/util/html.js`: `liveProgressHtml`, `updateLiveProgress`
 
-Чаще всего поминает: `S`×29, `showTemporaryMessage`×8, `DATA`×4, `profileIsMeaningful`×3, `requestDraw`×3
+Чаще всего поминает: `S`×29, `showTemporaryMessage`×6, `DATA`×4, `emit`×4, `profileIsMeaningful`×3
 
 ### `modules/render/simulation.js`
 
@@ -2811,7 +2842,7 @@
 - из `modules/metrics/graph-cache.js`: `invalidateGraphCache`
 - из `modules/metrics/link-indexes.js`: `initializePhilosophyMetrics`
 - из `modules/metrics/scope-reset.js`: `invalidateEverythingForScope`
-- из `modules/metrics/scope.js`: `applyMetricsScope`, `installMetricScopeWrappers`, `updateMetricsScopeHint`, `updateScopeToggles`
+- из `modules/metrics/scope.js`: `applyMetricsScope`, `installMetricScopeWrappers`, `liveScopeKey`, `updateMetricsScopeHint`, `updateScopeToggles`
 - из `modules/render/metric-visualization.js`: `resetNodeSizes`
 - из `modules/render/scene.js`: `ensureAnimLoop`, `needsContinuousAnimation`
 - из `modules/render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
@@ -2824,7 +2855,7 @@
 - из `modules/stats/views/philosophical.js`: `generateCoherenceContent`, `generateCriticalPowerContent`, `generateDialogicalContent`, `generateFoundationalContent`, `generateInfluenceContent`, `generateParadigmShiftContent`, `generateProblemGenerationContent`, `generateRevolutionaryContent`, `generateSyntheticContent`, `generateTensionContent`
 - из `modules/stats/views/rankings.js`: `generateConceptRankingsContent`, `generatePhilosopherRankingsContent`
 
-Чаще всего поминает: `S`×21, `applyMetricsScope`×3, `updateScopeToggles`×3, `DATA`×2, `initializePhilosophyMetrics`×2
+Чаще всего поминает: `S`×24, `emit`×4, `applyMetricsScope`×3, `updateScopeToggles`×3, `DATA`×2
 
 ### `modules/stats/observations.js`
 
@@ -2872,9 +2903,10 @@
 - из `modules/core/long-task.js`: `LoadingIndicator`
 - из `modules/metrics/link-indexes.js`: `initializePhilosophyMetrics`
 - из `modules/metrics/philosopher.js`: `philosopherProfile`
-- из `modules/metrics/similarity-concepts.js`: `NETWORK_ROLE_WORDS`, `SIM_SHARED_HIGH`, `_pairCalculating`, `allConceptPairs`, `allConceptPairsAsync`, `ensureNetworkProfile`, `fillPairsNetwork`, `networkRoleOf`, `networkSimilarity`, `profileIsMeaningful`, `profileSimilarity`, `similarityData`, `similarityThresholds`, `structuralSimilarity`, `typeStyleSimilarity`
+- из `modules/metrics/similarity-concepts.js`: `NETWORK_ROLE_WORDS`, `SIM_SHARED_HIGH`, `_pairCalculating`, `allConceptPairs`, `allConceptPairsAsync`, `ensureNetworkProfile`, `fillPairsNetwork`, `networkProgressPercent`, `networkRoleOf`, `networkSimilarity`, `profileIsMeaningful`, `profileSimilarity`, `similarityData`, `similarityThresholds`, `structuralSimilarity`, `typeStyleSimilarity`
 - из `modules/metrics/similarity-philosophers.js`: `PHIL_SIM_LABELS`, `SIM_METRIC_LABELS`, `philosopherSimilarity`, `philosopherSimilarityData`
 - из `modules/stats/results.js`: `generateMetricDescriptionBlock`
+- из `modules/util/html.js`: `liveProgressHtml`, `updateLiveProgress`
 
 Чаще всего поминает: `S`×56, `DATA`×12, `PHIL_SIM_LABELS`×5, `initializePhilosophyMetrics`×4, `generateMetricDescriptionBlock`×4
 
@@ -3046,6 +3078,28 @@
 - из `modules/state/filters.js`: `chosenPhilosophers`
 
 Чаще всего поминает: `S`×33, `DATA`×27, `applyFilters`×15, `chosenPhilosophers`×1, `relationHint`×1
+
+### `modules/ui/link-state.js`
+
+- из `modules/core/ns.js`: `DATA`, `S`
+- из `modules/core/graph-index.js`: _ради побочного действия_
+- из `modules/core/events.js`: `subscribe`
+- из `modules/core/graph-index.js`: `conceptById`
+- из `modules/core/long-task.js`: `showTemporaryMessage`
+- из `modules/filters/filters.js`: `applyFiltersImmediate`
+- из `modules/metrics/scope.js`: `handleMetricsScopeChange`
+- из `modules/metrics/similarity-concepts.js`: `networkSimilarityData`
+- из `modules/modal/context.js`: `ModalContext`
+- из `modules/modal/core.js`: `openUniversalModal`
+- из `modules/modal/entry.js`: `openConceptById`
+- из `modules/paths/path-ui.js`: `findAndShowPath`
+- из `modules/render/similarity-overlay.js`: `setSimilarityLinks`, `showSimilarityOverlay`
+- из `modules/stats/modal.js`: `handleStatsParameterChange`, `openStatsModal`, `switchStatsView`
+- из `modules/stats/views/comparison.js`: `renderComparison`
+- из `modules/ui/legend.js`: `changeFilterMode`, `syncPhilosopherCheckboxes`
+- из `modules/widgets/custom-select.js`: `selectCustomOption`
+
+Чаще всего поминает: `S`×39, `DATA`×10, `ModalContext`×6, `conceptById`×6, `syncPhilosopherCheckboxes`×2
 
 ### `modules/ui/notifications.js`
 

@@ -61,6 +61,7 @@ import { installLayoutPull, layoutFromStore, storedLayoutComplaint } from './mod
 import { closeStatsModal, loadStatsContent, switchStatsView } from './modules/stats/modal.js';
 import { renderComparison } from './modules/stats/views/comparison.js';
 import { initFilters, markChosenInLegend, syncTraditionRows, updateFilterStats } from './modules/ui/legend.js';
+import { initLinkState } from './modules/ui/link-state.js';
 import { markNotificationRead, refreshUnread, renderBell } from './modules/ui/notifications.js';
 import { restorePanelStates } from './modules/ui/panels.js';
 import { initializeCustomSelects } from './modules/widgets/custom-select.js';
@@ -83,6 +84,9 @@ export async function boot() {
   
   onLoad(() => {
         saveOriginalRadii();
+        // Состояние из адреса — после первой отрисовки: раскладка и указатели
+        // должны быть на месте, иначе восстанавливать нечего.
+        setTimeout(initLinkState, 1200);
       });
   
   installLegendSearchDismiss();
