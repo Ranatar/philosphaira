@@ -58,13 +58,23 @@ function currentLinkState() {
         const data = ModalContext.currentData;
         if (ModalContext.currentEntity === 'concept' && data.id) st.concept = data.id;
         if (ModalContext.currentEntity === 'philosopher') {
-          const id = data.id || philosopherIdByName(data.nameRu || data.name);
+          // Философа открывают ИМЕНЕМ-СТРОКОЙ (`openUniversalModal(
+          // 'philosopher', node.concept, 'view')`) — так зовут и карточка
+          // узла, и панель отбора, и окно профиля. Объект приходит только
+          // из восстановления ссылки. Первая редакция ждала объект, и
+          // потому у окна философа адрес не писался вовсе.
+          const id = typeof data === 'string'
+            ? philosopherIdByName(data)
+            : (data.id || philosopherIdByName(data.nameRu || data.name));
           if (id) st.philosopher = id;
         }
         if (ModalContext.currentEntity === 'connection' && data.id) st.connection = data.id;
       }
       // путь
-      if (S.selectedSourceNode && S.selectedTargetNode) {
+      // О показанности пути спрашиваем РАЗМЕТКУ: концы остаются выбранными
+      // и после сброса подсветки, а панель пуста — адрес обязан это видеть.
+      const pathShown = !!document.querySelector('#pathResult.show');
+      if (S.selectedSourceNode && S.selectedTargetNode && pathShown) {
         st.path = S.selectedSourceNode + '..' + S.selectedTargetNode;
         const letterIf = (id, letter) => document.getElementById(id) && document.getElementById(id).checked ? letter : '';
         const opts = [letterIf('respectChronology', 'x'), letterIf('respectDirectionPath', 'd'),
@@ -235,8 +245,8 @@ function applyLinkState(st) {
           if (node) openConceptById(st.concept); else missed.push('концепция ' + st.concept);
         } else if (st.philosopher) {
           const name = philosopherNameById(st.philosopher);
-          const phil = name ? DATA.philosophers.find(x => x.id === st.philosopher) : null;
-          if (phil) openUniversalModal('philosopher', phil, 'view'); else missed.push('философ ' + st.philosopher);
+          if (name) openUniversalModal('philosopher', name, 'view');
+          else missed.push('философ ' + st.philosopher);
         } else if (st.connection) {
           const relation = (DATA.relations).find(rubric => rubric.id === st.connection);
           if (relation) openUniversalModal('connection', relation, 'view'); else missed.push('связь ' + st.connection);
