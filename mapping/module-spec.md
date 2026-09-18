@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 130 модулей, 21704 строк.
+Составлено из готовой сборки: 130 модулей, 21717 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -119,7 +119,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/paths/analysis.js` | 74 | 2 | 7 |
 | `modules/paths/chronology.js` | 175 | 6 | 4 |
 | `modules/paths/path-descriptions.js` | 179 | 3 | 8 |
-| `modules/paths/path-ui.js` | 418 | 5 | 10 |
+| `modules/paths/path-ui.js` | 421 | 5 | 10 |
 | `modules/paths/shortest-path.js` | 203 | 1 | 5 |
 | `modules/render/canvas-core.js` | 45 | 9 | 2 |
 | `modules/render/d3-layer.js` | 107 | 9 | 6 |
@@ -162,7 +162,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/ui/export.js` | 126 | 2 | 11 |
 | `modules/ui/hint.js` | 60 | 4 | 1 |
 | `modules/ui/legend.js` | 387 | 25 | 7 |
-| `modules/ui/link-state.js` | 272 | 6 | 17 |
+| `modules/ui/link-state.js` | 282 | 6 | 17 |
 | `modules/ui/notifications.js` | 99 | 8 | 2 |
 | `modules/ui/panels.js` | 40 | 2 | 0 |
 | `modules/ui/search-legend.js` | 141 | 6 | 16 |
@@ -1534,7 +1534,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/paths/path-ui.js`
 
-Строк 418.
+Строк 421.
 
 **Вывозит:** `clearPathHighlight`, `findAndShowPath`, `handlePathArrowHover`, `initPathFinder`, `resolvePathLinkList`
 
@@ -2285,7 +2285,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/link-state.js`
 
-Строк 272.
+Строк 282.
 
 **Вывозит:** `_linkMissed`, `applyLinkState`, `currentLinkState`, `hashToLinkState`, `initLinkState`, `linkStateToHash`
 

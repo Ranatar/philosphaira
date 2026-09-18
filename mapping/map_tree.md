@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-130 модулей, 21704 строк, 897 объявлений,
-618 вывозов, 834 рёбер ввоза. Составлено 2026-09-18 07:14:25.
+130 модулей, 21717 строк, 897 объявлений,
+618 вывозов, 834 рёбер ввоза. Составлено 2026-09-18 10:08:36.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -161,7 +161,7 @@
 | `modules/paths/analysis.js` | 74 | 2 | 2 | 7 | DATA:2 |
 | `modules/paths/chronology.js` | 175 | 10 | 6 | 4 | DATA:1, S:1 |
 | `modules/paths/path-descriptions.js` | 179 | 4 | 3 | 8 | DATA:2, S:2 |
-| `modules/paths/path-ui.js` | 418 | 8 | 5 | 10 | DATA:4, S:7 |
+| `modules/paths/path-ui.js` | 421 | 8 | 5 | 10 | DATA:4, S:7 |
 | `modules/paths/shortest-path.js` | 203 | 4 | 1 | 5 | DATA:2, S:4 |
 | `modules/render/canvas-core.js` | 45 | 9 | 9 | 3 | S:3 |
 | `modules/render/d3-layer.js` | 107 | 11 | 9 | 7 | DATA:2, S:2 |
@@ -204,7 +204,7 @@
 | `modules/ui/export.js` | 126 | 2 | 2 | 11 | DATA:4, S:2 |
 | `modules/ui/hint.js` | 60 | 7 | 4 | 1 | S:1 |
 | `modules/ui/legend.js` | 387 | 29 | 25 | 7 | DATA:9, S:9 |
-| `modules/ui/link-state.js` | 272 | 13 | 6 | 17 | DATA:5, S:11 |
+| `modules/ui/link-state.js` | 282 | 13 | 6 | 17 | DATA:5, S:11 |
 | `modules/ui/notifications.js` | 99 | 10 | 8 | 2 | — |
 | `modules/ui/panels.js` | 40 | 2 | 2 | 0 | — |
 | `modules/ui/search-legend.js` | 141 | 7 | 6 | 17 | S:2 |
@@ -1124,16 +1124,16 @@
 | `closePathDescriptionsModal` | function | 15 | да |
 | `nodesDescriptionsVisible` | let | 1 | — |
 
-### `modules/paths/path-ui.js` — 418 строк, объявлений 8
+### `modules/paths/path-ui.js` — 421 строк, объявлений 8
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `findAndShowPath` | function | 269 | да |
+| `findAndShowPath` | function | 271 | да |
 | `handlePathArrowHover` | function | 39 | да |
 | `resolvePathLinkList` | function | 37 | да |
 | `initPathFinder` | function | 23 | да |
 | `highlightPath` | function | 18 | — |
-| `clearPathHighlight` | function | 6 | да |
+| `clearPathHighlight` | function | 7 | да |
 | `arrowHoverTimer` | let | 1 | — |
 | `ARROW_HOVER_DELAY` | const | 1 | — |
 
@@ -1597,12 +1597,12 @@
 | `legendWeightsToggle` | const | 1 | — |
 | `legendDirectionToggle` | const | 1 | — |
 
-### `modules/ui/link-state.js` — 272 строк, объявлений 13
+### `modules/ui/link-state.js` — 282 строк, объявлений 13
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `applyLinkState` | function | 111 | да |
-| `currentLinkState` | function | 53 | да |
+| `currentLinkState` | function | 63 | да |
 | `hashToLinkState` | function | 15 | да |
 | `initLinkState` | function | 15 | да |
 | `syncLinkHash` | function | 11 | — |
@@ -2602,7 +2602,7 @@
 - из `modules/render/d3-layer.js`: `gfxLinkAll`, `gfxNode`
 - из `modules/render/selection.js`: `resetHighlight`
 
-Чаще всего поминает: `S`×15, `DATA`×6, `resetHighlight`×3, `philosopherByName`×2, `emit`×1
+Чаще всего поминает: `S`×15, `DATA`×6, `resetHighlight`×3, `philosopherByName`×2, `emit`×2
 
 ### `modules/paths/shortest-path.js`
 
@@ -3099,7 +3099,7 @@
 - из `modules/ui/legend.js`: `changeFilterMode`, `syncPhilosopherCheckboxes`
 - из `modules/widgets/custom-select.js`: `selectCustomOption`
 
-Чаще всего поминает: `S`×39, `DATA`×10, `ModalContext`×6, `conceptById`×6, `syncPhilosopherCheckboxes`×2
+Чаще всего поминает: `S`×39, `DATA`×9, `ModalContext`×6, `conceptById`×6, `syncPhilosopherCheckboxes`×2
 
 ### `modules/ui/notifications.js`
 

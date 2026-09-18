@@ -62,7 +62,6 @@ function findAndShowPath() {
         return;
       }
       
-      emit('state-changed', true);   // построенный путь — событие истории
       // Временно меняем глобальные переменные для поиска пути
       const originalWeights = S.useWeightedPaths;
       const originalDirection = S.respectDirection;
@@ -301,6 +300,9 @@ function findAndShowPath() {
       };
 
       resultDiv.classList.add('show');
+      // Крюк адреса — ПОСЛЕ показа панели: currentLinkState берёт путь,
+      // только пока он показан (концы остаются выбранными и после сброса).
+      emit('state-changed', true);   // построенный путь — событие истории
       
       // Подсвечиваем путь на графе
       highlightPath(path, respectDirectionPath, selectedChronologyMode);
@@ -412,6 +414,7 @@ function clearPathHighlight() {
       const resultDiv = document.getElementById('pathResult');
       resultDiv.classList.remove('show');
       resultDiv.innerHTML = '';
+      emit('state-changed', false);   // путь снят — адрес правит текущую запись
     }
 
 export { clearPathHighlight, findAndShowPath, handlePathArrowHover, initPathFinder, resolvePathLinkList };

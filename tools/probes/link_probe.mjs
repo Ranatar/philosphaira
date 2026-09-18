@@ -126,11 +126,13 @@ await круг('окно концепции', async page => {
   await page.evaluate(id => window.__app.openConceptById(id), ids[0]);
 });
 
-// 2. окно философа
+// 2. окно философа, открытое ТАК ЖЕ, КАК ЕГО ОТКРЫВАЕТ ПРИЛОЖЕНИЕ:
+// именем-строкой из карточки узла. Первая редакция слоя ждала объект, и у
+// окна философа адрес не писался вовсе (нашёл пользователь, 18 сентября).
 await круг('окно философа', async page => {
   await page.evaluate(() => {
     const A = window.__app;
-    A.openUniversalModal('philosopher', A.DATA.philosophers[3], 'view');
+    A.openUniversalModal('philosopher', A.DATA.nodes[0].concept, 'view');
   });
 });
 
@@ -155,6 +157,37 @@ await круг('путь', async page => {
     A.findAndShowPath();
   });
 }, { ждатьПосле: 2500 });
+
+// 4-бис. СНЯТЫЙ путь: концы остаются выбранными, панель пуста — и адрес
+// обязан это видеть. Прежде ссылка на путь оставалась после сброса
+// подсветки (нашёл пользователь, 18 сентября).
+{
+  const { page, ошибки } = await вкладка('');
+  await page.evaluate(() => {
+    const A = window.__app;
+    const ids = A.DATA.concepts.map(c => c.id);
+    A.selectCustomOption('source', ids[0]);
+    A.selectCustomOption('target', ids[40]);
+    A.findAndShowPath();
+  });
+  await wait(2500);
+  const сПутём = await page.evaluate(() => location.hash);
+  // жмём ту же кнопку, что и человек, а не зовём обработчик по имени
+  const нажалось = await page.evaluate(() => {
+    const b = [...document.querySelectorAll('#pathFinder button, .path-btn')]
+      .find(x => /Сбросить|Очистить/i.test(x.textContent));
+    if (b) { b.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window })); return true; }
+    return false;
+  });
+  проверить('снятый путь: кнопка сброса нашлась', нажалось, true, нажалось);
+  await wait(800);
+  const после = await page.evaluate(() => location.hash);
+  проверить('снятый путь: сперва адрес с путём', /path=/.test(сПутём), 'path=…', сПутём);
+  проверить('снятый путь: после сброса подсветки путь из адреса ушёл',
+    !/path=/.test(после), 'без path=', после || '(пусто)');
+  проверить('снятый путь: ошибок страницы нет', ошибки.length === 0, 0, ошибки.slice(0, 2).join(' | '));
+  await page.close();
+}
 
 // 5. фильтры: снятые философы, типы, рубрики
 await круг('фильтры', async page => {
