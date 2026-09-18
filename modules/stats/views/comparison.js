@@ -6,10 +6,11 @@ import { conceptById } from '../../core/graph-index.js';
 import { LoadingIndicator } from '../../core/long-task.js';
 import { initializePhilosophyMetrics } from '../../metrics/link-indexes.js';
 import { philosopherProfile } from '../../metrics/philosopher.js';
-import { NETWORK_ROLE_WORDS, SIM_SHARED_HIGH, _pairCalculating, allConceptPairs, allConceptPairsAsync, ensureNetworkProfile, fillPairsNetwork, networkRoleOf, networkSimilarity, profileIsMeaningful, profileSimilarity, similarityData, similarityThresholds, structuralSimilarity, typeStyleSimilarity } from '../../metrics/similarity-concepts.js';
+import { NETWORK_ROLE_WORDS, SIM_SHARED_HIGH, _pairCalculating, allConceptPairs, allConceptPairsAsync, ensureNetworkProfile, fillPairsNetwork, networkProgressPercent, networkRoleOf, networkSimilarity, profileIsMeaningful, profileSimilarity, similarityData, similarityThresholds, structuralSimilarity, typeStyleSimilarity } from '../../metrics/similarity-concepts.js';
 import { PHIL_SIM_LABELS, SIM_METRIC_LABELS, philosopherSimilarity, philosopherSimilarityData } from '../../metrics/similarity-philosophers.js';
 
 import { generateMetricDescriptionBlock } from '../results.js';
+import { liveProgressHtml, updateLiveProgress } from '../../util/html.js';
 
 function generatePhilosopherComparisonContent() {
       if (!DATA.concepts || !DATA.relations) initializePhilosophyMetrics();
@@ -184,7 +185,7 @@ function generateClosestPairsContent() {
             <button class="pairs-btn" id="pairsBtnProfile" data-act-click="render-closest-pairs">По профилю</button>
             <button class="pairs-btn" id="pairsBtnStructure" data-act-click="render-closest-pairs-2">По структуре</button>
             <button class="pairs-btn" id="pairsBtnTypes" data-act-click="render-closest-pairs-3">По типам связей</button>
-            <button class="pairs-btn" id="pairsBtnNetwork" data-act-click="render-closest-pairs-4">По месту в сети</button>
+            <button class="pairs-btn" id="pairsBtnNetwork" data-sweep-skip data-act-click="render-closest-pairs-4">По месту в сети</button>
           </div>
           <label class="pairs-filter">
             Минимальная связность узла: <b id="pairsDegVal">${S._pairsMinDegree}</b>
@@ -243,9 +244,11 @@ async function renderClosestPairs() {
         }
       }
       const kind = S._pairsKind;
+      emit('state-changed', false);
       if (kind === 'network' && !fillPairsNetwork(P)) {
-        box.innerHTML = '<div class="pairs-count">Считаю сетевые метрики…</div>';
-        const ok = await ensureNetworkProfile();
+        box.innerHTML = '<div class="pairs-count">Считаю сетевые метрики… '
+          + liveProgressHtml(networkProgressPercent()) + '</div>';
+        const ok = await ensureNetworkProfile(pct => updateLiveProgress(document.getElementById('pairsBody'), pct));
         if (!ok) { box.innerHTML = '<div class="pairs-count">Сетевые метрики не досчитались.</div>'; return; }
         if (S._pairsKind === 'network' && document.getElementById('pairsBody')) renderClosestPairs();
         return;
@@ -320,6 +323,7 @@ async function renderClosestPairs() {
     }
 
 function openPairInComparison(a, b) {
+      setTimeout(() => emit('state-changed', false), 0);
       S._cmpA = a; S._cmpB = b;
       emit('switch-stats-view', 'comparison');
     }
@@ -425,8 +429,8 @@ function similarityVerdict(idA, idB) {
 
 function computeComparisonNetwork() {
       const tile = document.querySelector('#cmpBody .similar-map-btn');
-      if (tile) { tile.disabled = true; tile.textContent = 'Считаю…'; }
-      ensureNetworkProfile().then(() => {
+      if (tile) tile.parentElement.innerHTML = 'Считаю… ' + liveProgressHtml(networkProgressPercent());
+      ensureNetworkProfile(pct => updateLiveProgress(document.getElementById('cmpBody'), pct)).then(() => {
         if (document.getElementById('cmpBody')) renderComparison();
       });
     }
@@ -449,7 +453,7 @@ function renderComparison() {
       const signedPct = v => (v < 0 ? '−' : '') + Math.abs(Math.round(v * 100)) + ' %';
       const netTile = !meaningful ? 'н/п'
         : (netV === null
-          ? '<button class="similar-map-btn" data-act-click="compute-comparison-network">Посчитать</button>'
+          ? '<button class="similar-map-btn" data-sweep-skip data-act-click="compute-comparison-network">Посчитать</button>'
           : signedPct(netV));
 
       const rows = D.names.map((n, k) => {

@@ -1,5 +1,6 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { S } from '../core/ns.js';
+import { emit } from '../core/events.js';
 import { PERM, can } from '../core/perms.js';
 import { cancelGraphSelection } from '../graph/graph-selection.js';
 import { modalContentFor, modalEntityExists } from './assembly.js';
@@ -96,6 +97,9 @@ function openUniversalModal(entityType, data, mode = 'view', opts = {}) {
       modal.scrollTop = 0;
       modal.classList.add('show');
       overlay.classList.add('show');
+      // адрес пишем ПОСЛЕ показа: currentLinkState спрашивает разметку,
+      // а не намерение, — до этой строки окна на экране ещё нет
+      emit('state-changed', true);   // окно сущности — одно из четырёх событий истории
 
       // поля поиска концепций в окне связи навешиваются после вставки
       if (entityType === 'connection'
@@ -111,6 +115,7 @@ function closeUniversalModal() {
       if (!modal || !content) return;
 
       if (typeof clearModalSearch === 'function') clearModalSearch();
+      setTimeout(() => emit('state-changed', false), 0);   // закрытие правит текущую запись
 
       content.innerHTML = '';
       modal.classList.remove('show', 'edit-mode', 'graph-picking',

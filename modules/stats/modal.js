@@ -4,7 +4,7 @@ import { emit } from '../core/events.js';
 import { invalidateGraphCache } from '../metrics/graph-cache.js';
 import { initializePhilosophyMetrics } from '../metrics/link-indexes.js';
 import { invalidateEverythingForScope } from '../metrics/scope-reset.js';
-import { applyMetricsScope, installMetricScopeWrappers, updateMetricsScopeHint, updateScopeToggles } from '../metrics/scope.js';
+import { applyMetricsScope, installMetricScopeWrappers, liveScopeKey, updateMetricsScopeHint, updateScopeToggles } from '../metrics/scope.js';
 import { resetNodeSizes } from '../render/metric-visualization.js';
 import { ensureAnimLoop, needsContinuousAnimation } from '../render/scene.js';
 import { freezeSimulation, unfreezeSimulation } from '../render/simulation.js';
@@ -57,11 +57,14 @@ function openStatsModal() {
     }
 
 function closeStatsModal() {
+      setTimeout(() => emit('state-changed', false), 0);
       // Возврат к живым массивам. Восстанавливать нечего: база не менялась,
       // менялась только копия, которую читали метрики.
       S.metricsLinkSource = null;
       S.metricsNodeSource = null;
       S.metricsScopeActive = false;
+      // Кеши, посчитанные в окне без копии, годны и снаружи — см. liveScopeKey.
+      S.cachesMatchLive = S.lastScopeKey !== null && S.lastScopeKey === liveScopeKey();
       S.lastScopeKey = null;
       // То же, что в unfreezeSimulation: окно статистики закрылось,
       // граф снова виден.
@@ -88,6 +91,7 @@ function closeStatsModal() {
     }
 
 function handleStatsParameterChange() {
+      setTimeout(() => emit('state-changed', false), 0);
       const newWeights = document.getElementById('statsUseWeightsToggle').checked;
       const newDirection = document.getElementById('statsRespectDirectionToggle').checked;
       
@@ -126,6 +130,7 @@ function switchStatsView(viewName, event) {
       updateActiveNavItem(viewName);
       
       S.currentStatsView = viewName;
+      emit('state-changed', true);   // смена вида статистики — событие истории
       // Область учёта зависит от вида: у метрик, объявленных
       // неприменимыми к галочке, данные остаются непреобразованными.
       applyMetricsScope(viewName);

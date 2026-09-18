@@ -96,6 +96,7 @@
  "metricsScope": "S",
  "isStatsModalOpen": "S",
  "lastScopeKey": "S",
+ "cachesMatchLive": "S",
  "currentStatsView": "S",
  "metricValueMode": "S",
  "_metricCoverageCache": "S",

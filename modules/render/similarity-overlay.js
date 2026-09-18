@@ -5,8 +5,9 @@ import { emit } from '../core/events.js';
 import { conceptById } from '../core/graph-index.js';
 import { showTemporaryMessage } from '../core/long-task.js';
 import { initializePhilosophyMetrics } from '../metrics/link-indexes.js';
-import { SIGNED_SIMILARITY, _simCache, ensureNetworkProfile, networkSimilarity, networkSimilarityData, profileIsMeaningful, profileSimilarity, similarityNeedsDegree, structuralSimilarity, typeStyleSimilarity } from '../metrics/similarity-concepts.js';
+import { SIGNED_SIMILARITY, _simCache, ensureNetworkProfile, networkProgressPercent, networkSimilarity, networkSimilarityData, profileIsMeaningful, profileSimilarity, similarityNeedsDegree, structuralSimilarity, typeStyleSimilarity } from '../metrics/similarity-concepts.js';
 import { requestDraw } from './loop.js';
+import { liveProgressHtml, updateLiveProgress } from '../util/html.js';
 
 const SIMILARITY_KEEP_QUANTILE = 0.85;
 
@@ -38,11 +39,21 @@ function showSimilarityOverlay(sourceId, kind) {
         return;
       }
       if (kind === 'network' && !networkSimilarityData()) {
-        // Четыре сетевые метрики считаются порциями: карта откроется по готовности.
-        if (typeof showTemporaryMessage === 'function') {
-          showTemporaryMessage('Считаю сетевые метрики для карты сходства…', 2500);
+        // Четыре сетевые метрики считаются порциями: карта откроется по готовности,
+        // а до того висит плашка с процентом.
+        let plate = document.getElementById('networkProgressBox');
+        if (!plate) {
+          plate = document.createElement('div');
+          plate.id = 'networkProgressBox';
+          plate.className = 'network-progress-box';
+          document.body.appendChild(plate);
         }
-        ensureNetworkProfile().then(ok => { if (ok) showSimilarityOverlay(sourceId, kind); });
+        plate.innerHTML = 'Считаю сетевые метрики для карты сходства… ' + liveProgressHtml(networkProgressPercent());
+        ensureNetworkProfile(pct => updateLiveProgress(document.getElementById('networkProgressBox'), pct)).then(ok => {
+          const p = document.getElementById('networkProgressBox');
+          if (p) p.remove();
+          if (ok) showSimilarityOverlay(sourceId, kind);
+        });
         return;
       }
       if (kind === 'profile' && !profileIsMeaningful(sourceId)) {
@@ -136,6 +147,7 @@ function showSimilarityOverlay(sourceId, kind) {
       emit('close-modals');
       requestDraw();
       updateSimilarityLegend();
+      emit('state-changed', true);   // карта сходства — событие истории
     }
 
 function setSimilarityLinks(mode) {
@@ -143,6 +155,7 @@ function setSimilarityLinks(mode) {
       S.similarityOverlay.linkMode = mode;
       requestDraw();
       updateSimilarityLegend();
+      emit('state-changed', false);
     }
 
 function nodeLitBySimilarity(id) {
@@ -183,6 +196,7 @@ function linkAmongHighlighted(l) {
     }
 
 function clearSimilarityOverlay() {
+      setTimeout(() => emit('state-changed', false), 0);
       S.similarityOverlay = null;
       requestDraw();
       updateSimilarityLegend();
@@ -199,8 +213,10 @@ function updateSimilarityLegend() {
       const src = conceptById.get(S.similarityOverlay.sourceId);
       const mode = S.similarityOverlay.kind;
       const isSigned = SIGNED_SIMILARITY.has(mode);
+      // Вид «по месту в сети» может запустить тяжёлый досчёт — обход его не
+      // жмёт (data-sweep-skip), ход проверяет progress_probe.
       const btn = (k, caption) =>
-        `<button class="simleg-btn ${mode === k ? 'active' : ''}"
+        `<button class="simleg-btn ${mode === k ? 'active' : ''}"${k === 'network' ? ' data-sweep-skip' : ''}
              data-act-click="show-similarity-overlay-2" data-a1="${S.similarityOverlay.sourceId}" data-a2="${k}">${caption}</button>`;
       box.innerHTML = `
         <div class="simleg-title">Сходство с «${src ? src.label : '—'}»</div>
