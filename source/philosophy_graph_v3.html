@@ -31218,7 +31218,11 @@
       return out;
     }
 
-    function nearestConcepts(conceptId, kind, k) {
+    // force = «всё равно показать»: порог снимается ТОЛЬКО С ИСТОЧНИКА, а
+    // кандидаты остаются связными. Иначе список займут такие же вырожденные
+    // концепции — ровно то, ради чего порог и заведён: у них профили сходятся
+    // к общей точке и косинус стремится к единице.
+    function nearestConcepts(conceptId, kind, k, force) {
       const D = similarityData();
       const src = D.index.get(conceptId);
       if (src === undefined) return [];
@@ -31230,7 +31234,7 @@
       // = −0.48, у 47 концепций из 453 верх ≥ 95 %, все степени 1–2.
       // Профильная колонка строится только для связных концепций —
       // и для источника, и для кандидатов.
-      if (similarityNeedsDegree(kind) && !profileIsMeaningful(conceptId)) return [];
+      if (similarityNeedsDegree(kind) && !force && !profileIsMeaningful(conceptId)) return [];
       // Сеть может быть ещё не посчитана: null — «подождите», а не «пусто».
       if (kind === 'network' && !networkSimilarityData()) return null;
 
@@ -39299,6 +39303,34 @@
           </div>`;
     }
 
+    // Какие колонки этой концепции пользователь велел показать вопреки порогу.
+    // Живёт до открытия следующей концепции: решение относится к ней одной.
+    let _forcedSimilar = { conceptId: null, kinds: new Set() };
+    function similarForced(conceptId, kind) {
+      return _forcedSimilar.conceptId === conceptId && _forcedSimilar.kinds.has(kind);
+    }
+    function forceSimilarColumn(kind, conceptId) {
+      if (_forcedSimilar.conceptId !== conceptId) _forcedSimilar = { conceptId, kinds: new Set() };
+      _forcedSimilar.kinds.add(kind);
+      if (kind === 'network' && !networkSimilarityData()) {
+        computeSimilarNetworkColumn(conceptId);   // с тем же указателем хода
+        return;
+      }
+      refreshSimilarColumn(kind, conceptId);
+    }
+    function refreshSimilarColumn(kind, conceptId) {
+      const id = kind === 'profile' ? 'similarProfileCol' : 'similarNetworkCol';
+      const box = document.getElementById(id);
+      if (!box || box.dataset.concept !== conceptId) return;
+      box.outerHTML = kind === 'profile'
+        ? similarProfileColumnHtml(conceptId)
+        : similarNetworkColumnHtml(conceptId);
+    }
+    function forceButtonHtml(kind, conceptId, caption) {
+      return `<button class="similar-map-btn" data-sweep-skip`
+        + ` onclick="forceSimilarColumn('${kind}','${conceptId}')">${caption}</button>`;
+    }
+
     function similarColumnHtml(title, hint, list, empty, attrs) {
       return `
             <div class="similar-col"${attrs || ''}>
@@ -39310,6 +39342,23 @@
             </div>`;
     }
 
+    function similarProfileColumnHtml(conceptId) {
+      const title = 'По профилю метрик';
+      const hint = 'Играют похожую роль в системе';
+      const attrs = ` id="similarProfileCol" data-concept="${conceptId}"`;
+      const forced = similarForced(conceptId, 'profile');
+      if (!profileIsMeaningful(conceptId) && !forced) {
+        return similarColumnHtml(title, hint, [],
+          `Профиль метрик этой концепции почти пуст (связей: ${nodeDegreeOf(conceptId)},`
+          + ` порог: ${medianNodeDegree()}) — сравнение по нему не показательно. `
+          + forceButtonHtml('profile', conceptId, 'Всё равно показать'), attrs);
+      }
+      const list = nearestConcepts(conceptId, 'profile', 5, forced);
+      const weak = forced && !profileIsMeaningful(conceptId);
+      return similarColumnHtml(title, hint + (weak ? ' — профиль почти пуст, сходство ненадёжно' : ''),
+        list, 'Нет близких по профилю', attrs);
+    }
+
     // Колонка «по месту в сети» может ждать метрик. Запускать их ТИХО нельзя:
     // четыре тяжёлых расчёта в фоне меняют облик видов статистики (вместо
     // «Рассчитать» сразу «Визуализировать»), и итог зависит от того, успели ли
@@ -39318,16 +39367,21 @@
       const title = 'По месту в сети';
       const hint = 'Сходная позиция в топологии графа';
       const attrs = ` id="similarNetworkCol" data-concept="${conceptId}"`;
-      if (!profileIsMeaningful(conceptId)) {
+      const forced = similarForced(conceptId, 'network');
+      if (!profileIsMeaningful(conceptId) && !forced) {
         return similarColumnHtml(title, hint, [],
-          `Место в сети у малосвязной концепции непоказательно (связей: ${nodeDegreeOf(conceptId)}, порог: ${medianNodeDegree()})`, attrs);
+          `Место в сети у малосвязной концепции непоказательно (связей: ${nodeDegreeOf(conceptId)},`
+          + ` порог: ${medianNodeDegree()}). `
+          + forceButtonHtml('network', conceptId, 'Всё равно показать'), attrs);
       }
-      const list = nearestConcepts(conceptId, 'network', 5);
+      const list = nearestConcepts(conceptId, 'network', 5, forced);
       if (list === null) {
         return similarColumnHtml(title, hint, [],
           `Сетевые метрики ещё не посчитаны. <button class="similar-map-btn" data-sweep-skip onclick="computeSimilarNetworkColumn('${conceptId}')">Посчитать</button>`, attrs);
       }
-      return similarColumnHtml(title, hint, list, 'Нет концепций со сходным местом', attrs);
+      const weak = forced && !profileIsMeaningful(conceptId);
+      return similarColumnHtml(title, hint + (weak ? ' — связей мало, положение неустойчиво' : ''),
+        list, 'Нет концепций со сходным местом', attrs);
     }
 
     function computeSimilarNetworkColumn(conceptId) {
@@ -39345,12 +39399,12 @@
     }
 
     function refreshSimilarNetworkColumn(conceptId) {
-      const box = document.getElementById('similarNetworkCol');
-      if (!box || box.dataset.concept !== conceptId) return;
-      box.outerHTML = similarNetworkColumnHtml(conceptId);
+      refreshSimilarColumn('network', conceptId);
     }
 
     function similarConceptsBlock(conceptId) {
+      // открыли другую концепцию — прежнее «всё равно показать» к ней не относится
+      if (_forcedSimilar.conceptId !== conceptId) _forcedSimilar = { conceptId, kinds: new Set() };
       let byProfile, byStructure, byTypes;
       try {
         byProfile = nearestConcepts(conceptId, 'profile', 5);
@@ -39391,8 +39445,7 @@
             ${mapButton}
           </div>
           <div class="similar-columns">
-            ${similarColumnHtml('По профилю метрик', 'Играют похожую роль в системе', byProfile,
-              `Профиль метрик этой концепции почти пуст (связей: ${nodeDegreeOf(conceptId)}, порог: ${medianNodeDegree()}) — сравнение по нему не показательно`)}
+            ${similarProfileColumnHtml(conceptId)}
             ${similarColumnHtml('По структуре связей', 'Связаны с одними и теми же понятиями', byStructure,
               'Нет общих соседей')}
             ${similarColumnHtml('По типам связей', 'Необычны в одних и тех же отношениях', byTypes,

@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-130 модулей, 21717 строк, 897 объявлений,
-618 вывозов, 834 рёбер ввоза. Составлено 2026-09-18 10:08:36.
+130 модулей, 21769 строк, 903 объявлений,
+619 вывозов, 834 рёбер ввоза. Составлено 2026-09-24 04:13:23.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -136,7 +136,7 @@
 | `modules/modal/assembly.js` | 56 | 3 | 3 | 2 | — |
 | `modules/modal/auth.js` | 220 | 9 | 4 | 8 | S:1 |
 | `modules/modal/commits.js` | 420 | 31 | 19 | 7 | — |
-| `modules/modal/concept-view.js` | 398 | 6 | 1 | 9 | DATA:5, VIEWS:1 |
+| `modules/modal/concept-view.js` | 449 | 12 | 2 | 9 | DATA:5, VIEWS:1 |
 | `modules/modal/conflict.js` | 88 | 5 | 5 | 7 | — |
 | `modules/modal/connection-edit.js` | 288 | 9 | 5 | 13 | DATA:2, VIEWS:1 |
 | `modules/modal/connection-view.js` | 421 | 11 | 5 | 12 | DATA:5, VIEWS:1 |
@@ -197,7 +197,7 @@
 | `modules/stats/views/rankings.js` | 141 | 2 | 2 | 5 | DATA:2, S:1 |
 | `modules/ui/about.js` | 102 | 4 | 3 | 1 | DATA:6 |
 | `modules/ui/actions-byname.js` | 20 | 2 | 0 | 2 | — |
-| `modules/ui/actions-dyn.js` | 183 | 0 | 0 | 38 | DATA:1, S:9 |
+| `modules/ui/actions-dyn.js` | 184 | 0 | 0 | 38 | DATA:1, S:9 |
 | `modules/ui/actions-static.js` | 140 | 0 | 0 | 26 | — |
 | `modules/ui/actions.js` | 27 | 1 | 3 | 0 | — |
 | `modules/ui/delegation.js` | 70 | 3 | 1 | 1 | — |
@@ -821,16 +821,22 @@
 | `COMMIT_STATES` | const | 1 | — |
 | `LAYOUT_KINDS` | const | 1 | — |
 
-### `modules/modal/concept-view.js` — 398 строк, объявлений 6
+### `modules/modal/concept-view.js` — 449 строк, объявлений 12
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `similarConceptsBlock` | function | 51 | — |
+| `similarConceptsBlock` | function | 52 | — |
+| `similarNetworkColumnHtml` | function | 20 | — |
+| `similarProfileColumnHtml` | function | 16 | — |
 | `similarItemHtml` | function | 15 | — |
-| `similarNetworkColumnHtml` | function | 15 | — |
 | `computeSimilarNetworkColumn` | function | 13 | да |
 | `similarColumnHtml` | function | 10 | — |
-| `refreshSimilarNetworkColumn` | function | 5 | — |
+| `forceSimilarColumn` | function | 9 | да |
+| `refreshSimilarColumn` | function | 8 | — |
+| `forceButtonHtml` | function | 4 | — |
+| `similarForced` | function | 3 | — |
+| `refreshSimilarNetworkColumn` | function | 3 | — |
+| `_forcedSimilar` | let | 1 | — |
 
 ### `modules/modal/conflict.js` — 88 строк, объявлений 5
 
@@ -2303,13 +2309,13 @@
 - из `modules/core/graph-index.js`: _ради побочного действия_
 - из `modules/core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`
 - из `modules/metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
-- из `modules/metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `networkProgressPercent`, `profileIsMeaningful`
+- из `modules/metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `networkProgressPercent`, `networkSimilarityData`, `profileIsMeaningful`
 - из `modules/modal/connection-view.js`: `linkArrow`
 - из `modules/modal/history.js`: `historyBlock`
 - из `modules/util/color.js`: `getContrastColor`
 - из `modules/util/html.js`: `liveProgressHtml`, `provenanceBlock`, `updateLiveProgress`
 
-Чаще всего поминает: `DATA`×11, `nearestConcepts`×4, `nodeDegreeOf`×3, `medianNodeDegree`×3, `conceptById`×2
+Чаще всего поминает: `DATA`×11, `profileIsMeaningful`×5, `nearestConcepts`×5, `nodeDegreeOf`×3, `medianNodeDegree`×3
 
 ### `modules/modal/conflict.js`
 
@@ -2974,7 +2980,7 @@
 - из `modules/metrics/format.js`: `toggleMetricValueMode`
 - из `modules/modal/auth.js`: `authLogout`, `closeAuthModal`, `openAuthModal`, `submitAuth`
 - из `modules/modal/commits.js`: `applyRelayout`, `askLayoutRevert`, `cancelLayoutRevert`, `doLayoutRevert`, `planRelayout`
-- из `modules/modal/concept-view.js`: `computeSimilarNetworkColumn`
+- из `modules/modal/concept-view.js`: `computeSimilarNetworkColumn`, `forceSimilarColumn`
 - из `modules/modal/connection-edit.js`: `createNewConceptForPhilosopher`, `createNewConnectionForConcept`, `onConnTypeChange`, `selectConnectionEditConcept`, `swapConnectionConcepts`
 - из `modules/modal/connection-view.js`: `handleConnectionViewSearch`, `selectConnectionViewConcept`, `toggleConnectionSearchSection`
 - из `modules/modal/core.js`: `closeUniversalModal`, `openUniversalModal`, `popModalState`, `toggleModalMode`

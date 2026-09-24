@@ -6,7 +6,7 @@ import { cancelGraphSelection } from '../graph/graph-selection.js';
 import { toggleMetricValueMode } from '../metrics/format.js';
 import { authLogout, closeAuthModal, openAuthModal, submitAuth } from '../modal/auth.js';
 import { applyRelayout, askLayoutRevert, cancelLayoutRevert, doLayoutRevert, planRelayout } from '../modal/commits.js';
-import { computeSimilarNetworkColumn } from '../modal/concept-view.js';
+import { computeSimilarNetworkColumn, forceSimilarColumn } from '../modal/concept-view.js';
 import { createNewConceptForPhilosopher, createNewConnectionForConcept, onConnTypeChange, selectConnectionEditConcept, swapConnectionConcepts } from '../modal/connection-edit.js';
 import { handleConnectionViewSearch, selectConnectionViewConcept, toggleConnectionSearchSection } from '../modal/connection-view.js';
 import { closeUniversalModal, openUniversalModal, popModalState, toggleModalMode } from '../modal/core.js';
@@ -49,6 +49,7 @@ registerActions({
   "plan-relayout": (el, ev) => { planRelayout(); },
   "apply-relayout": (el, ev) => { applyRelayout(); },
   "open-concept-by-id": (el, ev) => { openConceptById(el.dataset.a1); },
+  "force-similar-column": (el, ev) => { forceSimilarColumn(el.dataset.a1,el.dataset.a2); },
   "compute-similar-network-column": (el, ev) => { computeSimilarNetworkColumn(el.dataset.a1); },
   "show-similarity-overlay": (el, ev) => { showSimilarityOverlay(el.dataset.a1,el.dataset.a2); },
   "handle-modal-search-input": (el, ev) => { handleModalSearch(el.value); },

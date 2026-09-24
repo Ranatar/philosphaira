@@ -1,9 +1,9 @@
 {
  "меры": {
   "модулей": 130,
-  "строк": 21717,
-  "объявлений": 897,
-  "вывозов": 618,
+  "строк": 21769,
+  "объявлений": 903,
+  "вывозов": 619,
   "рёбер": 834,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
@@ -11,7 +11,7 @@
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-09-18 10:08:36"
+  "составлено": "2026-09-24 04:13:23"
  },
  "модули": [
   {
@@ -5705,16 +5705,17 @@
   },
   {
    "путь": "modules/modal/concept-view.js",
-   "строк": 398,
-   "объявлений": 6,
-   "вывозит": 1,
+   "строк": 449,
+   "объявлений": 12,
+   "вывозит": 2,
    "ввозитИз": 9,
    "вНС": {
     "DATA": 5,
     "VIEWS": 1
    },
    "вывоз": [
-    "computeSimilarNetworkColumn"
+    "computeSimilarNetworkColumn",
+    "forceSimilarColumn"
    ],
    "ввоз": [
     {
@@ -5749,6 +5750,7 @@
       "ensureNetworkProfile",
       "nearestConcepts",
       "networkProgressPercent",
+      "networkSimilarityData",
       "profileIsMeaningful"
      ]
     },
@@ -5786,14 +5788,44 @@
      "строк": 15
     },
     {
+     "имя": "_forcedSimilar",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "similarForced",
+     "вид": "function",
+     "строк": 3
+    },
+    {
+     "имя": "forceSimilarColumn",
+     "вид": "function",
+     "строк": 9
+    },
+    {
+     "имя": "refreshSimilarColumn",
+     "вид": "function",
+     "строк": 8
+    },
+    {
+     "имя": "forceButtonHtml",
+     "вид": "function",
+     "строк": 4
+    },
+    {
      "имя": "similarColumnHtml",
      "вид": "function",
      "строк": 10
     },
     {
+     "имя": "similarProfileColumnHtml",
+     "вид": "function",
+     "строк": 16
+    },
+    {
      "имя": "similarNetworkColumnHtml",
      "вид": "function",
-     "строк": 15
+     "строк": 20
     },
     {
      "имя": "computeSimilarNetworkColumn",
@@ -5803,12 +5835,12 @@
     {
      "имя": "refreshSimilarNetworkColumn",
      "вид": "function",
-     "строк": 5
+     "строк": 3
     },
     {
      "имя": "similarConceptsBlock",
      "вид": "function",
-     "строк": 51
+     "строк": 52
     }
    ],
    "чащеВсего": [
@@ -5818,8 +5850,13 @@
      "откуда": "modules/core/ns.js"
     },
     {
+     "имя": "profileIsMeaningful",
+     "раз": 5,
+     "откуда": "modules/metrics/similarity-concepts.js"
+    },
+    {
      "имя": "nearestConcepts",
-     "раз": 4,
+     "раз": 5,
      "откуда": "modules/metrics/similarity-concepts.js"
     },
     {
@@ -5831,11 +5868,6 @@
      "имя": "medianNodeDegree",
      "раз": 3,
      "откуда": "modules/metrics/network.js"
-    },
-    {
-     "имя": "conceptById",
-     "раз": 2,
-     "откуда": "modules/core/graph-index.js"
     }
    ]
   },
@@ -12879,7 +12911,7 @@
   },
   {
    "путь": "modules/ui/actions-dyn.js",
-   "строк": 183,
+   "строк": 184,
    "объявлений": 0,
    "вывозит": 0,
    "ввозитИз": 38,
@@ -12942,7 +12974,8 @@
     {
      "откуда": "modules/modal/concept-view.js",
      "имена": [
-      "computeSimilarNetworkColumn"
+      "computeSimilarNetworkColumn",
+      "forceSimilarColumn"
      ]
     },
     {

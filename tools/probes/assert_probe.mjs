@@ -1505,6 +1505,62 @@ if (модуль) {
     'профиль, структура, типы, сеть', о.видовПар);
 }
 
+// ── 10-бис-четв. «всё равно показать» у малосвязной концепции ─────
+//
+// Профиль и место в сети у концепции со связностью ниже медианы
+// непоказательны, но пользователь вправе взглянуть. Утверждения держат три
+// вещи: кнопки есть; после нажатия колонки наполняются и подпись честно
+// предупреждает; решение относится к ОДНОЙ концепции и на другой не
+// действует. Порог снимается только с источника — кандидаты остаются
+// связными, иначе список займут такие же вырожденные.
+{
+  const о = await page.evaluate(async () => {
+    const A = window.__t, ждать = мс => new Promise(r => setTimeout(r, мс)), о = {};
+    const слабые = A.DATA.concepts.filter(c => !A.profileIsMeaningful(c.id) && A.nodeDegreeOf(c.id) >= 1);
+    о.слабыхЕсть = слабые.length >= 2;
+    if (!о.слабыхЕсть) return о;
+    const колонка = id => document.getElementById(id);
+    A.openConceptById(слабые[0].id); await ждать(700);
+    о.кнопокДо = ['similarProfileCol', 'similarNetworkCol']
+      .filter(id => colonkaButton(id)).length;
+    function colonkaButton(id) {
+      const c = колонка(id);
+      return c && /Всё равно/.test((c.querySelector('.similar-map-btn') || {}).textContent || '');
+    }
+    колонка('similarProfileCol').querySelector('.similar-map-btn').click();
+    await ждать(500);
+    о.строкПрофиля = колонка('similarProfileCol').querySelectorAll('.similar-item').length;
+    о.подписьПрофиля = колонка('similarProfileCol').querySelector('.similar-col-hint').textContent;
+    колонка('similarNetworkCol').querySelector('.similar-map-btn').click();
+    await A.ensureNetworkProfile(); await ждать(700);
+    о.строкСети = колонка('similarNetworkCol').querySelectorAll('.similar-item').length;
+    // кандидаты остаются связными: у всех показанных связность не ниже медианы
+    const порог = A.medianNodeDegree();
+    // имя концепции берём из РАЗМЕТКИ: в сборке onclick переведён в
+    // делегирование (data-act-click + data-a1), в исходнике остаётся onclick
+    const имена = [...колонка('similarProfileCol').querySelectorAll('.similar-item')]
+      .map(e => e.dataset.a1 || (e.getAttribute('onclick') || '').replace(/.*'(.+?)'.*/, '$1'))
+      .filter(Boolean);
+    о.кандидатыСвязны = имена.length > 0 && имена.every(id => A.nodeDegreeOf(id) >= порог);
+    A.closeUniversalModal(); await ждать(300);
+    A.openConceptById(слабые[1].id); await ждать(700);
+    о.кнопокНаДругой = ['similarProfileCol', 'similarNetworkCol'].filter(id => colonkaButton(id)).length;
+    A.closeUniversalModal(); await ждать(200);
+    return о;
+  });
+  if (о.слабыхЕсть) {
+    проверить('у малосвязной концепции две кнопки «Всё равно показать»', о.кнопокДо === 2, 2, о.кнопокДо);
+    проверить('после кнопки профильная колонка наполняется', о.строкПрофиля > 0, '> 0', о.строкПрофиля);
+    проверить('подпись предупреждает о ненадёжности профиля',
+      /ненадёжно/.test(о.подписьПрофиля || ''), 'предупреждение', (о.подписьПрофиля || '').slice(0, 80));
+    проверить('после кнопки колонка места в сети наполняется', о.строкСети > 0, '> 0', о.строкСети);
+    проверить('в насильном списке кандидаты остаются связными', о.кандидатыСвязны === true, true, о.кандидатыСвязны);
+    проверить('на другой концепции кнопки возвращаются', о.кнопокНаДругой === 2, 2, о.кнопокНаДругой);
+  } else {
+    проверить('в базе есть малосвязные концепции для проверки', false, '≥ 2', 0);
+  }
+}
+
 // ── 10-бис-трет. кеши, посчитанные вне окна статистики, не выбрасываются ──
 //
 // Прежде закрытие окна обнуляло ключ области, и при следующем открытии

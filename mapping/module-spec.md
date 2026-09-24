@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 130 модулей, 21717 строк.
+Составлено из готовой сборки: 130 модулей, 21769 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -94,7 +94,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/assembly.js` | 56 | 3 | 2 |
 | `modules/modal/auth.js` | 220 | 4 | 8 |
 | `modules/modal/commits.js` | 420 | 19 | 7 |
-| `modules/modal/concept-view.js` | 398 | 1 | 9 |
+| `modules/modal/concept-view.js` | 449 | 2 | 9 |
 | `modules/modal/conflict.js` | 88 | 5 | 7 |
 | `modules/modal/connection-edit.js` | 288 | 5 | 13 |
 | `modules/modal/connection-view.js` | 421 | 5 | 12 |
@@ -155,7 +155,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/stats/views/rankings.js` | 141 | 2 | 5 |
 | `modules/ui/about.js` | 102 | 3 | 1 |
 | `modules/ui/actions-byname.js` | 20 | 0 | 2 |
-| `modules/ui/actions-dyn.js` | 183 | 0 | 38 |
+| `modules/ui/actions-dyn.js` | 184 | 0 | 38 |
 | `modules/ui/actions-static.js` | 140 | 0 | 26 |
 | `modules/ui/actions.js` | 27 | 3 | 0 |
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
@@ -1085,23 +1085,23 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/concept-view.js`
 
-Строк 398.
+Строк 449.
 
-**Вывозит:** `computeSimilarNetworkColumn`
+**Вывозит:** `computeSimilarNetworkColumn`, `forceSimilarColumn`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
 - из `../core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`
 - из `../metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
-- из `../metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `networkProgressPercent`, `profileIsMeaningful`
+- из `../metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `networkProgressPercent`, `networkSimilarityData`, `profileIsMeaningful`
 - из `./connection-view.js`: `linkArrow`
 - из `./history.js`: `historyBlock`
 - из `../util/color.js`: `getContrastColor`
 - из `../util/html.js`: `liveProgressHtml`, `provenanceBlock`, `updateLiveProgress`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `VIEWS.generateConceptViewContent`, `computeSimilarNetworkColumn`, `refreshSimilarNetworkColumn`, `similarColumnHtml`, `similarConceptsBlock`, `similarItemHtml`, `similarNetworkColumnHtml`
+**Содержит:** `VIEWS.generateConceptViewContent`, `_forcedSimilar`, `computeSimilarNetworkColumn`, `forceButtonHtml`, `forceSimilarColumn`, `refreshSimilarColumn`, `refreshSimilarNetworkColumn`, `similarColumnHtml`, `similarConceptsBlock`, `similarForced`, `similarItemHtml`, `similarNetworkColumnHtml`, `similarProfileColumnHtml`
 
 ### `modules/modal/conflict.js`
 
@@ -2125,7 +2125,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/actions-dyn.js`
 
-Строк 183.
+Строк 184.
 
 **Вывозит:** _ничего_
 
@@ -2138,7 +2138,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../metrics/format.js`: `toggleMetricValueMode`
 - из `../modal/auth.js`: `authLogout`, `closeAuthModal`, `openAuthModal`, `submitAuth`
 - из `../modal/commits.js`: `applyRelayout`, `askLayoutRevert`, `cancelLayoutRevert`, `doLayoutRevert`, `planRelayout`
-- из `../modal/concept-view.js`: `computeSimilarNetworkColumn`
+- из `../modal/concept-view.js`: `computeSimilarNetworkColumn`, `forceSimilarColumn`
 - из `../modal/connection-edit.js`: `createNewConceptForPhilosopher`, `createNewConnectionForConcept`, `onConnTypeChange`, `selectConnectionEditConcept`, `swapConnectionConcepts`
 - из `../modal/connection-view.js`: `handleConnectionViewSearch`, `selectConnectionViewConcept`, `toggleConnectionSearchSection`
 - из `../modal/core.js`: `closeUniversalModal`, `openUniversalModal`, `popModalState`, `toggleModalMode`
