@@ -32717,6 +32717,28 @@
       return !!(t && t.symmetric);
     }
 
+    // СТРОКА СВЯЗИ «ОТ СЕБЯ». В окне философа и в окне концепции список
+    // показан ОТ одной стороны, и она обязана стоять слева, а стрелка —
+    // считаться от неё. Прежде окно философа печатало пару в порядке базы,
+    // и его же концепция оказывалась справа во всех 1645 внешних связях, где
+    // она цель; окно концепции считало стрелку по неполному правилу
+    // (`bidirectional ? '↔' : isSource ? '→' : '←'`) — том самом, ради
+    // которого заведён directionMark, — и 195 связей двуглавых ТИПОВ
+    // получали одностороннюю стрелку, а 35 возвратных — '→' вместо '↻'.
+    // Направление спрашиваем у linkHasTwoHeads, а не пересказываем.
+    function orientLink(l, isOwnEnd) {
+      const s = l.source.id || l.source;
+      const t = l.target.id || l.target;
+      if (s === t) return { left: s, right: t, mark: '↻', ownIsTarget: false };
+      const ownIsTarget = !isOwnEnd(s) && isOwnEnd(t);
+      return {
+        left: ownIsTarget ? t : s,
+        right: ownIsTarget ? s : t,
+        mark: linkHasTwoHeads(l) ? '↔' : (ownIsTarget ? '←' : '→'),
+        ownIsTarget,
+      };
+    }
+
     function directionMark(l) {
       const s = l.source.id || l.source;
       const t = l.target.id || l.target;
@@ -44480,15 +44502,9 @@
             const linkColor = relationTypesObj[conn.type].color;
             const linkLabel = relationTypesObj[conn.type].label;
             
-            // Определяем направление стрелки
-            let arrow = '';
-            if (conn.bidirectional) {
-              arrow = '↔';
-            } else if (isSource) {
-              arrow = '→';
-            } else {
-              arrow = '←';
-            }
+            // Стрелка — общим правилом «от себя»: возвратная получает '↻',
+            // двуглавая типом — '↔', прочие — '→'/'←' от этой концепции.
+            const arrow = orientLink(conn, end => end === conceptData.id).mark;
             
             html += `
               <div class="connection-item">
@@ -44538,15 +44554,9 @@
             const linkColor = relationTypesObj[conn.type].color;
             const linkLabel = relationTypesObj[conn.type].label;
             
-            // Определяем направление стрелки
-            let arrow = '';
-            if (conn.bidirectional) {
-              arrow = '↔';
-            } else if (isSource) {
-              arrow = '→';
-            } else {
-              arrow = '←';
-            }
+            // Стрелка — общим правилом «от себя»: возвратная получает '↻',
+            // двуглавая типом — '↔', прочие — '→'/'←' от этой концепции.
+            const arrow = orientLink(conn, end => end === conceptData.id).mark;
             
             html += `
               <div class="connection-item">
@@ -45268,15 +45278,26 @@
           internalConnections.forEach(({ conn, srcNode, tgtNode }) => {
             const linkColor = relationTypesObj[conn.type].color;
             const linkLabel = relationTypesObj[conn.type].label;
-            const arrow = directionMark(conn);
+            // Своя сторона слева, стрелка от неё (см. orientLink).
+            const own = orientLink(conn, end => {
+              const n = conceptById.get(end);
+              return !!n && n.concept === philosopherName;
+            });
+            const leftNode = conceptById.get(own.left) || srcNode;
+            const rightNode = conceptById.get(own.right) || tgtNode;
+            const arrow = own.mark;
             
             html += `
               <div class="connection-item">
                 <div class="concept-color" style="background: ${otherEndColor(conn, philosopherName)}"></div>
                 <div style="flex-grow: 1; display: flex; align-items: center; gap: 8px;">
-                  <span onclick="openUniversalModal('concept', nodes.find(n => n.id === '${srcNode.id}'), 'view');" style="cursor: pointer;">${srcNode.label}</span>
+                  <div onclick="openUniversalModal('concept', nodes.find(n => n.id === '${leftNode.id}'), 'view');" style="cursor: pointer;">
+                    <div class="concept-name">${leftNode.label}</div>
+                  </div>
                   ${linkArrow(arrow, linkColor, conn.weight, linkLabel, '', srcNode.id, tgtNode.id)}
-                  <span onclick="openUniversalModal('concept', nodes.find(n => n.id === '${tgtNode.id}'), 'view');" style="cursor: pointer;">${tgtNode.label}</span>
+                  <div onclick="openUniversalModal('concept', nodes.find(n => n.id === '${rightNode.id}'), 'view');" style="cursor: pointer;">
+                    <div class="concept-name">${rightNode.label}</div>
+                  </div>
                 </div>
                 ${conn.description ? `
                   <button class="connection-toggle" onclick="event.stopPropagation(); toggleConnectionDescription('phil-${srcNode.id}-${tgtNode.id}')">
@@ -45315,7 +45336,14 @@
           externalConnectionsData.forEach(({ conn, srcNode, tgtNode }) => {
             const linkColor = relationTypesObj[conn.type].color;
             const linkLabel = relationTypesObj[conn.type].label;
-            const arrow = directionMark(conn);
+            // Своя сторона слева, стрелка от неё (см. orientLink).
+            const own = orientLink(conn, end => {
+              const n = conceptById.get(end);
+              return !!n && n.concept === philosopherName;
+            });
+            const leftNode = conceptById.get(own.left) || srcNode;
+            const rightNode = conceptById.get(own.right) || tgtNode;
+            const arrow = own.mark;
             
             html += `
               <div class="connection-item">
@@ -45324,11 +45352,20 @@
                      самого хозяина окна. -->
                 <div class="concept-color" style="background: ${otherEndColor(conn, philosopherName)}"></div>
                 <div style="flex-grow: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                  <span onclick="openUniversalModal('concept', nodes.find(n => n.id === '${srcNode.id}'), 'view');" style="cursor: pointer;">${srcNode.label}</span>
-                  <span style="font-size: 10px; color: var(--fg-muted);">(${srcNode.concept})</span>
+                  <!-- ДВЕ СТРОКИ НА КОНЕЦ, как в окне концепции: название
+                       сверху, философ под ним. Имя ХОЗЯИНА ОКНА не пишется:
+                       его концепция и так всегда слева (orientLink), а
+                       повторять его в каждой из строк (медиана 23, у самого
+                       связного 94) значит писать заголовок заново. -->
+                  <div onclick="openUniversalModal('concept', nodes.find(n => n.id === '${leftNode.id}'), 'view');" style="cursor: pointer;">
+                    <div class="concept-name">${leftNode.label}</div>
+                    ${leftNode.concept === philosopherName ? '' : `<div class="concept-philosopher">${leftNode.concept}</div>`}
+                  </div>
                   ${linkArrow(arrow, linkColor, conn.weight, linkLabel, '', srcNode.id, tgtNode.id)}
-                  <span onclick="openUniversalModal('concept', nodes.find(n => n.id === '${tgtNode.id}'), 'view');" style="cursor: pointer;">${tgtNode.label}</span>
-                  <span style="font-size: 10px; color: var(--fg-muted);">(${tgtNode.concept})</span>
+                  <div onclick="openUniversalModal('concept', nodes.find(n => n.id === '${rightNode.id}'), 'view');" style="cursor: pointer;">
+                    <div class="concept-name">${rightNode.label}</div>
+                    ${rightNode.concept === philosopherName ? '' : `<div class="concept-philosopher">${rightNode.concept}</div>`}
+                  </div>
                 </div>
                 ${conn.description ? `
                   <button class="connection-toggle" onclick="event.stopPropagation(); toggleConnectionDescription('phil-${srcNode.id}-${tgtNode.id}')">

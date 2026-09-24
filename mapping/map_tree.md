@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-130 модулей, 21769 строк, 903 объявлений,
-619 вывозов, 834 рёбер ввоза. Составлено 2026-09-24 04:13:23.
+130 модулей, 21798 строк, 904 объявлений,
+620 вывозов, 835 рёбер ввоза. Составлено 2026-09-24 08:05:14.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -20,7 +20,7 @@
 | `modules/core/ns.js` | 96 |
 | `modules/core/graph-index.js` | 57 |
 | `modules/core/events.js` | 25 |
-| `modules/core/link-facts.js` | 24 |
+| `modules/core/link-facts.js` | 25 |
 | `modules/render/canvas-core.js` | 19 |
 | `modules/util/html.js` | 19 |
 | `modules/state/render.js` | 18 |
@@ -92,7 +92,7 @@
 | `modules/core/base-cells.js` | 19 | 0 | 0 | 1 | S:8 |
 | `modules/core/events.js` | 66 | 5 | 2 | 0 | — |
 | `modules/core/graph-index.js` | 221 | 16 | 15 | 2 | DATA:16 |
-| `modules/core/link-facts.js` | 73 | 10 | 10 | 2 | DATA:1, S:6 |
+| `modules/core/link-facts.js` | 86 | 11 | 11 | 2 | DATA:1, S:6 |
 | `modules/core/long-task.js` | 121 | 3 | 3 | 0 | — |
 | `modules/core/ns.js` | 33 | 2 | 4 | 0 | — |
 | `modules/core/perms.js` | 28 | 4 | 3 | 0 | — |
@@ -136,7 +136,7 @@
 | `modules/modal/assembly.js` | 56 | 3 | 3 | 2 | — |
 | `modules/modal/auth.js` | 220 | 9 | 4 | 8 | S:1 |
 | `modules/modal/commits.js` | 420 | 31 | 19 | 7 | — |
-| `modules/modal/concept-view.js` | 449 | 12 | 2 | 9 | DATA:5, VIEWS:1 |
+| `modules/modal/concept-view.js` | 438 | 12 | 2 | 10 | DATA:5, VIEWS:1 |
 | `modules/modal/conflict.js` | 88 | 5 | 5 | 7 | — |
 | `modules/modal/connection-edit.js` | 288 | 9 | 5 | 13 | DATA:2, VIEWS:1 |
 | `modules/modal/connection-view.js` | 421 | 11 | 5 | 12 | DATA:5, VIEWS:1 |
@@ -151,7 +151,7 @@
 | `modules/modal/history.js` | 114 | 7 | 4 | 5 | — |
 | `modules/modal/integrity.js` | 265 | 11 | 7 | 7 | DATA:4 |
 | `modules/modal/persist.js` | 450 | 11 | 6 | 14 | DATA:9, S:1 |
-| `modules/modal/philosopher-view.js` | 638 | 4 | 1 | 15 | DATA:6, VIEWS:1 |
+| `modules/modal/philosopher-view.js` | 665 | 4 | 1 | 15 | DATA:6, VIEWS:1 |
 | `modules/modal/profile-concept.js` | 182 | 8 | 4 | 8 | DATA:4, S:3, MET:19 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 2 | 8 | DATA:3, S:3, MET:3 |
 | `modules/modal/search.js` | 43 | 3 | 3 | 1 | — |
@@ -271,10 +271,11 @@
 | `nodesByPhilosopher` | const | 1 | да |
 | `linksByConcept` | const | 1 | да |
 
-### `modules/core/link-facts.js` — 73 строк, объявлений 10
+### `modules/core/link-facts.js` — 86 строк, объявлений 11
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
+| `orientLink` | function | 12 | да |
 | `directionMark` | function | 12 | да |
 | `buildReflexiveMap` | function | 9 | да |
 | `isSymmetricLink` | function | 6 | да |
@@ -821,7 +822,7 @@
 | `COMMIT_STATES` | const | 1 | — |
 | `LAYOUT_KINDS` | const | 1 | — |
 
-### `modules/modal/concept-view.js` — 449 строк, объявлений 12
+### `modules/modal/concept-view.js` — 438 строк, объявлений 12
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1009,7 +1010,7 @@
 | `confirmWarnings` | function | 5 | — |
 | `generateId` | function | 3 | — |
 
-### `modules/modal/philosopher-view.js` — 638 строк, объявлений 4
+### `modules/modal/philosopher-view.js` — 665 строк, объявлений 4
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -2308,6 +2309,7 @@
 - из `modules/core/ns.js`: `DATA`, `VIEWS`
 - из `modules/core/graph-index.js`: _ради побочного действия_
 - из `modules/core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`
+- из `modules/core/link-facts.js`: `orientLink`
 - из `modules/metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
 - из `modules/metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `networkProgressPercent`, `networkSimilarityData`, `profileIsMeaningful`
 - из `modules/modal/connection-view.js`: `linkArrow`
@@ -2484,7 +2486,7 @@
 - из `modules/core/ns.js`: `DATA`, `VIEWS`
 - из `modules/core/graph-index.js`: _ради побочного действия_
 - из `modules/core/graph-index.js`: `comparePhilosophers`, `conceptById`, `nodesByPhilosopher`, `otherEndColor`, `philosopherByName`, `rubricById`, `traditionById`
-- из `modules/core/link-facts.js`: `directionMark`
+- из `modules/core/link-facts.js`: `orientLink`
 - из `modules/core/perms.js`: `PERM`, `can`
 - из `modules/metrics/similarity-philosophers.js`: `nearestPhilosophers`
 - из `modules/modal/connection-view.js`: `linkArrow`
@@ -2497,7 +2499,7 @@
 - из `modules/util/philosopher-label.js`: `formatBirthYear`, `philosopherBirth`, `philosopherYears`, `sortPhilosophersByBirth`
 - из `modules/util/ru.js`: `conjugateVerb`, `declinePhilosopher`
 
-Чаще всего поминает: `declinePhilosopher`×22, `DATA`×15, `conceptById`×6, `conjugateVerb`×5, `getContrastColor`×4
+Чаще всего поминает: `declinePhilosopher`×22, `DATA`×15, `conceptById`×12, `conjugateVerb`×5, `getContrastColor`×4
 
 ### `modules/modal/profile-concept.js`
 

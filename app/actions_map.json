@@ -1246,14 +1246,14 @@
   "откуда": "modules/modal/philosopher-view.js"
  },
  "open-universal-modal-11": {
-  "код": "openUniversalModal('concept', nodes.find(n => n.id === '${srcNode.id}'), 'view');",
+  "код": "openUniversalModal('concept', nodes.find(n => n.id === '${leftNode.id}'), 'view');",
   "attr": "onclick",
   "тело": "openUniversalModal('concept', DATA.nodes.find(n => n.id === el.dataset.a1), 'view')",
   "аргументов": 1,
   "откуда": "modules/modal/philosopher-view.js"
  },
  "open-universal-modal-12": {
-  "код": "openUniversalModal('concept', nodes.find(n => n.id === '${tgtNode.id}'), 'view');",
+  "код": "openUniversalModal('concept', nodes.find(n => n.id === '${rightNode.id}'), 'view');",
   "attr": "onclick",
   "тело": "openUniversalModal('concept', DATA.nodes.find(n => n.id === el.dataset.a1), 'view')",
   "аргументов": 1,

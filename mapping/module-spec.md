@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 130 модулей, 21769 строк.
+Составлено из готовой сборки: 130 модулей, 21798 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -50,7 +50,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
 | `modules/core/events.js` | 66 | 2 | 0 |
 | `modules/core/graph-index.js` | 221 | 15 | 1 |
-| `modules/core/link-facts.js` | 73 | 10 | 2 |
+| `modules/core/link-facts.js` | 86 | 11 | 2 |
 | `modules/core/long-task.js` | 121 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
 | `modules/core/perms.js` | 28 | 3 | 0 |
@@ -94,7 +94,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/assembly.js` | 56 | 3 | 2 |
 | `modules/modal/auth.js` | 220 | 4 | 8 |
 | `modules/modal/commits.js` | 420 | 19 | 7 |
-| `modules/modal/concept-view.js` | 449 | 2 | 9 |
+| `modules/modal/concept-view.js` | 438 | 2 | 10 |
 | `modules/modal/conflict.js` | 88 | 5 | 7 |
 | `modules/modal/connection-edit.js` | 288 | 5 | 13 |
 | `modules/modal/connection-view.js` | 421 | 5 | 12 |
@@ -109,7 +109,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/history.js` | 114 | 4 | 5 |
 | `modules/modal/integrity.js` | 265 | 7 | 7 |
 | `modules/modal/persist.js` | 450 | 6 | 14 |
-| `modules/modal/philosopher-view.js` | 638 | 1 | 15 |
+| `modules/modal/philosopher-view.js` | 665 | 1 | 15 |
 | `modules/modal/profile-concept.js` | 182 | 4 | 8 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
@@ -457,16 +457,16 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/link-facts.js`
 
-Строк 73.
+Строк 86.
 
-**Вывозит:** `buildReflexiveMap`, `directionMark`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linkHasTwoHeads`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+**Вывозит:** `buildReflexiveMap`, `directionMark`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linkHasTwoHeads`, `linksBothWays`, `orientLink`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 
 **Ввозит:**
 
 - из `./ns.js`: `DATA`, `S`
 - из `./graph-index.js`: _ради побочного действия_
 
-**Содержит:** `buildReflexiveMap`, `directionMark`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linkHasTwoHeads`, `linksBothWays`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
+**Содержит:** `buildReflexiveMap`, `directionMark`, `isReflexiveLink`, `isSymmetricLink`, `isTypologicalLink`, `linkHasTwoHeads`, `linksBothWays`, `orientLink`, `otherPhilosopher`, `reflexiveLinkOf`, `sumWeight`
 
 ### `modules/core/long-task.js`
 
@@ -1085,7 +1085,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/concept-view.js`
 
-Строк 449.
+Строк 438.
 
 **Вывозит:** `computeSimilarNetworkColumn`, `forceSimilarColumn`
 
@@ -1093,6 +1093,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
 - из `../core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`
+- из `../core/link-facts.js`: `orientLink`
 - из `../metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
 - из `../metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `networkProgressPercent`, `networkSimilarityData`, `profileIsMeaningful`
 - из `./connection-view.js`: `linkArrow`
@@ -1358,7 +1359,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/philosopher-view.js`
 
-Строк 638.
+Строк 665.
 
 **Вывозит:** `makeLegendsEditable`
 
@@ -1366,7 +1367,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
 - из `../core/graph-index.js`: `comparePhilosophers`, `conceptById`, `nodesByPhilosopher`, `otherEndColor`, `philosopherByName`, `rubricById`, `traditionById`
-- из `../core/link-facts.js`: `directionMark`
+- из `../core/link-facts.js`: `orientLink`
 - из `../core/perms.js`: `PERM`, `can`
 - из `../metrics/similarity-philosophers.js`: `nearestPhilosophers`
 - из `./connection-view.js`: `linkArrow`

@@ -988,7 +988,8 @@
   "forceSimilarColumn": "modal/concept-view.js",
   "refreshSimilarColumn": "modal/concept-view.js",
   "forceButtonHtml": "modal/concept-view.js",
-  "similarProfileColumnHtml": "modal/concept-view.js"
+  "similarProfileColumnHtml": "modal/concept-view.js",
+  "orientLink": "core/link-facts.js"
  },
  "новые": [
   "BUS_PHASES"
