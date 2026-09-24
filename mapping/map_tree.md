@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-130 модулей, 21798 строк, 904 объявлений,
-620 вывозов, 835 рёбер ввоза. Составлено 2026-09-24 08:05:14.
+130 модулей, 21807 строк, 908 объявлений,
+619 вывозов, 836 рёбер ввоза. Составлено 2026-09-24 12:41:55.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -17,13 +17,13 @@
 
 | Модуль | Ввозят из него |
 |---|---|
-| `modules/core/ns.js` | 96 |
+| `modules/core/ns.js` | 97 |
 | `modules/core/graph-index.js` | 57 |
 | `modules/core/events.js` | 25 |
-| `modules/core/link-facts.js` | 25 |
+| `modules/core/link-facts.js` | 24 |
 | `modules/render/canvas-core.js` | 19 |
+| `modules/state/render.js` | 19 |
 | `modules/util/html.js` | 19 |
-| `modules/state/render.js` | 18 |
 | `modules/modal/core.js` | 14 |
 | `modules/core/api.js` | 13 |
 | `modules/core/perms.js` | 13 |
@@ -46,16 +46,16 @@
 | `philosopherByName` | 11 |
 | `requestDraw` | 10 |
 | `api` | 10 |
+| `selectedNodes` | 10 |
 | `renderState` | 10 |
-| `showTemporaryMessage` | 9 |
-| `openUniversalModal` | 9 |
+| `isReflexiveLink` | 10 |
 
 ## Общие пространства имён
 
 | Пространство | Полей | Самое востребованное поле | В скольких модулях |
 |---|---|---|---|
 | `DATA` | 17 | `nodes` | 36 |
-| `S` | 68 | `_concepts` | 15 |
+| `S` | 66 | `_concepts` | 15 |
 | `MET` | 33 | `influenceIndex` | 7 |
 | `VIEWS` | 6 | `generateConceptViewContent` | 1 |
 
@@ -111,9 +111,9 @@
 | `modules/dead.js` | 86 | 6 | 6 | 5 | DATA:1, S:5, MET:1 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 | 2 | — |
 | `modules/filters/chains.js` | 273 | 6 | 3 | 4 | DATA:3, S:2 |
-| `modules/filters/filters.js` | 446 | 12 | 2 | 14 | DATA:4, S:7 |
+| `modules/filters/filters.js` | 443 | 12 | 2 | 13 | DATA:4, S:7 |
 | `modules/graph/click-actions.js` | 201 | 8 | 2 | 8 | S:1 |
-| `modules/graph/graph-data.js` | 121 | 10 | 10 | 10 | DATA:2, S:6 |
+| `modules/graph/graph-data.js` | 121 | 10 | 10 | 10 | DATA:2, S:5 |
 | `modules/graph/graph-selection.js` | 61 | 3 | 3 | 3 | S:1 |
 | `modules/metrics/by-link-type.js` | 116 | 6 | 3 | 2 | S:3, MET:4 |
 | `modules/metrics/concept-dynamics.js` | 224 | 8 | 4 | 2 | S:4, MET:4 |
@@ -163,26 +163,26 @@
 | `modules/paths/path-descriptions.js` | 179 | 4 | 3 | 8 | DATA:2, S:2 |
 | `modules/paths/path-ui.js` | 421 | 8 | 5 | 10 | DATA:4, S:7 |
 | `modules/paths/shortest-path.js` | 203 | 4 | 1 | 5 | DATA:2, S:4 |
-| `modules/render/canvas-core.js` | 45 | 9 | 9 | 3 | S:3 |
-| `modules/render/d3-layer.js` | 107 | 11 | 9 | 7 | DATA:2, S:2 |
-| `modules/render/draw-link.js` | 102 | 6 | 6 | 7 | S:1 |
-| `modules/render/geometry.js` | 88 | 5 | 5 | 2 | S:2 |
+| `modules/render/canvas-core.js` | 38 | 7 | 7 | 3 | S:2 |
+| `modules/render/d3-layer.js` | 106 | 11 | 9 | 7 | DATA:2, S:1 |
+| `modules/render/draw-link.js` | 71 | 5 | 5 | 6 | S:1 |
+| `modules/render/geometry.js` | 105 | 9 | 4 | 4 | S:1 |
 | `modules/render/grouping.js` | 115 | 7 | 3 | 7 | DATA:1, S:6 |
-| `modules/render/interactions.js` | 308 | 8 | 4 | 19 | DATA:1, S:4 |
+| `modules/render/interactions.js` | 306 | 8 | 4 | 19 | DATA:1, S:3 |
 | `modules/render/loop.js` | 20 | 4 | 2 | 0 | — |
-| `modules/render/metric-visualization.js` | 371 | 10 | 3 | 5 | DATA:4, S:3 |
-| `modules/render/picking.js` | 84 | 7 | 5 | 8 | DATA:2, S:1 |
-| `modules/render/render-state.js` | 17 | 6 | 6 | 1 | — |
-| `modules/render/scene.js` | 350 | 18 | 7 | 14 | DATA:4, S:5 |
+| `modules/render/metric-visualization.js` | 371 | 10 | 3 | 5 | DATA:4, S:2 |
+| `modules/render/picking.js` | 95 | 6 | 3 | 9 | DATA:2 |
+| `modules/render/render-state.js` | 47 | 10 | 10 | 3 | S:1 |
+| `modules/render/scene.js` | 346 | 18 | 8 | 13 | DATA:4, S:5 |
 | `modules/render/selection.js` | 261 | 8 | 7 | 11 | DATA:2, S:2 |
 | `modules/render/similarity-overlay.js` | 256 | 10 | 5 | 9 | DATA:4, S:1 |
-| `modules/render/simulation.js` | 131 | 11 | 8 | 12 | DATA:2, S:5 |
+| `modules/render/simulation.js` | 128 | 11 | 8 | 11 | DATA:2, S:4 |
 | `modules/render/tooltip-el.js` | 7 | 1 | 1 | 1 | — |
 | `modules/state/edit.js` | 12 | 1 | 1 | 0 | — |
 | `modules/state/filters.js` | 20 | 3 | 3 | 2 | DATA:3, S:4 |
 | `modules/state/metrics-scope.js` | 13 | 0 | 0 | 1 | S:5 |
 | `modules/state/paths.js` | 18 | 0 | 0 | 2 | S:7 |
-| `modules/state/render.js` | 141 | 12 | 11 | 5 | DATA:5, S:11 |
+| `modules/state/render.js` | 137 | 12 | 11 | 5 | DATA:5, S:9 |
 | `modules/state/stats.js` | 33 | 0 | 0 | 1 | S:15 |
 | `modules/stats/coverage.js` | 66 | 3 | 3 | 6 | S:3, MET:19 |
 | `modules/stats/modal.js` | 245 | 8 | 8 | 17 | DATA:2, S:10 |
@@ -201,7 +201,7 @@
 | `modules/ui/actions-static.js` | 140 | 0 | 0 | 26 | — |
 | `modules/ui/actions.js` | 27 | 1 | 3 | 0 | — |
 | `modules/ui/delegation.js` | 70 | 3 | 1 | 1 | — |
-| `modules/ui/export.js` | 126 | 2 | 2 | 11 | DATA:4, S:2 |
+| `modules/ui/export.js` | 132 | 2 | 2 | 11 | DATA:4, S:2 |
 | `modules/ui/hint.js` | 60 | 7 | 4 | 1 | S:1 |
 | `modules/ui/legend.js` | 387 | 29 | 25 | 7 | DATA:9, S:9 |
 | `modules/ui/link-state.js` | 282 | 13 | 6 | 17 | DATA:5, S:11 |
@@ -439,17 +439,17 @@
 | `confirmLongChainSearch` | function | 9 | да |
 | `CHAIN_WARN_THRESHOLD` | const | 1 | — |
 
-### `modules/filters/filters.js` — 446 строк, объявлений 12
+### `modules/filters/filters.js` — 443 строк, объявлений 12
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `handleUniqueChainsMode` | async function | 65 | — |
 | `handleChainsMode` | async function | 59 | — |
-| `applyBasicFilter` | function | 53 | — |
+| `applyBasicFilter` | function | 52 | — |
 | `applyFiltersImmediate` | function | 22 | да |
 | `cleanupInvisibleSelections` | function | 14 | — |
 | `debounce` | function | 11 | — |
-| `applyChainVisibility` | function | 8 | — |
+| `applyChainVisibility` | function | 7 | — |
 | `refreshMetricsIfScoped` | function | 7 | — |
 | `sharesTradition` | function | 5 | — |
 | `FilterModes` | const | 1 | — |
@@ -1153,21 +1153,19 @@
 | `findShortestPath` | function | 10 | да |
 | `pathLinkAllowed` | function | 9 | — |
 
-### `modules/render/canvas-core.js` — 45 строк, объявлений 9
+### `modules/render/canvas-core.js` — 38 строк, объявлений 7
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `resizeCanvas` | function | 11 | да |
+| `resizeCanvas` | function | 8 | да |
 | `gfxCanvas` | const | 1 | да |
 | `ctx` | const | 1 | да |
 | `gfxSvg` | const | 1 | да |
-| `pickCanvas` | const | 1 | да |
-| `pickCtx` | const | 1 | да |
 | `PICK_LINK_WIDTH` | const | 1 | да |
 | `dpr` | let | 1 | да |
 | `renderState` | const | 1 | да |
 
-### `modules/render/d3-layer.js` — 107 строк, объявлений 11
+### `modules/render/d3-layer.js` — 106 строк, объявлений 11
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1183,26 +1181,29 @@
 | `updateArrows` | function | 1 | да |
 | `gfxZoom` | const | 1 | да |
 
-### `modules/render/draw-link.js` — 102 строк, объявлений 6
+### `modules/render/draw-link.js` — 71 строк, объявлений 5
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `drawSelfLoop` | function | 27 | да |
 | `linkDrawAlpha` | function | 21 | да |
-| `fillArrow` | function | 13 | да |
+| `strokeLinkShape` | function | 10 | да |
+| `fillLinkHeads` | function | 10 | да |
 | `linkDrawWidth` | function | 8 | да |
-| `strokeLink` | function | 8 | да |
 | `linkVisualState` | function | 7 | да |
 
-### `modules/render/geometry.js` — 88 строк, объявлений 5
+### `modules/render/geometry.js` — 105 строк, объявлений 9
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `arrowPointsStart` | function | 28 | да |
-| `arrowPoints` | function | 26 | да |
-| `arcParams` | function | 15 | да |
+| `linkShape` | function | 20 | да |
+| `loopShape` | function | 16 | — |
+| `arcParams` | function | 15 | — |
+| `clippedArc` | function | 10 | да |
+| `arrowSize` | function | 8 | — |
+| `arcHead` | function | 8 | — |
 | `linkStrokeWidth` | function | 4 | да |
 | `linkHoverStrokeWidth` | function | 4 | да |
+| `arcAngleOfChord` | function | 3 | — |
 
 ### `modules/render/grouping.js` — 115 строк, объявлений 7
 
@@ -1216,12 +1217,12 @@
 | `cols` | const | 1 | — |
 | `rows` | const | 1 | — |
 
-### `modules/render/interactions.js` — 308 строк, объявлений 8
+### `modules/render/interactions.js` — 306 строк, объявлений 8
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `installLinkHover` | function | 127 | да |
-| `installNodeDrag` | function | 39 | да |
+| `installNodeDrag` | function | 37 | да |
 | `dispatchClick` | function | 34 | — |
 | `dispatchMove` | function | 30 | — |
 | `installNodeHover` | function | 29 | да |
@@ -1243,9 +1244,9 @@
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `toggleMetricVisualization` | function | 132 | да |
-| `visualizeMetricBySize` | function | 110 | — |
+| `visualizeMetricBySize` | function | 111 | — |
 | `updateVisualizationControlSection` | function | 40 | — |
-| `resetNodeSizes` | function | 39 | да |
+| `resetNodeSizes` | function | 38 | да |
 | `updateVisualizationButtonText` | function | 16 | — |
 | `saveOriginalRadii` | function | 11 | да |
 | `isVisualizingBySize` | let | 1 | — |
@@ -1253,46 +1254,49 @@
 | `originalRadii` | let | 1 | — |
 | `originalTextDy` | let | 1 | — |
 
-### `modules/render/picking.js` — 84 строк, объявлений 7
+### `modules/render/picking.js` — 95 строк, объявлений 6
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `repaintPickCanvas` | function | 30 | — |
-| `pickLink` | function | 12 | да |
-| `pickNode` | function | 9 | да |
-| `rebuildQuadtree` | function | 5 | да |
-| `refreshHitMaps` | function | 4 | да |
+| `pickLink` | function | 36 | да |
+| `hitLinkShape` | function | 16 | — |
+| `pickNode` | function | 10 | да |
+| `pointInTriangle` | function | 5 | — |
+| `distToSegment` | function | 5 | — |
 | `toGraph` | function | 4 | да |
-| `quadtree` | let | 1 | — |
 
-### `modules/render/render-state.js` — 17 строк, объявлений 6
+### `modules/render/render-state.js` — 47 строк, объявлений 10
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
+| `nodeEdgeWidth` | function | 16 | да |
+| `nodeDrawPass` | function | 6 | да |
 | `LABEL_HIDE_BELOW` | const | 1 | да |
 | `LABEL_ALL_ABOVE` | const | 1 | да |
 | `nodeRadius` | function | 1 | да |
 | `nodeLabelDy` | function | 1 | да |
 | `hasNodeClass` | function | 1 | да |
 | `hasLinkClass` | function | 1 | да |
+| `NODE_PASSES` | const | 1 | да |
+| `nodeOuterRadius` | function | 1 | да |
 
-### `modules/render/scene.js` — 350 строк, объявлений 18
+### `modules/render/scene.js` — 346 строк, объявлений 18
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `renderScene` | function | 138 | да |
-| `drawLinkSet` | function | 36 | — |
-| `updateGraphData` | function | 24 | да |
+| `renderScene` | function | 137 | да |
+| `drawLinkSet` | function | 33 | — |
+| `linksLayerKey` | function | 23 | — |
+| `updateGraphData` | function | 22 | да |
 | `paintLinkLayer` | function | 21 | — |
-| `linksLayerKey` | function | 19 | — |
 | `stepRadiusAnimation` | function | 13 | — |
 | `graphIsCovered` | function | 10 | — |
-| `draw` | function | 10 | да |
 | `needsContinuousAnimation` | function | 9 | да |
 | `ensureAnimLoop` | function | 9 | да |
+| `draw` | function | 9 | да |
 | `startRadiusAnimation` | function | 6 | да |
 | `linkOutOfLayer` | function | 5 | — |
-| `linkDrawnLive` | function | 5 | — |
+| `linkDrawnLive` | function | 5 | да |
 | `sameLayerKey` | function | 5 | — |
 | `animLoopRunning` | let | 1 | — |
 | `DRAW_ORDER` | const | 1 | да |
@@ -1327,12 +1331,12 @@
 | `SIMILARITY_KEEP_QUANTILE` | const | 1 | — |
 | `SIMILARITY_ARCS` | const | 1 | — |
 
-### `modules/render/simulation.js` — 131 строк, объявлений 11
+### `modules/render/simulation.js` — 128 строк, объявлений 11
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `installSimulationTick` | function | 18 | да |
 | `unfreezeSimulation` | function | 17 | да |
+| `installSimulationTick` | function | 16 | да |
 | `installSimulationStatsEnd` | function | 12 | да |
 | `updateFreezeButton` | function | 12 | — |
 | `toggleSimulationFreeze` | function | 11 | да |
@@ -1363,7 +1367,7 @@
 | `pinnedDespiteFilter` | const | 1 | да |
 | `pinnedVisibleNodes` | const | 1 | да |
 
-### `modules/state/render.js` — 141 строк, объявлений 12
+### `modules/state/render.js` — 137 строк, объявлений 12
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1551,11 +1555,11 @@
 | `EVENTS` | const | 1 | — |
 | `BOUNDS` | const | 1 | — |
 
-### `modules/ui/export.js` — 126 строк, объявлений 2
+### `modules/ui/export.js` — 132 строк, объявлений 2
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `exportToSVG` | function | 74 | да |
+| `exportToSVG` | function | 80 | да |
 | `exportToPNG` | function | 35 | да |
 
 ### `modules/ui/hint.js` — 60 строк, объявлений 7
@@ -2078,7 +2082,6 @@
 - из `modules/metrics/scope-reset.js`: `invalidateEverythingForScope`
 - из `modules/metrics/scope.js`: `updateMetricsScopeHint`
 - из `modules/render/d3-layer.js`: `gfxLinkAll`, `gfxNode`
-- из `modules/render/picking.js`: `refreshHitMaps`
 - из `modules/render/selection.js`: `highlightConnected`, `resetHighlight`
 - из `modules/state/filters.js`: `pinnedDespiteFilter`, `pinnedVisibleNodes`
 - из `modules/state/render.js`: `selectedNodes`
@@ -2111,7 +2114,7 @@
 - из `modules/state/filters.js`: `pinnedVisibleNodes`
 - из `modules/state/render.js`: `linkLayer`, `selectedEdges`, `selectedNodes`
 
-Чаще всего поминает: `renderState`×10, `S`×10, `DATA`×3, `pinnedVisibleNodes`×2, `updateGraphData`×2
+Чаще всего поминает: `renderState`×10, `S`×9, `DATA`×3, `pinnedVisibleNodes`×2, `updateGraphData`×2
 
 ### `modules/graph/graph-selection.js`
 
@@ -2628,7 +2631,7 @@
 - из `vendor/d3.js`: _ради побочного действия_
 - из `modules/render/loop.js`: `requestDraw`
 
-Чаще всего поминает: `S`×5, `requestDraw`×1
+Чаще всего поминает: `S`×4, `requestDraw`×1
 
 ### `modules/render/d3-layer.js`
 
@@ -2640,15 +2643,14 @@
 - из `modules/render/scene.js`: `startRadiusAnimation`
 - из `modules/state/render.js`: `resetLayoutClock`
 
-Чаще всего поминает: `DATA`×9, `renderState`×8, `requestDraw`×8, `S`×3, `startRadiusAnimation`×1
+Чаще всего поминает: `DATA`×9, `renderState`×8, `requestDraw`×8, `S`×2, `startRadiusAnimation`×1
 
 ### `modules/render/draw-link.js`
 
 - из `modules/core/ns.js`: `S`
-- из `modules/core/link-facts.js`: `linkHasTwoHeads`
 - из `modules/render/canvas-core.js`: `renderState`
-- из `modules/render/geometry.js`: `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHoverStrokeWidth`, `linkStrokeWidth`
-- из `modules/render/render-state.js`: `hasLinkClass`, `nodeRadius`
+- из `modules/render/geometry.js`: `linkHoverStrokeWidth`, `linkStrokeWidth`
+- из `modules/render/render-state.js`: `hasLinkClass`
 - из `modules/render/similarity-overlay.js`: `linkAmongHighlighted`
 - из `modules/state/render.js`: `selectedEdges`
 
@@ -2657,9 +2659,11 @@
 ### `modules/render/geometry.js`
 
 - из `modules/core/ns.js`: `S`
+- из `modules/core/link-facts.js`: `isReflexiveLink`, `linkHasTwoHeads`
 - из `modules/render/canvas-core.js`: `renderState`
+- из `modules/render/render-state.js`: `nodeOuterRadius`, `nodeRadius`
 
-Чаще всего поминает: `S`×6, `renderState`×2
+Чаще всего поминает: `nodeOuterRadius`×3, `renderState`×2, `S`×1, `isReflexiveLink`×1, `linkHasTwoHeads`×1
 
 ### `modules/render/grouping.js`
 
@@ -2687,7 +2691,7 @@
 - из `modules/render/canvas-core.js`: `gfxCanvas`, `gfxSvg`, `renderState`
 - из `modules/render/d3-layer.js`: `dragended`, `dragstarted`, `gfxLink`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`
 - из `modules/render/loop.js`: `requestDraw`
-- из `modules/render/picking.js`: `pickLink`, `pickNode`, `rebuildQuadtree`, `toGraph`
+- из `modules/render/picking.js`: `pickLink`, `pickNode`, `toGraph`
 - из `modules/render/selection.js`: `resetHighlight`
 - из `modules/render/tooltip-el.js`: `tooltip`
 - из `modules/state/edit.js`: `editMode`
@@ -2695,7 +2699,7 @@
 - из `modules/state/render.js`: `selectedEdges`
 - из `modules/util/philosopher-label.js`: `labelWithAuthor`
 
-Чаще всего поминает: `S`×15, `tooltip`×12, `renderState`×11, `linkHandlers`×10, `nodeHandlers`×8
+Чаще всего поминает: `S`×14, `tooltip`×12, `renderState`×11, `linkHandlers`×10, `nodeHandlers`×8
 
 ### `modules/render/metric-visualization.js`
 
@@ -2705,26 +2709,29 @@
 - из `modules/metrics/network.js`: `betweennessCache`, `closenessCache`, `eigenvectorCache`, `localCohesionCache`, `pageRankCache`, `richClubCache`, `weightedClusteringCache`
 - из `modules/render/d3-layer.js`: `gfxNode`, `updateArrows`
 
-Чаще всего поминает: `DATA`×8, `S`×5, `gfxNode`×4, `updateArrows`×2, `pageRankCache`×1
+Чаще всего поминает: `DATA`×7, `gfxNode`×4, `S`×3, `updateArrows`×2, `pageRankCache`×1
 
 ### `modules/render/picking.js`
 
-- из `modules/core/ns.js`: `DATA`, `S`
+- из `modules/core/ns.js`: `DATA`
 - из `vendor/d3.js`: _ради побочного действия_
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/link-facts.js`: `isReflexiveLink`
 - из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
-- из `modules/render/canvas-core.js`: `PICK_LINK_WIDTH`, `dpr`, `gfxCanvas`, `pickCanvas`, `pickCtx`, `renderState`
-- из `modules/render/draw-link.js`: `drawSelfLoop`, `fillArrow`, `linkDrawWidth`, `linkVisualState`, `strokeLink`
-- из `modules/render/render-state.js`: `nodeRadius`
+- из `modules/render/canvas-core.js`: `PICK_LINK_WIDTH`, `gfxCanvas`, `renderState`
+- из `modules/render/draw-link.js`: `linkDrawWidth`, `linkVisualState`
+- из `modules/render/geometry.js`: `linkShape`, `linkStrokeWidth`
+- из `modules/render/render-state.js`: `NODE_PASSES`, `nodeDrawPass`, `nodeRadius`
+- из `modules/render/scene.js`: `DRAW_ORDER`, `linkDrawnLive`
 
-Чаще всего поминает: `pickCtx`×14, `dpr`×6, `DATA`×5, `pickCanvas`×4, `S`×3
+Чаще всего поминает: `DATA`×3, `gfxCanvas`×2, `nodeRadius`×2, `DRAW_ORDER`×2, `renderState`×1
 
 ### `modules/render/render-state.js`
 
+- из `modules/core/ns.js`: `S`
 - из `modules/render/canvas-core.js`: `renderState`
+- из `modules/state/render.js`: `selectedNodes`
 
-Чаще всего поминает: `renderState`×4
+Чаще всего поминает: `renderState`×4, `selectedNodes`×2, `S`×1
 
 ### `modules/render/scene.js`
 
@@ -2735,15 +2742,14 @@
 - из `modules/core/link-facts.js`: `isReflexiveLink`
 - из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `modules/render/canvas-core.js`: `ctx`, `dpr`, `gfxCanvas`, `renderState`
-- из `modules/render/draw-link.js`: `drawSelfLoop`, `fillArrow`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLink`
-- из `modules/render/geometry.js`: `arcParams`, `linkHoverStrokeWidth`
+- из `modules/render/draw-link.js`: `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
+- из `modules/render/geometry.js`: `clippedArc`, `linkShape`
 - из `modules/render/loop.js`: `requestDraw`
-- из `modules/render/picking.js`: `rebuildQuadtree`
-- из `modules/render/render-state.js`: `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `hasLinkClass`, `hasNodeClass`, `nodeLabelDy`, `nodeRadius`
+- из `modules/render/render-state.js`: `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `NODE_PASSES`, `hasLinkClass`, `hasNodeClass`, `nodeDrawPass`, `nodeEdgeWidth`, `nodeLabelDy`, `nodeRadius`
 - из `modules/render/similarity-overlay.js`: `similarityColor`
 - из `modules/state/render.js`: `linkLayer`, `resetLayoutClock`, `selectedEdges`, `selectedNodes`
 
-Чаще всего поминает: `S`×24, `renderState`×18, `DATA`×16, `linkLayer`×12, `dpr`×8
+Чаще всего поминает: `S`×23, `renderState`×17, `DATA`×16, `linkLayer`×12, `dpr`×8
 
 ### `modules/render/selection.js`
 
@@ -2785,12 +2791,11 @@
 - из `modules/render/canvas-core.js`: `gfxSvg`
 - из `modules/render/d3-layer.js`: `gfxZoom`
 - из `modules/render/loop.js`: `requestDraw`
-- из `modules/render/picking.js`: `rebuildQuadtree`
 - из `modules/render/scene.js`: `ensureAnimLoop`, `needsContinuousAnimation`
 - из `modules/render/selection.js`: `resetHighlight`
 - из `modules/state/render.js`: `resetLayoutClock`
 
-Чаще всего поминает: `S`×23, `DATA`×3, `resetLayoutClock`×2, `ensureAnimLoop`×2, `needsContinuousAnimation`×2
+Чаще всего поминает: `S`×22, `DATA`×3, `resetLayoutClock`×2, `ensureAnimLoop`×2, `needsContinuousAnimation`×2
 
 ### `modules/render/tooltip-el.js`
 
@@ -2824,7 +2829,7 @@
 - из `modules/core/events.js`: `emit`
 - из `modules/core/graph-index.js`: `linksByConcept`
 
-Чаще всего поминает: `S`×21, `DATA`×12, `emit`×1, `linksByConcept`×1
+Чаще всего поминает: `S`×19, `DATA`×12, `emit`×1, `linksByConcept`×1
 
 ### `modules/state/stats.js`
 
@@ -3057,13 +3062,13 @@
 
 - из `modules/core/ns.js`: `DATA`, `S`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/link-facts.js`: `isSymmetricLink`, `linkHasTwoHeads`
+- из `modules/core/link-facts.js`: `isReflexiveLink`, `isSymmetricLink`
 - из `modules/core/long-task.js`: `showTemporaryMessage`
 - из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `modules/render/canvas-core.js`: `renderState`
 - из `modules/render/draw-link.js`: `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`
-- из `modules/render/geometry.js`: `arrowPoints`, `arrowPointsStart`
-- из `modules/render/render-state.js`: `hasNodeClass`, `nodeLabelDy`, `nodeRadius`
+- из `modules/render/geometry.js`: `linkShape`
+- из `modules/render/render-state.js`: `hasNodeClass`, `nodeEdgeWidth`, `nodeLabelDy`, `nodeRadius`
 - из `modules/render/scene.js`: `DRAW_ORDER`, `renderScene`
 - из `modules/state/render.js`: `selectedNodes`
 

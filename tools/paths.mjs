@@ -100,6 +100,7 @@ export const РАЗМЕЩЕНИЕ = Object.freeze({
   'probe8.mjs':              'probes',
   'progress_probe.mjs':              'probes',
   'link_probe.mjs':              'probes',
+  'hit_probe.mjs':               'probes',
   'prune_exports.mjs':       'build',
   'prune_imports.mjs':       'build',
   'remap.mjs':               '',

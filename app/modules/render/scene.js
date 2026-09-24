@@ -6,11 +6,10 @@ import { conceptById } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
 import { ctx, dpr, gfxCanvas, renderState } from './canvas-core.js';
-import { drawSelfLoop, fillArrow, linkDrawAlpha, linkDrawWidth, linkVisualState, strokeLink } from './draw-link.js';
-import { arcParams, linkHoverStrokeWidth } from './geometry.js';
+import { fillLinkHeads, linkDrawAlpha, linkDrawWidth, linkVisualState, strokeLinkShape } from './draw-link.js';
+import { clippedArc, linkShape } from './geometry.js';
 import { requestDraw } from './loop.js';
-import { rebuildQuadtree } from './picking.js';
-import { LABEL_ALL_ABOVE, LABEL_HIDE_BELOW, hasLinkClass, hasNodeClass, nodeLabelDy, nodeRadius } from './render-state.js';
+import { LABEL_ALL_ABOVE, LABEL_HIDE_BELOW, NODE_PASSES, hasLinkClass, hasNodeClass, nodeDrawPass, nodeEdgeWidth, nodeLabelDy, nodeRadius } from './render-state.js';
 import { similarityColor } from './similarity-overlay.js';
 import { linkLayer, resetLayoutClock, selectedEdges, selectedNodes } from '../state/render.js';
 
@@ -68,13 +67,17 @@ function linksLayerKey(c) {
       for (const n of DATA.nodes) if (n.x !== undefined) pos += n.x + n.y;
       let rad = 0;
       renderState.radius.forEach(v => { rad += v; });
+      // Связи обрезаются по видимому краю узла, а он зависит и от обводки
+      // (выделение, карта сходства): слой устаревает вместе с ней.
+      let edge = 0;
+      for (const n of DATA.nodes) edge += nodeEdgeWidth(n);
       let sel = '';
       selectedEdges.forEach(l => {
         sel += ((l.source && l.source.id) || l.source) + '>' +
                ((l.target && l.target.id) || l.target) + ':' + l.type + ';';
       });
       const t = renderState.transform;
-      const key = [pos, rad, t.k, t.x, t.y, c.canvas.width, c.canvas.height,
+      const key = [pos, rad, edge, S.arrowMode, t.k, t.x, t.y, c.canvas.width, c.canvas.height,
                    DATA.links.length, DATA.nodes.length, S.visibleLinkSet, sel,
                    !!S.similarityOverlay, !!renderState.uniformLinkWidth];
       // Классы связей: имена заранее не известны, поэтому берём все.
@@ -133,17 +136,14 @@ function drawLinkSet(c, tms, take) {
             c.setLineDash([]);
             c.lineDashOffset = 0;
           }
-          if (isReflexiveLink(l)) {
-            // Петля: обычная линия между источником и целью
-            // выродилась бы в точку, а наконечник — в мусор.
-            c.setLineDash([]);
-            drawSelfLoop(c, l, w, DATA.relationTypesObj[l.type].color,
-                   linkDrawAlpha(l, state, tms));
-          } else {
-            strokeLink(c, l, w);
-            c.setLineDash([]);
-            fillArrow(c, l, renderState.hoveredLink === l ? linkHoverStrokeWidth(l) : undefined);
-          }
+          // Петля — сплошной линией, как и прежде: пунктир на малой
+          // окружности читается как рябь. Её геометрию даёт тот же linkShape.
+          if (isReflexiveLink(l)) c.setLineDash([]);
+          const g = linkShape(l, w);
+          if (!g) continue;
+          strokeLinkShape(c, g, w);
+          c.setLineDash([]);
+          fillLinkHeads(c, g);
         }
       }
     }
@@ -162,7 +162,7 @@ function renderScene(c, opts) {
       // ложатся поверх — а все они и так принадлежат верхним состояниям.
       //
       // Слой применяется ТОЛЬКО к экранному холсту: этим же кодом идут
-      // выгрузка в PNG и холст хит-теста, у них свой контекст и свой размер.
+      // выгрузка в PNG, у неё свой контекст и свой размер.
       const useLayer = (c === ctx) && !opts.noLayer;
       if (useLayer) {
         const key = linksLayerKey(c);
@@ -199,10 +199,10 @@ function renderScene(c, opts) {
           for (const id of S.similarityOverlay.nearest) {
             const t = conceptById.get(id);
             if (!t || t.x === undefined || !isNodeVisible(t)) continue;
-            const p = arcParams(src, t);
+            const p = clippedArc(src, t);   // от края до края, как и связи
             if (!p) continue;
             c.beginPath();
-            c.arc(p.cx, p.cy, p.r, p.a0, p.a1, false);
+            c.arc(p.cx, p.cy, p.r, p.e0, p.e1, false);
             c.stroke();
           }
           c.setLineDash([]);
@@ -212,14 +212,13 @@ function renderScene(c, opts) {
       // узлы
       c.globalAlpha = 1;
       c.setLineDash([]);
-      for (const pass of ["dimmed", "normal", "top"]) {
+      for (const pass of NODE_PASSES) {
         for (const d of DATA.nodes) {
           if (!isNodeVisible(d)) continue;
+          if (nodeDrawPass(d) !== pass) continue;
           const selected  = selectedNodes.has(d) || hasNodeClass("selected", d);
           const highlighted = hasNodeClass("highlighted", d);
-          const dimmed    = hasNodeClass("dimmed", d) && !selected && !highlighted;
-          const bucket = dimmed ? "dimmed" : (selected || highlighted ? "top" : "normal");
-          if (bucket !== pass) continue;
+          const dimmed    = pass === "dimmed";
 
           const r = nodeRadius(d);
           c.globalAlpha = dimmed ? 0.2 : 1;
@@ -249,15 +248,15 @@ function renderScene(c, opts) {
             // разворачиваются на полную шкалу цвета и толщины
             const t = Math.max(-1, Math.min(1, simValue / S.similarityOverlay.rowMax));
             const mag = Math.abs(t);
-            c.lineWidth   = 2 + mag * 5;
+            c.lineWidth   = nodeEdgeWidth(d);
             c.strokeStyle = similarityColor(t);
             if (mag > 0.5) { c.shadowColor = c.strokeStyle; c.shadowBlur = 8 * mag; }
           } else if (S.similarityOverlay && d.id === S.similarityOverlay.sourceId) {
-            c.lineWidth = 7;
+            c.lineWidth = nodeEdgeWidth(d);
             c.strokeStyle = "#ffd700";
             c.shadowColor = "#ffd700"; c.shadowBlur = 18;
           } else {
-            c.lineWidth   = selected ? 6 : (highlighted ? 5 : 3);
+            c.lineWidth   = nodeEdgeWidth(d);
             c.strokeStyle = selected ? "#ffd700" : "#fff";
           }
           c.stroke();
@@ -296,7 +295,6 @@ function draw() {
       ctx.clearRect(0, 0, gfxCanvas.width, gfxCanvas.height);
       ctx.setTransform(dpr * t.k, 0, 0, dpr * t.k, dpr * t.x, dpr * t.y);
       renderScene(ctx, {});
-      S.pickDirty = true;
       if (needsContinuousAnimation()) ensureAnimLoop();
     }
 
@@ -329,8 +327,6 @@ function updateGraphData() {
       S.simulation.nodes(DATA.nodes);
       S.simulation.force('link').links(DATA.links);
 
-      rebuildQuadtree();   // хит-тест узлов
-      S.pickDirty = true;    // хит-тест связей (карта выбора)
       linkLayer.key = null;  // слой застывших связей
       requestDraw();
       // Счётчик тиков — он же стоп-кран: обработчик тика глушит симуляцию,
@@ -346,4 +342,4 @@ function updateGraphData() {
       S.simulation.alpha(0.3).restart();
     }
 
-export { DRAW_ORDER, draw, ensureAnimLoop, needsContinuousAnimation, renderScene, startRadiusAnimation, updateGraphData };
+export { DRAW_ORDER, draw, ensureAnimLoop, linkDrawnLive, needsContinuousAnimation, renderScene, startRadiusAnimation, updateGraphData };

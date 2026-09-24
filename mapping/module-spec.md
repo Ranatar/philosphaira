@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 130 модулей, 21798 строк.
+Составлено из готовой сборки: 130 модулей, 21807 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -69,7 +69,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/dead.js` | 86 | 6 | 5 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 |
 | `modules/filters/chains.js` | 273 | 3 | 4 |
-| `modules/filters/filters.js` | 446 | 2 | 14 |
+| `modules/filters/filters.js` | 443 | 2 | 13 |
 | `modules/graph/click-actions.js` | 201 | 2 | 8 |
 | `modules/graph/graph-data.js` | 121 | 10 | 9 |
 | `modules/graph/graph-selection.js` | 61 | 3 | 3 |
@@ -121,26 +121,26 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/paths/path-descriptions.js` | 179 | 3 | 8 |
 | `modules/paths/path-ui.js` | 421 | 5 | 10 |
 | `modules/paths/shortest-path.js` | 203 | 1 | 5 |
-| `modules/render/canvas-core.js` | 45 | 9 | 2 |
-| `modules/render/d3-layer.js` | 107 | 9 | 6 |
-| `modules/render/draw-link.js` | 102 | 6 | 7 |
-| `modules/render/geometry.js` | 88 | 5 | 2 |
+| `modules/render/canvas-core.js` | 38 | 7 | 2 |
+| `modules/render/d3-layer.js` | 106 | 9 | 6 |
+| `modules/render/draw-link.js` | 71 | 5 | 6 |
+| `modules/render/geometry.js` | 105 | 4 | 4 |
 | `modules/render/grouping.js` | 115 | 3 | 6 |
-| `modules/render/interactions.js` | 308 | 4 | 18 |
+| `modules/render/interactions.js` | 306 | 4 | 18 |
 | `modules/render/loop.js` | 20 | 2 | 0 |
 | `modules/render/metric-visualization.js` | 371 | 3 | 5 |
-| `modules/render/picking.js` | 84 | 5 | 7 |
-| `modules/render/render-state.js` | 17 | 6 | 1 |
-| `modules/render/scene.js` | 350 | 7 | 13 |
+| `modules/render/picking.js` | 95 | 3 | 8 |
+| `modules/render/render-state.js` | 47 | 10 | 3 |
+| `modules/render/scene.js` | 346 | 8 | 12 |
 | `modules/render/selection.js` | 261 | 7 | 10 |
 | `modules/render/similarity-overlay.js` | 256 | 5 | 9 |
-| `modules/render/simulation.js` | 131 | 8 | 11 |
+| `modules/render/simulation.js` | 128 | 8 | 10 |
 | `modules/render/tooltip-el.js` | 7 | 1 | 0 |
 | `modules/state/edit.js` | 12 | 1 | 0 |
 | `modules/state/filters.js` | 20 | 3 | 2 |
 | `modules/state/metrics-scope.js` | 13 | 0 | 1 |
 | `modules/state/paths.js` | 18 | 0 | 2 |
-| `modules/state/render.js` | 141 | 11 | 4 |
+| `modules/state/render.js` | 137 | 11 | 4 |
 | `modules/state/stats.js` | 33 | 0 | 1 |
 | `modules/stats/coverage.js` | 66 | 3 | 6 |
 | `modules/stats/modal.js` | 245 | 8 | 17 |
@@ -159,7 +159,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/ui/actions-static.js` | 140 | 0 | 26 |
 | `modules/ui/actions.js` | 27 | 3 | 0 |
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
-| `modules/ui/export.js` | 126 | 2 | 11 |
+| `modules/ui/export.js` | 132 | 2 | 11 |
 | `modules/ui/hint.js` | 60 | 4 | 1 |
 | `modules/ui/legend.js` | 387 | 25 | 7 |
 | `modules/ui/link-state.js` | 282 | 6 | 17 |
@@ -698,7 +698,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/filters/filters.js`
 
-Строк 446.
+Строк 443.
 
 **Вывозит:** `applyFilters`, `applyFiltersImmediate`
 
@@ -713,7 +713,6 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../metrics/scope-reset.js`: `invalidateEverythingForScope`
 - из `../metrics/scope.js`: `updateMetricsScopeHint`
 - из `../render/d3-layer.js`: `gfxLinkAll`, `gfxNode`
-- из `../render/picking.js`: `refreshHitMaps`
 - из `../render/selection.js`: `highlightConnected`, `resetHighlight`
 - из `../state/filters.js`: `pinnedDespiteFilter`, `pinnedVisibleNodes`
 - из `../state/render.js`: `selectedNodes`
@@ -1572,20 +1571,20 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/canvas-core.js`
 
-Строк 45.
+Строк 38.
 
-**Вывозит:** `PICK_LINK_WIDTH`, `ctx`, `dpr`, `gfxCanvas`, `gfxSvg`, `pickCanvas`, `pickCtx`, `renderState`, `resizeCanvas`
+**Вывозит:** `PICK_LINK_WIDTH`, `ctx`, `dpr`, `gfxCanvas`, `gfxSvg`, `renderState`, `resizeCanvas`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `S`
 - из `./loop.js`: `requestDraw`
 
-**Содержит:** `PICK_LINK_WIDTH`, `ctx`, `dpr`, `gfxCanvas`, `gfxSvg`, `pickCanvas`, `pickCtx`, `renderState`, `resizeCanvas`
+**Содержит:** `PICK_LINK_WIDTH`, `ctx`, `dpr`, `gfxCanvas`, `gfxSvg`, `renderState`, `resizeCanvas`
 
 ### `modules/render/d3-layer.js`
 
-Строк 107.
+Строк 106.
 
 **Вывозит:** `dragended`, `dragstarted`, `gfxLink`, `gfxLinkAll`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`, `updateArrows`
 
@@ -1602,34 +1601,35 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/draw-link.js`
 
-Строк 102.
+Строк 71.
 
-**Вывозит:** `drawSelfLoop`, `fillArrow`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLink`
+**Вывозит:** `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `S`
-- из `../core/link-facts.js`: `linkHasTwoHeads`
 - из `./canvas-core.js`: `renderState`
-- из `./geometry.js`: `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHoverStrokeWidth`, `linkStrokeWidth`
-- из `./render-state.js`: `hasLinkClass`, `nodeRadius`
+- из `./geometry.js`: `linkHoverStrokeWidth`, `linkStrokeWidth`
+- из `./render-state.js`: `hasLinkClass`
 - из `./similarity-overlay.js`: `linkAmongHighlighted`
 - из `../state/render.js`: `selectedEdges`
 
-**Содержит:** `drawSelfLoop`, `fillArrow`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLink`
+**Содержит:** `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
 
 ### `modules/render/geometry.js`
 
-Строк 88.
+Строк 105.
 
-**Вывозит:** `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHoverStrokeWidth`, `linkStrokeWidth`
+**Вывозит:** `clippedArc`, `linkHoverStrokeWidth`, `linkShape`, `linkStrokeWidth`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `S`
+- из `../core/link-facts.js`: `isReflexiveLink`, `linkHasTwoHeads`
 - из `./canvas-core.js`: `renderState`
+- из `./render-state.js`: `nodeOuterRadius`, `nodeRadius`
 
-**Содержит:** `arcParams`, `arrowPoints`, `arrowPointsStart`, `linkHoverStrokeWidth`, `linkStrokeWidth`
+**Содержит:** `arcAngleOfChord`, `arcHead`, `arcParams`, `arrowSize`, `clippedArc`, `linkHoverStrokeWidth`, `linkShape`, `linkStrokeWidth`, `loopShape`
 
 ### `modules/render/grouping.js`
 
@@ -1650,7 +1650,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/interactions.js`
 
-Строк 308.
+Строк 306.
 
 **Вывозит:** `initGraphEventHandlers`, `installLinkHover`, `installNodeDrag`, `installNodeHover`
 
@@ -1666,7 +1666,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./canvas-core.js`: `gfxCanvas`, `gfxSvg`, `renderState`
 - из `./d3-layer.js`: `dragended`, `dragstarted`, `gfxLink`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`
 - из `./loop.js`: `requestDraw`
-- из `./picking.js`: `pickLink`, `pickNode`, `rebuildQuadtree`, `toGraph`
+- из `./picking.js`: `pickLink`, `pickNode`, `toGraph`
 - из `./selection.js`: `resetHighlight`
 - из `./tooltip-el.js`: `tooltip`
 - из `../state/edit.js`: `editMode`
@@ -1705,39 +1705,42 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/picking.js`
 
-Строк 84.
+Строк 95.
 
-**Вывозит:** `pickLink`, `pickNode`, `rebuildQuadtree`, `refreshHitMaps`, `toGraph`
+**Вывозит:** `pickLink`, `pickNode`, `toGraph`
 
 **Ввозит:**
 
-- из `../core/ns.js`: `DATA`, `S`
-- из `../core/link-facts.js`: `isReflexiveLink`
+- из `../core/ns.js`: `DATA`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
-- из `./canvas-core.js`: `PICK_LINK_WIDTH`, `dpr`, `gfxCanvas`, `pickCanvas`, `pickCtx`, `renderState`
-- из `./draw-link.js`: `drawSelfLoop`, `fillArrow`, `linkDrawWidth`, `linkVisualState`, `strokeLink`
-- из `./render-state.js`: `nodeRadius`
+- из `./canvas-core.js`: `PICK_LINK_WIDTH`, `gfxCanvas`, `renderState`
+- из `./draw-link.js`: `linkDrawWidth`, `linkVisualState`
+- из `./geometry.js`: `linkShape`, `linkStrokeWidth`
+- из `./render-state.js`: `NODE_PASSES`, `nodeDrawPass`, `nodeRadius`
+- из `./scene.js`: `DRAW_ORDER`, `linkDrawnLive`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `pickLink`, `pickNode`, `quadtree`, `rebuildQuadtree`, `refreshHitMaps`, `repaintPickCanvas`, `toGraph`
+**Содержит:** `distToSegment`, `hitLinkShape`, `pickLink`, `pickNode`, `pointInTriangle`, `toGraph`
 
 ### `modules/render/render-state.js`
 
-Строк 17.
+Строк 47.
 
-**Вывозит:** `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `hasLinkClass`, `hasNodeClass`, `nodeLabelDy`, `nodeRadius`
+**Вывозит:** `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `NODE_PASSES`, `hasLinkClass`, `hasNodeClass`, `nodeDrawPass`, `nodeEdgeWidth`, `nodeLabelDy`, `nodeOuterRadius`, `nodeRadius`
 
 **Ввозит:**
 
+- из `../core/ns.js`: `S`
 - из `./canvas-core.js`: `renderState`
+- из `../state/render.js`: `selectedNodes`
 
-**Содержит:** `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `hasLinkClass`, `hasNodeClass`, `nodeLabelDy`, `nodeRadius`
+**Содержит:** `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `NODE_PASSES`, `hasLinkClass`, `hasNodeClass`, `nodeDrawPass`, `nodeEdgeWidth`, `nodeLabelDy`, `nodeOuterRadius`, `nodeRadius`
 
 ### `modules/render/scene.js`
 
-Строк 350.
+Строк 346.
 
-**Вывозит:** `DRAW_ORDER`, `draw`, `ensureAnimLoop`, `needsContinuousAnimation`, `renderScene`, `startRadiusAnimation`, `updateGraphData`
+**Вывозит:** `DRAW_ORDER`, `draw`, `ensureAnimLoop`, `linkDrawnLive`, `needsContinuousAnimation`, `renderScene`, `startRadiusAnimation`, `updateGraphData`
 
 **Ввозит:**
 
@@ -1746,11 +1749,10 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `./canvas-core.js`: `ctx`, `dpr`, `gfxCanvas`, `renderState`
-- из `./draw-link.js`: `drawSelfLoop`, `fillArrow`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLink`
-- из `./geometry.js`: `arcParams`, `linkHoverStrokeWidth`
+- из `./draw-link.js`: `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
+- из `./geometry.js`: `clippedArc`, `linkShape`
 - из `./loop.js`: `requestDraw`
-- из `./picking.js`: `rebuildQuadtree`
-- из `./render-state.js`: `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `hasLinkClass`, `hasNodeClass`, `nodeLabelDy`, `nodeRadius`
+- из `./render-state.js`: `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `NODE_PASSES`, `hasLinkClass`, `hasNodeClass`, `nodeDrawPass`, `nodeEdgeWidth`, `nodeLabelDy`, `nodeRadius`
 - из `./similarity-overlay.js`: `similarityColor`
 - из `../state/render.js`: `linkLayer`, `resetLayoutClock`, `selectedEdges`, `selectedNodes`
 - из `../core/graph-index.js`: _ради побочного действия_
@@ -1800,7 +1802,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/simulation.js`
 
-Строк 131.
+Строк 128.
 
 **Вывозит:** `centerGraph`, `freezeSimulation`, `installSimulationLog`, `installSimulationStatsEnd`, `installSimulationTick`, `resetSimulation`, `toggleSimulationFreeze`, `unfreezeSimulation`
 
@@ -1811,7 +1813,6 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./canvas-core.js`: `gfxSvg`
 - из `./d3-layer.js`: `gfxZoom`
 - из `./loop.js`: `requestDraw`
-- из `./picking.js`: `rebuildQuadtree`
 - из `./scene.js`: `ensureAnimLoop`, `needsContinuousAnimation`
 - из `./selection.js`: `resetHighlight`
 - из `../state/render.js`: `resetLayoutClock`
@@ -1880,7 +1881,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/state/render.js`
 
-Строк 141.
+Строк 137.
 
 **Вывозит:** `applyServerLayout`, `applyStoredLayout`, `graphFingerprint`, `installLayoutPull`, `layoutFromStore`, `linkLayer`, `pullStrengthOf`, `resetLayoutClock`, `selectedEdges`, `selectedNodes`, `storedLayoutComplaint`
 
@@ -1891,7 +1892,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/graph-index.js`: `linksByConcept`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `LAYOUT_PULL`, `S.arrowMode`, `S.arrowRadius`, `S.isGrouped`, `S.layoutSettled`, `S.pickDirty`, `S.similarityOverlay`, `S.simulation`, `S.tickCount`, `S.uniformLinkWidthActive`, `S.viewHeight`, `S.viewWidth`, `applyServerLayout`, `applyStoredLayout`, `graphFingerprint`, `installLayoutPull`, `layoutFromStore`, `linkLayer`, `pullStrengthOf`, `resetLayoutClock`, `selectedEdges`, `selectedNodes`, `storedLayoutComplaint`
+**Содержит:** `LAYOUT_PULL`, `S.arrowMode`, `S.isGrouped`, `S.layoutSettled`, `S.similarityOverlay`, `S.simulation`, `S.tickCount`, `S.uniformLinkWidthActive`, `S.viewHeight`, `S.viewWidth`, `applyServerLayout`, `applyStoredLayout`, `graphFingerprint`, `installLayoutPull`, `layoutFromStore`, `linkLayer`, `pullStrengthOf`, `resetLayoutClock`, `selectedEdges`, `selectedNodes`, `storedLayoutComplaint`
 
 ### `modules/state/stats.js`
 
@@ -2234,20 +2235,20 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/export.js`
 
-Строк 126.
+Строк 132.
 
 **Вывозит:** `exportToPNG`, `exportToSVG`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
-- из `../core/link-facts.js`: `isSymmetricLink`, `linkHasTwoHeads`
+- из `../core/link-facts.js`: `isReflexiveLink`, `isSymmetricLink`
 - из `../core/long-task.js`: `showTemporaryMessage`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `../render/canvas-core.js`: `renderState`
 - из `../render/draw-link.js`: `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`
-- из `../render/geometry.js`: `arrowPoints`, `arrowPointsStart`
-- из `../render/render-state.js`: `hasNodeClass`, `nodeLabelDy`, `nodeRadius`
+- из `../render/geometry.js`: `linkShape`
+- из `../render/render-state.js`: `hasNodeClass`, `nodeEdgeWidth`, `nodeLabelDy`, `nodeRadius`
 - из `../render/scene.js`: `DRAW_ORDER`, `renderScene`
 - из `../state/render.js`: `selectedNodes`
 - из `../core/graph-index.js`: _ради побочного действия_

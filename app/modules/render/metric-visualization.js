@@ -311,11 +311,12 @@ function visualizeMetricBySize(metricData, metricName) {
         });
       
       // Ф0.4: вместо персонального маркера на каждое ребро в defs — режим геометрии стрелок
+      // Отдельной карты радиусов для наконечников больше нет: острие
+      // ставится на видимый край узла (nodeOuterRadius), то есть по тому
+      // радиусу, которым узел нарисован, — в том числе на ходу анимации.
+      // Прежняя карта arrowRadius прыгала к концу сразу, а узел рос
+      // полсекунды: два ответа на один вопрос расходились.
       S.arrowMode = 'metric';
-      S.arrowRadius = new Map(DATA.nodes.map(n => {
-        const v = valueMap.get(n.id) || 0;
-        return [n.id, v > 0 ? scaleRadius(v) : 8];
-      }));
       updateArrows();
       
       isVisualizingBySize = true;
@@ -357,7 +358,6 @@ function resetNodeSizes() {
       // Ф0.4: возврат к базовой геометрии стрелок
       // (заодно снят Б13 — удаление маркеров эвристикой по числу дефисов в id)
       S.arrowMode = 'default';
-      S.arrowRadius = null;
       updateArrows();
 
       if (oldMetric) {

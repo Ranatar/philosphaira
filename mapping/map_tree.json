@@ -1,17 +1,17 @@
 {
  "меры": {
   "модулей": 130,
-  "строк": 21798,
-  "объявлений": 904,
-  "вывозов": 620,
-  "рёбер": 835,
+  "строк": 21807,
+  "объявлений": 908,
+  "вывозов": 619,
+  "рёбер": 836,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
   "вывозовДляПриборов": 35,
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-09-24 08:05:14"
+  "составлено": "2026-09-24 12:41:55"
  },
  "модули": [
   {
@@ -2573,10 +2573,10 @@
   },
   {
    "путь": "modules/filters/filters.js",
-   "строк": 446,
+   "строк": 443,
    "объявлений": 12,
    "вывозит": 2,
-   "ввозитИз": 14,
+   "ввозитИз": 13,
    "вНС": {
     "DATA": 4,
     "S": 7
@@ -2652,12 +2652,6 @@
      ]
     },
     {
-     "откуда": "modules/render/picking.js",
-     "имена": [
-      "refreshHitMaps"
-     ]
-    },
-    {
      "откуда": "modules/render/selection.js",
      "имена": [
       "highlightConnected",
@@ -2697,12 +2691,12 @@
     {
      "имя": "applyBasicFilter",
      "вид": "function",
-     "строк": 53
+     "строк": 52
     },
     {
      "имя": "applyChainVisibility",
      "вид": "function",
-     "строк": 8
+     "строк": 7
     },
     {
      "имя": "handleChainsMode",
@@ -2913,7 +2907,7 @@
    "ввозитИз": 10,
    "вНС": {
     "DATA": 2,
-    "S": 6
+    "S": 5
    },
    "вывоз": [
     "addLinkToGraph",
@@ -3050,7 +3044,7 @@
     },
     {
      "имя": "S",
-     "раз": 10,
+     "раз": 9,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -9110,12 +9104,12 @@
   },
   {
    "путь": "modules/render/canvas-core.js",
-   "строк": 45,
-   "объявлений": 9,
-   "вывозит": 9,
+   "строк": 38,
+   "объявлений": 7,
+   "вывозит": 7,
    "ввозитИз": 3,
    "вНС": {
-    "S": 3
+    "S": 2
    },
    "вывоз": [
     "PICK_LINK_WIDTH",
@@ -9123,8 +9117,6 @@
     "dpr",
     "gfxCanvas",
     "gfxSvg",
-    "pickCanvas",
-    "pickCtx",
     "renderState",
     "resizeCanvas"
    ],
@@ -9163,16 +9155,6 @@
      "строк": 1
     },
     {
-     "имя": "pickCanvas",
-     "вид": "const",
-     "строк": 1
-    },
-    {
-     "имя": "pickCtx",
-     "вид": "const",
-     "строк": 1
-    },
-    {
      "имя": "PICK_LINK_WIDTH",
      "вид": "const",
      "строк": 1
@@ -9185,7 +9167,7 @@
     {
      "имя": "resizeCanvas",
      "вид": "function",
-     "строк": 11
+     "строк": 8
     },
     {
      "имя": "renderState",
@@ -9196,7 +9178,7 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 5,
+     "раз": 4,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -9208,13 +9190,13 @@
   },
   {
    "путь": "modules/render/d3-layer.js",
-   "строк": 107,
+   "строк": 106,
    "объявлений": 11,
    "вывозит": 9,
    "ввозитИз": 7,
    "вНС": {
     "DATA": 2,
-    "S": 2
+    "S": 1
    },
    "вывоз": [
     "dragended",
@@ -9343,7 +9325,7 @@
     },
     {
      "имя": "S",
-     "раз": 3,
+     "раз": 2,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -9355,32 +9337,25 @@
   },
   {
    "путь": "modules/render/draw-link.js",
-   "строк": 102,
-   "объявлений": 6,
-   "вывозит": 6,
-   "ввозитИз": 7,
+   "строк": 71,
+   "объявлений": 5,
+   "вывозит": 5,
+   "ввозитИз": 6,
    "вНС": {
     "S": 1
    },
    "вывоз": [
-    "drawSelfLoop",
-    "fillArrow",
+    "fillLinkHeads",
     "linkDrawAlpha",
     "linkDrawWidth",
     "linkVisualState",
-    "strokeLink"
+    "strokeLinkShape"
    ],
    "ввоз": [
     {
      "откуда": "modules/core/ns.js",
      "имена": [
       "S"
-     ]
-    },
-    {
-     "откуда": "modules/core/link-facts.js",
-     "имена": [
-      "linkHasTwoHeads"
      ]
     },
     {
@@ -9392,9 +9367,6 @@
     {
      "откуда": "modules/render/geometry.js",
      "имена": [
-      "arcParams",
-      "arrowPoints",
-      "arrowPointsStart",
       "linkHoverStrokeWidth",
       "linkStrokeWidth"
      ]
@@ -9402,8 +9374,7 @@
     {
      "откуда": "modules/render/render-state.js",
      "имена": [
-      "hasLinkClass",
-      "nodeRadius"
+      "hasLinkClass"
      ]
     },
     {
@@ -9436,19 +9407,14 @@
      "строк": 21
     },
     {
-     "имя": "strokeLink",
+     "имя": "strokeLinkShape",
      "вид": "function",
-     "строк": 8
+     "строк": 10
     },
     {
-     "имя": "drawSelfLoop",
+     "имя": "fillLinkHeads",
      "вид": "function",
-     "строк": 27
-    },
-    {
-     "имя": "fillArrow",
-     "вид": "function",
-     "строк": 13
+     "строк": 10
     }
    ],
    "чащеВсего": [
@@ -9481,18 +9447,17 @@
   },
   {
    "путь": "modules/render/geometry.js",
-   "строк": 88,
-   "объявлений": 5,
-   "вывозит": 5,
-   "ввозитИз": 2,
+   "строк": 105,
+   "объявлений": 9,
+   "вывозит": 4,
+   "ввозитИз": 4,
    "вНС": {
-    "S": 2
+    "S": 1
    },
    "вывоз": [
-    "arcParams",
-    "arrowPoints",
-    "arrowPointsStart",
+    "clippedArc",
     "linkHoverStrokeWidth",
+    "linkShape",
     "linkStrokeWidth"
    ],
    "ввоз": [
@@ -9503,9 +9468,23 @@
      ]
     },
     {
+     "откуда": "modules/core/link-facts.js",
+     "имена": [
+      "isReflexiveLink",
+      "linkHasTwoHeads"
+     ]
+    },
+    {
      "откуда": "modules/render/canvas-core.js",
      "имена": [
       "renderState"
+     ]
+    },
+    {
+     "откуда": "modules/render/render-state.js",
+     "имена": [
+      "nodeOuterRadius",
+      "nodeRadius"
      ]
     }
    ],
@@ -9526,26 +9505,61 @@
      "строк": 15
     },
     {
-     "имя": "arrowPoints",
+     "имя": "arcAngleOfChord",
      "вид": "function",
-     "строк": 26
+     "строк": 3
     },
     {
-     "имя": "arrowPointsStart",
+     "имя": "clippedArc",
      "вид": "function",
-     "строк": 28
+     "строк": 10
+    },
+    {
+     "имя": "arrowSize",
+     "вид": "function",
+     "строк": 8
+    },
+    {
+     "имя": "arcHead",
+     "вид": "function",
+     "строк": 8
+    },
+    {
+     "имя": "linkShape",
+     "вид": "function",
+     "строк": 20
+    },
+    {
+     "имя": "loopShape",
+     "вид": "function",
+     "строк": 16
     }
    ],
    "чащеВсего": [
     {
-     "имя": "S",
-     "раз": 6,
-     "откуда": "modules/core/ns.js"
+     "имя": "nodeOuterRadius",
+     "раз": 3,
+     "откуда": "modules/render/render-state.js"
     },
     {
      "имя": "renderState",
      "раз": 2,
      "откуда": "modules/render/canvas-core.js"
+    },
+    {
+     "имя": "S",
+     "раз": 1,
+     "откуда": "modules/core/ns.js"
+    },
+    {
+     "имя": "isReflexiveLink",
+     "раз": 1,
+     "откуда": "modules/core/link-facts.js"
+    },
+    {
+     "имя": "linkHasTwoHeads",
+     "раз": 1,
+     "откуда": "modules/core/link-facts.js"
     }
    ]
   },
@@ -9671,13 +9685,13 @@
   },
   {
    "путь": "modules/render/interactions.js",
-   "строк": 308,
+   "строк": 306,
    "объявлений": 8,
    "вывозит": 4,
    "ввозитИз": 19,
    "вНС": {
     "DATA": 1,
-    "S": 4
+    "S": 3
    },
    "вывоз": [
     "initGraphEventHandlers",
@@ -9772,7 +9786,6 @@
      "имена": [
       "pickLink",
       "pickNode",
-      "rebuildQuadtree",
       "toGraph"
      ]
     },
@@ -9817,7 +9830,7 @@
     {
      "имя": "installNodeDrag",
      "вид": "function",
-     "строк": 39
+     "строк": 37
     },
     {
      "имя": "lastHoverNode",
@@ -9858,7 +9871,7 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 15,
+     "раз": 14,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -9927,7 +9940,7 @@
    "ввозитИз": 5,
    "вНС": {
     "DATA": 4,
-    "S": 3
+    "S": 2
    },
    "вывоз": [
     "resetNodeSizes",
@@ -10017,29 +10030,29 @@
     {
      "имя": "visualizeMetricBySize",
      "вид": "function",
-     "строк": 110
+     "строк": 111
     },
     {
      "имя": "resetNodeSizes",
      "вид": "function",
-     "строк": 39
+     "строк": 38
     }
    ],
    "чащеВсего": [
     {
      "имя": "DATA",
-     "раз": 8,
-     "откуда": "modules/core/ns.js"
-    },
-    {
-     "имя": "S",
-     "раз": 5,
+     "раз": 7,
      "откуда": "modules/core/ns.js"
     },
     {
      "имя": "gfxNode",
      "раз": 4,
      "откуда": "modules/render/d3-layer.js"
+    },
+    {
+     "имя": "S",
+     "раз": 3,
+     "откуда": "modules/core/ns.js"
     },
     {
      "имя": "updateArrows",
@@ -10055,27 +10068,23 @@
   },
   {
    "путь": "modules/render/picking.js",
-   "строк": 84,
-   "объявлений": 7,
-   "вывозит": 5,
-   "ввозитИз": 8,
+   "строк": 95,
+   "объявлений": 6,
+   "вывозит": 3,
+   "ввозитИз": 9,
    "вНС": {
-    "DATA": 2,
-    "S": 1
+    "DATA": 2
    },
    "вывоз": [
     "pickLink",
     "pickNode",
-    "rebuildQuadtree",
-    "refreshHitMaps",
     "toGraph"
    ],
    "ввоз": [
     {
      "откуда": "modules/core/ns.js",
      "имена": [
-      "DATA",
-      "S"
+      "DATA"
      ]
     },
     {
@@ -10085,12 +10094,6 @@
     {
      "откуда": "modules/core/graph-index.js",
      "имена": []
-    },
-    {
-     "откуда": "modules/core/link-facts.js",
-     "имена": [
-      "isReflexiveLink"
-     ]
     },
     {
      "откуда": "modules/core/visibility.js",
@@ -10103,46 +10106,41 @@
      "откуда": "modules/render/canvas-core.js",
      "имена": [
       "PICK_LINK_WIDTH",
-      "dpr",
       "gfxCanvas",
-      "pickCanvas",
-      "pickCtx",
       "renderState"
      ]
     },
     {
      "откуда": "modules/render/draw-link.js",
      "имена": [
-      "drawSelfLoop",
-      "fillArrow",
       "linkDrawWidth",
-      "linkVisualState",
-      "strokeLink"
+      "linkVisualState"
+     ]
+    },
+    {
+     "откуда": "modules/render/geometry.js",
+     "имена": [
+      "linkShape",
+      "linkStrokeWidth"
      ]
     },
     {
      "откуда": "modules/render/render-state.js",
      "имена": [
+      "NODE_PASSES",
+      "nodeDrawPass",
       "nodeRadius"
+     ]
+    },
+    {
+     "откуда": "modules/render/scene.js",
+     "имена": [
+      "DRAW_ORDER",
+      "linkDrawnLive"
      ]
     }
    ],
    "свои": [
-    {
-     "имя": "refreshHitMaps",
-     "вид": "function",
-     "строк": 4
-    },
-    {
-     "имя": "quadtree",
-     "вид": "let",
-     "строк": 1
-    },
-    {
-     "имя": "rebuildQuadtree",
-     "вид": "function",
-     "строк": 5
-    },
     {
      "имя": "toGraph",
      "вид": "function",
@@ -10151,67 +10149,95 @@
     {
      "имя": "pickNode",
      "вид": "function",
-     "строк": 9
+     "строк": 10
     },
     {
-     "имя": "repaintPickCanvas",
+     "имя": "pointInTriangle",
      "вид": "function",
-     "строк": 30
+     "строк": 5
+    },
+    {
+     "имя": "distToSegment",
+     "вид": "function",
+     "строк": 5
+    },
+    {
+     "имя": "hitLinkShape",
+     "вид": "function",
+     "строк": 16
     },
     {
      "имя": "pickLink",
      "вид": "function",
-     "строк": 12
+     "строк": 36
     }
    ],
    "чащеВсего": [
     {
-     "имя": "pickCtx",
-     "раз": 14,
-     "откуда": "modules/render/canvas-core.js"
-    },
-    {
-     "имя": "dpr",
-     "раз": 6,
-     "откуда": "modules/render/canvas-core.js"
-    },
-    {
      "имя": "DATA",
-     "раз": 5,
-     "откуда": "modules/core/ns.js"
-    },
-    {
-     "имя": "pickCanvas",
-     "раз": 4,
-     "откуда": "modules/render/canvas-core.js"
-    },
-    {
-     "имя": "S",
      "раз": 3,
      "откуда": "modules/core/ns.js"
+    },
+    {
+     "имя": "gfxCanvas",
+     "раз": 2,
+     "откуда": "modules/render/canvas-core.js"
+    },
+    {
+     "имя": "nodeRadius",
+     "раз": 2,
+     "откуда": "modules/render/render-state.js"
+    },
+    {
+     "имя": "DRAW_ORDER",
+     "раз": 2,
+     "откуда": "modules/render/scene.js"
+    },
+    {
+     "имя": "renderState",
+     "раз": 1,
+     "откуда": "modules/render/canvas-core.js"
     }
    ]
   },
   {
    "путь": "modules/render/render-state.js",
-   "строк": 17,
-   "объявлений": 6,
-   "вывозит": 6,
-   "ввозитИз": 1,
-   "вНС": {},
+   "строк": 47,
+   "объявлений": 10,
+   "вывозит": 10,
+   "ввозитИз": 3,
+   "вНС": {
+    "S": 1
+   },
    "вывоз": [
     "LABEL_ALL_ABOVE",
     "LABEL_HIDE_BELOW",
+    "NODE_PASSES",
     "hasLinkClass",
     "hasNodeClass",
+    "nodeDrawPass",
+    "nodeEdgeWidth",
     "nodeLabelDy",
+    "nodeOuterRadius",
     "nodeRadius"
    ],
    "ввоз": [
     {
+     "откуда": "modules/core/ns.js",
+     "имена": [
+      "S"
+     ]
+    },
+    {
      "откуда": "modules/render/canvas-core.js",
      "имена": [
       "renderState"
+     ]
+    },
+    {
+     "откуда": "modules/state/render.js",
+     "имена": [
+      "selectedNodes"
      ]
     }
    ],
@@ -10245,6 +10271,26 @@
      "имя": "hasLinkClass",
      "вид": "function",
      "строк": 1
+    },
+    {
+     "имя": "NODE_PASSES",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "nodeDrawPass",
+     "вид": "function",
+     "строк": 6
+    },
+    {
+     "имя": "nodeEdgeWidth",
+     "вид": "function",
+     "строк": 16
+    },
+    {
+     "имя": "nodeOuterRadius",
+     "вид": "function",
+     "строк": 1
     }
    ],
    "чащеВсего": [
@@ -10252,15 +10298,25 @@
      "имя": "renderState",
      "раз": 4,
      "откуда": "modules/render/canvas-core.js"
+    },
+    {
+     "имя": "selectedNodes",
+     "раз": 2,
+     "откуда": "modules/state/render.js"
+    },
+    {
+     "имя": "S",
+     "раз": 1,
+     "откуда": "modules/core/ns.js"
     }
    ]
   },
   {
    "путь": "modules/render/scene.js",
-   "строк": 350,
+   "строк": 346,
    "объявлений": 18,
-   "вывозит": 7,
-   "ввозитИз": 14,
+   "вывозит": 8,
+   "ввозитИз": 13,
    "вНС": {
     "DATA": 4,
     "S": 5
@@ -10269,6 +10325,7 @@
     "DRAW_ORDER",
     "draw",
     "ensureAnimLoop",
+    "linkDrawnLive",
     "needsContinuousAnimation",
     "renderScene",
     "startRadiusAnimation",
@@ -10321,19 +10378,18 @@
     {
      "откуда": "modules/render/draw-link.js",
      "имена": [
-      "drawSelfLoop",
-      "fillArrow",
+      "fillLinkHeads",
       "linkDrawAlpha",
       "linkDrawWidth",
       "linkVisualState",
-      "strokeLink"
+      "strokeLinkShape"
      ]
     },
     {
      "откуда": "modules/render/geometry.js",
      "имена": [
-      "arcParams",
-      "linkHoverStrokeWidth"
+      "clippedArc",
+      "linkShape"
      ]
     },
     {
@@ -10343,18 +10399,15 @@
      ]
     },
     {
-     "откуда": "modules/render/picking.js",
-     "имена": [
-      "rebuildQuadtree"
-     ]
-    },
-    {
      "откуда": "modules/render/render-state.js",
      "имена": [
       "LABEL_ALL_ABOVE",
       "LABEL_HIDE_BELOW",
+      "NODE_PASSES",
       "hasLinkClass",
       "hasNodeClass",
+      "nodeDrawPass",
+      "nodeEdgeWidth",
       "nodeLabelDy",
       "nodeRadius"
      ]
@@ -10419,7 +10472,7 @@
     {
      "имя": "linksLayerKey",
      "вид": "function",
-     "строк": 19
+     "строк": 23
     },
     {
      "имя": "sameLayerKey",
@@ -10434,7 +10487,7 @@
     {
      "имя": "drawLinkSet",
      "вид": "function",
-     "строк": 36
+     "строк": 33
     },
     {
      "имя": "LABEL_SHADOW_PASSES",
@@ -10444,12 +10497,12 @@
     {
      "имя": "renderScene",
      "вид": "function",
-     "строк": 138
+     "строк": 137
     },
     {
      "имя": "draw",
      "вид": "function",
-     "строк": 10
+     "строк": 9
     },
     {
      "имя": "startRadiusAnimation",
@@ -10464,18 +10517,18 @@
     {
      "имя": "updateGraphData",
      "вид": "function",
-     "строк": 24
+     "строк": 22
     }
    ],
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 24,
+     "раз": 23,
      "откуда": "modules/core/ns.js"
     },
     {
      "имя": "renderState",
-     "раз": 18,
+     "раз": 17,
      "откуда": "modules/render/canvas-core.js"
     },
     {
@@ -10817,13 +10870,13 @@
   },
   {
    "путь": "modules/render/simulation.js",
-   "строк": 131,
+   "строк": 128,
    "объявлений": 11,
    "вывозит": 8,
-   "ввозитИз": 12,
+   "ввозитИз": 11,
    "вНС": {
     "DATA": 2,
-    "S": 5
+    "S": 4
    },
    "вывоз": [
     "centerGraph",
@@ -10880,12 +10933,6 @@
      ]
     },
     {
-     "откуда": "modules/render/picking.js",
-     "имена": [
-      "rebuildQuadtree"
-     ]
-    },
-    {
      "откуда": "modules/render/scene.js",
      "имена": [
       "ensureAnimLoop",
@@ -10914,7 +10961,7 @@
     {
      "имя": "installSimulationTick",
      "вид": "function",
-     "строк": 18
+     "строк": 16
     },
     {
      "имя": "installSimulationStatsEnd",
@@ -10965,7 +11012,7 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 23,
+     "раз": 22,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -11160,13 +11207,13 @@
   },
   {
    "путь": "modules/state/render.js",
-   "строк": 141,
+   "строк": 137,
    "объявлений": 12,
    "вывозит": 11,
    "ввозитИз": 5,
    "вНС": {
     "DATA": 5,
-    "S": 11
+    "S": 9
    },
    "вывоз": [
     "applyServerLayout",
@@ -11275,7 +11322,7 @@
    "чащеВсего": [
     {
      "имя": "S",
-     "раз": 21,
+     "раз": 19,
      "откуда": "modules/core/ns.js"
     },
     {
@@ -13551,7 +13598,7 @@
   },
   {
    "путь": "modules/ui/export.js",
-   "строк": 126,
+   "строк": 132,
    "объявлений": 2,
    "вывозит": 2,
    "ввозитИз": 11,
@@ -13578,8 +13625,8 @@
     {
      "откуда": "modules/core/link-facts.js",
      "имена": [
-      "isSymmetricLink",
-      "linkHasTwoHeads"
+      "isReflexiveLink",
+      "isSymmetricLink"
      ]
     },
     {
@@ -13612,14 +13659,14 @@
     {
      "откуда": "modules/render/geometry.js",
      "имена": [
-      "arrowPoints",
-      "arrowPointsStart"
+      "linkShape"
      ]
     },
     {
      "откуда": "modules/render/render-state.js",
      "имена": [
       "hasNodeClass",
+      "nodeEdgeWidth",
       "nodeLabelDy",
       "nodeRadius"
      ]
@@ -13647,7 +13694,7 @@
     {
      "имя": "exportToSVG",
      "вид": "function",
-     "строк": 74
+     "строк": 80
     }
    ],
    "чащеВсего": [
@@ -15155,7 +15202,15 @@
    "ввозятМодулей": 10
   },
   {
+   "имя": "selectedNodes",
+   "ввозятМодулей": 10
+  },
+  {
    "имя": "renderState",
+   "ввозятМодулей": 10
+  },
+  {
+   "имя": "isReflexiveLink",
    "ввозятМодулей": 10
   },
   {
@@ -15172,14 +15227,6 @@
   },
   {
    "имя": "isSymmetricLink",
-   "ввозятМодулей": 9
-  },
-  {
-   "имя": "selectedNodes",
-   "ввозятМодулей": 9
-  },
-  {
-   "имя": "isReflexiveLink",
    "ввозятМодулей": 9
   },
   {
@@ -15210,7 +15257,7 @@
  "держатДом": [
   {
    "модуль": "modules/core/ns.js",
-   "ввозятИзНего": 96
+   "ввозятИзНего": 97
   },
   {
    "модуль": "modules/core/graph-index.js",
@@ -15222,19 +15269,19 @@
   },
   {
    "модуль": "modules/core/link-facts.js",
-   "ввозятИзНего": 25
+   "ввозятИзНего": 24
   },
   {
    "модуль": "modules/render/canvas-core.js",
    "ввозятИзНего": 19
   },
   {
-   "модуль": "modules/util/html.js",
+   "модуль": "modules/state/render.js",
    "ввозятИзНего": 19
   },
   {
-   "модуль": "modules/state/render.js",
-   "ввозятИзНего": 18
+   "модуль": "modules/util/html.js",
+   "ввозятИзНего": 19
   },
   {
    "модуль": "modules/modal/core.js",
@@ -15504,12 +15551,12 @@
     },
     {
      "поле": "links",
-     "раз": 70,
+     "раз": 68,
      "модулей": 33
     },
     {
      "поле": "relationTypesObj",
-     "раз": 48,
+     "раз": 47,
      "модулей": 23
     },
     {
@@ -15550,7 +15597,7 @@
    ]
   },
   "S": {
-   "полей": 68,
+   "полей": 66,
    "самые": [
     {
      "поле": "_concepts",
@@ -15566,6 +15613,11 @@
      "поле": "useWeightedPaths",
      "раз": 48,
      "модулей": 12
+    },
+    {
+     "поле": "similarityOverlay",
+     "раз": 66,
+     "модулей": 10
     },
     {
      "поле": "_relations",
@@ -15586,11 +15638,6 @@
      "поле": "viewHeight",
      "раз": 17,
      "модулей": 10
-    },
-    {
-     "поле": "similarityOverlay",
-     "раз": 65,
-     "модулей": 9
     },
     {
      "поле": "_incomingLinks",

@@ -1,13 +1,13 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
-import { isSymmetricLink, linkHasTwoHeads } from '../core/link-facts.js';
+import { isReflexiveLink, isSymmetricLink } from '../core/link-facts.js';
 import { showTemporaryMessage } from '../core/long-task.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
 import { renderState } from '../render/canvas-core.js';
 import { linkDrawAlpha, linkDrawWidth, linkVisualState } from '../render/draw-link.js';
-import { arrowPoints, arrowPointsStart } from '../render/geometry.js';
-import { hasNodeClass, nodeLabelDy, nodeRadius } from '../render/render-state.js';
+import { linkShape } from '../render/geometry.js';
+import { hasNodeClass, nodeEdgeWidth, nodeLabelDy, nodeRadius } from '../render/render-state.js';
 import { DRAW_ORDER, renderScene } from '../render/scene.js';
 import { selectedNodes } from '../state/render.js';
 
@@ -69,19 +69,25 @@ function exportToSVG() {
           if (linkVisualState(l) !== state) continue;
           const s = l.source, tg = l.target;
           if (!s || s.x === undefined || tg.x === undefined) continue;
-          const dx = tg.x - s.x, dy = tg.y - s.y;
-          const dr = Math.sqrt(dx * dx + dy * dy) * 1.5;
           const col = DATA.relationTypesObj[l.type].color;
           const w = linkDrawWidth(l, state);
+          // Та же геометрия, что на экране: от края до края, наконечник
+          // острием на краю. Прежде вывоз строил дугу от центра до центра,
+          // а петля вырождалась в путь нулевого радиуса.
+          const g = linkShape(l, w);
+          if (!g) continue;
           const op = state === 'path' ? 1 : linkDrawAlpha(l, state, 0);
-          const dash = l.type === 'internal_contradiction' ? ' stroke-dasharray="8,4"'
+          const dash = isReflexiveLink(l) ? ''
+                 : l.type === 'internal_contradiction' ? ' stroke-dasharray="8,4"'
                  : (isSymmetricLink(l) ? ' stroke-dasharray="5,5"' : '');
-          out.push(`<path d="M${num(s.x)},${num(s.y)}A${num(dr)},${num(dr)} 0 0,1 ${num(tg.x)},${num(tg.y)}" ` +
-               `fill="none" stroke="${col}" stroke-width="${num(w)}" stroke-opacity="${num(op)}" ` +
-               `stroke-linecap="round" stroke-linejoin="round"${dash}/>`);
-          const heads = [arrowPoints(l)];
-          if (linkHasTwoHeads(l)) heads.push(arrowPointsStart(l));
-          for (const pts of heads) {
+          if (g.s1 > g.s0) {
+            const at = a => num(g.cx + g.r * Math.cos(a)) + ',' + num(g.cy + g.r * Math.sin(a));
+            const large = (g.s1 - g.s0) > Math.PI ? 1 : 0;
+            out.push(`<path d="M${at(g.s0)}A${num(g.r)},${num(g.r)} 0 ${large},1 ${at(g.s1)}" ` +
+                 `fill="none" stroke="${col}" stroke-width="${num(w)}" stroke-opacity="${num(op)}" ` +
+                 `stroke-linecap="butt" stroke-linejoin="round"${dash}/>`);
+          }
+          for (const pts of g.heads) {
             if (pts) out.push(`<path d="M${num(pts[0][0])},${num(pts[0][1])}L${num(pts[1][0])},${num(pts[1][1])}` +
                       `L${num(pts[2][0])},${num(pts[2][1])}Z" fill="${col}" fill-opacity="${num(op)}"/>`);
           }
@@ -97,7 +103,7 @@ function exportToSVG() {
         out.push(`<circle cx="${num(d.x)}" cy="${num(d.y)}" r="${num(nodeRadius(d))}" ` +
              `fill="${DATA.philosopherConcepts[d.concept].color}" ` +
              `stroke="${selected ? '#ffd700' : '#fff'}" ` +
-             `stroke-width="${selected ? 6 : (highlighted ? 5 : 3)}" opacity="${op}"/>`);
+             `stroke-width="${num(nodeEdgeWidth(d))}" opacity="${op}"/>`);
       }
       for (const d of DATA.nodes) {
         if (!isNodeVisible(d) || d.x === undefined) continue;

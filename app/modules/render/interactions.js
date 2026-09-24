@@ -11,7 +11,7 @@ import { cancelGraphSelection, handleConceptSelection } from '../graph/graph-sel
 import { gfxCanvas, gfxSvg, renderState } from './canvas-core.js';
 import { dragended, dragstarted, gfxLink, gfxNode, gfxZoom, linkHandlers, nodeHandlers } from './d3-layer.js';
 import { requestDraw } from './loop.js';
-import { pickLink, pickNode, rebuildQuadtree, toGraph } from './picking.js';
+import { pickLink, pickNode, toGraph } from './picking.js';
 import { resetHighlight } from './selection.js';
 import { tooltip } from './tooltip-el.js';
 import { editMode } from '../state/edit.js';
@@ -19,7 +19,7 @@ import { chosenPhilosophers } from '../state/filters.js';
 import { selectedEdges } from '../state/render.js';
 import { labelWithAuthor } from '../util/philosopher-label.js';
 
-// gfxSvg.call(d3.drag() @22b50a4e
+// gfxSvg.call(d3.drag() @e1933554
 function installNodeDrag() {
 gfxSvg.call(d3.drag()
         .container(gfxCanvas)
@@ -49,8 +49,6 @@ gfxSvg.call(d3.drag()
           const d = s.node;
           d.fx = g[0]; d.fy = g[1];
           d.x  = g[0]; d.y  = g[1];
-          rebuildQuadtree();
-          S.pickDirty = true;
           requestDraw();
         })
         .on("end",   (event) => {
@@ -199,7 +197,7 @@ gfxLink.on("mouseover", function(event, d) {
       
       // ДЕФЕКТ U3: у петли source === target, и стрелка «слева направо»
       // лгала бы о двух разных концах. Начертание то же, что на канве
-      // (drawSelfLoop) и в окне связи: окружность над узлом, наконечник
+      // (loopShape) и в окне связи: окружность над узлом, наконечник
       // в правой точке касания. Дуга 300°, потому оба флага единицы.
       const reflexive = isReflexiveLink(d);
       

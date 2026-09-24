@@ -26499,7 +26499,6 @@
       // Применяем видимость к узлам и связям (базовый фильтр)
       gfxNode.style("display", d => isNodeVisible(d) ? null : "none");
       gfxLinkAll.style("display", l => isLinkVisible(l) ? null : "none");
-      refreshHitMaps();
     }
 
     /**
@@ -26511,32 +26510,6 @@
       visibleLinkSet = chainLinks;
       gfxNode.style("display", d => isNodeVisible(d) ? null : "none");
       gfxLinkAll.style("display", l => isLinkVisible(l) ? null : "none");
-      refreshHitMaps();
-    }
-
-    /**
-     * КАРТЫ ПОПАДАНИЙ ПОСЛЕ СМЕНЫ ВИДИМОСТИ.
-     *
-     * rebuildQuadtree отбирает узлы по isNodeVisible, но звался только из
-     * тика симуляции, из перетаскивания узла и из updateGraphData. Отбор
-     * ни одного из трёх не задевает: раскладка приходит готовой
-     * (nodePositions), симуляция стоит, и дерево попаданий остаётся тем,
-     * каким его построили ДО отбора — вместе со скрытыми узлами.
-     *
-     * Отсюда жалоба «иногда граф нельзя перетаскивать»: d3.drag берёт
-     * субъекта через pickNode, тот возвращает НЕВИДИМЫЙ узел,
-     * перетаскивание начинается на нём — и камера стоит, потому что
-     * до gfxZoom нажатие уже не доходит. Закономерности не видно
-     * потому, что она пространственная: мешает ровно то место, где под
-     * курсором лежит скрытый узел. Тем же путём скрытый узел ловит
-     * наведение, подсказку и щелчок.
-     *
-     * Замер (одна точка холста, отбор оставляет 13 узлов из 718):
-     * без пересборки сдвиг камеры 0/0, с пересборкой 120/60.
-     */
-    function refreshHitMaps() {
-      rebuildQuadtree();   // хит-тест узлов
-      pickDirty = true;    // хит-тест связей (карта выбора)
     }
 
     /**
@@ -36200,11 +36173,12 @@
         });
       
       // Ф0.4: вместо персонального маркера на каждое ребро в defs — режим геометрии стрелок
+      // Отдельной карты радиусов для наконечников больше нет: острие
+      // ставится на видимый край узла (nodeOuterRadius), то есть по тому
+      // радиусу, которым узел нарисован, — в том числе на ходу анимации.
+      // Прежняя карта arrowRadius прыгала к концу сразу, а узел рос
+      // полсекунды: два ответа на один вопрос расходились.
       arrowMode = 'metric';
-      arrowRadius = new Map(nodes.map(n => {
-        const v = valueMap.get(n.id) || 0;
-        return [n.id, v > 0 ? scaleRadius(v) : 8];
-      }));
       updateArrows();
       
       isVisualizingBySize = true;
@@ -36247,7 +36221,6 @@
       // Ф0.4: возврат к базовой геометрии стрелок
       // (заодно снят Б13 — удаление маркеров эвристикой по числу дефисов в id)
       arrowMode = 'default';
-      arrowRadius = null;
       updateArrows();
 
       if (oldMetric) {
@@ -36731,19 +36704,25 @@
           if (linkVisualState(l) !== state) continue;
           const s = l.source, tg = l.target;
           if (!s || s.x === undefined || tg.x === undefined) continue;
-          const dx = tg.x - s.x, dy = tg.y - s.y;
-          const dr = Math.sqrt(dx * dx + dy * dy) * 1.5;
           const col = relationTypesObj[l.type].color;
           const w = linkDrawWidth(l, state);
+          // Та же геометрия, что на экране: от края до края, наконечник
+          // острием на краю. Прежде вывоз строил дугу от центра до центра,
+          // а петля вырождалась в путь нулевого радиуса.
+          const g = linkShape(l, w);
+          if (!g) continue;
           const op = state === 'path' ? 1 : linkDrawAlpha(l, state, 0);
-          const dash = l.type === 'internal_contradiction' ? ' stroke-dasharray="8,4"'
+          const dash = isReflexiveLink(l) ? ''
+                 : l.type === 'internal_contradiction' ? ' stroke-dasharray="8,4"'
                  : (isSymmetricLink(l) ? ' stroke-dasharray="5,5"' : '');
-          out.push(`<path d="M${num(s.x)},${num(s.y)}A${num(dr)},${num(dr)} 0 0,1 ${num(tg.x)},${num(tg.y)}" ` +
-               `fill="none" stroke="${col}" stroke-width="${num(w)}" stroke-opacity="${num(op)}" ` +
-               `stroke-linecap="round" stroke-linejoin="round"${dash}/>`);
-          const heads = [arrowPoints(l)];
-          if (linkHasTwoHeads(l)) heads.push(arrowPointsStart(l));
-          for (const pts of heads) {
+          if (g.s1 > g.s0) {
+            const at = a => num(g.cx + g.r * Math.cos(a)) + ',' + num(g.cy + g.r * Math.sin(a));
+            const large = (g.s1 - g.s0) > Math.PI ? 1 : 0;
+            out.push(`<path d="M${at(g.s0)}A${num(g.r)},${num(g.r)} 0 ${large},1 ${at(g.s1)}" ` +
+                 `fill="none" stroke="${col}" stroke-width="${num(w)}" stroke-opacity="${num(op)}" ` +
+                 `stroke-linecap="butt" stroke-linejoin="round"${dash}/>`);
+          }
+          for (const pts of g.heads) {
             if (pts) out.push(`<path d="M${num(pts[0][0])},${num(pts[0][1])}L${num(pts[1][0])},${num(pts[1][1])}` +
                       `L${num(pts[2][0])},${num(pts[2][1])}Z" fill="${col}" fill-opacity="${num(op)}"/>`);
           }
@@ -36759,7 +36738,7 @@
         out.push(`<circle cx="${num(d.x)}" cy="${num(d.y)}" r="${num(nodeRadius(d))}" ` +
              `fill="${philosopherConcepts[d.concept].color}" ` +
              `stroke="${selected ? '#ffd700' : '#fff'}" ` +
-             `stroke-width="${selected ? 6 : (highlighted ? 5 : 3)}" opacity="${op}"/>`);
+             `stroke-width="${num(nodeEdgeWidth(d))}" opacity="${op}"/>`);
       }
       for (const d of nodes) {
         if (!isNodeVisible(d) || d.x === undefined) continue;
@@ -37405,13 +37384,11 @@
     const ctx = gfxCanvas.getContext("2d");
     const gfxSvg = d3.select(gfxCanvas);
 
-    // Скрытый холст для хит-теста рёбер методом color picking (§6.6)
-    const pickCanvas = document.createElement("canvas");
-    const pickCtx = pickCanvas.getContext("2d", { willReadFrequently: true });
-    let pickDirty = true;
     // Наименьшая ширина полосы попадания в связь. Тонкая линия при весе 1
-    // была бы почти непопадаема мышью, поэтому на карте выбора всякая
-    // связь рисуется не тоньше этого. Петли рисуются тем же числом.
+    // была бы почти непопадаема мышью, поэтому попадание в связь считается
+    // в полосе не уже этого (в единицах графа, как и толщина штриха).
+    // Петли — тем же числом. Прежде этой шириной рисовалась скрытая карта
+    // выбора; её больше нет — см. pickLink.
     const PICK_LINK_WIDTH = 10;
 
     let dpr = window.devicePixelRatio || 1;
@@ -37422,9 +37399,6 @@
       gfxCanvas.height = Math.max(1, Math.round(viewHeight * dpr));
       gfxCanvas.style.width  = viewWidth  + "px";
       gfxCanvas.style.height = viewHeight + "px";
-      pickCanvas.width  = gfxCanvas.width;
-      pickCanvas.height = gfxCanvas.height;
-      pickDirty = true;
       requestDraw();
     }
 
@@ -37444,7 +37418,6 @@
     // Пришли из фазы 0 вместе со слоем стрелок: режим геометрии наконечника.
     // Ставятся в visualizeMetricBySize / resetNodeSizes.
     var arrowMode = 'default';  // 'default' | 'metric'
-    var arrowRadius = null;     // Map<nodeId, radius> для режима 'metric'
     var uniformLinkWidthActive = false;   // сохранено для обратной совместимости
 
     // ── Карта сходства на графе ─────────────────────────────────
@@ -37744,6 +37717,43 @@
     function hasNodeClass(name, d) { const s = renderState.nodeClasses[name]; return !!s && s.has(d.id); }
     function hasLinkClass(name, l) { const s = renderState.linkClasses[name]; return !!s && s.has(l); }
 
+    // ---- видимый край узла ------------------------------------------------
+    // У каждого из трёх вопросов ОДИН ответ. Прежде ширина обводки
+    // вычислялась прямо в renderScene, а наконечник ставился по своей мерке
+    // (refX SVG-маркера): край узла у рисования и у наконечника не совпадал.
+    const NODE_PASSES = ["dimmed", "normal", "top"];
+
+    // В каком проходе рисуется узел: затенённые снизу, выбранные и
+    // подсвеченные сверху. Спрашивают рисование и выбор под курсором.
+    function nodeDrawPass(d) {
+      const selected    = selectedNodes.has(d) || hasNodeClass("selected", d);
+      const highlighted = hasNodeClass("highlighted", d);
+      if (hasNodeClass("dimmed", d) && !selected && !highlighted) return "dimmed";
+      return (selected || highlighted) ? "top" : "normal";
+    }
+
+    // Ширина обводки узла — ровно та, которой его обводит renderScene.
+    function nodeEdgeWidth(d) {
+      const selected    = selectedNodes.has(d) || hasNodeClass("selected", d);
+      const highlighted = hasNodeClass("highlighted", d);
+      const ov = similarityOverlay;
+      if (ov && d.id !== ov.sourceId) {
+        const v = ov.values.get(d.id);
+        if (v !== null && v !== undefined && !selected) {
+          // Н2: доля от максимума строки — толщина на полную шкалу
+          const t = Math.max(-1, Math.min(1, v / ov.rowMax));
+          return 2 + Math.abs(t) * 5;
+        }
+      } else if (ov && d.id === ov.sourceId) {
+        return 7;
+      }
+      return selected ? 6 : (highlighted ? 5 : 3);
+    }
+
+    // Видимый край: радиус заливки плюс половина обводки. До него доходят
+    // связи, острия наконечников и дуги к похожим.
+    function nodeOuterRadius(d) { return nodeRadius(d) + nodeEdgeWidth(d) / 2; }
+
     // ---- цикл перерисовки (§6.3) ----------------------------------------
     let drawScheduled = false;
     // Цикл кадров не знает, ЧТО рисовать: рисовальщика ему назначает сборка.
@@ -37829,64 +37839,105 @@
            a1: Math.atan2(t.y - cy, t.x - cx) };
     }
 
-    // Треугольник стрелки — та же геометрия, что в фазе 0 (§3.5)
-    function arrowPoints(d, swOverride) {
-      const s = d.source, t = d.target;
-      if (!s || !t || s.x === undefined || t.x === undefined) return null;
-      const p = arcParams(s, t);
-      if (!p) return null;
-      let Tx = -(t.y - p.cy), Ty = (t.x - p.cx);
-      const len = Math.sqrt(Tx * Tx + Ty * Ty);
-      if (!len) return null;
-      Tx /= len; Ty /= len;
-      const Nx = -Ty, Ny = Tx;
+    // ---- связь от края до края ---------------------------------------------
+    // Дуга связи — та же окружность, что давал путь SVG "M s A r,r 0 0,1 t",
+    // но рисуется она НЕ от центра до центра, а от видимого края источника
+    // до видимого края цели (nodeOuterRadius). Прежде связь уходила под
+    // узлы (и просвечивала сквозь затенённые), а наконечник был перенесён
+    // с SVG-маркера дословно: острие стояло на 9,6 × толщина от центра цели
+    // по ПРЯМОЙ касательной в центре — не на краю и не на дуге. Замер: у
+    // связей веса 3 острие не доходило до узла на 30 px, при наведении —
+    // на 97 px, середина уходила с дуги до 68 px, направление расходилось
+    // с касательной до 48°.
+    //
+    // Теперь острие стоит на краю узла, середина основания — на той же
+    // дуге, ось — по хорде (она параллельна касательной в середине
+    // наконечника), штрих кончается у основания. Размер наконечника от
+    // наведения не зависит, только от веса; он лишь не бывает уже штриха.
 
-      let refX, refY, k, tri;
-      if (arrowMode === 'metric') {
-        const r = (arrowRadius && arrowRadius.get(t.id)) || 8;
-        refX = r + 8; refY = 3; k = 1;
-        tri = [[0, 0], [9, 3], [0, 6]];
-      } else {
-        refX = 26; refY = 0;
-        k = 0.6 * (swOverride !== undefined ? swOverride : linkStrokeWidth(d));
-        tri = [[0, -5], [10, 0], [0, 5]];
-      }
-      return tri.map(v => {
-        const ox = (v[0] - refX) * k, oy = (v[1] - refY) * k;
-        return [t.x + Tx * ox + Nx * oy, t.y + Ty * ox + Ny * oy];
-      });
+    // Угол на окружности радиуса R, стягиваемый хордой длины c.
+    function arcAngleOfChord(c, R) {
+      return 2 * Math.asin(Math.min(1, c / (2 * R)));
     }
 
-    // Второй наконечник — у ИСТОЧНИКА, для взаимных связей.
-    // Прежде arrowPoints строил треугольник только у цели, и взаимная
-    // связь на графе была неотличима от односторонней.
-    function arrowPointsStart(d, swOverride) {
-      const s = d.source, t = d.target;
-      if (!s || !t || s.x === undefined || t.x === undefined) return null;
+    // Видимая часть дуги между узлами s и t: углы e0 < e1 на окружности
+    // (cx, cy, r), обход по возрастанию угла, как у canvas.arc(…, false).
+    // null — узлы касаются или перекрываются: видимой дуги нет.
+    function clippedArc(s, t) {
       const p = arcParams(s, t);
       if (!p) return null;
-      // Касательная в точке источника, взятая с обратным знаком:
-      // наконечник смотрит наружу, от цели к источнику.
-      let Tx = (s.y - p.cy), Ty = -(s.x - p.cx);
-      const len = Math.sqrt(Tx * Tx + Ty * Ty);
-      if (!len) return null;
-      Tx /= len; Ty /= len;
-      const Nx = -Ty, Ny = Tx;
+      let sweep = p.a1 - p.a0;
+      while (sweep <= 0) sweep += 2 * Math.PI;
+      const e0 = p.a0 + arcAngleOfChord(nodeOuterRadius(s), p.r);
+      const e1 = p.a0 + sweep - arcAngleOfChord(nodeOuterRadius(t), p.r);
+      if (!(e1 > e0)) return null;
+      return { cx: p.cx, cy: p.cy, r: p.r, e0, e1 };
+    }
 
-      let refX, refY, k, tri;
-      if (arrowMode === 'metric') {
-        const r = (arrowRadius && arrowRadius.get(s.id)) || 8;
-        refX = r + 8; refY = 3; k = 1;
-        tri = [[0, 0], [9, 3], [0, 6]];
-      } else {
-        refX = 26; refY = 0;
-        k = 0.6 * (swOverride !== undefined ? swOverride : linkStrokeWidth(d));
-        tri = [[0, -5], [10, 0], [0, 5]];
-      }
-      return tri.map(v => {
-        const ox = (v[0] - refX) * k, oy = (v[1] - refY) * k;
-        return [s.x + Tx * ox + Nx * oy, s.y + Ty * ox + Ny * oy];
-      });
+    // Длина и полуширина наконечника связи, нарисованной шириной w.
+    function arrowSize(l, w) {
+      let len, half;
+      if (arrowMode === 'metric') { len = 9; half = 3; }
+      else { const sw = linkStrokeWidth(l); len = 6 * sw; half = 3 * sw; }
+      const need = (w || 0) / 2 + 1.5;      // не уже штриха, который накрывает
+      if (half < need) { len *= need / half; half = need; }
+      return { len, half };
+    }
+
+    // Наконечник: острие в точке угла tipA, середина основания в точке
+    // угла baseA — обе на окружности g.
+    function arcHead(g, tipA, baseA, half) {
+      const tip  = [g.cx + g.r * Math.cos(tipA),  g.cy + g.r * Math.sin(tipA)];
+      const base = [g.cx + g.r * Math.cos(baseA), g.cy + g.r * Math.sin(baseA)];
+      const ux = tip[0] - base[0], uy = tip[1] - base[1];
+      const L = Math.hypot(ux, uy) || 1;
+      const nx = -uy / L * half, ny = ux / L * half;
+      return [[base[0] + nx, base[1] + ny], tip, [base[0] - nx, base[1] - ny]];
+    }
+
+    // Полная геометрия связи шириной w: окружность (cx, cy, r), видимая
+    // часть e0…e1, отрезок штриха s0…s1 (до оснований наконечников) и
+    // наконечники heads. Её спрашивают рисование, SVG-вывоз и выбор под
+    // курсором — ответ на «где проходит связь» один.
+    function linkShape(l, w) {
+      if (isReflexiveLink(l)) return loopShape(l, w);
+      const s = l.source, t = l.target;
+      if (!s || !t || s.x === undefined || t.x === undefined) return null;
+      const g = clippedArc(s, t);
+      if (!g) return null;
+      const two = linkHasTwoHeads(l);
+      let { len, half } = arrowSize(l, w);
+      // Узлы близко и наконечникам не хватает дуги — ужимаем их, а не
+      // выпускаем за край противоположного узла.
+      const room = 0.9 * (g.e1 - g.e0);
+      const need = (two ? 2 : 1) * arcAngleOfChord(len, g.r);
+      if (need > room) { const f = room / need; len *= f; half *= f; }
+      const da = arcAngleOfChord(len, g.r);
+      g.heads = [arcHead(g, g.e1, g.e1 - da, half)];
+      if (two) g.heads.push(arcHead(g, g.e0, g.e0 + da, half));
+      g.s0 = two ? g.e0 + da : g.e0;
+      g.s1 = g.e1 - da;
+      return g;
+    }
+
+    // Петля: окружность радиуса 2r с центром над узлом на r·√3. Концы — там,
+    // где она пересекает видимый край узла; наконечник острием на краю
+    // справа, по ходу обхода — внутрь узла, как и прежде.
+    function loopShape(l, w) {
+      const n = l.source;
+      if (!n || n.x === undefined) return null;
+      const r = nodeRadius(n) || 18, R = 2 * r, D = r * Math.sqrt(3);
+      const rho = nodeOuterRadius(n);
+      const phi = Math.acos(Math.max(-1, Math.min(1, (D * D + R * R - rho * rho) / (2 * D * R))));
+      const g = { cx: n.x, cy: n.y - D, r: R,
+            e0: Math.PI / 2 + phi,                   // левая точка на краю
+            e1: Math.PI / 2 - phi + 2 * Math.PI };   // через верх к правой
+      const k = Math.max(5, w * 2.6);
+      const da = arcAngleOfChord(1.3 * k, R);
+      g.heads = [arcHead(g, g.e1, g.e1 - da, 0.55 * k)];
+      g.s0 = g.e0;
+      g.s1 = g.e1 - da;
+      return g;
     }
 
     // Правило переехало к фактам о связи (linkHasTwoHeads рядом с
@@ -37894,7 +37945,7 @@
     // связи, а не полотна. Здесь остаётся только вызов.
 
     // ---- отрисовка сцены -------------------------------------------------
-    // Один и тот же код обслуживает экран, экспорт в PNG и холст хит-теста.
+    // Один и тот же код обслуживает экран и экспорт в PNG.
     function linkVisualState(l) {
       if (hasLinkClass("path-highlight", l)) return "path";
       if (selectedEdges.has(l) || hasLinkClass("selected", l)) return "selected";
@@ -37934,58 +37985,28 @@
       return 0.4;
     }
 
-    function strokeLink(c, l, width) {
-      const p = arcParams(l.source, l.target);
-      if (!p) return;
+    // Штрих связи — от края до края, кончается у оснований наконечников.
+    // Конец плоский: круглый колпачок вылезал бы за край узла на полширины.
+    function strokeLinkShape(c, g, width) {
+      if (!(g.s1 > g.s0)) return;
       c.beginPath();
-      c.arc(p.cx, p.cy, p.r, p.a0, p.a1, false);
+      c.arc(g.cx, g.cy, g.r, g.s0, g.s1, false);
+      const cap = c.lineCap;
+      c.lineCap = "butt";
       c.lineWidth = width;
       c.stroke();
+      c.lineCap = cap;
     }
 
-    // Петля: окружность, касающаяся узла снизу, с наконечником
-    // в точке касания. Снизу дуг между узлами почти не бывает,
-    // поэтому петля не спорит с обычными связями.
-    function drawSelfLoop(c, l, sw, col, alpha) {
-      const n = l.source;
-      if (!n || n.x === undefined) return;
-      const r = nodeRadius(n) || 18;
-      const R = r * 2;            // радиус петли — двойной радиус узла
-      const cx = n.x, cy = n.y - r * Math.sqrt(3);   // центр выше узла
-      const A0 = 2 * Math.PI / 3;       // левая точка касания
-      const A1 = Math.PI / 3;         // правая точка касания
-      c.save();
-      c.globalAlpha = alpha;
-      c.strokeStyle = col; c.lineWidth = sw;
-      c.beginPath();
-      c.arc(cx, cy, R, A0, A1, false);    // от левой через верх к правой
-      c.stroke();
-      // Наконечник в точке входа справа, по касательной внутрь узла
-      const ax = cx + R * Math.cos(A1), ay = cy + R * Math.sin(A1);
-      const tx = -Math.sin(A1), ty = Math.cos(A1);
-      const nx = -ty, ny = tx;
-      const k = Math.max(5, sw * 2.6);
-      c.beginPath();
-      c.moveTo(ax + tx * k, ay + ty * k);
-      c.lineTo(ax - tx * k * 0.3 + nx * k * 0.55, ay - ty * k * 0.3 + ny * k * 0.55);
-      c.lineTo(ax - tx * k * 0.3 - nx * k * 0.55, ay - ty * k * 0.3 - ny * k * 0.55);
-      c.closePath();
-      c.fillStyle = col; c.fill();
-      c.restore();
-    }
-
-    function fillArrow(c, l, sw) {
-      const draw = pts => {
-        if (!pts) return;
+    function fillLinkHeads(c, g) {
+      for (const pts of g.heads) {
         c.beginPath();
         c.moveTo(pts[0][0], pts[0][1]);
         c.lineTo(pts[1][0], pts[1][1]);
         c.lineTo(pts[2][0], pts[2][1]);
         c.closePath();
         c.fill();
-      };
-      draw(arrowPoints(l, sw));
-      if (linkHasTwoHeads(l)) draw(arrowPointsStart(l, sw));
+      }
     }
 
     const DRAW_ORDER = ["dimmed", "normal", "highlighted", "selected", "path"];
@@ -38045,13 +38066,17 @@
       for (const n of nodes) if (n.x !== undefined) pos += n.x + n.y;
       let rad = 0;
       renderState.radius.forEach(v => { rad += v; });
+      // Связи обрезаются по видимому краю узла, а он зависит и от обводки
+      // (выделение, карта сходства): слой устаревает вместе с ней.
+      let edge = 0;
+      for (const n of nodes) edge += nodeEdgeWidth(n);
       let sel = '';
       selectedEdges.forEach(l => {
         sel += ((l.source && l.source.id) || l.source) + '>' +
                ((l.target && l.target.id) || l.target) + ':' + l.type + ';';
       });
       const t = renderState.transform;
-      const key = [pos, rad, t.k, t.x, t.y, c.canvas.width, c.canvas.height,
+      const key = [pos, rad, edge, arrowMode, t.k, t.x, t.y, c.canvas.width, c.canvas.height,
                    links.length, nodes.length, visibleLinkSet, sel,
                    !!similarityOverlay, !!renderState.uniformLinkWidth];
       // Классы связей: имена заранее не известны, поэтому берём все.
@@ -38111,17 +38136,14 @@
             c.setLineDash([]);
             c.lineDashOffset = 0;
           }
-          if (isReflexiveLink(l)) {
-            // Петля: обычная линия между источником и целью
-            // выродилась бы в точку, а наконечник — в мусор.
-            c.setLineDash([]);
-            drawSelfLoop(c, l, w, relationTypesObj[l.type].color,
-                   linkDrawAlpha(l, state, tms));
-          } else {
-            strokeLink(c, l, w);
-            c.setLineDash([]);
-            fillArrow(c, l, renderState.hoveredLink === l ? linkHoverStrokeWidth(l) : undefined);
-          }
+          // Петля — сплошной линией, как и прежде: пунктир на малой
+          // окружности читается как рябь. Её геометрию даёт тот же linkShape.
+          if (isReflexiveLink(l)) c.setLineDash([]);
+          const g = linkShape(l, w);
+          if (!g) continue;
+          strokeLinkShape(c, g, w);
+          c.setLineDash([]);
+          fillLinkHeads(c, g);
         }
       }
     }
@@ -38145,7 +38167,7 @@
       // ложатся поверх — а все они и так принадлежат верхним состояниям.
       //
       // Слой применяется ТОЛЬКО к экранному холсту: этим же кодом идут
-      // выгрузка в PNG и холст хит-теста, у них свой контекст и свой размер.
+      // выгрузка в PNG, у неё свой контекст и свой размер.
       const useLayer = (c === ctx) && !opts.noLayer;
       if (useLayer) {
         const key = linksLayerKey(c);
@@ -38182,10 +38204,10 @@
           for (const id of similarityOverlay.nearest) {
             const t = conceptById.get(id);
             if (!t || t.x === undefined || !isNodeVisible(t)) continue;
-            const p = arcParams(src, t);
+            const p = clippedArc(src, t);   // от края до края, как и связи
             if (!p) continue;
             c.beginPath();
-            c.arc(p.cx, p.cy, p.r, p.a0, p.a1, false);
+            c.arc(p.cx, p.cy, p.r, p.e0, p.e1, false);
             c.stroke();
           }
           c.setLineDash([]);
@@ -38195,14 +38217,13 @@
       // узлы
       c.globalAlpha = 1;
       c.setLineDash([]);
-      for (const pass of ["dimmed", "normal", "top"]) {
+      for (const pass of NODE_PASSES) {
         for (const d of nodes) {
           if (!isNodeVisible(d)) continue;
+          if (nodeDrawPass(d) !== pass) continue;
           const selected  = selectedNodes.has(d) || hasNodeClass("selected", d);
           const highlighted = hasNodeClass("highlighted", d);
-          const dimmed    = hasNodeClass("dimmed", d) && !selected && !highlighted;
-          const bucket = dimmed ? "dimmed" : (selected || highlighted ? "top" : "normal");
-          if (bucket !== pass) continue;
+          const dimmed    = pass === "dimmed";
 
           const r = nodeRadius(d);
           c.globalAlpha = dimmed ? 0.2 : 1;
@@ -38232,15 +38253,15 @@
             // разворачиваются на полную шкалу цвета и толщины
             const t = Math.max(-1, Math.min(1, simValue / similarityOverlay.rowMax));
             const mag = Math.abs(t);
-            c.lineWidth   = 2 + mag * 5;
+            c.lineWidth   = nodeEdgeWidth(d);
             c.strokeStyle = similarityColor(t);
             if (mag > 0.5) { c.shadowColor = c.strokeStyle; c.shadowBlur = 8 * mag; }
           } else if (similarityOverlay && d.id === similarityOverlay.sourceId) {
-            c.lineWidth = 7;
+            c.lineWidth = nodeEdgeWidth(d);
             c.strokeStyle = "#ffd700";
             c.shadowColor = "#ffd700"; c.shadowBlur = 18;
           } else {
-            c.lineWidth   = selected ? 6 : (highlighted ? 5 : 3);
+            c.lineWidth   = nodeEdgeWidth(d);
             c.strokeStyle = selected ? "#ffd700" : "#fff";
           }
           c.stroke();
@@ -38279,7 +38300,6 @@
       ctx.clearRect(0, 0, gfxCanvas.width, gfxCanvas.height);
       ctx.setTransform(dpr * t.k, 0, 0, dpr * t.k, dpr * t.x, dpr * t.y);
       renderScene(ctx, {});
-      pickDirty = true;
       if (needsContinuousAnimation()) ensureAnimLoop();
     }
 
@@ -38304,71 +38324,114 @@
       if (p >= 1) renderState.anim = null;
     }
 
-    // ---- хит-тест (§6.5, §6.6) -------------------------------------------
-    let quadtree = null;
-    function rebuildQuadtree() {
-      quadtree = d3.quadtree()
-        .x(d => d.x).y(d => d.y)
-        .addAll(nodes.filter(n => isNodeVisible(n) && n.x !== undefined));
-    }
+    // ---- выбор под курсором (§6.5, §6.6) -----------------------------------
+    // ГЕОМЕТРИЕЙ, А НЕ КАРТАМИ. Прежде узел искали по d3.quadtree, а связь —
+    // по скрытому холсту, где номер связи был зашит в цвет штриха. Обе карты
+    // были ненадёжны, и по-разному:
+    //  • дерево узлов строилось по координатам на миг постройки и
+    //    перестраивалось лишь там, где об этом не забыли. Забывали дважды:
+    //    после отбора и после раскладки с сервера (applyServerLayout глушит
+    //    симуляцию — тиков, строивших дерево, больше нет). Замер: в серверном
+    //    ладе узел находился в своём центре 65 раз из 123, в 58 щелчок по
+    //    кружку выбирал связь, проходившую под ним;
+    //  • холст сглаживает края, и край одной связи поверх другой давал
+    //    НЕПРОЗРАЧНУЮ смесь двух цветов — номер третьей, случайной связи.
+    //    Замер: 20 % окрашенных точек читались как связь, которая их не
+    //    покрывает, и лежать она могла где угодно на графе.
+    // Перебор узлов и дуг на движение мыши дёшев и устареть не может: он
+    // смотрит на то, что нарисовано сейчас, той же геометрией (linkShape).
 
     function toGraph(clientX, clientY) {
       const rect = gfxCanvas.getBoundingClientRect();
       return renderState.transform.invert([clientX - rect.left, clientY - rect.top]);
     }
 
+    // Узел под точкой графа: из накрывающих — верхний по порядку рисования.
     function pickNode(gx, gy) {
-      if (!quadtree) rebuildQuadtree();
-      let maxR = 18;
-      for (const v of renderState.radius.values()) if (v > maxR) maxR = v;
-      const found = quadtree.find(gx, gy, maxR + 4);
-      if (!found) return null;
-      const r = nodeRadius(found);
-      return (Math.hypot(found.x - gx, found.y - gy) <= r + 2) ? found : null;
+      let hit = null, hitPass = -1;
+      for (const n of nodes) {
+        if (!isNodeVisible(n) || n.x === undefined) continue;
+        if (Math.hypot(n.x - gx, n.y - gy) > nodeRadius(n) + 2) continue;
+        const pass = NODE_PASSES.indexOf(nodeDrawPass(n));
+        if (pass >= hitPass) { hit = n; hitPass = pass; }   // нарисован позже — лежит выше
+      }
+      return hit;
     }
 
-    function repaintPickCanvas() {
-      const t = renderState.transform;
-      pickCtx.setTransform(1, 0, 0, 1, 0, 0);
-      pickCtx.clearRect(0, 0, pickCanvas.width, pickCanvas.height);
-      pickCtx.setTransform(dpr * t.k, 0, 0, dpr * t.k, dpr * t.x, dpr * t.y);
-      pickCtx.globalAlpha = 1;
-      pickCtx.lineCap = "round";
-      pickCtx.lineJoin = "round";
-      pickCtx.setLineDash([]);
-      for (let i = 0; i < links.length; i++) {
+    function pointInTriangle(x, y, t) {
+      const side = (a, b) => (x - b[0]) * (a[1] - b[1]) - (a[0] - b[0]) * (y - b[1]);
+      const d1 = side(t[0], t[1]), d2 = side(t[1], t[2]), d3 = side(t[2], t[0]);
+      return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0));
+    }
+
+    function distToSegment(x, y, a, b) {
+      const dx = b[0] - a[0], dy = b[1] - a[1];
+      const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / (dx * dx + dy * dy || 1)));
+      return Math.hypot(x - a[0] - t * dx, y - a[1] - t * dy);
+    }
+
+    // Точка и НАРИСОВАННАЯ фигура связи шириной w: штрих по дуге s0…s1 и
+    // наконечники — ровно то, что кладут strokeLinkShape и fillLinkHeads.
+    // visible — точка на самой фигуре (её видно как эту связь); d — до фигуры:
+    // до оси штриха или до треугольника наконечника. Мерить по оси до самого
+    // края узла нельзя: штрих кончается у основания, дальше нарисован только
+    // треугольник, а у острия он уже штриха.
+    function hitLinkShape(g, w, x, y) {
+      let dHead = Infinity, onHead = false;
+      for (const h of g.heads) {
+        if (pointInTriangle(x, y, h)) { onHead = true; dHead = 0; break; }
+        dHead = Math.min(dHead, distToSegment(x, y, h[0], h[1]),
+                         distToSegment(x, y, h[1], h[2]), distToSegment(x, y, h[2], h[0]));
+      }
+      let u = Math.atan2(y - g.cy, x - g.cx) - g.s0;
+      u -= 2 * Math.PI * Math.floor(u / (2 * Math.PI));
+      const inSpan = g.s1 > g.s0 && u <= g.s1 - g.s0;
+      const off = Math.abs(Math.hypot(x - g.cx, y - g.cy) - g.r);
+      const dArc = inSpan ? off : Math.min(
+        Math.hypot(x - g.cx - g.r * Math.cos(g.s0), y - g.cy - g.r * Math.sin(g.s0)),
+        Math.hypot(x - g.cx - g.r * Math.cos(g.s1), y - g.cy - g.r * Math.sin(g.s1)));
+      return { visible: onHead || (inSpan && off <= w / 2), d: Math.min(dArc, dHead) };
+    }
+
+    // Связь под точкой экрана. Точка на ВИДИМОЙ фигуре — берётся верхняя по
+    // порядку рисования (её и видно): живые поверх слоя, внутри — по
+    // DRAW_ORDER, при равенстве — позже в базе. Точка лишь в полосе
+    // попадания (тонкая связь ловится шире, чем нарисована) — ближайшая.
+    function pickLink(clientX, clientY) {
+      const rect = gfxCanvas.getBoundingClientRect();
+      if (clientX < rect.left || clientY < rect.top ||
+          clientX >= rect.right || clientY >= rect.bottom) return null;
+      const [x, y] = toGraph(clientX, clientY);
+      const n = links.length;
+      let best = null, bestRank = -1, bestD = Infinity, onStroke = false;
+      for (let i = 0; i < n; i++) {
         const l = links[i];
         if (!isLinkVisible(l)) continue;
-        const id = i + 1;
-        const col = "rgb(" + ((id >> 16) & 255) + "," + ((id >> 8) & 255) + "," + (id & 255) + ")";
-        pickCtx.strokeStyle = col;
-        pickCtx.fillStyle = col;
-        // область попадания не уже прежней :hover-зоны
-        const pw = Math.max(linkDrawWidth(l, linkVisualState(l)), PICK_LINK_WIDTH);
-        if (isReflexiveLink(l)) {
-          // У петли source === target, дуга между узлами вырождается
-          // в точку — рисовать её на карте выбора незачем, как незачем
-          // и наконечник от fillArrow: он рисуется внутри drawSelfLoop.
-          drawSelfLoop(pickCtx, l, pw, pickCtx.strokeStyle, 1);
-        } else {
-          strokeLink(pickCtx, l, pw);
-          fillArrow(pickCtx, l);
+        const s = l.source, t = l.target;
+        if (!s || !t || s.x === undefined || t.x === undefined) continue;
+        const state = linkVisualState(l), w = linkDrawWidth(l, state);
+        const band = Math.max(w, PICK_LINK_WIDTH) / 2;
+        // Грубый отсев: дуга лежит в круге вокруг середины хорды (петля —
+        // около узла), наконечник не длиннее 6 × ширина.
+        const reach = (s === t) ? 4 * nodeRadius(s) + 4 * w + 20
+          : 0.56 * Math.hypot(t.x - s.x, t.y - s.y) + 6 * Math.max(w, linkStrokeWidth(l)) + 20;
+        if (Math.hypot(x - (s.x + t.x) / 2, y - (s.y + t.y) / 2) > reach + band) continue;
+        const g = linkShape(l, w);
+        if (!g) continue;
+        const hit = hitLinkShape(g, w, x, y), d = hit.d;
+        if (d > band) continue;
+        const rank = (linkDrawnLive(l) ? DRAW_ORDER.length : 0) * n
+                   + DRAW_ORDER.indexOf(state) * n + i;
+        // Строго на фигуре: сглаженная кайма шириной в полпикселя видимой
+        // не считается — иначе связь, чья кайма легла поверх другой,
+        // отнимала бы у неё точку, которую видно как ту.
+        if (hit.visible) {
+          if (!onStroke || rank > bestRank) { best = l; bestRank = rank; onStroke = true; }
+        } else if (!onStroke && (d < bestD || (d === bestD && rank > bestRank))) {
+          best = l; bestD = d; bestRank = rank;
         }
       }
-      pickDirty = false;
-    }
-
-    function pickLink(clientX, clientY) {
-      if (pickDirty) repaintPickCanvas();
-      const rect = gfxCanvas.getBoundingClientRect();
-      const px = Math.round((clientX - rect.left) * dpr);
-      const py = Math.round((clientY - rect.top) * dpr);
-      if (px < 0 || py < 0 || px >= pickCanvas.width || py >= pickCanvas.height) return null;
-      let data;
-      try { data = pickCtx.getImageData(px, py, 1, 1).data; } catch (e) { return null; }
-      const id = (data[0] << 16) | (data[1] << 8) | data[2];
-      if (!id || id > links.length) return null;
-      return links[id - 1];
+      return best;
     }
 
     // ---- адаптеры вместо d3-селекций ------------------------------------
@@ -38450,7 +38513,6 @@
       .scaleExtent([0.1, 4])
       .on("zoom", (event) => {
         renderState.transform = event.transform;
-        pickDirty = true;
         requestDraw();
       });
 
@@ -38484,8 +38546,6 @@
           const d = s.node;
           d.fx = g[0]; d.fy = g[1];
           d.x  = g[0]; d.y  = g[1];
-          rebuildQuadtree();
-          pickDirty = true;
           requestDraw();
         })
         .on("end",   (event) => {
@@ -38614,8 +38674,6 @@
       // кадрах, и симуляция крутилась дольше заявленных maxTicks.
       tickCount++;
 
-      rebuildQuadtree();
-      pickDirty = true;
       requestDraw();
 
       if (tickCount >= maxTicks) {
@@ -38975,7 +39033,7 @@
       
       // ДЕФЕКТ U3: у петли source === target, и стрелка «слева направо»
       // лгала бы о двух разных концах. Начертание то же, что на канве
-      // (drawSelfLoop) и в окне связи: окружность над узлом, наконечник
+      // (loopShape) и в окне связи: окружность над узлом, наконечник
       // в правой точке касания. Дуга 300°, потому оба флага единицы.
       const reflexive = isReflexiveLink(d);
       
@@ -40671,8 +40729,6 @@
       simulation.nodes(nodes);
       simulation.force('link').links(links);
 
-      rebuildQuadtree();   // хит-тест узлов
-      pickDirty = true;    // хит-тест связей (карта выбора)
       linkLayer.key = null;  // слой застывших связей
       requestDraw();
       // Счётчик тиков — он же стоп-кран: обработчик тика глушит симуляцию,
@@ -40724,10 +40780,10 @@
     }
 
     function updateLinkOnGraph() {
-      // Тип, вес и взаимность меняют и вид, и полосу попадания.
-      // Признак годности слоя опирается на положения, счёт и ссылки на
-      // наборы — ничего из этого правка не трогает, поэтому сброс явный.
-      pickDirty = true;
+      // Тип, вес и взаимность меняют вид связи (полосу попадания выбор
+      // считает на ходу). Признак годности слоя опирается на положения,
+      // счёт и ссылки на наборы — ничего из этого правка не трогает,
+      // поэтому сброс явный.
       linkLayer.key = null;
       requestDraw();
     }

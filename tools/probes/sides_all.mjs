@@ -89,8 +89,9 @@ const итог = await page.evaluate(async () => {
   V('closeUniversalModal')();
   await new Promise(r => setTimeout(r, 600));
 
-  // карты попаданий после отбора
-  V('rebuildQuadtree')();
+  // попадание после отбора: скрытый узел не ловится. Прежде здесь
+  // строилось дерево попаданий ДО отбора — воспроизводилась его
+  // устарелость; дерева больше нет, выбор перебирает видимое на ходу.
   const sel = V('selectedPhilosophers'); sel.clear(); sel.add('Гегель');
   V('applyFiltersImmediate')();
   await new Promise(r => setTimeout(r, 1400));

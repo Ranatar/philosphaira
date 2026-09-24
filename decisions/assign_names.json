@@ -115,9 +115,6 @@
   "arcParams": "render/geometry.js",
   "arrowHoverTimer": "paths/path-ui.js",
   "arrowMode": "state/render.js",
-  "arrowPoints": "render/geometry.js",
-  "arrowPointsStart": "render/geometry.js",
-  "arrowRadius": "state/render.js",
   "askLayoutRevert": "modal/commits.js",
   "authAccounts": "core/session.js",
   "authError": "modal/auth.js",
@@ -258,7 +255,6 @@
   "draw": "render/scene.js",
   "drawLinkSet": "render/scene.js",
   "drawScheduled": "render/loop.js",
-  "drawSelfLoop": "render/draw-link.js",
   "editMode": "state/edit.js",
   "effectiveScopeFlags": "metrics/scope-select.js",
   "eigenvectorCache": "metrics/network.js",
@@ -269,7 +265,6 @@
   "escapeAttr": "util/html.js",
   "exportToPNG": "ui/export.js",
   "exportToSVG": "ui/export.js",
-  "fillArrow": "render/draw-link.js",
   "filterCustomSelect": "widgets/custom-select.js",
   "filterMode": "state/filters.js",
   "findAndShowPath": "paths/path-ui.js",
@@ -626,10 +621,7 @@
   "philosopherTraditionsBlock": "modal/philosopher-view.js",
   "philosopherYears": "util/philosopher-label.js",
   "philosophers": "data/*.json",
-  "pickCanvas": "render/canvas-core.js",
   "pickConcepts": "core/search.js",
-  "pickCtx": "render/canvas-core.js",
-  "pickDirty": "state/render.js",
   "pickLink": "render/picking.js",
   "pickLinkEnd": "ui/search-link.js",
   "pickNode": "render/picking.js",
@@ -658,7 +650,6 @@
   "pullGraphSince": "data/remote.js",
   "pullStrengthOf": "state/render.js",
   "pushModalState": "modal/core.js",
-  "quadtree": "render/picking.js",
   "rankKeep": "stats/results.js",
   "readCookie": "core/api.js",
   "rebuildDerived": "data/remote.js",
@@ -666,7 +657,6 @@
   "rebuildIndexes": "core/graph-index.js",
   "rebuildOverCurrent": "modal/conflict.js",
   "rebuildPhilosopherTraditions": "data/mutate.js",
-  "rebuildQuadtree": "render/picking.js",
   "reflexiveLinkOf": "core/link-facts.js",
   "refreshEditCount": "modal/commits.js",
   "refreshEditHints": "modal/edit-rights.js",
@@ -694,7 +684,6 @@
   "renderScene": "render/scene.js",
   "renderState": "render/canvas-core.js",
   "renderUsers": "modal/users.js",
-  "repaintPickCanvas": "render/picking.js",
   "replaceEntity": "data/remote.js",
   "reportSubmit": "data/backend.js",
   "requestDraw": "render/loop.js",
@@ -794,7 +783,6 @@
   "stepWithoutGap": "paths/chronology.js",
   "storedLayoutComplaint": "state/render.js",
   "strictChronologyCheck": "paths/chronology.js",
-  "strokeLink": "render/draw-link.js",
   "structuralSimilarity": "metrics/similarity-concepts.js",
   "subSelection": "render/d3-layer.js",
   "submitAuth": "modal/auth.js",
@@ -887,7 +875,6 @@
   "linksBothWays": "core/link-facts.js",
   "MUTUAL_DIALOGUE_BONUS": "metrics/philosophical.js",
   "WEIGHTED_CLUSTERING_MIN_DEGREE": "metrics/network.js",
-  "refreshHitMaps": "render/picking.js",
   "sharesTradition": "filters/filters.js",
   "WITHOUT_TRADITION": "ui/legend.js",
   "resetTradition": "ui/legend.js",
@@ -989,7 +976,22 @@
   "refreshSimilarColumn": "modal/concept-view.js",
   "forceButtonHtml": "modal/concept-view.js",
   "similarProfileColumnHtml": "modal/concept-view.js",
-  "orientLink": "core/link-facts.js"
+  "orientLink": "core/link-facts.js",
+  "NODE_PASSES": "render/render-state.js",
+  "nodeDrawPass": "render/render-state.js",
+  "nodeEdgeWidth": "render/render-state.js",
+  "nodeOuterRadius": "render/render-state.js",
+  "arcAngleOfChord": "render/geometry.js",
+  "clippedArc": "render/geometry.js",
+  "arrowSize": "render/geometry.js",
+  "arcHead": "render/geometry.js",
+  "linkShape": "render/geometry.js",
+  "loopShape": "render/geometry.js",
+  "strokeLinkShape": "render/draw-link.js",
+  "fillLinkHeads": "render/draw-link.js",
+  "pointInTriangle": "render/picking.js",
+  "hitLinkShape": "render/picking.js",
+  "distToSegment": "render/picking.js"
  },
  "новые": [
   "BUS_PHASES"
@@ -1023,7 +1025,7 @@
    "модуль": "modal/search.js",
    "имя": "installModalSearchDismiss"
   },
-  "gfxSvg.call(d3.drag() @22b50a4e": {
+  "gfxSvg.call(d3.drag() @e1933554": {
    "модуль": "render/interactions.js",
    "имя": "installNodeDrag"
   },
@@ -1099,7 +1101,7 @@
    "модуль": "ui/hint.js",
    "имя": "installHintOut"
   },
-  "S.simulation.on(\"tick\") @c9c97c96": {
+  "S.simulation.on(\"tick\") @a2e65af4": {
    "модуль": "render/simulation.js",
    "имя": "installSimulationTick"
   },
