@@ -84,7 +84,6 @@ const gfxZoom = d3.zoom()
       .scaleExtent([0.1, 4])
       .on("zoom", (event) => {
         renderState.transform = event.transform;
-        S.pickDirty = true;
         requestDraw();
       });
 

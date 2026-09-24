@@ -9,7 +9,6 @@ import { initializePhilosophyMetrics } from '../metrics/link-indexes.js';
 import { invalidateEverythingForScope } from '../metrics/scope-reset.js';
 import { updateMetricsScopeHint } from '../metrics/scope.js';
 import { gfxLinkAll, gfxNode } from '../render/d3-layer.js';
-import { refreshHitMaps } from '../render/picking.js';
 import { highlightConnected, resetHighlight } from '../render/selection.js';
 import { pinnedDespiteFilter, pinnedVisibleNodes } from '../state/filters.js';
 import { selectedNodes } from '../state/render.js';
@@ -254,7 +253,6 @@ function applyBasicFilter(mode) {
       // Применяем видимость к узлам и связям (базовый фильтр)
       gfxNode.style("display", d => isNodeVisible(d) ? null : "none");
       gfxLinkAll.style("display", l => isLinkVisible(l) ? null : "none");
-      refreshHitMaps();
     }
 
 function applyChainVisibility(chainNodes, chainLinks) {
@@ -263,7 +261,6 @@ function applyChainVisibility(chainNodes, chainLinks) {
       S.visibleLinkSet = chainLinks;
       gfxNode.style("display", d => isNodeVisible(d) ? null : "none");
       gfxLinkAll.style("display", l => isLinkVisible(l) ? null : "none");
-      refreshHitMaps();
     }
 
 async function handleChainsMode() {

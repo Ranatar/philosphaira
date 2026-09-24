@@ -1,10 +1,8 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { S } from '../core/ns.js';
-import { linkHasTwoHeads } from '../core/link-facts.js';
 import { renderState } from './canvas-core.js';
-import { arcParams, arrowPoints, arrowPointsStart, linkHoverStrokeWidth, linkStrokeWidth } from './geometry.js';
-import { hasLinkClass, nodeRadius } from './render-state.js';
-
+import { linkHoverStrokeWidth, linkStrokeWidth } from './geometry.js';
+import { hasLinkClass } from './render-state.js';
 import { linkAmongHighlighted } from './similarity-overlay.js';
 import { selectedEdges } from '../state/render.js';
 
@@ -47,55 +45,26 @@ function linkDrawAlpha(l, state, tms) {
       return 0.4;
     }
 
-function strokeLink(c, l, width) {
-      const p = arcParams(l.source, l.target);
-      if (!p) return;
+function strokeLinkShape(c, g, width) {
+      if (!(g.s1 > g.s0)) return;
       c.beginPath();
-      c.arc(p.cx, p.cy, p.r, p.a0, p.a1, false);
+      c.arc(g.cx, g.cy, g.r, g.s0, g.s1, false);
+      const cap = c.lineCap;
+      c.lineCap = "butt";
       c.lineWidth = width;
       c.stroke();
+      c.lineCap = cap;
     }
 
-function drawSelfLoop(c, l, sw, col, alpha) {
-      const n = l.source;
-      if (!n || n.x === undefined) return;
-      const r = nodeRadius(n) || 18;
-      const R = r * 2;            // радиус петли — двойной радиус узла
-      const cx = n.x, cy = n.y - r * Math.sqrt(3);   // центр выше узла
-      const A0 = 2 * Math.PI / 3;       // левая точка касания
-      const A1 = Math.PI / 3;         // правая точка касания
-      c.save();
-      c.globalAlpha = alpha;
-      c.strokeStyle = col; c.lineWidth = sw;
-      c.beginPath();
-      c.arc(cx, cy, R, A0, A1, false);    // от левой через верх к правой
-      c.stroke();
-      // Наконечник в точке входа справа, по касательной внутрь узла
-      const ax = cx + R * Math.cos(A1), ay = cy + R * Math.sin(A1);
-      const tx = -Math.sin(A1), ty = Math.cos(A1);
-      const nx = -ty, ny = tx;
-      const k = Math.max(5, sw * 2.6);
-      c.beginPath();
-      c.moveTo(ax + tx * k, ay + ty * k);
-      c.lineTo(ax - tx * k * 0.3 + nx * k * 0.55, ay - ty * k * 0.3 + ny * k * 0.55);
-      c.lineTo(ax - tx * k * 0.3 - nx * k * 0.55, ay - ty * k * 0.3 - ny * k * 0.55);
-      c.closePath();
-      c.fillStyle = col; c.fill();
-      c.restore();
-    }
-
-function fillArrow(c, l, sw) {
-      const draw = pts => {
-        if (!pts) return;
+function fillLinkHeads(c, g) {
+      for (const pts of g.heads) {
         c.beginPath();
         c.moveTo(pts[0][0], pts[0][1]);
         c.lineTo(pts[1][0], pts[1][1]);
         c.lineTo(pts[2][0], pts[2][1]);
         c.closePath();
         c.fill();
-      };
-      draw(arrowPoints(l, sw));
-      if (linkHasTwoHeads(l)) draw(arrowPointsStart(l, sw));
+      }
     }
 
-export { drawSelfLoop, fillArrow, linkDrawAlpha, linkDrawWidth, linkVisualState, strokeLink };
+export { fillLinkHeads, linkDrawAlpha, linkDrawWidth, linkVisualState, strokeLinkShape };

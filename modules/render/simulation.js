@@ -7,7 +7,6 @@ import { showTemporaryMessage } from '../core/long-task.js';
 import { gfxSvg } from './canvas-core.js';
 import { gfxZoom } from './d3-layer.js';
 import { requestDraw } from './loop.js';
-import { rebuildQuadtree } from './picking.js';
 import { ensureAnimLoop, needsContinuousAnimation } from './scene.js';
 import { resetHighlight } from './selection.js';
 import { resetLayoutClock } from '../state/render.js';
@@ -16,7 +15,7 @@ const maxTicksFor = decay => Math.ceil(Math.log(S.simulation.alphaMin()) / Math.
 
 S.maxTicks = maxTicksFor(S.simulation.alphaDecay());
 
-// S.simulation.on("tick") @c9c97c96
+// S.simulation.on("tick") @a2e65af4
 function installSimulationTick() {
 S.simulation.on("tick", () => {
       // Ф0.5/Б12: d3-timer уже синхронизирован с кадрами, поэтому обёртка
@@ -25,8 +24,6 @@ S.simulation.on("tick", () => {
       // кадрах, и симуляция крутилась дольше заявленных maxTicks.
       S.tickCount++;
 
-      rebuildQuadtree();
-      S.pickDirty = true;
       requestDraw();
 
       if (S.tickCount >= S.maxTicks) {

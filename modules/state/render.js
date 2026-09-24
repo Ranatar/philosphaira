@@ -90,11 +90,7 @@ S.viewWidth = window.innerWidth;
 
 S.viewHeight = window.innerHeight;
 
-S.pickDirty = true;
-
 S.arrowMode = 'default';
-
-S.arrowRadius = null;
 
 S.uniformLinkWidthActive = false;
 
