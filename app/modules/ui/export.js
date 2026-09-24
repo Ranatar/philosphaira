@@ -5,7 +5,7 @@ import { isReflexiveLink, isSymmetricLink } from '../core/link-facts.js';
 import { showTemporaryMessage } from '../core/long-task.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
 import { renderState } from '../render/canvas-core.js';
-import { linkDrawAlpha, linkDrawWidth, linkVisualState } from '../render/draw-link.js';
+import { CONTRADICTION_DASH, linkDrawAlpha, linkDrawWidth, linkVisualState } from '../render/draw-link.js';
 import { linkShape } from '../render/geometry.js';
 import { hasNodeClass, nodeEdgeWidth, nodeLabelDy, nodeRadius } from '../render/render-state.js';
 import { DRAW_ORDER, renderScene } from '../render/scene.js';
@@ -77,8 +77,9 @@ function exportToSVG() {
           const g = linkShape(l, w);
           if (!g) continue;
           const op = state === 'path' ? 1 : linkDrawAlpha(l, state, 0);
+          const contradiction = l.type === 'internal_contradiction' && !isReflexiveLink(l);
           const dash = isReflexiveLink(l) ? ''
-                 : l.type === 'internal_contradiction' ? ' stroke-dasharray="8,4"'
+                 : contradiction ? ` stroke-dasharray="${CONTRADICTION_DASH.pattern.join(',')}"`
                  : (isSymmetricLink(l) ? ' stroke-dasharray="5,5"' : '');
           if (g.s1 > g.s0) {
             const at = a => num(g.cx + g.r * Math.cos(a)) + ',' + num(g.cy + g.r * Math.sin(a));
@@ -86,6 +87,11 @@ function exportToSVG() {
             out.push(`<path d="M${at(g.s0)}A${num(g.r)},${num(g.r)} 0 ${large},1 ${at(g.s1)}" ` +
                  `fill="none" stroke="${col}" stroke-width="${num(w)}" stroke-opacity="${num(op)}" ` +
                  `stroke-linecap="butt" stroke-linejoin="round"${dash}/>`);
+            if (contradiction) {
+              out.push(`<path d="M${at(g.s0)}A${num(g.r)},${num(g.r)} 0 ${large},1 ${at(g.s1)}" ` +
+                   `fill="none" stroke="${CONTRADICTION_DASH.second}" stroke-width="${num(w)}" stroke-opacity="${num(op)}" ` +
+                   `stroke-linecap="butt" stroke-linejoin="round"${dash} stroke-dashoffset="${CONTRADICTION_DASH.secondOffset}"/>`);
+            }
           }
           for (const pts of g.heads) {
             if (pts) out.push(`<path d="M${num(pts[0][0])},${num(pts[0][1])}L${num(pts[1][0])},${num(pts[1][1])}` +

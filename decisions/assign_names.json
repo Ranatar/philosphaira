@@ -251,7 +251,6 @@
   "downloadData": "data/save.js",
   "dpr": "render/canvas-core.js",
   "dragended": "render/d3-layer.js",
-  "dragstarted": "render/d3-layer.js",
   "draw": "render/scene.js",
   "drawLinkSet": "render/scene.js",
   "drawScheduled": "render/loop.js",
@@ -991,7 +990,9 @@
   "fillLinkHeads": "render/draw-link.js",
   "pointInTriangle": "render/picking.js",
   "hitLinkShape": "render/picking.js",
-  "distToSegment": "render/picking.js"
+  "distToSegment": "render/picking.js",
+  "dragMoveStarted": "render/d3-layer.js",
+  "CONTRADICTION_DASH": "render/draw-link.js"
  },
  "новые": [
   "BUS_PHASES"
@@ -1025,7 +1026,7 @@
    "модуль": "modal/search.js",
    "имя": "installModalSearchDismiss"
   },
-  "gfxSvg.call(d3.drag() @e1933554": {
+  "gfxSvg.call(d3.drag() @36e303a8": {
    "модуль": "render/interactions.js",
    "имя": "installNodeDrag"
   },

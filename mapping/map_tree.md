@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-130 модулей, 21807 строк, 908 объявлений,
-619 вывозов, 836 рёбер ввоза. Составлено 2026-09-24 12:41:55.
+130 модулей, 21838 строк, 909 объявлений,
+620 вывозов, 836 рёбер ввоза. Составлено 2026-09-24 16:58:59.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -85,7 +85,7 @@
 
 | Модуль | Строк | Объявлений | Вывозит | Ввозит из | Пространства |
 |---|---|---|---|---|---|
-| `boot.js` | 317 | 0 | 1 | 66 | DATA:2, S:8 |
+| `boot.js` | 322 | 0 | 1 | 66 | DATA:2, S:8 |
 | `main.js` | 136 | 0 | 0 | 125 | — |
 | `modules/boot-defs.js` | 62 | 3 | 2 | 8 | S:1 |
 | `modules/core/api.js` | 90 | 4 | 3 | 1 | — |
@@ -165,15 +165,15 @@
 | `modules/paths/shortest-path.js` | 203 | 4 | 1 | 5 | DATA:2, S:4 |
 | `modules/render/canvas-core.js` | 38 | 7 | 7 | 3 | S:2 |
 | `modules/render/d3-layer.js` | 106 | 11 | 9 | 7 | DATA:2, S:1 |
-| `modules/render/draw-link.js` | 71 | 5 | 5 | 6 | S:1 |
+| `modules/render/draw-link.js` | 73 | 6 | 6 | 6 | S:1 |
 | `modules/render/geometry.js` | 105 | 9 | 4 | 4 | S:1 |
 | `modules/render/grouping.js` | 115 | 7 | 3 | 7 | DATA:1, S:6 |
-| `modules/render/interactions.js` | 306 | 8 | 4 | 19 | DATA:1, S:3 |
+| `modules/render/interactions.js` | 317 | 8 | 4 | 19 | DATA:1, S:3 |
 | `modules/render/loop.js` | 20 | 4 | 2 | 0 | — |
 | `modules/render/metric-visualization.js` | 371 | 10 | 3 | 5 | DATA:4, S:2 |
 | `modules/render/picking.js` | 95 | 6 | 3 | 9 | DATA:2 |
 | `modules/render/render-state.js` | 47 | 10 | 10 | 3 | S:1 |
-| `modules/render/scene.js` | 346 | 18 | 8 | 13 | DATA:4, S:5 |
+| `modules/render/scene.js` | 353 | 18 | 8 | 13 | DATA:4, S:5 |
 | `modules/render/selection.js` | 261 | 8 | 7 | 11 | DATA:2, S:2 |
 | `modules/render/similarity-overlay.js` | 256 | 10 | 5 | 9 | DATA:4, S:1 |
 | `modules/render/simulation.js` | 128 | 11 | 8 | 11 | DATA:2, S:4 |
@@ -201,7 +201,7 @@
 | `modules/ui/actions-static.js` | 140 | 0 | 0 | 26 | — |
 | `modules/ui/actions.js` | 27 | 1 | 3 | 0 | — |
 | `modules/ui/delegation.js` | 70 | 3 | 1 | 1 | — |
-| `modules/ui/export.js` | 132 | 2 | 2 | 11 | DATA:4, S:2 |
+| `modules/ui/export.js` | 138 | 2 | 2 | 11 | DATA:4, S:2 |
 | `modules/ui/hint.js` | 60 | 7 | 4 | 1 | S:1 |
 | `modules/ui/legend.js` | 387 | 29 | 25 | 7 | DATA:9, S:9 |
 | `modules/ui/link-state.js` | 282 | 13 | 6 | 17 | DATA:5, S:11 |
@@ -1171,7 +1171,7 @@
 |---|---|---|---|
 | `subSelection` | function | 23 | — |
 | `makeClassed` | function | 15 | — |
-| `dragstarted` | function | 8 | да |
+| `dragMoveStarted` | function | 8 | да |
 | `dragended` | function | 5 | да |
 | `nodeHandlers` | const | 1 | да |
 | `linkHandlers` | const | 1 | да |
@@ -1181,7 +1181,7 @@
 | `updateArrows` | function | 1 | да |
 | `gfxZoom` | const | 1 | да |
 
-### `modules/render/draw-link.js` — 71 строк, объявлений 5
+### `modules/render/draw-link.js` — 73 строк, объявлений 6
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1190,6 +1190,7 @@
 | `fillLinkHeads` | function | 10 | да |
 | `linkDrawWidth` | function | 8 | да |
 | `linkVisualState` | function | 7 | да |
+| `CONTRADICTION_DASH` | const | 1 | да |
 
 ### `modules/render/geometry.js` — 105 строк, объявлений 9
 
@@ -1217,12 +1218,12 @@
 | `cols` | const | 1 | — |
 | `rows` | const | 1 | — |
 
-### `modules/render/interactions.js` — 306 строк, объявлений 8
+### `modules/render/interactions.js` — 317 строк, объявлений 8
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `installLinkHover` | function | 127 | да |
-| `installNodeDrag` | function | 37 | да |
+| `installNodeDrag` | function | 48 | да |
 | `dispatchClick` | function | 34 | — |
 | `dispatchMove` | function | 30 | — |
 | `installNodeHover` | function | 29 | да |
@@ -1280,24 +1281,24 @@
 | `NODE_PASSES` | const | 1 | да |
 | `nodeOuterRadius` | function | 1 | да |
 
-### `modules/render/scene.js` — 346 строк, объявлений 18
+### `modules/render/scene.js` — 353 строк, объявлений 18
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `renderScene` | function | 137 | да |
-| `drawLinkSet` | function | 33 | — |
+| `drawLinkSet` | function | 42 | — |
 | `linksLayerKey` | function | 23 | — |
 | `updateGraphData` | function | 22 | да |
 | `paintLinkLayer` | function | 21 | — |
 | `stepRadiusAnimation` | function | 13 | — |
 | `graphIsCovered` | function | 10 | — |
-| `needsContinuousAnimation` | function | 9 | да |
 | `ensureAnimLoop` | function | 9 | да |
 | `draw` | function | 9 | да |
+| `needsContinuousAnimation` | function | 8 | да |
 | `startRadiusAnimation` | function | 6 | да |
-| `linkOutOfLayer` | function | 5 | — |
 | `linkDrawnLive` | function | 5 | да |
 | `sameLayerKey` | function | 5 | — |
+| `linkOutOfLayer` | function | 4 | — |
 | `animLoopRunning` | let | 1 | — |
 | `DRAW_ORDER` | const | 1 | да |
 | `lastLayerKey` | let | 1 | — |
@@ -1555,11 +1556,11 @@
 | `EVENTS` | const | 1 | — |
 | `BOUNDS` | const | 1 | — |
 
-### `modules/ui/export.js` — 132 строк, объявлений 2
+### `modules/ui/export.js` — 138 строк, объявлений 2
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `exportToSVG` | function | 80 | да |
+| `exportToSVG` | function | 86 | да |
 | `exportToPNG` | function | 35 | да |
 
 ### `modules/ui/hint.js` — 60 строк, объявлений 7
@@ -2689,7 +2690,7 @@
 - из `modules/graph/click-actions.js`: `handleLinkClick`, `handleNodeClick`
 - из `modules/graph/graph-selection.js`: `cancelGraphSelection`, `handleConceptSelection`
 - из `modules/render/canvas-core.js`: `gfxCanvas`, `gfxSvg`, `renderState`
-- из `modules/render/d3-layer.js`: `dragended`, `dragstarted`, `gfxLink`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`
+- из `modules/render/d3-layer.js`: `dragMoveStarted`, `dragended`, `gfxLink`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`
 - из `modules/render/loop.js`: `requestDraw`
 - из `modules/render/picking.js`: `pickLink`, `pickNode`, `toGraph`
 - из `modules/render/selection.js`: `resetHighlight`
@@ -2742,7 +2743,7 @@
 - из `modules/core/link-facts.js`: `isReflexiveLink`
 - из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `modules/render/canvas-core.js`: `ctx`, `dpr`, `gfxCanvas`, `renderState`
-- из `modules/render/draw-link.js`: `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
+- из `modules/render/draw-link.js`: `CONTRADICTION_DASH`, `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
 - из `modules/render/geometry.js`: `clippedArc`, `linkShape`
 - из `modules/render/loop.js`: `requestDraw`
 - из `modules/render/render-state.js`: `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `NODE_PASSES`, `hasLinkClass`, `hasNodeClass`, `nodeDrawPass`, `nodeEdgeWidth`, `nodeLabelDy`, `nodeRadius`
@@ -3066,13 +3067,13 @@
 - из `modules/core/long-task.js`: `showTemporaryMessage`
 - из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `modules/render/canvas-core.js`: `renderState`
-- из `modules/render/draw-link.js`: `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`
+- из `modules/render/draw-link.js`: `CONTRADICTION_DASH`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`
 - из `modules/render/geometry.js`: `linkShape`
 - из `modules/render/render-state.js`: `hasNodeClass`, `nodeEdgeWidth`, `nodeLabelDy`, `nodeRadius`
 - из `modules/render/scene.js`: `DRAW_ORDER`, `renderScene`
 - из `modules/state/render.js`: `selectedNodes`
 
-Чаще всего поминает: `S`×8, `hasNodeClass`×6, `DATA`×5, `renderState`×2, `showTemporaryMessage`×2
+Чаще всего поминает: `S`×8, `hasNodeClass`×6, `DATA`×5, `CONTRADICTION_DASH`×3, `renderState`×2
 
 ### `modules/ui/hint.js`
 

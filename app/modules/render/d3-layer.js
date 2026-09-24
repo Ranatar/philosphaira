@@ -87,8 +87,8 @@ const gfxZoom = d3.zoom()
         requestDraw();
       });
 
-function dragstarted(event, d) {
-      if (!event.active) {
+function dragMoveStarted(event, d) {
+      if (event.active === 1) {
         resetLayoutClock();
         S.simulation.alphaTarget(0.3).restart();
       }
@@ -102,4 +102,4 @@ function dragended(event, d) {
       d.fy = null;
     }
 
-export { dragended, dragstarted, gfxLink, gfxLinkAll, gfxNode, gfxZoom, linkHandlers, nodeHandlers, updateArrows };
+export { dragMoveStarted, dragended, gfxLink, gfxLinkAll, gfxNode, gfxZoom, linkHandlers, nodeHandlers, updateArrows };

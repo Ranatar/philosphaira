@@ -1414,12 +1414,6 @@
       50% { opacity: 0.6; }
     }
     
-    @keyframes dash {
-      to {
-        stroke-dashoffset: -1000;
-      }
-    }
-    
     /* Легенда весов */
     .weight-legend {
       margin-top: 10px;
@@ -23958,7 +23952,7 @@
           nodes.length + ' — раскладка считается на месте.');
         return false;
       }
-      if (simulation) simulation.stop();
+      if (simulation) simulation.alpha(0).stop();   // энергию — вместе с остановом, см. layoutFromStore
       layoutSettled = true;
       // ПЕРЕРИСОВКА ЧЕРЕЗ СОБЫТИЕ, А НЕ ПРЯМЫМ ЗОВОМ: requestDraw живёт на
       // третьем этаже (render/), а эта створка — на первом, и прямой вызов
@@ -36712,8 +36706,9 @@
           const g = linkShape(l, w);
           if (!g) continue;
           const op = state === 'path' ? 1 : linkDrawAlpha(l, state, 0);
+          const contradiction = l.type === 'internal_contradiction' && !isReflexiveLink(l);
           const dash = isReflexiveLink(l) ? ''
-                 : l.type === 'internal_contradiction' ? ' stroke-dasharray="8,4"'
+                 : contradiction ? ` stroke-dasharray="${CONTRADICTION_DASH.pattern.join(',')}"`
                  : (isSymmetricLink(l) ? ' stroke-dasharray="5,5"' : '');
           if (g.s1 > g.s0) {
             const at = a => num(g.cx + g.r * Math.cos(a)) + ',' + num(g.cy + g.r * Math.sin(a));
@@ -36721,6 +36716,11 @@
             out.push(`<path d="M${at(g.s0)}A${num(g.r)},${num(g.r)} 0 ${large},1 ${at(g.s1)}" ` +
                  `fill="none" stroke="${col}" stroke-width="${num(w)}" stroke-opacity="${num(op)}" ` +
                  `stroke-linecap="butt" stroke-linejoin="round"${dash}/>`);
+            if (contradiction) {
+              out.push(`<path d="M${at(g.s0)}A${num(g.r)},${num(g.r)} 0 ${large},1 ${at(g.s1)}" ` +
+                   `fill="none" stroke="${CONTRADICTION_DASH.second}" stroke-width="${num(w)}" stroke-opacity="${num(op)}" ` +
+                   `stroke-linecap="butt" stroke-linejoin="round"${dash} stroke-dashoffset="${CONTRADICTION_DASH.secondOffset}"/>`);
+            }
           }
           for (const pts of g.heads) {
             if (pts) out.push(`<path d="M${num(pts[0][0])},${num(pts[0][1])}L${num(pts[1][0])},${num(pts[1][1])}` +
@@ -37772,12 +37772,14 @@
       });
     }
 
-    // Непрерывный цикл нужен только пока есть пульсация пути, живая
-    // анимация радиусов или видимая связь internal_contradiction (§6.8)
+    // Непрерывный цикл нужен только пока есть пульсация пути или живая
+    // анимация радиусов (§6.8). Прежде его держала и всякая видимая связь
+    // internal_contradiction — бегущий пунктир; её вид теперь статичен
+    // (CONTRADICTION_DASH), и в покое граф не перерисовывается вовсе.
     let animLoopRunning = false;
 
     // Закрыт ли граф модальным окном. Пока закрыт, непрерывно
-    // перерисовывать его незачем: пульсацию внутренних противоречий
+    // перерисовывать его незачем: пульсацию пути и анимацию радиусов
     // всё равно никто не видит, а прокрутка окна вынуждена композиться
     // поверх непрерывно меняющегося слоя канвы.
     // Замер: прокрутка окна философа на 40 шагов — 31 мс как есть
@@ -37799,7 +37801,6 @@
       if (renderState.anim) return true;
       const p = renderState.linkClasses["path-highlight"];
       if (p && p.size) return true;
-      for (const l of links) if (l.type === "internal_contradiction" && isLinkVisible(l)) return true;
       return false;
     }
     function ensureAnimLoop() {
@@ -37985,6 +37986,17 @@
       return 0.4;
     }
 
+    // Пунктир внутреннего противоречия: цвет типа и жёлтый попеременно —
+    // 8 цветом типа, пробел 4, 8 жёлтым, пробел 4. Жёлтый ложится в
+    // промежутки первого прохода тем же узором со сдвигом на 12.
+    // Прежде здесь был БЕГУЩИЙ пунктир: ради двух десятков связей граф
+    // перерисовывался непрерывно, и в покое главный поток был занят на
+    // 100 %. Статичный двухцветный узор отличает тип и без движения.
+    // Жёлтый нарочно не #F1C40F (тип «опосредует») и не #FFD700
+    // (выделение узла, дуги карты сходства). Экран и SVG-вывоз берут
+    // узор отсюда — ответ на «как выглядит противоречие» один.
+    const CONTRADICTION_DASH = { pattern: [8, 16], secondOffset: 12, second: "#F4D03F" };
+
     // Штрих связи — от края до края, кончается у оснований наконечников.
     // Конец плоский: круглый колпачок вылезал бы за край узла на полширины.
     function strokeLinkShape(c, g, width) {
@@ -38035,14 +38047,10 @@
     // шире и плотнее — так их не приходится вносить в признак годности,
     // и наведение мышью не перерисовывает слой.
     //
-    // ОТСТУПЛЕНИЕ ОТ ПРЕЖНЕГО ВИДА, ЕДИНСТВЕННОЕ. Двадцать связей с бегущим
-    // пунктиром ложатся теперь ПОВЕРХ прочих связей своего состояния, а не
-    // на своё место в порядке массива. Замер: заметно иных точек 0,25 %;
-    // если живых связей нет вовсе — 0,005 %, то есть остальное совпадает.
-    // Порядок внутри одного состояния смысла не нёс (это порядок записей в
-    // базе), а противоречия теперь заметнее, что скорее к лучшему.
+    // Прежде вне слоя жили и связи internal_contradiction — ради бегущего
+    // пунктира — и ложились поверх прочих своего состояния. Пунктир стал
+    // статичным (CONTRADICTION_DASH), и они вернулись в слой на своё место.
     function linkOutOfLayer(l) {
-      if (l.type === "internal_contradiction") return true;  // бегущий пунктир
       if (hasLinkClass("path-highlight", l)) return true;    // мигание подсветки пути
       return false;
     }
@@ -38106,7 +38114,7 @@
       lc.setTransform(dpr * t.k, 0, 0, dpr * t.k, dpr * t.x, dpr * t.y);
       lc.lineCap = "round";
       lc.lineJoin = "round";
-      // tms = 0: от времени зависят только мигание пути и бегущий пунктир,
+      // tms = 0: от времени зависит только мигание пути,
       // а они в слой не попадают.
       drawLinkSet(lc, 0, l => isLinkVisible(l) && !linkOutOfLayer(l));
       linkLayer.key = key;
@@ -38123,9 +38131,10 @@
           c.globalAlpha = linkDrawAlpha(l, state, tms);
           c.strokeStyle = relationTypesObj[l.type].color;
           c.fillStyle   = relationTypesObj[l.type].color;
-          if (l.type === "internal_contradiction") {
-            c.setLineDash([8, 4]);
-            c.lineDashOffset = -((tms / 20000) * 1000) % 1000;
+          const contradiction = l.type === "internal_contradiction" && !isReflexiveLink(l);
+          if (contradiction) {
+            c.setLineDash(CONTRADICTION_DASH.pattern);
+            c.lineDashOffset = 0;
           } else if (relationTypesObj[l.type].symmetric) {
             c.setLineDash([2, 6]);
             c.lineDashOffset = 0;
@@ -38142,7 +38151,15 @@
           const g = linkShape(l, w);
           if (!g) continue;
           strokeLinkShape(c, g, w);
+          if (contradiction) {
+            // второй цвет — в промежутки первого, тот же штрих той же дуги
+            c.strokeStyle = CONTRADICTION_DASH.second;
+            c.lineDashOffset = CONTRADICTION_DASH.secondOffset;
+            strokeLinkShape(c, g, w);
+            c.strokeStyle = relationTypesObj[l.type].color;
+          }
           c.setLineDash([]);
+          c.lineDashOffset = 0;
           fillLinkHeads(c, g);
         }
       }
@@ -38535,13 +38552,24 @@
         })
         // d3.drag передаёт в обработчик датум ЭЛЕМЕНТА, а у канваса его
         // нет — перетаскиваемый узел лежит в event.subject
+        // Нажатие — ещё не перетаскивание: запоминаем, откуда начали.
         .on("start", (event) => {
           const s = event.subject;
-          if (s && s.node) dragstarted(event, s.node);
+          if (s && s.node) { s.startX = event.x; s.startY = event.y; }
         })
         .on("drag",  (event) => {
           const s = event.subject;
           if (!s || !s.node) return;
+          // d3 шлёт drag на ВСЯКОЕ движение после нажатия, даже нулевое.
+          // Смещение меряем тем же мерилом, что d3 (clickDistance 0): жест,
+          // засчитанный щелчком, укладку не будит; жест, у которого d3
+          // щелчок отнял, — будит. event.x сравнивается с event.x нажатия,
+          // а не с s.x: оба посчитаны одной поправкой и равны точно.
+          if (!s.moved) {
+            if (event.x === s.startX && event.y === s.startY) return;
+            s.moved = true;
+            dragMoveStarted(event, s.node);
+          }
           const g = renderState.transform.invert([event.x, event.y]);
           const d = s.node;
           d.fx = g[0]; d.fy = g[1];
@@ -38550,7 +38578,7 @@
         })
         .on("end",   (event) => {
           const s = event.subject;
-          if (s && s.node) dragended(event, s.node);
+          if (s && s.node && s.moved) dragended(event, s.node);
         }))
       .call(gfxZoom);
 
@@ -38630,7 +38658,12 @@
     // Раскладка пришла готовой — крутить нечего. Останов ДО первого тика:
     // иначе узлы дёрнутся с готовых мест, и вся выгода пропадёт.
     if (layoutFromStore) {
-      simulation.stop();
+      // ЭНЕРГИЯ ГАСИТСЯ ВМЕСТЕ С ОСТАНОВОМ. Симуляция рождается с alpha = 1,
+      // и остановленная до первого тика хранила её: первое перетаскивание
+      // (цель 0,3 НИЖЕ единицы) не разогревало граф, а остужало его с полной
+      // энергии и перестраивало раскладку целиком. С нуля перетаскивание
+      // само подаёт энергию (alphaTarget 0,3) и отдаёт её после отпускания.
+      simulation.alpha(0).stop();
       layoutSettled = true;
       // СЧЁТЧИК НЕ ТРОГАЕМ НАРОЧНО. Соблазн выставить его в потолок велик —
       // и он бы уничтожил то самое различение, ради которого признак заводили
@@ -39137,8 +39170,15 @@
       if (renderState.hoveredLink === d) { renderState.hoveredLink = null; requestDraw(); }
     });
 
-    function dragstarted(event, d) {
-      if (!event.active) {
+    // Первое НЕНУЛЕВОЕ смещение перетаскиваемого узла. Прежде укладку будил
+    // dragstarted прямо на нажатии, и простой щелчок по концепции —
+    // одинарный или двойной — запускал перестройку раскладки: симуляция,
+    // остановленная на готовой раскладке, хранит alpha = 1 (замер: медианный
+    // сдвиг узла 64 px, движение 35–45 с). На событии drag счёт event.active
+    // включает и этот жест: будит только единственный (как прежде
+    // !event.active на start).
+    function dragMoveStarted(event, d) {
+      if (event.active === 1) {
         resetLayoutClock();
         simulation.alphaTarget(0.3).restart();
       }

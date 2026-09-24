@@ -1,9 +1,9 @@
 {
  "меры": {
   "модулей": 130,
-  "строк": 21807,
-  "объявлений": 908,
-  "вывозов": 619,
+  "строк": 21838,
+  "объявлений": 909,
+  "вывозов": 620,
   "рёбер": 836,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
@@ -11,12 +11,12 @@
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 2,
-  "составлено": "2026-09-24 12:41:55"
+  "составлено": "2026-09-24 16:58:59"
  },
  "модули": [
   {
    "путь": "boot.js",
-   "строк": 317,
+   "строк": 322,
    "объявлений": 0,
    "вывозит": 1,
    "ввозитИз": 66,
@@ -9199,8 +9199,8 @@
     "S": 1
    },
    "вывоз": [
+    "dragMoveStarted",
     "dragended",
-    "dragstarted",
     "gfxLink",
     "gfxLinkAll",
     "gfxNode",
@@ -9297,7 +9297,7 @@
      "строк": 1
     },
     {
-     "имя": "dragstarted",
+     "имя": "dragMoveStarted",
      "вид": "function",
      "строк": 8
     },
@@ -9337,14 +9337,15 @@
   },
   {
    "путь": "modules/render/draw-link.js",
-   "строк": 71,
-   "объявлений": 5,
-   "вывозит": 5,
+   "строк": 73,
+   "объявлений": 6,
+   "вывозит": 6,
    "ввозитИз": 6,
    "вНС": {
     "S": 1
    },
    "вывоз": [
+    "CONTRADICTION_DASH",
     "fillLinkHeads",
     "linkDrawAlpha",
     "linkDrawWidth",
@@ -9405,6 +9406,11 @@
      "имя": "linkDrawAlpha",
      "вид": "function",
      "строк": 21
+    },
+    {
+     "имя": "CONTRADICTION_DASH",
+     "вид": "const",
+     "строк": 1
     },
     {
      "имя": "strokeLinkShape",
@@ -9685,7 +9691,7 @@
   },
   {
    "путь": "modules/render/interactions.js",
-   "строк": 306,
+   "строк": 317,
    "объявлений": 8,
    "вывозит": 4,
    "ввозитИз": 19,
@@ -9766,8 +9772,8 @@
     {
      "откуда": "modules/render/d3-layer.js",
      "имена": [
+      "dragMoveStarted",
       "dragended",
-      "dragstarted",
       "gfxLink",
       "gfxNode",
       "gfxZoom",
@@ -9830,7 +9836,7 @@
     {
      "имя": "installNodeDrag",
      "вид": "function",
-     "строк": 37
+     "строк": 48
     },
     {
      "имя": "lastHoverNode",
@@ -10313,7 +10319,7 @@
   },
   {
    "путь": "modules/render/scene.js",
-   "строк": 346,
+   "строк": 353,
    "объявлений": 18,
    "вывозит": 8,
    "ввозитИз": 13,
@@ -10378,6 +10384,7 @@
     {
      "откуда": "modules/render/draw-link.js",
      "имена": [
+      "CONTRADICTION_DASH",
       "fillLinkHeads",
       "linkDrawAlpha",
       "linkDrawWidth",
@@ -10442,7 +10449,7 @@
     {
      "имя": "needsContinuousAnimation",
      "вид": "function",
-     "строк": 9
+     "строк": 8
     },
     {
      "имя": "ensureAnimLoop",
@@ -10462,7 +10469,7 @@
     {
      "имя": "linkOutOfLayer",
      "вид": "function",
-     "строк": 5
+     "строк": 4
     },
     {
      "имя": "linkDrawnLive",
@@ -10487,7 +10494,7 @@
     {
      "имя": "drawLinkSet",
      "вид": "function",
-     "строк": 33
+     "строк": 42
     },
     {
      "имя": "LABEL_SHADOW_PASSES",
@@ -13598,7 +13605,7 @@
   },
   {
    "путь": "modules/ui/export.js",
-   "строк": 132,
+   "строк": 138,
    "объявлений": 2,
    "вывозит": 2,
    "ввозитИз": 11,
@@ -13651,6 +13658,7 @@
     {
      "откуда": "modules/render/draw-link.js",
      "имена": [
+      "CONTRADICTION_DASH",
       "linkDrawAlpha",
       "linkDrawWidth",
       "linkVisualState"
@@ -13694,7 +13702,7 @@
     {
      "имя": "exportToSVG",
      "вид": "function",
-     "строк": 80
+     "строк": 86
     }
    ],
    "чащеВсего": [
@@ -13714,14 +13722,14 @@
      "откуда": "modules/core/ns.js"
     },
     {
+     "имя": "CONTRADICTION_DASH",
+     "раз": 3,
+     "откуда": "modules/render/draw-link.js"
+    },
+    {
      "имя": "renderState",
      "раз": 2,
      "откуда": "modules/render/canvas-core.js"
-    },
-    {
-     "имя": "showTemporaryMessage",
-     "раз": 2,
-     "откуда": "modules/core/long-task.js"
     }
    ]
   },
@@ -15551,12 +15559,12 @@
     },
     {
      "поле": "links",
-     "раз": 68,
+     "раз": 67,
      "модулей": 33
     },
     {
      "поле": "relationTypesObj",
-     "раз": 47,
+     "раз": 48,
      "модулей": 23
     },
     {

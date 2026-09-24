@@ -249,12 +249,6 @@
       50% { opacity: 0.6; }
     }
     
-    @keyframes dash {
-      to {
-        stroke-dashoffset: -1000;
-      }
-    }
-    
     /* Легенда весов */
     .weight-legend {
       margin-top: 10px;

@@ -65,7 +65,7 @@ function applyServerLayout(positions) {
           DATA.nodes.length + ' — раскладка считается на месте.');
         return false;
       }
-      if (S.simulation) S.simulation.stop();
+      if (S.simulation) S.simulation.alpha(0).stop();   // энергию — вместе с остановом, см. layoutFromStore
       S.layoutSettled = true;
       // ПЕРЕРИСОВКА ЧЕРЕЗ СОБЫТИЕ, А НЕ ПРЯМЫМ ЗОВОМ: requestDraw живёт на
       // третьем этаже (render/), а эта створка — на первом, и прямой вызов

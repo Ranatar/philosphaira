@@ -68,9 +68,10 @@ await page.evaluate(() => {
   wrap('arc',     (c, a) => (rec.path.get(c) || []).push({ arc: a.slice(0, 5) }));
   wrap('moveTo',  (c, a) => (rec.path.get(c) || []).push({ pt: a.slice(0, 2) }));
   wrap('lineTo',  (c, a) => (rec.path.get(c) || []).push({ pt: a.slice(0, 2) }));
-  wrap('fill',    c => rec.ops.push({ kind: 'fill', path: (rec.path.get(c) || []).slice(), color: String(c.fillStyle) }));
+  const canvasOf = c => c.canvas === A.gfxCanvas ? 'gfx' : (A.linkLayer.canvas && c.canvas === A.linkLayer.canvas ? 'layer' : 'other');
+  wrap('fill',    c => rec.ops.push({ kind: 'fill', path: (rec.path.get(c) || []).slice(), color: String(c.fillStyle), canvas: canvasOf(c) }));
   wrap('stroke',  c => rec.ops.push({ kind: 'stroke', path: (rec.path.get(c) || []).slice(),
-    lw: c.lineWidth, color: String(c.strokeStyle), dash: c.getLineDash().length > 0 }));
+    lw: c.lineWidth, color: String(c.strokeStyle), dash: c.getLineDash().length > 0, canvas: canvasOf(c) }));
 
   // Вычислительная погрешность, единицы графа. Холст получает числа как
   // есть; SVG-вывоз округляет их до сотых, и восстановленный по округлённым
@@ -132,7 +133,11 @@ await page.evaluate(() => {
         const cx = mx - sgn * dy / (2 * h) * off, cy = my + sgn * dx / (2 * h) * off;
         const a0 = Math.atan2(p0[1] - cy, p0[0] - cx), a1 = Math.atan2(p1[1] - cy, p1[0] - cx);
         if ((norm(a1 - a0) > Math.PI) === large) {
-          arcs.push({ cx, cy, R, a0, a1, lw: +el.getAttribute('stroke-width'), gold: false, order });
+          const lw = +el.getAttribute('stroke-width'), prev = arcs[arcs.length - 1];
+          // второй цвет пунктира — тот же путь следом (см. разбор кадра)
+          if (prev && prev.order === order - 1 && prev.cx === cx && prev.cy === cy && prev.R === R
+              && prev.a0 === a0 && prev.a1 === a1 && prev.lw === lw) { prev.order = order; prev.passes = 2; break; }
+          arcs.push({ cx, cy, R, a0, a1, lw, gold: false, order });
           break;
         }
       }
@@ -153,10 +158,16 @@ await page.evaluate(() => {
           if (op.kind === 'fill') circles.push({ x: cx, y: cy, r, lw: 0, order });
           else { const u = circles[circles.length - 1]; if (u && u.x === cx && u.y === cy) u.lw = op.lw; }
         } else if (op.kind === 'stroke') {
-          arcs.push({ cx, cy, R: r, a0, a1, lw: op.lw, gold: op.color.toLowerCase() === '#ffd700', order });
+          // Два прохода подряд по одной дуге — одна связь, нарисованная двумя
+          // цветами (пунктир внутреннего противоречия). Параллельную связь той
+          // же пары от этого отличает наконечник: он стоит между её штрихами.
+          const prev = arcs[arcs.length - 1];
+          if (prev && prev.order === order - 1 && prev.cx === cx && prev.cy === cy && prev.R === r
+              && prev.a0 === a0 && prev.a1 === a1 && prev.lw === op.lw) { prev.order = order; prev.passes = 2; continue; }
+          arcs.push({ cx, cy, R: r, a0, a1, lw: op.lw, gold: op.color.toLowerCase() === '#ffd700', order, canvas: op.canvas });
         }
       } else if (op.kind === 'fill' && p.length === 3 && p.every(q => q.pt)) {
-        heads.push({ t: p.map(q => q.pt), order });
+        heads.push({ t: p.map(q => q.pt), order, canvas: op.canvas });
       }
     }
     for (const u of circles) u.outer = u.r + u.lw / 2;
@@ -308,8 +319,26 @@ await page.evaluate(() => {
       if (us !== ut && Math.hypot(us.x - ut.x, us.y - ut.y) <= us.outer + ut.outer) continue;
       expectedArcs++; expectedHeads += (us !== ut && A.linkHasTwoHeads(l)) ? 2 : 1;
     }
-    rep.expectedArcs = expectedArcs; rep.expectedHeads = expectedHeads;
+    // ПОВТОР ПОВЕРХ СЛОЯ. Наведённая и выделенные связи есть в слое в обычном
+    // виде и дорисовываются поверх шире (readme, пояснение к linkOutOfLayer):
+    // штрих главного холста на той же окружности, что штрих слоя, — повтор
+    // той же связи; у наконечника признак — то же острие (оно стоит на краю
+    // узла при любом размере). До 24 сентября 2026 этого учёта не было, и
+    // прибор проходил лишь потому, что для наведения ему попадалась связь
+    // вне слоя (противоречие с бегущим пунктиром).
+    const layerArcs = arcs.filter(g => g.canvas === 'layer' && !g.gold);
+    const overArcs = layerArcs.length ? arcs.filter(g => g.canvas === 'gfx' && !g.gold
+      && layerArcs.some(z => z.cx === g.cx && z.cy === g.cy && z.R === g.R)) : [];
+    const layerHeads = heads.filter(h => h.canvas === 'layer');
+    const overHeads = layerHeads.length ? heads.filter(h => h.canvas === 'gfx'
+      && layerHeads.some(z => z.t[1][0] === h.t[1][0] && z.t[1][1] === h.t[1][1])).length : 0;
+    rep.overdrawn = overArcs.length;
+    rep.expectedArcs = expectedArcs + overArcs.length; rep.expectedHeads = expectedHeads + overHeads;
     rep.linkArcCount = arcs.filter(g => !g.gold).length;
+    rep.twoPassArcs = arcs.filter(g => g.passes === 2).length;
+    rep.expectedTwoPass = A.DATA.links.filter(l => l.type === 'internal_contradiction' && A.isLinkVisible(l)
+      && l.source !== l.target && circleOfNode(l.source) && circleOfNode(l.target)).length
+      + overArcs.filter(g => g.passes === 2).length;
 
     rep.source = source || 'экран';
     if (source) return rep;
@@ -520,6 +549,8 @@ for (const rep of results) {
   check(`${sname}: каждый видимый узел нарисован`, rep.nodesWithoutCircle === 0 && rep.circleCount === rep.visibleNodeCount,
     `${rep.visibleNodeCount} кружков`, `${rep.circleCount}, без кружка ${rep.nodesWithoutCircle}`);
   check(`${sname}: штрих на каждую видимую связь`, rep.linkArcCount === rep.expectedArcs, rep.expectedArcs, rep.linkArcCount);
+  check(`${sname}: противоречие — два прохода по одной дуге`, rep.twoPassArcs === rep.expectedTwoPass,
+    rep.expectedTwoPass, rep.twoPassArcs);
   check(`${sname}: наконечник на каждый конец со стрелкой`, rep.headCount === rep.expectedHeads, rep.expectedHeads, rep.headCount);
   check(`${sname}: концы штрихов — на краю узла или у основания наконечника`, rep.endsOffPlace === 0, 0, rep.endsOffPlace);
   check(`${sname}: острие наконечника на видимом краю узла`, rep.tipOffEdge === 0, 0, rep.tipOffEdge);

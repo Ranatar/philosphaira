@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 130 модулей, 21807 строк.
+Составлено из готовой сборки: 130 модулей, 21838 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -43,7 +43,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 | Модуль | Строк | Вывозит | Ввозит из |
 |---|---|---|---|
-| `boot.js` | 317 | 1 | 66 |
+| `boot.js` | 322 | 1 | 66 |
 | `main.js` | 136 | 0 | 125 |
 | `modules/boot-defs.js` | 62 | 2 | 8 |
 | `modules/core/api.js` | 90 | 3 | 1 |
@@ -123,15 +123,15 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/paths/shortest-path.js` | 203 | 1 | 5 |
 | `modules/render/canvas-core.js` | 38 | 7 | 2 |
 | `modules/render/d3-layer.js` | 106 | 9 | 6 |
-| `modules/render/draw-link.js` | 71 | 5 | 6 |
+| `modules/render/draw-link.js` | 73 | 6 | 6 |
 | `modules/render/geometry.js` | 105 | 4 | 4 |
 | `modules/render/grouping.js` | 115 | 3 | 6 |
-| `modules/render/interactions.js` | 306 | 4 | 18 |
+| `modules/render/interactions.js` | 317 | 4 | 18 |
 | `modules/render/loop.js` | 20 | 2 | 0 |
 | `modules/render/metric-visualization.js` | 371 | 3 | 5 |
 | `modules/render/picking.js` | 95 | 3 | 8 |
 | `modules/render/render-state.js` | 47 | 10 | 3 |
-| `modules/render/scene.js` | 346 | 8 | 12 |
+| `modules/render/scene.js` | 353 | 8 | 12 |
 | `modules/render/selection.js` | 261 | 7 | 10 |
 | `modules/render/similarity-overlay.js` | 256 | 5 | 9 |
 | `modules/render/simulation.js` | 128 | 8 | 10 |
@@ -159,7 +159,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/ui/actions-static.js` | 140 | 0 | 26 |
 | `modules/ui/actions.js` | 27 | 3 | 0 |
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
-| `modules/ui/export.js` | 132 | 2 | 11 |
+| `modules/ui/export.js` | 138 | 2 | 11 |
 | `modules/ui/hint.js` | 60 | 4 | 1 |
 | `modules/ui/legend.js` | 387 | 25 | 7 |
 | `modules/ui/link-state.js` | 282 | 6 | 17 |
@@ -179,7 +179,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `boot.js`
 
-Строк 317.
+Строк 322.
 
 **Вывозит:** `boot`
 
@@ -1586,7 +1586,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 Строк 106.
 
-**Вывозит:** `dragended`, `dragstarted`, `gfxLink`, `gfxLinkAll`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`, `updateArrows`
+**Вывозит:** `dragMoveStarted`, `dragended`, `gfxLink`, `gfxLinkAll`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`, `updateArrows`
 
 **Ввозит:**
 
@@ -1597,13 +1597,13 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../state/render.js`: `resetLayoutClock`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `dragended`, `dragstarted`, `gfxLink`, `gfxLinkAll`, `gfxNode`, `gfxZoom`, `linkHandlers`, `makeClassed`, `nodeHandlers`, `subSelection`, `updateArrows`
+**Содержит:** `dragMoveStarted`, `dragended`, `gfxLink`, `gfxLinkAll`, `gfxNode`, `gfxZoom`, `linkHandlers`, `makeClassed`, `nodeHandlers`, `subSelection`, `updateArrows`
 
 ### `modules/render/draw-link.js`
 
-Строк 71.
+Строк 73.
 
-**Вывозит:** `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
+**Вывозит:** `CONTRADICTION_DASH`, `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
 
 **Ввозит:**
 
@@ -1614,7 +1614,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./similarity-overlay.js`: `linkAmongHighlighted`
 - из `../state/render.js`: `selectedEdges`
 
-**Содержит:** `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
+**Содержит:** `CONTRADICTION_DASH`, `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
 
 ### `modules/render/geometry.js`
 
@@ -1650,7 +1650,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/interactions.js`
 
-Строк 306.
+Строк 317.
 
 **Вывозит:** `initGraphEventHandlers`, `installLinkHover`, `installNodeDrag`, `installNodeHover`
 
@@ -1664,7 +1664,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../graph/click-actions.js`: `handleLinkClick`, `handleNodeClick`
 - из `../graph/graph-selection.js`: `cancelGraphSelection`, `handleConceptSelection`
 - из `./canvas-core.js`: `gfxCanvas`, `gfxSvg`, `renderState`
-- из `./d3-layer.js`: `dragended`, `dragstarted`, `gfxLink`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`
+- из `./d3-layer.js`: `dragMoveStarted`, `dragended`, `gfxLink`, `gfxNode`, `gfxZoom`, `linkHandlers`, `nodeHandlers`
 - из `./loop.js`: `requestDraw`
 - из `./picking.js`: `pickLink`, `pickNode`, `toGraph`
 - из `./selection.js`: `resetHighlight`
@@ -1738,7 +1738,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/scene.js`
 
-Строк 346.
+Строк 353.
 
 **Вывозит:** `DRAW_ORDER`, `draw`, `ensureAnimLoop`, `linkDrawnLive`, `needsContinuousAnimation`, `renderScene`, `startRadiusAnimation`, `updateGraphData`
 
@@ -1749,7 +1749,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `./canvas-core.js`: `ctx`, `dpr`, `gfxCanvas`, `renderState`
-- из `./draw-link.js`: `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
+- из `./draw-link.js`: `CONTRADICTION_DASH`, `fillLinkHeads`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`, `strokeLinkShape`
 - из `./geometry.js`: `clippedArc`, `linkShape`
 - из `./loop.js`: `requestDraw`
 - из `./render-state.js`: `LABEL_ALL_ABOVE`, `LABEL_HIDE_BELOW`, `NODE_PASSES`, `hasLinkClass`, `hasNodeClass`, `nodeDrawPass`, `nodeEdgeWidth`, `nodeLabelDy`, `nodeRadius`
@@ -2235,7 +2235,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/export.js`
 
-Строк 132.
+Строк 138.
 
 **Вывозит:** `exportToPNG`, `exportToSVG`
 
@@ -2246,7 +2246,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/long-task.js`: `showTemporaryMessage`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `../render/canvas-core.js`: `renderState`
-- из `../render/draw-link.js`: `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`
+- из `../render/draw-link.js`: `CONTRADICTION_DASH`, `linkDrawAlpha`, `linkDrawWidth`, `linkVisualState`
 - из `../render/geometry.js`: `linkShape`
 - из `../render/render-state.js`: `hasNodeClass`, `nodeEdgeWidth`, `nodeLabelDy`, `nodeRadius`
 - из `../render/scene.js`: `DRAW_ORDER`, `renderScene`

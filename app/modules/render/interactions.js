@@ -9,7 +9,7 @@ import { PERM, can } from '../core/perms.js';
 import { handleLinkClick, handleNodeClick } from '../graph/click-actions.js';
 import { cancelGraphSelection, handleConceptSelection } from '../graph/graph-selection.js';
 import { gfxCanvas, gfxSvg, renderState } from './canvas-core.js';
-import { dragended, dragstarted, gfxLink, gfxNode, gfxZoom, linkHandlers, nodeHandlers } from './d3-layer.js';
+import { dragMoveStarted, dragended, gfxLink, gfxNode, gfxZoom, linkHandlers, nodeHandlers } from './d3-layer.js';
 import { requestDraw } from './loop.js';
 import { pickLink, pickNode, toGraph } from './picking.js';
 import { resetHighlight } from './selection.js';
@@ -19,7 +19,7 @@ import { chosenPhilosophers } from '../state/filters.js';
 import { selectedEdges } from '../state/render.js';
 import { labelWithAuthor } from '../util/philosopher-label.js';
 
-// gfxSvg.call(d3.drag() @e1933554
+// gfxSvg.call(d3.drag() @36e303a8
 function installNodeDrag() {
 gfxSvg.call(d3.drag()
         .container(gfxCanvas)
@@ -38,13 +38,24 @@ gfxSvg.call(d3.drag()
         })
         // d3.drag передаёт в обработчик датум ЭЛЕМЕНТА, а у канваса его
         // нет — перетаскиваемый узел лежит в event.subject
+        // Нажатие — ещё не перетаскивание: запоминаем, откуда начали.
         .on("start", (event) => {
           const s = event.subject;
-          if (s && s.node) dragstarted(event, s.node);
+          if (s && s.node) { s.startX = event.x; s.startY = event.y; }
         })
         .on("drag",  (event) => {
           const s = event.subject;
           if (!s || !s.node) return;
+          // d3 шлёт drag на ВСЯКОЕ движение после нажатия, даже нулевое.
+          // Смещение меряем тем же мерилом, что d3 (clickDistance 0): жест,
+          // засчитанный щелчком, укладку не будит; жест, у которого d3
+          // щелчок отнял, — будит. event.x сравнивается с event.x нажатия,
+          // а не с s.x: оба посчитаны одной поправкой и равны точно.
+          if (!s.moved) {
+            if (event.x === s.startX && event.y === s.startY) return;
+            s.moved = true;
+            dragMoveStarted(event, s.node);
+          }
           const g = renderState.transform.invert([event.x, event.y]);
           const d = s.node;
           d.fx = g[0]; d.fy = g[1];
@@ -53,7 +64,7 @@ gfxSvg.call(d3.drag()
         })
         .on("end",   (event) => {
           const s = event.subject;
-          if (s && s.node) dragended(event, s.node);
+          if (s && s.node && s.moved) dragended(event, s.node);
         }))
       .call(gfxZoom);
 }

@@ -123,6 +123,51 @@ const разбудило = await page.evaluate(async () => {
 
 
 
+// ── ПОКОЙ И ЩЕЛЧОК (24 сентября 2026) ────────────────────────────────
+// В покое граф не перерисовывается: бегущий пунктир противоречий снят, и
+// непрерывный цикл больше ничем не держится. Мера независимая — очистки
+// холста графа за полторы секунды, а не вопрос к needsContinuousAnimation.
+// Щелчок по концепции — одинарный и двойной — укладку не будит: прежде
+// d3.drag объявлял перетаскивание уже на нажатии, а симуляция, остановленная
+// на готовой раскладке, хранила alpha = 1 и перестраивала её целиком
+// (медианный сдвиг узла 64 px). Проверяется настоящей мышью; двойной щелчок —
+// двумя быстрыми, как его и считает приложение (readme §7).
+{
+  const idleClears = await page.evaluate(async () => {
+    const cv = window.__t.gfxCanvas, P = CanvasRenderingContext2D.prototype, orig = P.clearRect;
+    let n = 0;
+    P.clearRect = function (...a) { if (this.canvas === cv) n++; return orig.apply(this, a); };
+    await new Promise(r => setTimeout(r, 1500));
+    P.clearRect = orig;
+    return n;
+  });
+  проверить('в покое граф не перерисовывается', idleClears === 0, '0 кадров за 1,5 с', idleClears);
+
+  const target = await page.evaluate(() => {
+    const A = window.__t, T = A.renderState.transform, r = A.gfxCanvas.getBoundingClientRect();
+    const n = A.DATA.nodes.find(n => A.isNodeVisible(n) && T.applyX(n.x) > r.width * 0.35 && T.applyX(n.x) < r.width * 0.65
+      && T.applyY(n.y) > r.height * 0.35 && T.applyY(n.y) < r.height * 0.65);
+    return { x: r.left + T.applyX(n.x), y: r.top + T.applyY(n.y) };
+  });
+  const positions = () => page.evaluate(() => ({
+    p: window.__t.DATA.nodes.map(n => [n.x, n.y]), settled: window.__t.S.layoutSettled }));
+  const maxShift = (a, b) => Math.max(...a.p.map((q, i) => Math.hypot(q[0] - b.p[i][0], q[1] - b.p[i][1])));
+  const before = await positions();
+  await page.mouse.click(target.x, target.y);
+  await wait(1200);
+  const afterClick = await positions();
+  проверить('щелчок по концепции не двигает граф', maxShift(before, afterClick) === 0 && afterClick.settled,
+    'сдвиг 0, раскладка улёгшаяся', `сдвиг ${maxShift(before, afterClick).toFixed(2)}, улеглась ${afterClick.settled}`);
+  await page.mouse.click(target.x, target.y);
+  await page.mouse.click(target.x, target.y);
+  await wait(1200);
+  await page.evaluate(() => { window.__t.closeUniversalModal(); window.__t.resetHighlight(); });
+  await wait(800);
+  const afterDouble = await positions();
+  проверить('двойной щелчок и закрытие окна не двигают граф', maxShift(before, afterDouble) === 0 && afterDouble.settled,
+    'сдвиг 0, раскладка улёгшаяся', `сдвиг ${maxShift(before, afterDouble).toFixed(2)}, улеглась ${afterDouble.settled}`);
+}
+
 // ── 1. база загрузилась и указатели пересобраны ─────────────────────
 {
   const d = await page.evaluate(() => {
@@ -2196,6 +2241,53 @@ if (модуль) {
 
   await page.evaluate(() => window.__t.closeSelectionListModal());
   await wait(300);
+}
+
+// ── 10-бис. первое перетаскивание: будит, но не перестраивает ────────
+// НА СВЕЖЕЙ СТРАНИЦЕ, во второй вкладке. К концу прибора основная страница
+// прошла через правки базы и пути, и каждое будило и гасило укладку: остаток
+// alpha = 1 готовой раскладки там давно израсходован, и «первое»
+// перетаскивание уже не первое. Так и было: подлог «не гасить энергию» в
+// первой редакции этого утверждения прошёл зелёным.
+// «Будит» — встречное к «щелчок не двигает граф»: иначе оба прошли бы и при
+// укладке, не просыпающейся вовсе. «Не перестраивает» — энергию даёт само
+// перетаскивание (цель 0,3), а не остаток alpha = 1. Замер 24 сентября 2026:
+// при alpha = 1 медиана сдвига прочих узлов через 1 с — 56 px, 655 из 718
+// дальше 20 px; с погашенной энергией — 2–4 px.
+{
+  const fresh = await browser.newPage();
+  await fresh.setViewport({ width: 1440, height: 900 });
+  fresh.on('pageerror', e => ошибки.push('вторая вкладка: ' + String(e).split('\n')[0]));
+  await fresh.goto(BASE + СТРАНИЦА, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await wait(6500);
+  await fresh.addScriptTag({ type: 'module', content: `
+    import './_probe-rig.js';
+    window.__t = window.__app;
+    window.__tReady = true;` });
+  await fresh.waitForFunction('window.__t && window.__t.DATA', { timeout: 20000 });
+  const start = await fresh.evaluate(() => {
+    const A = window.__t, T = A.renderState.transform, r = A.gfxCanvas.getBoundingClientRect();
+    const n = A.DATA.nodes.find(n => A.isNodeVisible(n) && T.applyX(n.x) > r.width * 0.35 && T.applyX(n.x) < r.width * 0.65
+      && T.applyY(n.y) > r.height * 0.35 && T.applyY(n.y) < r.height * 0.65);
+    return { x: r.left + T.applyX(n.x), y: r.top + T.applyY(n.y), id: n.id,
+      before: A.DATA.nodes.map(n => [n.x, n.y]), settled: A.S.layoutSettled };
+  });
+  await fresh.mouse.move(start.x, start.y);
+  await fresh.mouse.down();
+  await fresh.mouse.move(start.x + 40, start.y + 25, { steps: 5 });
+  await fresh.mouse.up();
+  await wait(1000);
+  const after = await fresh.evaluate(({ before, id }) => {
+    const A = window.__t;
+    const shifts = A.DATA.nodes.map((n, i) => n.id === id ? null : Math.hypot(n.x - before[i][0], n.y - before[i][1]))
+      .filter(v => v !== null).sort((a, b) => a - b);
+    return { settled: A.S.layoutSettled, tick: A.S.tickCount, median: shifts[shifts.length >> 1] };
+  }, { before: start.before, id: start.id });
+  await fresh.close();
+  проверить('перетаскивание узла будит укладку', after.settled === false && after.tick > 0,
+    'раскладка не улёгшаяся, тики идут', `улеглась ${after.settled}, тиков ${after.tick} (до: улеглась ${start.settled})`);
+  проверить('первое перетаскивание не перестраивает раскладку', after.median < 15,
+    'медиана сдвига прочих узлов < 15 px', after.median.toFixed(1) + ' px');
 }
 
 // ── 11. страница не ругалась ────────────────────────────────────────

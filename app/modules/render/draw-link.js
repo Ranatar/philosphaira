@@ -45,6 +45,8 @@ function linkDrawAlpha(l, state, tms) {
       return 0.4;
     }
 
+const CONTRADICTION_DASH = { pattern: [8, 16], secondOffset: 12, second: "#F4D03F" };
+
 function strokeLinkShape(c, g, width) {
       if (!(g.s1 > g.s0)) return;
       c.beginPath();
@@ -67,4 +69,4 @@ function fillLinkHeads(c, g) {
       }
     }
 
-export { fillLinkHeads, linkDrawAlpha, linkDrawWidth, linkVisualState, strokeLinkShape };
+export { CONTRADICTION_DASH, fillLinkHeads, linkDrawAlpha, linkDrawWidth, linkVisualState, strokeLinkShape };
