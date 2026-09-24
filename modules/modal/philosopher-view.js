@@ -2,7 +2,7 @@
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
 import { comparePhilosophers, conceptById, nodesByPhilosopher, otherEndColor, philosopherByName, rubricById, traditionById } from '../core/graph-index.js';
-import { directionMark } from '../core/link-facts.js';
+import { orientLink } from '../core/link-facts.js';
 import { PERM, can } from '../core/perms.js';
 import { nearestPhilosophers } from '../metrics/similarity-philosophers.js';
 import { linkArrow } from './connection-view.js';
@@ -461,15 +461,26 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
           internalConnections.forEach(({ conn, srcNode, tgtNode }) => {
             const linkColor = DATA.relationTypesObj[conn.type].color;
             const linkLabel = DATA.relationTypesObj[conn.type].label;
-            const arrow = directionMark(conn);
+            // Своя сторона слева, стрелка от неё (см. orientLink).
+            const own = orientLink(conn, end => {
+              const n = conceptById.get(end);
+              return !!n && n.concept === philosopherName;
+            });
+            const leftNode = conceptById.get(own.left) || srcNode;
+            const rightNode = conceptById.get(own.right) || tgtNode;
+            const arrow = own.mark;
             
             html += `
               <div class="connection-item">
                 <div class="concept-color" style="background: ${otherEndColor(conn, philosopherName)}"></div>
                 <div style="flex-grow: 1; display: flex; align-items: center; gap: 8px;">
-                  <span data-act-click="open-universal-modal-11" data-a1="${srcNode.id}" style="cursor: pointer;">${srcNode.label}</span>
+                  <div data-act-click="open-universal-modal-11" data-a1="${leftNode.id}" style="cursor: pointer;">
+                    <div class="concept-name">${leftNode.label}</div>
+                  </div>
                   ${linkArrow(arrow, linkColor, conn.weight, linkLabel, '', srcNode.id, tgtNode.id)}
-                  <span data-act-click="open-universal-modal-12" data-a1="${tgtNode.id}" style="cursor: pointer;">${tgtNode.label}</span>
+                  <div data-act-click="open-universal-modal-12" data-a1="${rightNode.id}" style="cursor: pointer;">
+                    <div class="concept-name">${rightNode.label}</div>
+                  </div>
                 </div>
                 ${conn.description ? `
                   <button class="connection-toggle" data-act-click="stop-propagation-4" data-a1="${srcNode.id}" data-a2="${tgtNode.id}">
@@ -508,7 +519,14 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
           externalConnectionsData.forEach(({ conn, srcNode, tgtNode }) => {
             const linkColor = DATA.relationTypesObj[conn.type].color;
             const linkLabel = DATA.relationTypesObj[conn.type].label;
-            const arrow = directionMark(conn);
+            // Своя сторона слева, стрелка от неё (см. orientLink).
+            const own = orientLink(conn, end => {
+              const n = conceptById.get(end);
+              return !!n && n.concept === philosopherName;
+            });
+            const leftNode = conceptById.get(own.left) || srcNode;
+            const rightNode = conceptById.get(own.right) || tgtNode;
+            const arrow = own.mark;
             
             html += `
               <div class="connection-item">
@@ -517,11 +535,20 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
                      самого хозяина окна. -->
                 <div class="concept-color" style="background: ${otherEndColor(conn, philosopherName)}"></div>
                 <div style="flex-grow: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                  <span data-act-click="open-universal-modal-11" data-a1="${srcNode.id}" style="cursor: pointer;">${srcNode.label}</span>
-                  <span style="font-size: 10px; color: var(--fg-muted);">(${srcNode.concept})</span>
+                  <!-- ДВЕ СТРОКИ НА КОНЕЦ, как в окне концепции: название
+                       сверху, философ под ним. Имя ХОЗЯИНА ОКНА не пишется:
+                       его концепция и так всегда слева (orientLink), а
+                       повторять его в каждой из строк (медиана 23, у самого
+                       связного 94) значит писать заголовок заново. -->
+                  <div data-act-click="open-universal-modal-11" data-a1="${leftNode.id}" style="cursor: pointer;">
+                    <div class="concept-name">${leftNode.label}</div>
+                    ${leftNode.concept === philosopherName ? '' : `<div class="concept-philosopher">${leftNode.concept}</div>`}
+                  </div>
                   ${linkArrow(arrow, linkColor, conn.weight, linkLabel, '', srcNode.id, tgtNode.id)}
-                  <span data-act-click="open-universal-modal-12" data-a1="${tgtNode.id}" style="cursor: pointer;">${tgtNode.label}</span>
-                  <span style="font-size: 10px; color: var(--fg-muted);">(${tgtNode.concept})</span>
+                  <div data-act-click="open-universal-modal-12" data-a1="${rightNode.id}" style="cursor: pointer;">
+                    <div class="concept-name">${rightNode.label}</div>
+                    ${rightNode.concept === philosopherName ? '' : `<div class="concept-philosopher">${rightNode.concept}</div>`}
+                  </div>
                 </div>
                 ${conn.description ? `
                   <button class="connection-toggle" data-act-click="stop-propagation-4" data-a1="${srcNode.id}" data-a2="${tgtNode.id}">

@@ -2,6 +2,7 @@
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
 import { conceptById, otherEndColor, rubricById } from '../core/graph-index.js';
+import { orientLink } from '../core/link-facts.js';
 import { medianNodeDegree, nodeDegreeOf } from '../metrics/network.js';
 import { ensureNetworkProfile, nearestConcepts, networkProgressPercent, networkSimilarityData, profileIsMeaningful } from '../metrics/similarity-concepts.js';
 import { linkArrow } from './connection-view.js';
@@ -290,15 +291,9 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
             const linkColor = DATA.relationTypesObj[conn.type].color;
             const linkLabel = DATA.relationTypesObj[conn.type].label;
             
-            // Определяем направление стрелки
-            let arrow = '';
-            if (conn.bidirectional) {
-              arrow = '↔';
-            } else if (isSource) {
-              arrow = '→';
-            } else {
-              arrow = '←';
-            }
+            // Стрелка — общим правилом «от себя»: возвратная получает '↻',
+            // двуглавая типом — '↔', прочие — '→'/'←' от этой концепции.
+            const arrow = orientLink(conn, end => end === conceptData.id).mark;
             
             html += `
               <div class="connection-item">
@@ -348,15 +343,9 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
             const linkColor = DATA.relationTypesObj[conn.type].color;
             const linkLabel = DATA.relationTypesObj[conn.type].label;
             
-            // Определяем направление стрелки
-            let arrow = '';
-            if (conn.bidirectional) {
-              arrow = '↔';
-            } else if (isSource) {
-              arrow = '→';
-            } else {
-              arrow = '←';
-            }
+            // Стрелка — общим правилом «от себя»: возвратная получает '↻',
+            // двуглавая типом — '↔', прочие — '→'/'←' от этой концепции.
+            const arrow = orientLink(conn, end => end === conceptData.id).mark;
             
             html += `
               <div class="connection-item">

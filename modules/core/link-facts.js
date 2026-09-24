@@ -56,6 +56,19 @@ function linkHasTwoHeads(l) {
       return !!(t && t.symmetric);
     }
 
+function orientLink(l, isOwnEnd) {
+      const s = l.source.id || l.source;
+      const t = l.target.id || l.target;
+      if (s === t) return { left: s, right: t, mark: '↻', ownIsTarget: false };
+      const ownIsTarget = !isOwnEnd(s) && isOwnEnd(t);
+      return {
+        left: ownIsTarget ? t : s,
+        right: ownIsTarget ? s : t,
+        mark: linkHasTwoHeads(l) ? '↔' : (ownIsTarget ? '←' : '→'),
+        ownIsTarget,
+      };
+    }
+
 function directionMark(l) {
       const s = l.source.id || l.source;
       const t = l.target.id || l.target;
@@ -69,4 +82,4 @@ function directionMark(l) {
       return linkHasTwoHeads(l) ? '↔' : '→';
     }
 
-export { buildReflexiveMap, directionMark, isReflexiveLink, isSymmetricLink, isTypologicalLink, linkHasTwoHeads, linksBothWays, otherPhilosopher, reflexiveLinkOf, sumWeight };
+export { buildReflexiveMap, directionMark, isReflexiveLink, isSymmetricLink, isTypologicalLink, linkHasTwoHeads, linksBothWays, orientLink, otherPhilosopher, reflexiveLinkOf, sumWeight };
