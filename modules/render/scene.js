@@ -6,7 +6,7 @@ import { conceptById } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
 import { ctx, dpr, gfxCanvas, renderState } from './canvas-core.js';
-import { fillLinkHeads, linkDrawAlpha, linkDrawWidth, linkVisualState, strokeLinkShape } from './draw-link.js';
+import { CONTRADICTION_DASH, fillLinkHeads, linkDrawAlpha, linkDrawWidth, linkVisualState, strokeLinkShape } from './draw-link.js';
 import { clippedArc, linkShape } from './geometry.js';
 import { requestDraw } from './loop.js';
 import { LABEL_ALL_ABOVE, LABEL_HIDE_BELOW, NODE_PASSES, hasLinkClass, hasNodeClass, nodeDrawPass, nodeEdgeWidth, nodeLabelDy, nodeRadius } from './render-state.js';
@@ -32,7 +32,6 @@ function needsContinuousAnimation() {
       if (renderState.anim) return true;
       const p = renderState.linkClasses["path-highlight"];
       if (p && p.size) return true;
-      for (const l of DATA.links) if (l.type === "internal_contradiction" && isLinkVisible(l)) return true;
       return false;
     }
 
@@ -51,7 +50,6 @@ const DRAW_ORDER = ["dimmed", "normal", "highlighted", "selected", "path"];
 let lastLayerKey = null;
 
 function linkOutOfLayer(l) {
-      if (l.type === "internal_contradiction") return true;  // бегущий пунктир
       if (hasLinkClass("path-highlight", l)) return true;    // мигание подсветки пути
       return false;
     }
@@ -108,7 +106,7 @@ function paintLinkLayer(c, key) {
       lc.setTransform(dpr * t.k, 0, 0, dpr * t.k, dpr * t.x, dpr * t.y);
       lc.lineCap = "round";
       lc.lineJoin = "round";
-      // tms = 0: от времени зависят только мигание пути и бегущий пунктир,
+      // tms = 0: от времени зависит только мигание пути,
       // а они в слой не попадают.
       drawLinkSet(lc, 0, l => isLinkVisible(l) && !linkOutOfLayer(l));
       linkLayer.key = key;
@@ -123,9 +121,10 @@ function drawLinkSet(c, tms, take) {
           c.globalAlpha = linkDrawAlpha(l, state, tms);
           c.strokeStyle = DATA.relationTypesObj[l.type].color;
           c.fillStyle   = DATA.relationTypesObj[l.type].color;
-          if (l.type === "internal_contradiction") {
-            c.setLineDash([8, 4]);
-            c.lineDashOffset = -((tms / 20000) * 1000) % 1000;
+          const contradiction = l.type === "internal_contradiction" && !isReflexiveLink(l);
+          if (contradiction) {
+            c.setLineDash(CONTRADICTION_DASH.pattern);
+            c.lineDashOffset = 0;
           } else if (DATA.relationTypesObj[l.type].symmetric) {
             c.setLineDash([2, 6]);
             c.lineDashOffset = 0;
@@ -142,7 +141,15 @@ function drawLinkSet(c, tms, take) {
           const g = linkShape(l, w);
           if (!g) continue;
           strokeLinkShape(c, g, w);
+          if (contradiction) {
+            // второй цвет — в промежутки первого, тот же штрих той же дуги
+            c.strokeStyle = CONTRADICTION_DASH.second;
+            c.lineDashOffset = CONTRADICTION_DASH.secondOffset;
+            strokeLinkShape(c, g, w);
+            c.strokeStyle = DATA.relationTypesObj[l.type].color;
+          }
           c.setLineDash([]);
+          c.lineDashOffset = 0;
           fillLinkHeads(c, g);
         }
       }
