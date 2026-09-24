@@ -437,7 +437,7 @@ function similarityThresholds() {
       return out;
     }
 
-function nearestConcepts(conceptId, kind, k) {
+function nearestConcepts(conceptId, kind, k, force) {
       const D = similarityData();
       const src = D.index.get(conceptId);
       if (src === undefined) return [];
@@ -449,7 +449,7 @@ function nearestConcepts(conceptId, kind, k) {
       // = −0.48, у 47 концепций из 453 верх ≥ 95 %, все степени 1–2.
       // Профильная колонка строится только для связных концепций —
       // и для источника, и для кандидатов.
-      if (similarityNeedsDegree(kind) && !profileIsMeaningful(conceptId)) return [];
+      if (similarityNeedsDegree(kind) && !force && !profileIsMeaningful(conceptId)) return [];
       // Сеть может быть ещё не посчитана: null — «подождите», а не «пусто».
       if (kind === 'network' && !networkSimilarityData()) return null;
 

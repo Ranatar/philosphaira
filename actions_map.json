@@ -846,6 +846,13 @@
   "аргументов": 1,
   "откуда": "modules/modal/concept-view.js"
  },
+ "force-similar-column": {
+  "код": "forceSimilarColumn('${kind}','${conceptId}')",
+  "attr": "onclick",
+  "тело": "forceSimilarColumn(el.dataset.a1,el.dataset.a2)",
+  "аргументов": 2,
+  "откуда": "modules/modal/concept-view.js"
+ },
  "compute-similar-network-column": {
   "код": "computeSimilarNetworkColumn('${conceptId}')",
   "attr": "onclick",
