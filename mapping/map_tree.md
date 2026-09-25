@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-130 модулей, 21838 строк, 909 объявлений,
-620 вывозов, 836 рёбер ввоза. Составлено 2026-09-24 16:58:59.
+130 модулей, 22094 строк, 929 объявлений,
+635 вывозов, 845 рёбер ввоза. Составлено 2026-09-25 05:46:34.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -17,13 +17,13 @@
 
 | Модуль | Ввозят из него |
 |---|---|
-| `modules/core/ns.js` | 97 |
+| `modules/core/ns.js` | 99 |
 | `modules/core/graph-index.js` | 57 |
 | `modules/core/events.js` | 25 |
 | `modules/core/link-facts.js` | 24 |
+| `modules/util/html.js` | 24 |
 | `modules/render/canvas-core.js` | 19 |
 | `modules/state/render.js` | 19 |
-| `modules/util/html.js` | 19 |
 | `modules/modal/core.js` | 14 |
 | `modules/core/api.js` | 13 |
 | `modules/core/perms.js` | 13 |
@@ -34,7 +34,7 @@
 
 | Имя | В скольких модулях ввозится |
 |---|---|
-| `S` | 76 |
+| `S` | 78 |
 | `DATA` | 61 |
 | `conceptById` | 24 |
 | `emit` | 23 |
@@ -55,7 +55,7 @@
 | Пространство | Полей | Самое востребованное поле | В скольких модулях |
 |---|---|---|---|
 | `DATA` | 17 | `nodes` | 36 |
-| `S` | 66 | `_concepts` | 15 |
+| `S` | 67 | `_concepts` | 15 |
 | `MET` | 33 | `influenceIndex` | 7 |
 | `VIEWS` | 6 | `generateConceptViewContent` | 1 |
 
@@ -85,13 +85,13 @@
 
 | Модуль | Строк | Объявлений | Вывозит | Ввозит из | Пространства |
 |---|---|---|---|---|---|
-| `boot.js` | 322 | 0 | 1 | 66 | DATA:2, S:8 |
+| `boot.js` | 325 | 0 | 1 | 67 | DATA:2, S:8 |
 | `main.js` | 136 | 0 | 0 | 125 | — |
 | `modules/boot-defs.js` | 62 | 3 | 2 | 8 | S:1 |
 | `modules/core/api.js` | 90 | 4 | 3 | 1 | — |
 | `modules/core/base-cells.js` | 19 | 0 | 0 | 1 | S:8 |
 | `modules/core/events.js` | 66 | 5 | 2 | 0 | — |
-| `modules/core/graph-index.js` | 221 | 16 | 15 | 2 | DATA:16 |
+| `modules/core/graph-index.js` | 238 | 19 | 17 | 2 | DATA:16 |
 | `modules/core/link-facts.js` | 86 | 11 | 11 | 2 | DATA:1, S:6 |
 | `modules/core/long-task.js` | 121 | 3 | 3 | 0 | — |
 | `modules/core/ns.js` | 33 | 2 | 4 | 0 | — |
@@ -135,23 +135,23 @@
 | `modules/metrics/tradition-bridging.js` | 89 | 4 | 3 | 2 | S:4, MET:1 |
 | `modules/modal/assembly.js` | 56 | 3 | 3 | 2 | — |
 | `modules/modal/auth.js` | 220 | 9 | 4 | 8 | S:1 |
-| `modules/modal/commits.js` | 420 | 31 | 19 | 7 | — |
-| `modules/modal/concept-view.js` | 438 | 12 | 2 | 10 | DATA:5, VIEWS:1 |
+| `modules/modal/commits.js` | 444 | 32 | 19 | 7 | — |
+| `modules/modal/concept-view.js` | 442 | 12 | 2 | 10 | DATA:5, VIEWS:1 |
 | `modules/modal/conflict.js` | 88 | 5 | 5 | 7 | — |
-| `modules/modal/connection-edit.js` | 288 | 9 | 5 | 13 | DATA:2, VIEWS:1 |
+| `modules/modal/connection-edit.js` | 289 | 9 | 5 | 13 | DATA:2, VIEWS:1 |
 | `modules/modal/connection-view.js` | 421 | 11 | 5 | 12 | DATA:5, VIEWS:1 |
 | `modules/modal/context.js` | 11 | 1 | 1 | 0 | — |
 | `modules/modal/core.js` | 159 | 7 | 5 | 10 | S:1 |
 | `modules/modal/descriptions.js` | 162 | 10 | 6 | 0 | — |
-| `modules/modal/dirty.js` | 112 | 5 | 1 | 5 | DATA:2 |
-| `modules/modal/edit-forms.js` | 295 | 2 | 2 | 12 | DATA:5, VIEWS:2 |
+| `modules/modal/dirty.js` | 116 | 5 | 1 | 6 | DATA:2 |
+| `modules/modal/edit-forms.js` | 297 | 2 | 2 | 12 | DATA:5, VIEWS:2 |
 | `modules/modal/edit-rights.js` | 61 | 4 | 4 | 4 | — |
 | `modules/modal/entry.js` | 124 | 12 | 12 | 11 | DATA:3, S:2 |
-| `modules/modal/forms.js` | 81 | 6 | 5 | 2 | — |
+| `modules/modal/forms.js` | 207 | 15 | 12 | 3 | S:1 |
 | `modules/modal/history.js` | 114 | 7 | 4 | 5 | — |
 | `modules/modal/integrity.js` | 265 | 11 | 7 | 7 | DATA:4 |
-| `modules/modal/persist.js` | 450 | 11 | 6 | 14 | DATA:9, S:1 |
-| `modules/modal/philosopher-view.js` | 665 | 4 | 1 | 15 | DATA:6, VIEWS:1 |
+| `modules/modal/persist.js` | 464 | 11 | 6 | 14 | DATA:9, S:1 |
+| `modules/modal/philosopher-view.js` | 668 | 4 | 1 | 15 | DATA:6, VIEWS:1 |
 | `modules/modal/profile-concept.js` | 182 | 8 | 4 | 8 | DATA:4, S:3, MET:19 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 2 | 8 | DATA:3, S:3, MET:3 |
 | `modules/modal/search.js` | 43 | 3 | 3 | 1 | — |
@@ -160,15 +160,15 @@
 | `modules/modal/users.js` | 97 | 8 | 7 | 3 | — |
 | `modules/paths/analysis.js` | 74 | 2 | 2 | 7 | DATA:2 |
 | `modules/paths/chronology.js` | 175 | 10 | 6 | 4 | DATA:1, S:1 |
-| `modules/paths/path-descriptions.js` | 179 | 4 | 3 | 8 | DATA:2, S:2 |
-| `modules/paths/path-ui.js` | 421 | 8 | 5 | 10 | DATA:4, S:7 |
+| `modules/paths/path-descriptions.js` | 180 | 4 | 3 | 9 | DATA:2, S:2 |
+| `modules/paths/path-ui.js` | 423 | 8 | 5 | 11 | DATA:4, S:7 |
 | `modules/paths/shortest-path.js` | 203 | 4 | 1 | 5 | DATA:2, S:4 |
 | `modules/render/canvas-core.js` | 38 | 7 | 7 | 3 | S:2 |
 | `modules/render/d3-layer.js` | 106 | 11 | 9 | 7 | DATA:2, S:1 |
 | `modules/render/draw-link.js` | 73 | 6 | 6 | 6 | S:1 |
 | `modules/render/geometry.js` | 105 | 9 | 4 | 4 | S:1 |
 | `modules/render/grouping.js` | 115 | 7 | 3 | 7 | DATA:1, S:6 |
-| `modules/render/interactions.js` | 317 | 8 | 4 | 19 | DATA:1, S:3 |
+| `modules/render/interactions.js` | 318 | 8 | 4 | 20 | DATA:1, S:3 |
 | `modules/render/loop.js` | 20 | 4 | 2 | 0 | — |
 | `modules/render/metric-visualization.js` | 371 | 10 | 3 | 5 | DATA:4, S:2 |
 | `modules/render/picking.js` | 95 | 6 | 3 | 9 | DATA:2 |
@@ -178,7 +178,7 @@
 | `modules/render/similarity-overlay.js` | 256 | 10 | 5 | 9 | DATA:4, S:1 |
 | `modules/render/simulation.js` | 128 | 11 | 8 | 11 | DATA:2, S:4 |
 | `modules/render/tooltip-el.js` | 7 | 1 | 1 | 1 | — |
-| `modules/state/edit.js` | 12 | 1 | 1 | 0 | — |
+| `modules/state/edit.js` | 15 | 1 | 1 | 1 | S:1 |
 | `modules/state/filters.js` | 20 | 3 | 3 | 2 | DATA:3, S:4 |
 | `modules/state/metrics-scope.js` | 13 | 0 | 0 | 1 | S:5 |
 | `modules/state/paths.js` | 18 | 0 | 0 | 2 | S:7 |
@@ -187,17 +187,17 @@
 | `modules/stats/coverage.js` | 66 | 3 | 3 | 6 | S:3, MET:19 |
 | `modules/stats/modal.js` | 245 | 8 | 8 | 17 | DATA:2, S:10 |
 | `modules/stats/observations.js` | 223 | 11 | 5 | 6 | S:1 |
-| `modules/stats/results.js` | 414 | 11 | 8 | 4 | S:3 |
+| `modules/stats/results.js` | 416 | 11 | 8 | 5 | S:3 |
 | `modules/stats/run.js` | 128 | 4 | 1 | 3 | S:1, MET:6 |
 | `modules/stats/views/advanced.js` | 275 | 10 | 10 | 4 | DATA:3, MET:10 |
 | `modules/stats/views/comparison.js` | 508 | 12 | 12 | 11 | DATA:4, S:11 |
 | `modules/stats/views/network.js` | 223 | 9 | 9 | 4 | DATA:2, S:2, MET:1 |
 | `modules/stats/views/philosopher.js` | 171 | 4 | 4 | 6 | DATA:3, MET:3 |
-| `modules/stats/views/philosophical.js` | 473 | 12 | 12 | 7 | DATA:3, S:2, MET:10 |
+| `modules/stats/views/philosophical.js` | 474 | 12 | 12 | 8 | DATA:3, S:2, MET:10 |
 | `modules/stats/views/rankings.js` | 141 | 2 | 2 | 5 | DATA:2, S:1 |
 | `modules/ui/about.js` | 102 | 4 | 3 | 1 | DATA:6 |
 | `modules/ui/actions-byname.js` | 20 | 2 | 0 | 2 | — |
-| `modules/ui/actions-dyn.js` | 184 | 0 | 0 | 38 | DATA:1, S:9 |
+| `modules/ui/actions-dyn.js` | 187 | 0 | 0 | 38 | DATA:1, S:9 |
 | `modules/ui/actions-static.js` | 140 | 0 | 0 | 26 | — |
 | `modules/ui/actions.js` | 27 | 1 | 3 | 0 | — |
 | `modules/ui/delegation.js` | 70 | 3 | 1 | 1 | — |
@@ -211,7 +211,7 @@
 | `modules/ui/search-link.js` | 135 | 7 | 5 | 12 | DATA:3, S:2 |
 | `modules/ui/search-philosopher.js` | 98 | 7 | 6 | 6 | DATA:3 |
 | `modules/util/color.js` | 23 | 1 | 1 | 0 | — |
-| `modules/util/html.js` | 50 | 5 | 5 | 0 | — |
+| `modules/util/html.js` | 95 | 12 | 11 | 0 | — |
 | `modules/util/philosopher-label.js` | 40 | 7 | 5 | 3 | DATA:1 |
 | `modules/util/ru.js` | 49 | 3 | 3 | 0 | — |
 | `modules/widgets/custom-select.js` | 103 | 6 | 4 | 5 | S:4 |
@@ -250,7 +250,7 @@
 | `busSubscribers` | const | 1 | — |
 | `BUS_PHASES` | const | 1 | — |
 
-### `modules/core/graph-index.js` — 221 строк, объявлений 16
+### `modules/core/graph-index.js` — 238 строк, объявлений 19
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -259,9 +259,11 @@
 | `comparePhilosophers` | function | 14 | да |
 | `compareLinks` | function | 12 | да |
 | `buildRubricsIndex` | function | 8 | да |
+| `withoutEmptyOptional` | function | 8 | да |
 | `otherEndColor` | function | 7 | да |
 | `buildConceptToRubrics` | function | 5 | да |
 | `linkIsInternal` | function | 5 | да |
+| `storedRecord` | function | 5 | да |
 | `compareConcepts` | function | 4 | да |
 | `buildPhilosopherTraditions` | function | 3 | да |
 | `conceptById` | const | 1 | да |
@@ -270,6 +272,7 @@
 | `rubricById` | const | 1 | да |
 | `nodesByPhilosopher` | const | 1 | да |
 | `linksByConcept` | const | 1 | да |
+| `OMITTED_WHEN_EMPTY` | const | 1 | — |
 
 ### `modules/core/link-facts.js` — 86 строк, объявлений 11
 
@@ -786,15 +789,16 @@
 | `authError` | function | 4 | — |
 | `authModalEl` | function | 1 | — |
 
-### `modules/modal/commits.js` — 420 строк, объявлений 31
+### `modules/modal/commits.js` — 444 строк, объявлений 32
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `renderCommits` | function | 73 | — |
+| `renderCommits` | function | 74 | — |
 | `layoutTabHtml` | function | 49 | — |
 | `provenanceDiff` | function | 32 | — |
 | `describeImpact` | function | 26 | — |
 | `applyRelayout` | async function | 22 | да |
+| `footnotesDiff` | function | 22 | — |
 | `doLayoutRevert` | async function | 18 | да |
 | `reviewCommitFromPanel` | async function | 17 | да |
 | `showImpact` | async function | 16 | да |
@@ -822,7 +826,7 @@
 | `COMMIT_STATES` | const | 1 | — |
 | `LAYOUT_KINDS` | const | 1 | — |
 
-### `modules/modal/concept-view.js` — 438 строк, объявлений 12
+### `modules/modal/concept-view.js` — 442 строк, объявлений 12
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -849,7 +853,7 @@
 | `closeConflictModal` | function | 4 | да |
 | `lastConflict` | let | 1 | да |
 
-### `modules/modal/connection-edit.js` — 288 строк, объявлений 9
+### `modules/modal/connection-edit.js` — 289 строк, объявлений 9
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -912,17 +916,17 @@
 | `allPhilosopherConceptDescriptionsExpanded` | let | 1 | — |
 | `allPhilosopherConnectionDescriptionsExpanded` | let | 1 | — |
 
-### `modules/modal/dirty.js` — 112 строк, объявлений 5
+### `modules/modal/dirty.js` — 116 строк, объявлений 5
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `hasConnectionChanges` | function | 27 | — |
-| `hasPhilosopherChanges` | function | 22 | — |
+| `hasConnectionChanges` | function | 28 | — |
+| `hasPhilosopherChanges` | function | 23 | — |
 | `hasUnsavedChanges` | function | 20 | да |
-| `hasConceptChanges` | function | 19 | — |
+| `hasConceptChanges` | function | 20 | — |
 | `hasFilledFields` | function | 10 | — |
 
-### `modules/modal/edit-forms.js` — 295 строк, объявлений 2
+### `modules/modal/edit-forms.js` — 297 строк, объявлений 2
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -955,14 +959,23 @@
 | `closeDetailModal` | function | 1 | да |
 | `closePhilosopherDetailModal` | function | 1 | да |
 
-### `modules/modal/forms.js` — 81 строк, объявлений 6
+### `modules/modal/forms.js` — 207 строк, объявлений 15
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `provenanceField` | function | 22 | да |
+| `insertFootnote` | function | 22 | да |
+| `refreshFootnoteRows` | function | 19 | да |
 | `refreshProvenanceField` | function | 17 | да |
+| `footnotesValue` | function | 17 | да |
+| `installFootnoteLinks` | function | 16 | да |
+| `footnotesField` | function | 13 | да |
 | `provenanceValue` | function | 12 | да |
+| `footnoteRow` | function | 12 | — |
 | `commitReasonField` | function | 9 | да |
+| `removeFootnote` | function | 7 | да |
+| `footnotesChanged` | function | 5 | да |
+| `footnoteHosts` | function | 4 | — |
 | `needsCitation` | function | 3 | — |
 | `PROVENANCE_STATES` | const | 1 | да |
 
@@ -994,23 +1007,23 @@
 | `nLinks` | const | 1 | да |
 | `labelOf` | const | 1 | — |
 
-### `modules/modal/persist.js` — 450 строк, объявлений 11
+### `modules/modal/persist.js` — 464 строк, объявлений 11
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `savePhilosopherData` | function | 102 | да |
-| `saveConnectionData` | function | 93 | да |
-| `saveConceptData` | function | 76 | да |
+| `savePhilosopherData` | function | 107 | да |
+| `saveConnectionData` | function | 98 | да |
+| `saveConceptData` | function | 82 | да |
 | `deleteConnection` | function | 49 | да |
 | `deletePhilosopher` | function | 41 | да |
 | `deleteConcept` | function | 31 | да |
 | `removeConceptEverywhere` | function | 8 | — |
 | `removeLinkEverywhere` | function | 7 | — |
-| `provenanceFields` | function | 6 | — |
 | `confirmWarnings` | function | 5 | — |
+| `provenanceFields` | function | 4 | — |
 | `generateId` | function | 3 | — |
 
-### `modules/modal/philosopher-view.js` — 665 строк, объявлений 4
+### `modules/modal/philosopher-view.js` — 668 строк, объявлений 4
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1122,7 +1135,7 @@
 | `looseChronologyCheck` | function | 4 | — |
 | `DATA_nodes_find` | function | 1 | — |
 
-### `modules/paths/path-descriptions.js` — 179 строк, объявлений 4
+### `modules/paths/path-descriptions.js` — 180 строк, объявлений 4
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1131,7 +1144,7 @@
 | `closePathDescriptionsModal` | function | 15 | да |
 | `nodesDescriptionsVisible` | let | 1 | — |
 
-### `modules/paths/path-ui.js` — 421 строк, объявлений 8
+### `modules/paths/path-ui.js` — 423 строк, объявлений 8
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1218,7 +1231,7 @@
 | `cols` | const | 1 | — |
 | `rows` | const | 1 | — |
 
-### `modules/render/interactions.js` — 317 строк, объявлений 8
+### `modules/render/interactions.js` — 318 строк, объявлений 8
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1354,7 +1367,7 @@
 |---|---|---|---|
 | `tooltip` | const | 1 | да |
 
-### `modules/state/edit.js` — 12 строк, объявлений 1
+### `modules/state/edit.js` — 15 строк, объявлений 1
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1422,7 +1435,7 @@
 | `observationItems` | let | 1 | — |
 | `observationPicked` | let | 1 | — |
 
-### `modules/stats/results.js` — 414 строк, объявлений 11
+### `modules/stats/results.js` — 416 строк, объявлений 11
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1502,7 +1515,7 @@
 | `generatePhilosopherSystematicContent` | function | 38 | да |
 | `generatePhilosopherReachContent` | function | 37 | да |
 
-### `modules/stats/views/philosophical.js` — 473 строк, объявлений 12
+### `modules/stats/views/philosophical.js` — 474 строк, объявлений 12
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1691,15 +1704,22 @@
 |---|---|---|---|
 | `getContrastColor` | function | 18 | да |
 
-### `modules/util/html.js` — 50 строк, объявлений 5
+### `modules/util/html.js` — 95 строк, объявлений 12
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `provenanceBlock` | function | 24 | да |
+| `footnotesBlock` | function | 11 | да |
+| `footnotedText` | function | 10 | да |
+| `footnoteOrder` | function | 9 | да |
 | `scrollToPickedRow` | function | 6 | да |
 | `updateLiveProgress` | function | 4 | да |
+| `withoutFootnotes` | function | 4 | да |
 | `escapeAttr` | function | 4 | да |
 | `liveProgressHtml` | function | 3 | да |
+| `FOOTNOTE_MARK_SOURCE` | const | 1 | — |
+| `FOOTNOTE_LABELS` | const | 1 | да |
+| `FOOTNOTE_STATE_ORDER` | const | 1 | да |
 
 ### `modules/util/philosopher-label.js` — 40 строк, объявлений 7
 
@@ -1785,6 +1805,7 @@
 - из `modules/modal/core.js`: `modalStack`, `openUniversalModal`
 - из `modules/modal/edit-rights.js`: `refreshEditHints`, `renderAuthControls`
 - из `modules/modal/entry.js`: `closeDetailModal`, `openEditConceptModal`, `openEditConnectionModal`, `showDetailModal`
+- из `modules/modal/forms.js`: `installFootnoteLinks`
 - из `modules/modal/philosopher-view.js`: `makeLegendsEditable`
 - из `modules/modal/users.js`: `banUserFromPanel`, `changeUserRoleFromPanel`
 - из `modules/paths/path-ui.js`: `initPathFinder`
@@ -1966,7 +1987,7 @@
 - из `modules/core/ns.js`: `DATA`
 - из `vendor/d3.js`: _ради побочного действия_
 
-Чаще всего поминает: `DATA`×37
+Чаще всего поминает: `DATA`×40
 
 ### `modules/core/link-facts.js`
 
@@ -2304,22 +2325,22 @@
 - из `modules/core/perms.js`: `PERM`, `can`
 - из `modules/data/remote.js`: `pullGraphSince`
 - из `modules/modal/forms.js`: `PROVENANCE_STATES`
-- из `modules/util/html.js`: `escapeAttr`
+- из `modules/util/html.js`: `FOOTNOTE_LABELS`, `escapeAttr`
 
-Чаще всего поминает: `escapeAttr`×27, `api`×8, `can`×6, `PERM`×6, `pullGraphSince`×4
+Чаще всего поминает: `escapeAttr`×30, `api`×8, `can`×6, `PERM`×6, `pullGraphSince`×4
 
 ### `modules/modal/concept-view.js`
 
 - из `modules/core/ns.js`: `DATA`, `VIEWS`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`
+- из `modules/core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`, `storedRecord`
 - из `modules/core/link-facts.js`: `orientLink`
 - из `modules/metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
 - из `modules/metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `networkProgressPercent`, `networkSimilarityData`, `profileIsMeaningful`
 - из `modules/modal/connection-view.js`: `linkArrow`
 - из `modules/modal/history.js`: `historyBlock`
 - из `modules/util/color.js`: `getContrastColor`
-- из `modules/util/html.js`: `liveProgressHtml`, `provenanceBlock`, `updateLiveProgress`
+- из `modules/util/html.js`: `footnoteOrder`, `footnotedText`, `footnotesBlock`, `liveProgressHtml`, `provenanceBlock`, `updateLiveProgress`, `withoutFootnotes`
 
 Чаще всего поминает: `DATA`×11, `profileIsMeaningful`×5, `nearestConcepts`×5, `nodeDegreeOf`×3, `medianNodeDegree`×3
 
@@ -2339,7 +2360,7 @@
 
 - из `modules/core/ns.js`: `DATA`, `VIEWS`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `conceptById`
+- из `modules/core/graph-index.js`: `conceptById`, `storedRecord`
 - из `modules/core/link-facts.js`: `isReflexiveLink`
 - из `modules/core/relation-types.js`: `LAYER_NAMES`, `WEIGHT_OPTIONS`, `relationHint`
 - из `modules/core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
@@ -2348,7 +2369,7 @@
 - из `modules/modal/connection-view.js`: `initConnectionSearchFields`
 - из `modules/modal/context.js`: `ModalContext`
 - из `modules/modal/core.js`: `openUniversalModal`
-- из `modules/modal/forms.js`: `provenanceField`
+- из `modules/modal/forms.js`: `footnotesField`, `provenanceField`
 - из `modules/util/html.js`: `escapeAttr`
 
 Чаще всего поминает: `ModalContext`×11, `conceptById`×5, `DATA`×4, `connectionsBetween`×2, `relationHint`×2
@@ -2357,7 +2378,7 @@
 
 - из `modules/core/ns.js`: `DATA`, `VIEWS`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `conceptById`, `traditionById`
+- из `modules/core/graph-index.js`: `conceptById`, `storedRecord`, `traditionById`
 - из `modules/core/link-facts.js`: `isReflexiveLink`
 - из `modules/core/relation-types.js`: `CONN_WEIGHT_WORDS`, `WEIGHT_WORDS`, `relationHint`
 - из `modules/core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
@@ -2366,9 +2387,9 @@
 - из `modules/modal/context.js`: `ModalContext`
 - из `modules/modal/history.js`: `historyBlock`
 - из `modules/util/color.js`: `getContrastColor`
-- из `modules/util/html.js`: `provenanceBlock`
+- из `modules/util/html.js`: `footnoteOrder`, `footnotedText`, `footnotesBlock`, `provenanceBlock`
 
-Чаще всего поминает: `DATA`×11, `ModalContext`×7, `conceptById`×5, `traditionsOfPhilosopher`×2, `isReflexiveLink`×2
+Чаще всего поминает: `DATA`×11, `ModalContext`×7, `conceptById`×5, `storedRecord`×4, `traditionsOfPhilosopher`×2
 
 ### `modules/modal/core.js`
 
@@ -2389,28 +2410,29 @@
 
 - из `modules/core/ns.js`: `DATA`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `philosopherByName`
+- из `modules/core/graph-index.js`: `philosopherByName`, `storedRecord`
 - из `modules/modal/assembly.js`: `modalEntityExists`
 - из `modules/modal/context.js`: `ModalContext`
+- из `modules/modal/forms.js`: `footnotesChanged`
 
-Чаще всего поминает: `ModalContext`×5, `DATA`×2, `modalEntityExists`×1, `philosopherByName`×1
+Чаще всего поминает: `ModalContext`×5, `footnotesChanged`×3, `philosopherByName`×2, `storedRecord`×2, `DATA`×2
 
 ### `modules/modal/edit-forms.js`
 
 - из `modules/core/ns.js`: `DATA`, `VIEWS`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`
+- из `modules/core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `storedRecord`
 - из `modules/core/link-facts.js`: `isReflexiveLink`
 - из `modules/core/relation-types.js`: `relationHint`
 - из `modules/graph/graph-data.js`: `getConceptConnections`
 - из `modules/modal/assembly.js`: `modalActions`
 - из `modules/modal/connection-view.js`: `linkArrow`
-- из `modules/modal/forms.js`: `provenanceField`
+- из `modules/modal/forms.js`: `footnotesField`, `provenanceField`
 - из `modules/util/color.js`: `getContrastColor`
 - из `modules/util/html.js`: `escapeAttr`
 - из `modules/util/philosopher-label.js`: `philosopherYears`, `sortPhilosophersByBirth`
 
-Чаще всего поминает: `DATA`×7, `escapeAttr`×5, `VIEWS`×2, `provenanceField`×2, `modalActions`×2
+Чаще всего поминает: `DATA`×7, `escapeAttr`×5, `VIEWS`×2, `provenanceField`×2, `footnotesField`×2
 
 ### `modules/modal/edit-rights.js`
 
@@ -2439,10 +2461,11 @@
 
 ### `modules/modal/forms.js`
 
+- из `modules/core/ns.js`: `S`
 - из `modules/core/api.js`: `serverMode`
-- из `modules/util/html.js`: `escapeAttr`
+- из `modules/util/html.js`: `FOOTNOTE_LABELS`, `FOOTNOTE_STATE_ORDER`, `escapeAttr`, `footnoteOrder`
 
-Чаще всего поминает: `escapeAttr`×1, `serverMode`×1
+Чаще всего поминает: `S`×3, `footnoteOrder`×3, `escapeAttr`×2, `FOOTNOTE_LABELS`×2, `FOOTNOTE_STATE_ORDER`×1
 
 ### `modules/modal/history.js`
 
@@ -2470,7 +2493,7 @@
 
 - из `modules/core/ns.js`: `DATA`, `S`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`
+- из `modules/core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `withoutEmptyOptional`
 - из `modules/core/link-facts.js`: `isReflexiveLink`
 - из `modules/data/backend.js`: `submitChange`
 - из `modules/data/commit-draft.js`: `describeChange`
@@ -2480,7 +2503,7 @@
 - из `modules/modal/context.js`: `ModalContext`
 - из `modules/modal/core.js`: `closeUniversalModal`, `openUniversalModal`
 - из `modules/modal/entry.js`: `getIsolatedConceptsAfterDeletion`
-- из `modules/modal/forms.js`: `provenanceValue`
+- из `modules/modal/forms.js`: `footnotesValue`, `provenanceValue`
 - из `modules/modal/integrity.js`: `conceptIntegrityWarnings`, `connectionIntegrityWarnings`, `nConcepts`, `nLinks`, `philosopherIntegrityWarnings`, `provenanceDriftWarning`, `relationIndexById`
 
 Чаще всего поминает: `DATA`×44, `ModalContext`×21, `submitChange`×8, `describeChange`×8, `afterDataChange`×8
@@ -2499,7 +2522,7 @@
 - из `modules/modal/history.js`: `historyBlock`
 - из `modules/render/selection.js`: `highlightPhilosopherOnGraph`
 - из `modules/util/color.js`: `getContrastColor`
-- из `modules/util/html.js`: `provenanceBlock`
+- из `modules/util/html.js`: `footnoteOrder`, `footnotedText`, `footnotesBlock`, `provenanceBlock`, `withoutFootnotes`
 - из `modules/util/philosopher-label.js`: `formatBirthYear`, `philosopherBirth`, `philosopherYears`, `sortPhilosophersByBirth`
 - из `modules/util/ru.js`: `conjugateVerb`, `declinePhilosopher`
 
@@ -2555,9 +2578,9 @@
 - из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `modules/modal/core.js`: `openUniversalModal`
 - из `modules/render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
-- из `modules/util/html.js`: `escapeAttr`
+- из `modules/util/html.js`: `escapeAttr`, `withoutFootnotes`
 
-Чаще всего поминает: `escapeAttr`×19, `DATA`×6, `conceptById`×3, `linkIsInternal`×2, `directionMark`×2
+Чаще всего поминает: `escapeAttr`×19, `DATA`×6, `withoutFootnotes`×4, `conceptById`×3, `linkIsInternal`×2
 
 ### `modules/modal/users.js`
 
@@ -2598,8 +2621,9 @@
 - из `modules/paths/path-ui.js`: `resolvePathLinkList`
 - из `modules/render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
 - из `modules/util/color.js`: `getContrastColor`
+- из `modules/util/html.js`: `withoutFootnotes`
 
-Чаще всего поминает: `DATA`×4, `S`×3, `resolvePathLinkList`×1, `freezeSimulation`×1, `analyzePathTraditions`×1
+Чаще всего поминает: `DATA`×4, `S`×3, `withoutFootnotes`×2, `resolvePathLinkList`×1, `freezeSimulation`×1
 
 ### `modules/paths/path-ui.js`
 
@@ -2613,8 +2637,9 @@
 - из `modules/paths/shortest-path.js`: `findShortestPath`
 - из `modules/render/d3-layer.js`: `gfxLinkAll`, `gfxNode`
 - из `modules/render/selection.js`: `resetHighlight`
+- из `modules/util/html.js`: `withoutFootnotes`
 
-Чаще всего поминает: `S`×15, `DATA`×6, `resetHighlight`×3, `philosopherByName`×2, `emit`×2
+Чаще всего поминает: `S`×15, `DATA`×6, `resetHighlight`×3, `withoutFootnotes`×2, `philosopherByName`×2
 
 ### `modules/paths/shortest-path.js`
 
@@ -2698,6 +2723,7 @@
 - из `modules/state/edit.js`: `editMode`
 - из `modules/state/filters.js`: `chosenPhilosophers`
 - из `modules/state/render.js`: `selectedEdges`
+- из `modules/util/html.js`: `withoutFootnotes`
 - из `modules/util/philosopher-label.js`: `labelWithAuthor`
 
 Чаще всего поминает: `S`×14, `tooltip`×12, `renderState`×11, `linkHandlers`×10, `nodeHandlers`×8
@@ -2802,6 +2828,12 @@
 
 - из `vendor/d3.js`: _ради побочного действия_
 
+### `modules/state/edit.js`
+
+- из `modules/core/ns.js`: `S`
+
+Чаще всего поминает: `S`×1
+
 ### `modules/state/filters.js`
 
 - из `modules/core/ns.js`: `DATA`, `S`
@@ -2888,8 +2920,9 @@
 - из `modules/metrics/descriptions.js`: `getMetricDescription`
 - из `modules/metrics/format.js`: `applyMetricMode`
 - из `modules/stats/coverage.js`: `generateMetricCoverageBlock`
+- из `modules/util/html.js`: `withoutFootnotes`
 
-Чаще всего поминает: `S`×18, `applyMetricMode`×3, `generateMetricCoverageBlock`×2, `getMetricDescription`×1
+Чаще всего поминает: `S`×18, `applyMetricMode`×3, `generateMetricCoverageBlock`×2, `getMetricDescription`×1, `withoutFootnotes`×1
 
 ### `modules/stats/run.js`
 
@@ -2953,6 +2986,7 @@
 - из `modules/metrics/philosophical.js`: `INFLUENCE_SCOPE_LABELS`, `invalidateInfluenceIndexCache`
 - из `modules/metrics/rankings.js`: `invalidateGeneratePhilosopherRankingsCache`
 - из `modules/stats/results.js`: `generateMetricResults`, `rankKeep`
+- из `modules/util/html.js`: `withoutFootnotes`
 
 Чаще всего поминает: `DATA`×30, `S`×10, `initializePhilosophyMetrics`×10, `MET`×10, `generateMetricResults`×10
 
@@ -2995,7 +3029,7 @@
 - из `modules/modal/descriptions.js`: `toggleAllConnectionDescriptions`, `toggleAllPhilosopherConceptDescriptions`, `toggleAllPhilosopherConnectionDescriptions`, `toggleConnectionDescription`, `togglePhilosopherConceptDescription`, `toggleSubsection`
 - из `modules/modal/edit-forms.js`: `syncPhilColorFromPicker`, `updatePhilColorSample`
 - из `modules/modal/entry.js`: `gotoNodeFromModal`, `openConceptById`, `openEditConceptModal`, `openEditConnectionModal`, `showAllConcepts`, `showPhilosopherDetailModal`
-- из `modules/modal/forms.js`: `refreshProvenanceField`
+- из `modules/modal/forms.js`: `insertFootnote`, `refreshFootnoteRows`, `refreshProvenanceField`, `removeFootnote`
 - из `modules/modal/history.js`: `revertEntityToVersion`, `toggleEntityHistory`
 - из `modules/modal/persist.js`: `deleteConcept`, `deleteConnection`
 - из `modules/modal/profile-concept.js`: `closeConceptProfileModal`, `showConceptProfileModal`, `toggleProfileOrder`

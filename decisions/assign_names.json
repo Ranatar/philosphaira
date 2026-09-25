@@ -992,7 +992,28 @@
   "hitLinkShape": "render/picking.js",
   "distToSegment": "render/picking.js",
   "dragMoveStarted": "render/d3-layer.js",
-  "CONTRADICTION_DASH": "render/draw-link.js"
+  "CONTRADICTION_DASH": "render/draw-link.js",
+  "storedRecord": "core/graph-index.js",
+  "OMITTED_WHEN_EMPTY": "core/graph-index.js",
+  "withoutEmptyOptional": "core/graph-index.js",
+  "FOOTNOTE_MARK_SOURCE": "util/html.js",
+  "FOOTNOTE_LABELS": "util/html.js",
+  "FOOTNOTE_STATE_ORDER": "util/html.js",
+  "withoutFootnotes": "util/html.js",
+  "footnoteOrder": "util/html.js",
+  "footnotedText": "util/html.js",
+  "footnotesBlock": "util/html.js",
+  "lastFootnoteHost": "state/edit.js",
+  "installFootnoteLinks": "modal/forms.js",
+  "footnoteRow": "modal/forms.js",
+  "footnotesField": "modal/forms.js",
+  "footnoteHosts": "modal/forms.js",
+  "insertFootnote": "modal/forms.js",
+  "removeFootnote": "modal/forms.js",
+  "refreshFootnoteRows": "modal/forms.js",
+  "footnotesValue": "modal/forms.js",
+  "footnotesChanged": "modal/forms.js",
+  "footnotesDiff": "modal/commits.js"
  },
  "новые": [
   "BUS_PHASES"
@@ -1038,11 +1059,11 @@
    "модуль": "render/simulation.js",
    "имя": "installSimulationLog"
   },
-  "gfxNode.on(\"mouseover\") @a3eb00f6": {
+  "gfxNode.on(\"mouseover\") @72dda2d2": {
    "модуль": "render/interactions.js",
    "имя": "installNodeHover"
   },
-  "gfxLink.on(\"mouseover\") @54b79ad6": {
+  "gfxLink.on(\"mouseover\") @86ad9ea0": {
    "модуль": "render/interactions.js",
    "имя": "installLinkHover"
   },

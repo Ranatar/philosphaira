@@ -1147,6 +1147,27 @@
   "аргументов": 0,
   "откуда": "modules/modal/forms.js"
  },
+ "refresh-footnote-rows-change": {
+  "код": "refreshFootnoteRows()",
+  "attr": "onchange",
+  "тело": "refreshFootnoteRows()",
+  "аргументов": 0,
+  "откуда": "modules/modal/forms.js"
+ },
+ "remove-footnote": {
+  "код": "removeFootnote('${note.id}')",
+  "attr": "onclick",
+  "тело": "removeFootnote(el.dataset.a1)",
+  "аргументов": 1,
+  "откуда": "modules/modal/forms.js"
+ },
+ "insert-footnote": {
+  "код": "insertFootnote()",
+  "attr": "onclick",
+  "тело": "insertFootnote()",
+  "аргументов": 0,
+  "откуда": "modules/modal/forms.js"
+ },
  "toggle-entity-history": {
   "код": "toggleEntityHistory('${escapeAttr(kind)}', '${escapeAttr(entityId)}')",
   "attr": "onclick",

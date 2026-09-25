@@ -115,6 +115,7 @@
  "profileOrderMode": "S",
  "authModalKind": "S",
  "liveClosedOnPurpose": "S",
+ "lastFootnoteHost": "S",
  "METRIC_COVERAGE_FN": "S",
  "simulation": "S",
  "maxTicks": "S",

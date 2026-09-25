@@ -8,6 +8,7 @@ import { analyzePathTraditions } from './analysis.js';
 import { resolvePathLinkList } from './path-ui.js';
 import { freezeSimulation, unfreezeSimulation } from '../render/simulation.js';
 import { getContrastColor } from '../util/color.js';
+import { withoutFootnotes } from '../util/html.js';
 
 function showPathDescriptionsModal() {
       if (!S.currentPathData) return;
@@ -63,7 +64,7 @@ function showPathDescriptionsModal() {
                data-tip="Открыть окно философа">
             ${node.concept}${phil ? ' · ' + phil.years : ''}
           </div>
-          <p><strong>Описание:</strong> ${node.extendedDescription || 'Описание отсутствует'}</p>
+          <p><strong>Описание:</strong> ${withoutFootnotes(node.extendedDescription) || 'Описание отсутствует'}</p>
         </div>
       `;
       };
@@ -115,7 +116,7 @@ function showPathDescriptionsModal() {
                      </div>`;
               })()}
               ${link.description ? `
-                <div class="path-description-text">${link.description}</div>
+                <div class="path-description-text">${withoutFootnotes(link.description)}</div>
               ` : `
                 <div class="path-description-text" style="color: var(--fg-muted); font-style: italic;">
                   Описание связи отсутствует

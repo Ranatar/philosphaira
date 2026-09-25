@@ -14,7 +14,7 @@ import { historyBlock } from './history.js';
 import { highlightPhilosopherOnGraph } from '../render/selection.js';
 
 import { getContrastColor } from '../util/color.js';
-import { provenanceBlock } from '../util/html.js';
+import { footnoteOrder, footnotedText, footnotesBlock, provenanceBlock, withoutFootnotes } from '../util/html.js';
 import { formatBirthYear, philosopherBirth, philosopherYears, sortPhilosophersByBirth } from '../util/philosopher-label.js';
 import { conjugateVerb, declinePhilosopher } from '../util/ru.js';
 
@@ -103,7 +103,9 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
       const philColor = DATA.philosopherConcepts[philosopherName].color;
       
       // Формируем описание с переносами строк
-      const formattedDescription = philosopherData.description.replace(/\n\n/g, '<br><br>');
+      const philNotes = footnoteOrder(philosopherData.description);
+      const formattedDescription = footnotedText(philosopherData.description, philNotes, philosopherData.footnotes)
+        .replace(/\n\n/g, '<br><br>');
       
       let html = `
         <div id="philSearch">
@@ -127,6 +129,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
         </div>
         <div class="description">${formattedDescription}</div>
         ${provenanceBlock(philosopherData.provenance, philosopherData.provenanceStatus)}
+        ${footnotesBlock(philosopherData.footnotes, philNotes)}
         ${historyBlock('philosopher', philosopherData.id)}
         <button class="goto-node-btn" data-act-click="close-universal-modal-3" data-a1="${philosopherName}">
           📊 Статистический профиль
@@ -383,9 +386,9 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
                 <div class="concept-details-name">${conceptNode.label}</div>
                 <button class="toggle-concept-desc-btn" data-act-click="stop-propagation-3" data-a1="${conceptNode.id}">▼</button>
               </div>
-              <div class="concept-short-desc">${conceptNode.description}</div>
+              <div class="concept-short-desc">${withoutFootnotes(conceptNode.description)}</div>
               <div class="concept-extended-desc" id="phil-concept-desc-${conceptNode.id}">
-                ${conceptNode.extendedDescription}
+                ${withoutFootnotes(conceptNode.extendedDescription)}
               </div>
             </div>
           `;
@@ -490,7 +493,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-phil-${srcNode.id}-${tgtNode.id}">
-                  ${conn.description}
+                  ${withoutFootnotes(conn.description)}
                 </div>
               ` : ''}
             `;
@@ -558,7 +561,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-phil-${srcNode.id}-${tgtNode.id}">
-                  ${conn.description}
+                  ${withoutFootnotes(conn.description)}
                 </div>
               ` : ''}
             `;

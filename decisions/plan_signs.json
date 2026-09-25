@@ -168,7 +168,7 @@
    "E-1",
    "раздел в окне концепции",
    "внутри",
-   "source/philosophy_graph_v3.html|provenanceBlock(conceptData.provenance, conceptData.provenanceStatus)"
+   "source/philosophy_graph_v3.html|provenanceBlock(conceptRecord.provenance, conceptRecord.provenanceStatus)"
   ],
   [
    "E-1",
@@ -180,7 +180,7 @@
    "E-1",
    "раздел в окне связи",
    "внутри",
-   "source/philosophy_graph_v3.html|provenanceBlock(conn.provenance, conn.provenanceStatus)"
+   "source/philosophy_graph_v3.html|provenanceBlock((storedRecord('relation', conn.id) || conn).provenance"
   ],
   [
    "E-1",

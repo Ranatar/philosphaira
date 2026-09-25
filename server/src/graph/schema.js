@@ -23,9 +23,12 @@ export const SETS = Object.freeze({
   // ответить не может: ПОЧЕМУ ИСТОЧНИКА НЕТ. Пустое поле означало сразу
   // четыре разных положения дел — не искали, искали и не нашли, своё
   // построение, прежний источник отвергнут, — и различить их было нельзя.
-  concepts:      { kind: 'concept',      keys: ['id', 'label', 'philosopher', 'rubrics', 'description', 'extendedDescription', 'provenance', 'provenanceStatus'] },
-  relations:     { kind: 'relation',     keys: ['id', 'source', 'target', 'type', 'weight', 'bidirectional', 'description', 'provenance', 'provenanceStatus'] },
-  philosophers:  { kind: 'philosopher',  keys: ['id', 'name', 'nameRu', 'color', 'birth', 'death', 'years', 'traditions', 'description', 'provenance', 'provenanceStatus'] },
+  //
+  // `footnotes` (24.09.2026) — сноски к отдельным утверждениям описания
+  // (graph/footnotes.js). Тоже последним ключом и тоже НЕ ПИШЕТСЯ пустым.
+  concepts:      { kind: 'concept',      keys: ['id', 'label', 'philosopher', 'rubrics', 'description', 'extendedDescription', 'provenance', 'provenanceStatus', 'footnotes'] },
+  relations:     { kind: 'relation',     keys: ['id', 'source', 'target', 'type', 'weight', 'bidirectional', 'description', 'provenance', 'provenanceStatus', 'footnotes'] },
+  philosophers:  { kind: 'philosopher',  keys: ['id', 'name', 'nameRu', 'color', 'birth', 'death', 'years', 'traditions', 'description', 'provenance', 'provenanceStatus', 'footnotes'] },
   traditions:    { kind: 'tradition',    keys: ['id', 'name', 'description'] },
   rubrics:       { kind: 'rubric',       keys: ['id', 'name', 'description', 'reserved'] },
   // Порядок СНЯТ С ФАЙЛОВ, а не придуман: temporal идёт ПЕРЕД ground и
@@ -33,6 +36,14 @@ export const SETS = Object.freeze({
   // проверено побайтовым сличением выгрузки.
   relationTypes: { kind: 'relationType', keys: ['id', 'label', 'color', 'layer', 'temporal', 'ground', 'symmetric'] },
 });
+
+/**
+ * Необязательные ключи, которые НЕ ПИШУТСЯ пустыми (см. выше): пустое значение
+ * в правке значит «убрать ключ», а не «записать null». Прочие null хранятся
+ * как есть — `death: null` у живущего философа есть в файлах семени.
+ */
+export const OMITTED_WHEN_EMPTY = Object.freeze(['provenance', 'provenanceStatus', 'footnotes']);
+export const isEmptyOptional = v => v == null || v === '' || (Array.isArray(v) && v.length === 0);
 
 /** Имя набора по роду сущности — обратный указатель, чтобы не искать перебором. */
 export const SET_BY_KIND = Object.freeze(Object.fromEntries(

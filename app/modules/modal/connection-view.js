@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
-import { conceptById, traditionById } from '../core/graph-index.js';
+import { conceptById, storedRecord, traditionById } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { CONN_WEIGHT_WORDS, WEIGHT_WORDS, relationHint } from '../core/relation-types.js';
 import { emptyList, pickConcepts, rowInner } from '../core/search.js';
@@ -11,7 +11,7 @@ import { ModalContext } from './context.js';
 
 import { historyBlock } from './history.js';
 import { getContrastColor } from '../util/color.js';
-import { provenanceBlock } from '../util/html.js';
+import { footnoteOrder, footnotedText, footnotesBlock, provenanceBlock } from '../util/html.js';
 
 function linkArrow(glyph, color, weight, label, more, from, to) {
       const to2 = weight || 2;
@@ -194,8 +194,8 @@ function generateConnectionVisualization(sourceNode, targetNode, connectionData)
               </div>
               ${conn.description ? `
                 <div class="connection-description show" style="margin-top:10px;padding:10px;background:rgba(108,92,231,0.1);border-radius:6px;font-size:12px;color:#e0e0e0;line-height:1.5;">
-                  ${conn.description}
-                </div>${provenanceBlock(conn.provenance, conn.provenanceStatus)}` : `
+                  ${footnotedText(conn.description, footnoteOrder(conn.description), (storedRecord('relation', conn.id) || conn).footnotes)}
+                </div>${provenanceBlock((storedRecord('relation', conn.id) || conn).provenance, (storedRecord('relation', conn.id) || conn).provenanceStatus)}${footnotesBlock((storedRecord('relation', conn.id) || conn).footnotes, footnoteOrder(conn.description))}` : `
                 <div style="margin-top:10px;font-size:11px;color: var(--fg-muted);font-style:italic;">
                   Описания у этой связи нет
                 </div>`}

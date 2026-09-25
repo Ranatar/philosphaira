@@ -16,7 +16,8 @@ import { bumpGraphVersion, lockEntity, nextOrd, markEntityDeleted,
          upsertEntity, patchEntity, stampVersion, exportAll } from '../db/graph.js';
 import { currentLayout, saveLayout } from '../db/layout.js';
 import { touchesLayout, growLayout, divergence } from '../graph/layout.js';
-import { SETS, SET_BY_KIND } from '../graph/schema.js';
+import { SETS, SET_BY_KIND, OMITTED_WHEN_EMPTY, isEmptyOptional } from '../graph/schema.js';
+import { footnoteProblems, FOOTNOTE_HOST_FIELDS } from '../graph/footnotes.js';
 import { Conflict } from '../http/errors.js';
 
 /**
@@ -46,6 +47,21 @@ export async function applyCommit(client, { changes, actorId = null }) {
       }
       continue;
     }
+    // СОГЛАСИЕ СНОСОК СУДИТСЯ ПО ИТОГУ, А НЕ ПО ПРАВКЕ: правка может трогать
+    // одно описание, а записи сносок лежат в сущности; и два по отдельности
+    // верных коммита при слиянии дают несогласие (один убрал метку, другой
+    // правил её сноску). Такое — столкновение для рецензента, а не отказ.
+    if (change.action !== 'delete' && FOOTNOTE_HOST_FIELDS[change.kind]) {
+      const result = change.action === 'add'
+        ? Object.fromEntries(Object.entries(change.fields ?? {}).map(([k, v]) => [k, v.next]))
+        : { ...(alive ?? {}), ...(merged.apply ?? {}) };
+      const problems = footnoteProblems(change.kind, result);
+      if (problems.length) {
+        conflicts.push({ набор: SET_BY_KIND[change.kind], kind: change.kind, entityId: change.entityId,
+          action: change.action, field: 'footnotes', reason: 'сноски не сходятся с текстом: ' + problems.join('; ') });
+        continue;
+      }
+    }
     toWrite.push({ изм: change, итог: merged, есть: exists, порядок: position });
   }
 
@@ -73,7 +89,11 @@ export async function applyCommit(client, { changes, actorId = null }) {
 
     if (change.action === 'add') {
       const payload = {};
-      for (const [fieldKey, entry] of Object.entries(change.fields)) payload[fieldKey] = entry.next;
+      for (const [fieldKey, entry] of Object.entries(change.fields)) {
+        // пустой необязательный ключ не пишется вовсе — как в файлах семени
+        if (OMITTED_WHEN_EMPTY.includes(fieldKey) && isEmptyOptional(entry.next)) continue;
+        payload[fieldKey] = entry.next;
+      }
       // Сущность могла существовать и быть удалённой — тогда её воскрешают,
       // а не заводят рядом вторую: адрес занят навсегда.
       const ord = exists ? position : await nextOrd(client, change.kind);
@@ -86,8 +106,15 @@ export async function applyCommit(client, { changes, actorId = null }) {
 
     // edit: пишутся ТОЛЬКО чистые поля. Совпавшие уже стоят в базе, и
     // переписывать их значило бы поднимать версию впустую.
+    // Пустой необязательный ключ — это «убрать ключ»: записанный null
+    // разошёлся бы с файлами и был бы неотличим от «источник — пустая строка».
+    const setFields = {}, dropKeys = [];
+    for (const [fieldKey, value] of Object.entries(merged.apply ?? {})) {
+      if (OMITTED_WHEN_EMPTY.includes(fieldKey) && isEmptyOptional(value)) dropKeys.push(fieldKey);
+      else setFields[fieldKey] = value;
+    }
     await patchEntity(client, { kind: change.kind, entityId: change.entityId,
-                                поля: merged.apply, actorId });
+                                поля: setFields, убрать: dropKeys, actorId });
     await stampVersion(client, { kind: change.kind, entityId: change.entityId, версия: version });
     touched++;
   }

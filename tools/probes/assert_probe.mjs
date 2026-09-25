@@ -2243,6 +2243,126 @@ if (модуль) {
   await wait(300);
 }
 
+// ── 10-альфа. СНОСКИ В ОПИСАНИИ (24.09.2026) ────────────────────────────
+// Правка — настоящими нажатиями: кнопка ставит метку туда, где курсор;
+// показ — номера в тексте и источники под ним; наведение подсвечивает ровно
+// свою пару цветом состояния; удаление снимает метку. Затем УТЕЧКА: метка
+// подкладывается во ВСЕ описания, и в местах показа чужих описаний её не
+// должно быть видно — данные сырые, снимает её только показ.
+{
+  await page.evaluate(() => { window.__t.closeUniversalModal(); window.__t.resetHighlight(); });
+  await wait(400);
+  const noteId = await page.evaluate(() => {
+    const A = window.__t, n = A.DATA.nodes.find(n => n.extendedDescription && n.description);
+    A.openUniversalModal('concept', n, 'edit');
+    return n.id;
+  });
+  await wait(600);
+  const insertButton = async () => {
+    const i = await page.$$eval('button', bs => bs.findIndex(b => b.textContent.includes('Вставить сноску')));
+    return (await page.$$('button'))[i];
+  };
+  await page.evaluate(() => { const t = document.getElementById('conceptExtendedDescription');
+    t.focus(); const i = Math.max(1, t.value.indexOf('.')); t.setSelectionRange(i, i); });
+  await (await insertButton()).click(); await wait(200);
+  await page.keyboard.type('DK 22 B1');
+  await page.evaluate(() => { const t = document.getElementById('conceptDescription');
+    t.focus(); t.setSelectionRange(t.value.length, t.value.length); });
+  await (await insertButton()).click(); await wait(200);
+  await page.evaluate(() => { const rows = document.querySelectorAll('[data-fn-row]');
+    const sel = rows[rows.length - 1].querySelector('.fn-status');
+    sel.value = 'source_not_found'; sel.dispatchEvent(new Event('change', { bubbles: true })); });
+  const formNumbers = await page.$$eval('[data-fn-num]', xs => xs.map(x => x.textContent).join(','));
+  await page.evaluate(() => window.__t.saveConceptData());
+  await wait(700);
+  const saved = await page.evaluate(id => {
+    const A = window.__t, c = A.DATA.concepts.find(c => c.id === id);
+    return { notes: c.footnotes || [], marks: ((c.description || '') + (c.extendedDescription || '')).match(/\[\^[a-z0-9]+\]/g) || [],
+             fields: Object.keys(A.lastSubmitted.fields) };
+  }, noteId);
+  проверить('сноски: кнопка ставит метку, запись сохраняет две сноски',
+    saved.notes.length === 2 && saved.marks.length === 2, '2 сноски, 2 метки', `${saved.notes.length}, ${saved.marks.length}`);
+  проверить('сноски: в правку ушли и тексты, и поле footnotes', saved.fields.includes('footnotes')
+    && saved.fields.includes('extendedDescription'), 'footnotes и текст', saved.fields.join(','));
+  проверить('сноски: «не найден» хранится без текста',
+    saved.notes.some(n => n.status === 'source_not_found' && !('text' in n)), 'без text', JSON.stringify(saved.notes));
+
+  await page.evaluate(id => { const A = window.__t; A.openUniversalModal('concept', A.DATA.nodes.find(n => n.id === id), 'view'); }, noteId);
+  await wait(600);
+  const shown = await page.evaluate(() => ({
+    refs: document.querySelectorAll('.description .fn-ref').length,
+    items: [...document.querySelectorAll('.fn-item .fn-num')].map(x => x.textContent).join(','),
+    leaks: (document.body.innerText.match(/\[\^/g) || []).length }));
+  проверить('сноски: номер в тексте, источники под ним, номера как в форме',
+    shown.refs === 1 && shown.items === '1,2' && formNumbers === '1,2',
+    'номер 1 в тексте; 1,2 в списке и в форме', `${shown.refs}; ${shown.items}; форма ${formNumbers}`);
+  const supBox = await (await page.$('.description .fn-ref')).boundingBox();
+  await page.mouse.move(supBox.x + supBox.width / 2, supBox.y + supBox.height / 2);
+  await wait(150);
+  const lit = await page.evaluate(() => {
+    const id = document.querySelector('.description .fn-ref').dataset.fn;
+    const li = document.querySelector(`.fn-item[data-fn="${id}"]`);
+    return { own: li.classList.contains('fn-active'), color: getComputedStyle(li).outlineColor,
+             others: [...document.querySelectorAll('.fn-item')].filter(x => x !== li && x.classList.contains('fn-active')).length };
+  });
+  проверить('сноски: наведение на номер обводит свой источник цветом состояния',
+    lit.own && lit.others === 0 && lit.color === 'rgb(130, 224, 170)',
+    'своя обводка #82E0AA, прочие нет', JSON.stringify(lit));
+
+  await page.evaluate(id => { const A = window.__t; A.openUniversalModal('concept', A.DATA.nodes.find(n => n.id === id), 'edit'); }, noteId);
+  await wait(600);
+  await page.click('[data-fn-row] .fn-remove');
+  await wait(150);
+  const marksLeft = await page.evaluate(() => ((document.getElementById('conceptDescription').value
+    + document.getElementById('conceptExtendedDescription').value).match(/\[\^/g) || []).length);
+  await page.evaluate(() => window.__t.saveConceptData());
+  await wait(700);
+  const afterRemove = await page.evaluate(id => (window.__t.DATA.concepts.find(c => c.id === id).footnotes || []).length, noteId);
+  проверить('сноски: удаление снимает и строку, и метку', marksLeft === 1 && afterRemove === 1,
+    '1 метка, 1 сноска', `${marksLeft}, ${afterRemove}`);
+
+  // утечка: метка во всех описаниях — и в записях, и в копиях узлов и связей
+  const probeNode = await page.evaluate(() => {
+    const A = window.__t, mark = ' [^leak01]';
+    for (const set of [A.DATA.concepts, A.DATA.relations, A.DATA.philosophers, A.DATA.nodes, A.DATA.links])
+      for (const r of set) {
+        if (typeof r.description === 'string') r.description += mark;
+        if (typeof r.extendedDescription === 'string') r.extendedDescription += mark;
+      }
+    A.closeUniversalModal(); A.resetHighlight();
+    const T = A.renderState.transform, rc = A.gfxCanvas.getBoundingClientRect();
+    const n = A.DATA.nodes.filter(n => A.isNodeVisible(n) && T.applyX(n.x) > 300 && T.applyX(n.x) < rc.width - 300
+      && T.applyY(n.y) > 200 && T.applyY(n.y) < rc.height - 200)
+      .sort((a, b) => A.getConceptConnections(b.id).length - A.getConceptConnections(a.id).length)[0];
+    return { id: n.id, x: rc.left + T.applyX(n.x), y: rc.top + T.applyY(n.y), phil: n.concept };
+  });
+  await wait(400);
+  await page.mouse.move(probeNode.x, probeNode.y);
+  await wait(500);
+  const leakTooltip = await page.evaluate(() => (document.body.innerText.match(/\[\^/g) || []).length);
+  const leakViews = [];
+  for (const [kind, key] of [['concept', 'node'], ['philosopher', 'phil'], ['connection', 'link']]) {
+    await page.evaluate(({ kind, key, p }) => {
+      const A = window.__t;
+      const arg = kind === 'concept' ? A.DATA.nodes.find(n => n.id === p.id)
+        : kind === 'philosopher' ? p.phil
+        : A.DATA.links.find(l => (l.source.id || l.source) === p.id || (l.target.id || l.target) === p.id);
+      A.openUniversalModal(kind, arg, 'view');
+    }, { kind, key, p: probeNode });
+    await wait(700);
+    leakViews.push(await page.evaluate(() => {
+      // своё описание окна показывается С НОМЕРОМ: метка без записи даёт «?»,
+      // а не сырую [^…]. Сырая метка где угодно — утечка.
+      return (document.body.innerText.match(/\[\^/g) || []).length;
+    }));
+    await page.evaluate(() => window.__t.closeUniversalModal());
+    await wait(300);
+  }
+  проверить('сноски: метки не просачиваются в подсказку графа и окна (концепция, философ, связь)',
+    leakTooltip === 0 && leakViews.every(n => n === 0), 'подсказка 0; окна 0,0,0',
+    `подсказка ${leakTooltip}; окна ${leakViews.join(',')}`);
+}
+
 // ── 10-бис. первое перетаскивание: будит, но не перестраивает ────────
 // НА СВЕЖЕЙ СТРАНИЦЕ, во второй вкладке. К концу прибора основная страница
 // прошла через правки базы и пути, и каждое будило и гасило укладку: остаток

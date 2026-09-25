@@ -6,6 +6,7 @@ import { initializePhilosophyMetrics } from '../../metrics/link-indexes.js';
 import { INFLUENCE_SCOPE_LABELS, invalidateInfluenceIndexCache } from '../../metrics/philosophical.js';
 import { invalidateGeneratePhilosopherRankingsCache } from '../../metrics/rankings.js';
 import { generateMetricResults, rankKeep } from '../results.js';
+import { withoutFootnotes } from '../../util/html.js';
 
 function setInfluenceScope(scope) {
       if (!INFLUENCE_SCOPE_LABELS[scope] || scope === S.influenceScope) return;
@@ -447,7 +448,7 @@ function generateTensionContent() {
             ${r.node.description ? 
               `<div class="metric-concept-description">
                 <strong>О концепции:</strong>
-                <p>${r.node.description}</p>
+                <p>${withoutFootnotes(r.node.description)}</p>
               </div>` : ''}
           </div>
         `;
@@ -464,7 +465,7 @@ function generateTensionContent() {
         {
           isComposite: true,
           getDetailsHTML: getTensionDetailsHTML,
-          getConceptDescription: (item) => item.node.description
+          getConceptDescription: (item) => withoutFootnotes(item.node.description)
         }
       );
     }

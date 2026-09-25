@@ -5,6 +5,8 @@ import { applyMetricMode } from '../metrics/format.js';
 
 import { generateMetricCoverageBlock } from './coverage.js';
 
+import { withoutFootnotes } from '../util/html.js';
+
 function generateMetricDescriptionBlock(metricKey) {
       const desc = getMetricDescription(metricKey);
       // М4.3: раньше отсутствие записи давало пустую строку, и пропуск
@@ -227,7 +229,7 @@ function generateMetricResults(data, title, description, metricKey, valueKey, is
       const {
         isComposite = false,
         getDetailsHTML = null,
-        getConceptDescription = (item) => item.node.description || null,
+        getConceptDescription = (item) => withoutFootnotes(item.node.description) || null,
         // Приписка к самому числу: короткая, из тех величин, из которых
         // число собрано. Нужна там, где одно число рейтинга без разбора
         // читается неверно — см. мостовость.

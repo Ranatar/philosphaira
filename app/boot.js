@@ -47,6 +47,7 @@ import { selectConnectionViewConcept } from './modules/modal/connection-view.js'
 import { modalStack, openUniversalModal } from './modules/modal/core.js';
 import { refreshEditHints, renderAuthControls } from './modules/modal/edit-rights.js';
 import { closeDetailModal, openEditConceptModal, openEditConnectionModal, showDetailModal } from './modules/modal/entry.js';
+import { installFootnoteLinks } from './modules/modal/forms.js';
 import { makeLegendsEditable } from './modules/modal/philosopher-view.js';
 import { banUserFromPanel, changeUserRoleFromPanel } from './modules/modal/users.js';
 import { initPathFinder } from './modules/paths/path-ui.js';
@@ -182,6 +183,8 @@ export async function boot() {
         S.liveClosedOnPurpose = true;
         if (liveSocket) { try { liveSocket.close(); } catch (e) { /* уже мертво */ } }
       });
+  
+  installFootnoteLinks();
   
   installModalSearchDismiss();
   

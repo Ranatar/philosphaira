@@ -135,6 +135,23 @@ function compareLinks(a, b) {
           || byLabel(aS, bS) || byLabel(aT, bT);                // 4–5. алфавит
     }
 
+function storedRecord(kind, id) {
+      if (id == null) return null;
+      const set = kind === 'concept' ? DATA.concepts : kind === 'relation' ? DATA.relations : DATA.philosophers;
+      return set.find(r => r.id === id) || null;
+    }
+
+const OMITTED_WHEN_EMPTY = ['provenance', 'provenanceStatus', 'footnotes'];
+
+function withoutEmptyOptional(record) {
+      const out = { ...record };
+      for (const k of OMITTED_WHEN_EMPTY) {
+        const v = out[k];
+        if (v == null || v === '' || (Array.isArray(v) && !v.length)) delete out[k];
+      }
+      return out;
+    }
+
 function buildIndexes() {
   DATA.philosopherIdToName = {};
   
@@ -217,4 +234,4 @@ function buildIndexes() {
 // всё, что от них считается, приходилось откладывать в boot.
 buildIndexes();
 
-export { buildConceptToRubrics, buildPhilosopherTraditions, buildRubricsIndex, compareConcepts, compareLinks, comparePhilosophers, conceptById, linkIsInternal, linksByConcept, nodesByPhilosopher, otherEndColor, philosopherByName, rebuildIndexes, rubricById, traditionById };
+export { buildConceptToRubrics, buildPhilosopherTraditions, buildRubricsIndex, compareConcepts, compareLinks, comparePhilosophers, conceptById, linkIsInternal, linksByConcept, nodesByPhilosopher, otherEndColor, philosopherByName, rebuildIndexes, rubricById, storedRecord, traditionById, withoutEmptyOptional };

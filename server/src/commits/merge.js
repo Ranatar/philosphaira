@@ -17,8 +17,12 @@ export function sameValue(a, b) {
 
   if (Array.isArray(a) || Array.isArray(b)) {
     if (!Array.isArray(a) || !Array.isArray(b)) return false;
-    const sa = new Set(a.map(String));
-    const sb = new Set(b.map(String));
+    // Элемент-запись (сноска) сравнивается по СОДЕРЖИМОМУ. Прежде String()
+    // обращал всякую запись в «[object Object]», и два любых списка сносок
+    // равной длины выходили «одинаковыми»: правка текста сноски считалась
+    // уже внесённой и не применялась, чужая — затиралась без столкновения.
+    const sa = new Set(a.map(itemKey));
+    const sb = new Set(b.map(itemKey));
     return sa.size === sb.size && [...sa].every(x => sb.has(x));
   }
   if (typeof a === 'number'  || typeof b === 'number')  return Number(a) === Number(b);
@@ -27,6 +31,9 @@ export function sameValue(a, b) {
 }
 
 const isEmpty  = v => v == null || (typeof v === 'string' && v.trim() === '');
+const itemKey  = x => (x && typeof x === 'object')
+  ? JSON.stringify(Object.keys(x).sort().map(k => [k, typeof x[k] === 'string' ? normText(x[k]) : x[k]]))
+  : String(x);
 const normText = v => String(v).replace(/\r\n?/g, '\n').trim();
 
 export const MERGE = Object.freeze({

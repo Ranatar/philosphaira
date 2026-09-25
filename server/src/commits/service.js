@@ -10,6 +10,7 @@
 // правили одинаково» от «двое правили по-разному».
 
 import { withTransaction } from '../db/tx.js';
+import { footnoteShapeProblems } from '../graph/footnotes.js';
 import { paginate } from '../db/paginate.js';
 import { insertCommit, findCommit, findOwnPendingForUpdate, updateOwnCommit,
          deleteCommit, overlappingPending, commitsFrom, commitsSelect,
@@ -72,6 +73,10 @@ export function assertChanges(changes) {
       }
     }
     assertProvenance(fieldNames, where);
+    if ('footnotes' in fieldNames) {
+      const problems = footnoteShapeProblems(fieldNames.footnotes.next);
+      if (problems.length) throw new Forbidden(`${where}, сноски: ${problems.join('; ')}`);
+    }
   });
   return changes;
 }

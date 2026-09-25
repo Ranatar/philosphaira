@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
-import { conceptById, nodesByPhilosopher, philosopherByName } from '../core/graph-index.js';
+import { conceptById, nodesByPhilosopher, philosopherByName, storedRecord } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { relationHint } from '../core/relation-types.js';
 import { getConceptConnections } from '../graph/graph-data.js';
@@ -9,7 +9,7 @@ import { modalActions } from './assembly.js';
 
 import { linkArrow } from './connection-view.js';
 
-import { provenanceField } from './forms.js';
+import { footnotesField, provenanceField } from './forms.js';
 
 import { getContrastColor } from '../util/color.js';
 import { escapeAttr } from '../util/html.js';
@@ -111,10 +111,11 @@ VIEWS.generatePhilosopherEditContent = function generatePhilosopherEditContent(p
 
         <div class="modal-form-group">
           <label for="philDescription">Описание</label>
-          <textarea id="philDescription" rows="10"
+          <textarea id="philDescription" class="fn-host" rows="10"
                 placeholder="Подробное описание философа...">${philosopherData ? philosopherData.description || '' : ''}</textarea>
         </div>
         ${provenanceField(philosopherData)}
+        ${footnotesField(philosopherData)}
       `;
 
       if (philosopherData) {
@@ -199,16 +200,17 @@ VIEWS.generateConceptEditContent = function generateConceptEditContent(conceptDa
 
         <div class="modal-form-group">
           <label for="conceptDescription">Краткое описание</label>
-          <textarea id="conceptDescription" rows="2"
+          <textarea id="conceptDescription" class="fn-host" rows="2"
                 placeholder="Краткое описание концепции">${conceptData ? conceptData.description || '' : ''}</textarea>
         </div>
 
         <div class="modal-form-group">
           <label for="conceptExtendedDescription">Расширенное описание</label>
-          <textarea id="conceptExtendedDescription" rows="6"
+          <textarea id="conceptExtendedDescription" class="fn-host" data-fn-first rows="6"
                 placeholder="Подробное описание концепции">${conceptData ? conceptData.extendedDescription || '' : ''}</textarea>
         </div>
         ${provenanceField(conceptData)}
+        ${footnotesField(conceptData && (storedRecord('concept', conceptData.id) || conceptData))}
       `;
 
       if (conceptData && conceptData.id) {

@@ -1,9 +1,10 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
-import { philosopherByName } from '../core/graph-index.js';
+import { philosopherByName, storedRecord } from '../core/graph-index.js';
 import { modalEntityExists } from './assembly.js';
 import { ModalContext } from './context.js';
+import { footnotesChanged } from './forms.js';
 
 function hasUnsavedChanges() {
       if (ModalContext.currentMode !== 'edit') return false;
@@ -38,6 +39,7 @@ function hasFilledFields() {
     }
 
 function hasPhilosopherChanges(original) {
+      if (footnotesChanged(philosopherByName.get(original))) return true;
       const philosopherData = philosopherByName.get(original);
       if (!philosopherData) return false;
 
@@ -61,6 +63,7 @@ function hasPhilosopherChanges(original) {
     }
 
 function hasConceptChanges(original) {
+      if (footnotesChanged(storedRecord('concept', original && original.id))) return true;
       const labelInput = document.getElementById('conceptLabel');
       const philSelect = document.getElementById('conceptPhilosopher');
       const rubrSelect = document.getElementById('conceptRubric');
@@ -81,6 +84,7 @@ function hasConceptChanges(original) {
     }
 
 function hasConnectionChanges(original) {
+      if (footnotesChanged(storedRecord('relation', original && original.id))) return true;
       const typeSel   = document.getElementById('connType');
       const weightSel = document.getElementById('connWeight');
       const bidirBox  = document.getElementById('connBidirectional');

@@ -1680,6 +1680,27 @@
       font-size: 10px;
     }
     .provenance-text { color: var(--fg-dim, #c8c8d4); }
+    /* Сноски в описании. Цвета состояний нарочно не из палитры графа: ни
+       типов связей, ни золота выделения, ни жёлтого пунктира противоречия. */
+    .fn-sourced             { --fn-color: #82E0AA; }
+    .fn-editorial_reasoning { --fn-color: #AFC6FF; }
+    .fn-source_not_found    { --fn-color: #F8C471; }
+    .fn-ref { font-size: 0.72em; vertical-align: super; line-height: 0; padding: 0 2px;
+              border-radius: 3px; cursor: pointer; color: var(--fn-color, #9ecbff);
+              outline: 2px solid transparent; outline-offset: 1px; }
+    .fn-ref.fn-active { outline-color: var(--fn-color, #9ecbff); }
+    .fn-list { margin-top: 10px; font-size: 12px; }
+    .fn-list-title { color: var(--fg-muted, #9a9ab0); margin-bottom: 4px; }
+    .fn-list ol { margin: 0; padding: 0; list-style: none; }
+    .fn-item { display: flex; gap: 8px; align-items: baseline; padding: 3px 6px; margin: 2px 0;
+               border-radius: 4px; outline: 2px solid transparent; outline-offset: 1px; }
+    .fn-item.fn-active { outline-color: var(--fn-color); background: rgba(255, 255, 255, 0.04); }
+    .fn-num { min-width: 1.4em; color: var(--fg-muted, #9a9ab0); text-align: right; }
+    .fn-state { color: var(--fn-color); font-weight: 600; white-space: nowrap; }
+    .fn-text { color: var(--fg-dim, #c8c8d4); }
+    .fn-row { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
+    .fn-row .fn-text { flex: 1; }
+    .fn-row-warn { color: #F8C471; font-size: 11px; }
 
     .connection-description {
       /* `width:100%` при отступах слева и справа даёт коробку ШИРЕ родителя
@@ -24787,7 +24808,7 @@
             <span class="path-philosopher">${node.concept}</span>
             <span class="path-node path-open" style="border-color: ${philosopherColor};"
                   onclick="openConceptById('${node.id}')"
-                  data-tip="${node.concept}: ${node.description} · щёлкните, чтобы открыть">
+                  data-tip="${node.concept}: ${withoutFootnotes(node.description)} · щёлкните, чтобы открыть">
               ${node.label}
             </span>
           </span>
@@ -24804,7 +24825,7 @@
           if (link) {
             const linkColor = relationTypesObj[link.type].color;
             const linkLabel = relationTypesObj[link.type].label;
-            const linkDescription = link.description || '';
+            const linkDescription = withoutFootnotes(link.description) || '';
             const src = link.source.id || link.source;
             const tgt = link.target.id || link.target;
             
@@ -25139,7 +25160,7 @@
                data-tip="Открыть окно философа">
             ${node.concept}${phil ? ' · ' + phil.years : ''}
           </div>
-          <p><strong>Описание:</strong> ${node.extendedDescription || 'Описание отсутствует'}</p>
+          <p><strong>Описание:</strong> ${withoutFootnotes(node.extendedDescription) || 'Описание отсутствует'}</p>
         </div>
       `;
       };
@@ -25191,7 +25212,7 @@
                      </div>`;
               })()}
               ${link.description ? `
-                <div class="path-description-text">${link.description}</div>
+                <div class="path-description-text">${withoutFootnotes(link.description)}</div>
               ` : `
                 <div class="path-description-text" style="color: var(--fg-muted); font-style: italic;">
                   Описание связи отсутствует
@@ -32739,7 +32760,7 @@
             <span class="sel-meta">${escapeAttr(p.years || '')} · концепций в отборе ${selectionPhilCount[p.nameRu] || 0}</span>
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(p.description || 'Описания нет')}</div>` : ''}
+          ${openBody ? `<div class="sel-body">${escapeAttr(withoutFootnotes(p.description) || 'Описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -32761,8 +32782,8 @@
             <span class="sel-name" onclick="openUniversalModal('concept', nodes.find(x => x.id === '${escapeAttr(n.id)}'), 'view')">${escapeAttr(n.label)}</span>
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
-          <div class="sel-caption">${escapeAttr(n.description || '')}</div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(n.extendedDescription || 'Пространного описания нет')}</div>` : ''}
+          <div class="sel-caption">${escapeAttr(withoutFootnotes(n.description) || '')}</div>
+          ${openBody ? `<div class="sel-body">${escapeAttr(withoutFootnotes(n.extendedDescription) || 'Пространного описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -32815,7 +32836,7 @@
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
           ${caption ? `<div class="sel-caption">${escapeAttr(caption)}</div>` : ''}
-          ${openBody ? `<div class="sel-body">${escapeAttr(l.description || 'Описания нет')}</div>` : ''}
+          ${openBody ? `<div class="sel-body">${escapeAttr(withoutFootnotes(l.description) || 'Описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -33920,7 +33941,7 @@
       const {
         isComposite = false,
         getDetailsHTML = null,
-        getConceptDescription = (item) => item.node.description || null,
+        getConceptDescription = (item) => withoutFootnotes(item.node.description) || null,
         // Приписка к самому числу: короткая, из тех величин, из которых
         // число собрано. Нужна там, где одно число рейтинга без разбора
         // читается неверно — см. мостовость.
@@ -34723,7 +34744,7 @@
             ${r.node.description ? 
               `<div class="metric-concept-description">
                 <strong>О концепции:</strong>
-                <p>${r.node.description}</p>
+                <p>${withoutFootnotes(r.node.description)}</p>
               </div>` : ''}
           </div>
         `;
@@ -34740,7 +34761,7 @@
         {
           isComposite: true,
           getDetailsHTML: getTensionDetailsHTML,
-          getConceptDescription: (item) => item.node.description
+          getConceptDescription: (item) => withoutFootnotes(item.node.description)
         }
       );
     }
@@ -38358,6 +38379,30 @@
     // Перебор узлов и дуг на движение мыши дёшев и устареть не может: он
     // смотрит на то, что нарисовано сейчас, той же геометрией (linkShape).
 
+    // Запись базы по идентификатору. Окна показывают источник и сноски ИЗ
+    // НЕЁ, а не из узла: узлы строятся по перечню полей и отставали от
+    // записи (правка не переносила в узел происхождение, начальные связи не
+    // несли его вовсе).
+    function storedRecord(kind, id) {
+      if (id == null) return null;
+      const set = kind === 'concept' ? concepts : kind === 'relation' ? relations : philosophers;
+      return set.find(r => r.id === id) || null;
+    }
+
+    // Необязательные ключи сущности, которые НЕ ПИШУТСЯ пустыми — тот же
+    // перечень, что на сервере (graph/schema.js, OMITTED_WHEN_EMPTY). Новое
+    // значение правки несёт их всегда, пустые — null: иначе очистка не
+    // доходит до коммита. Прочие null (death у живущего) хранятся как есть.
+    const OMITTED_WHEN_EMPTY = ['provenance', 'provenanceStatus', 'footnotes'];
+    function withoutEmptyOptional(record) {
+      const out = { ...record };
+      for (const k of OMITTED_WHEN_EMPTY) {
+        const v = out[k];
+        if (v == null || v === '' || (Array.isArray(v) && !v.length)) delete out[k];
+      }
+      return out;
+    }
+
     function toGraph(clientX, clientY) {
       const rect = gfxCanvas.getBoundingClientRect();
       return renderState.transform.invert([clientX - rect.left, clientY - rect.top]);
@@ -39030,7 +39075,7 @@
         }
         tooltip
           .style("opacity", 1)
-          .html(`<strong>${labelWithAuthor(d)}</strong><br/>${d.description}<br/><em>${d.concept}</em>${simNote}`)
+          .html(`<strong>${labelWithAuthor(d)}</strong><br/>${withoutFootnotes(d.description)}<br/><em>${d.concept}</em>${simNote}`)
           .style("left", (event.pageX + 15) + "px")
           .style("top", (event.pageY - 15) + "px");
       }, 100); // Небольшая задержка
@@ -39148,7 +39193,7 @@
       
       // Для выделенных связей добавляем описание, если оно есть
       if (selectedEdges.has(d) && d.description) {
-        tooltipContent += `<div class="tooltip-description">${d.description}</div>`;
+        tooltipContent += `<div class="tooltip-description">${withoutFootnotes(d.description)}</div>`;
       }
       
       tooltip.innerHTML = tooltipContent;
@@ -40588,6 +40633,7 @@
     }
 
     function hasPhilosopherChanges(original) {
+      if (footnotesChanged(philosopherByName.get(original))) return true;
       const philosopherData = philosopherByName.get(original);
       if (!philosopherData) return false;
 
@@ -40611,6 +40657,7 @@
     }
 
     function hasConceptChanges(original) {
+      if (footnotesChanged(storedRecord('concept', original && original.id))) return true;
       const labelInput = document.getElementById('conceptLabel');
       const philSelect = document.getElementById('conceptPhilosopher');
       const rubrSelect = document.getElementById('conceptRubric');
@@ -40631,6 +40678,7 @@
     }
 
     function hasConnectionChanges(original) {
+      if (footnotesChanged(storedRecord('relation', original && original.id))) return true;
       const typeSel   = document.getElementById('connType');
       const weightSel = document.getElementById('connWeight');
       const bidirBox  = document.getElementById('connBidirectional');
@@ -41580,6 +41628,35 @@
         + rows.join('') + '</div>';
     }
 
+    /**
+     * СНОСКИ — РЕЦЕНЗЕНТУ ТАК ЖЕ, КАК ОСНОВАНИЕ: не «поле footnotes тронуто»,
+     * а какая сноска добавлена, убрана или сменила состояние и текст. Сноски
+     * сличаются по постоянному id; номер в разборе не показывается — он
+     * зависит от места метки в тексте и мог смениться сам.
+     */
+    function footnotesDiff(changes) {
+      const say = n => (FOOTNOTE_LABELS[n.status] || n.status)
+        + (n.status === 'source_not_found' ? '' : ': ' + (n.text || '—'));
+      const rows = [];
+      for (const change of changes || []) {
+        const f = (change.fields || {}).footnotes;
+        if (!f) continue;
+        const was = new Map((f.base || []).map(n => [n.id, n]));
+        const now = new Map((f.next || []).map(n => [n.id, n]));
+        const row = (what, a, b) => rows.push('<div class="prov-diff-row">'
+          + '<span class="prov-diff-what">' + escapeAttr((change.entityId || '') + ' · ' + what) + '</span>'
+          + '<span class="prov-diff-was">было: ' + escapeAttr(a) + '</span>'
+          + '<span class="prov-diff-now">стало: ' + escapeAttr(b) + '</span></div>');
+        for (const [id, n] of now) {
+          if (!was.has(id)) row('сноска ' + id + ' добавлена', '—', say(n));
+          else if (say(was.get(id)) !== say(n)) row('сноска ' + id + ' изменена', say(was.get(id)), say(n));
+        }
+        for (const [id, n] of was) if (!now.has(id)) row('сноска ' + id + ' убрана', say(n), '—');
+      }
+      if (!rows.length) return '';
+      return '<div class="prov-diff"><div class="prov-diff-head">Сноски</div>' + rows.join('') + '</div>';
+    }
+
     function stateInWords(stateCode) {
       const found = PROVENANCE_STATES.find(([candidate]) => candidate === (stateCode || 'unspecified'));
       return found ? found[1] : String(stateCode);
@@ -41724,6 +41801,7 @@
         return '<div class="commit-item">'
           + head
           + provenanceDiff(commit.changes)
+          + footnotesDiff(commit.changes)
           + `<div class="commit-meta">${escapeAttr(commit.authorName || '')} · `
           + `<span class="commit-state state-${commitStateKind(commit.status)}">`
           + `${escapeAttr(commitStateWords(commit.status))}</span></div>`
@@ -42585,6 +42663,85 @@
         + '<span class="provenance-text">' + body + '</span></div>';
     }
 
+    // ---- сноски в описании: показ ---------------------------------------
+    // Устройство и правило согласия — server/src/graph/footnotes.js. В тексте
+    // метка [^id], записи { id, status, text } — в поле footnotes сущности.
+    // Номер «1, 2, 3» не хранится: его даёт показ по порядку первого
+    // появления метки. Данные везде остаются СЫРЫМИ, метки снимаются только
+    // при показе: «было» коммита берётся из записи, и текст без меток там
+    // разошёлся бы с базой — всякая правка описания стала бы столкновением.
+    const FOOTNOTE_MARK_SOURCE = String.raw`\[\^([a-z0-9]{1,12})\]`;
+    // Те же слова, что у источника сущности (provenanceBlock): у одного
+    // состояния одно имя.
+    const FOOTNOTE_LABELS = { sourced: 'Источник', editorial_reasoning: 'Основание',
+                              source_not_found: 'Источник не найден' };
+    const FOOTNOTE_STATE_ORDER = ['sourced', 'editorial_reasoning', 'source_not_found'];
+
+    // Текст без меток — для всякого показа, кроме своего окна сущности.
+    function withoutFootnotes(text) {
+      if (text == null) return text;
+      return String(text).replace(new RegExp('\\s?' + FOOTNOTE_MARK_SOURCE, 'g'), '');
+    }
+
+    // Номера сносок: порядок первого появления меток в переданных текстах.
+    function footnoteOrder(...texts) {
+      const order = new Map();
+      for (const text of texts) {
+        if (typeof text !== 'string') continue;
+        for (const m of text.matchAll(new RegExp(FOOTNOTE_MARK_SOURCE, 'g')))
+          if (!order.has(m[1])) order.set(m[1], order.size + 1);
+      }
+      return order;
+    }
+
+    // Текст своего окна: метки становятся надстрочными номерами.
+    function footnotedText(text, order, notes) {
+      if (text == null) return text;
+      const status = new Map((notes || []).map(n => [n.id, n.status]));
+      return String(text).replace(new RegExp(FOOTNOTE_MARK_SOURCE, 'g'), (whole, id) => {
+        const n = order.get(id);
+        const cls = status.has(id) ? ' fn-' + status.get(id) : '';
+        return `<sup class="fn-ref${cls}" data-fn="${id}" tabindex="0" role="button"`
+          + ` aria-label="сноска ${n || '?'}">${n || '?'}</sup>`;
+      });
+    }
+
+    // Источники к тексту: по номеру, с подписью состояния — различие не
+    // держится на одном цвете.
+    function footnotesBlock(notes, order) {
+      if (!notes || !notes.length) return '';
+      const items = notes.slice()
+        .sort((a, b) => (order.get(a.id) || 1e9) - (order.get(b.id) || 1e9))
+        .map(n => `<li class="fn-item fn-${n.status}" data-fn="${n.id}" tabindex="0">`
+          + `<span class="fn-num">${order.get(n.id) || '—'}</span>`
+          + `<span class="fn-state">${FOOTNOTE_LABELS[n.status] || n.status}</span>`
+          + `<span class="fn-text">${n.status === 'source_not_found' ? 'искали, пока не нашли' : escapeAttr(n.text || '')}</span></li>`)
+        .join('');
+      return `<div class="fn-list"><div class="fn-list-title">Источники к тексту</div><ol>${items}</ol></div>`;
+    }
+
+    // Подсветка пары «номер — источник». Наведение, фокус с клавиатуры и
+    // касание (на телефоне наведения нет). Здесь же — какое поле описания
+    // правили последним: туда встаёт новая метка.
+    let lastFootnoteHost = null;
+    function installFootnoteLinks() {
+      const light = id => document.querySelectorAll('[data-fn]').forEach(x =>
+        x.classList.toggle('fn-active', x.dataset.fn === id));
+      const at = ev => ev.target && ev.target.closest ? ev.target.closest('[data-fn]') : null;
+      document.addEventListener('mouseover', ev => { const el = at(ev); if (el) light(el.dataset.fn); });
+      document.addEventListener('mouseout',  ev => { if (at(ev)) light(null); });
+      document.addEventListener('focusin',   ev => {
+        const el = at(ev); if (el) light(el.dataset.fn);
+        if (ev.target && ev.target.classList && ev.target.classList.contains('fn-host')) lastFootnoteHost = ev.target;
+      });
+      document.addEventListener('focusout',  ev => { if (at(ev)) light(null); });
+      document.addEventListener('click',     ev => { const el = at(ev); if (el) light(el.dataset.fn); });
+      document.addEventListener('input',     ev => {
+        if (ev.target && ev.target.classList && ev.target.classList.contains('fn-host')) refreshFootnoteRows();
+      });
+    }
+    installFootnoteLinks();
+
     function escapeAttr(s) {
       return String(s == null ? '' : s).replace(/&/g, '&amp;')
         .replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -42937,6 +43094,10 @@
 
       // Происхождение читается ДО заслона: заслон о нём и спрашивает.
       const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
+      const footnotes = footnotesValue();
+      if (footnotes.problems.length) {
+        alert('Сноски не сходятся с текстом:\n\n' + footnotes.problems.join('\n')); return;
+      }
 
       // Полнота (у каждого хотя бы одна традиция) — договорённость, а не
       // запрет: предупреждаем и даём сохранить, как принято в этом окне.
@@ -42967,7 +43128,8 @@
       // у созданного философа не будет ни традиции, ни раздела в окне.
       const next = { name, nameRu: name, color,
                 birth, death, years, traditions: traditionIds, description,
-                ...provenanceFields(provenance, provenanceStatus) };
+                ...provenanceFields(provenance, provenanceStatus),
+                footnotes: footnotes.list.length ? footnotes.list : null };
       const philId = isNew
         ? (name.toLowerCase().replace(/\s+/g, '_')
              .replace(/[^a-z0-9_а-яё]/gi, '') || generateId('phil'))
@@ -42978,11 +43140,11 @@
                  isNew ? null : philosophers[i], next),
         () => {
           if (isNew) {
-            philosophers.push({ id: philId, ...next });
+            philosophers.push(withoutEmptyOptional({ id: philId, ...next }));
           } else {
             const oldName = originalName;
             const oldId   = philosophers[i].id;
-            philosophers[i] = { ...philosophers[i], ...next };
+            philosophers[i] = withoutEmptyOptional({ ...philosophers[i], ...next });
 
             if (name !== oldName) {
               // Переименование тянет за собой больше, чем в unimod:
@@ -43081,6 +43243,10 @@
       const description = descEl ? descEl.value.trim() : '';
       const extendedDescription = extEl ? extEl.value.trim() : '';
       const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
+      const footnotes = footnotesValue();
+      if (footnotes.problems.length) {
+        alert('Сноски не сходятся с текстом:\n\n' + footnotes.problems.join('\n')); return;
+      }
 
       if (!label || !philosopher) {
         alert('Укажите название концепции и философа'); return;
@@ -43105,17 +43271,19 @@
       // «источник — пустая строка».
       const next = { label, philosopher: philData.id,
               rubrics: selectedRubricIds, description, extendedDescription,
-              ...provenanceFields(provenance, provenanceStatus) };
+              ...provenanceFields(provenance, provenanceStatus),
+                footnotes: footnotes.list.length ? footnotes.list : null };
 
       if (isNew) {
         const id = generateId('concept');
         const newNode = { id, label, concept: philosopher,
                   rubrics: selectedRubricIds, description, extendedDescription,
-                  ...provenanceFields(provenance, provenanceStatus) };
+                  ...provenanceFields(provenance, provenanceStatus),
+                footnotes: footnotes.list.length ? footnotes.list : null };
         submitChange(
           describeChange('add', 'concept', id, null, next),
           () => {
-            concepts.push({ id, ...next });
+            concepts.push(withoutEmptyOptional({ id, ...next }));
             nodes.push(newNode);
             conceptToRubrics[id] = selectedRubricIds;
             addNodeToGraph(newNode);
@@ -43132,7 +43300,7 @@
       submitChange(
         describeChange('edit', 'concept', original.id, concepts[ci], next),
         () => {
-          concepts[ci] = { ...concepts[ci], ...next };
+          concepts[ci] = withoutEmptyOptional({ ...concepts[ci], ...next });
           nodes[ni] = Object.assign(nodes[ni], { label, concept: philosopher,
                    rubrics: selectedRubricIds, description, extendedDescription });
           conceptToRubrics[original.id] = selectedRubricIds;
@@ -43229,6 +43397,10 @@
           original.target.id || original.target, false);
 
       const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
+      const footnotes = footnotesValue();
+      if (footnotes.problems.length) {
+        alert('Сноски не сходятся с текстом:\n\n' + footnotes.problems.join('\n')); return;
+      }
       if (!confirmWarnings('Сохранение связи',
           connectionIntegrityWarnings(source, target, type, weight,
                         bidirectional, originalLink)
@@ -43239,7 +43411,8 @@
       // идентификаторами. В links те же концы — объектами узлов, и путать
       // их нельзя: сервер примет только первое.
       const next = { source, target, type, weight, bidirectional, description,
-                ...provenanceFields(provenance, provenanceStatus) };
+                ...provenanceFields(provenance, provenanceStatus),
+                footnotes: footnotes.list.length ? footnotes.list : null };
 
       if (isNew) {
         const id = generateId('rel');
@@ -43247,7 +43420,7 @@
         submitChange(
           describeChange('add', 'relation', id, null, next),
           () => {
-            relations.push({ id, ...next });
+            relations.push(withoutEmptyOptional({ id, ...next }));
             links.push(newLink);
             addLinkToGraph(newLink);
             afterDataChange({ nodes: true, links: true });
@@ -43272,13 +43445,13 @@
           Object.assign(originalLink, { source: srcNode, target: tgtNode,
                           type, weight, bidirectional, description });
           if (ri !== -1) {
-            relations[ri] = { ...relations[ri], ...next };
+            relations[ri] = withoutEmptyOptional({ ...relations[ri], ...next });
           } else {
             // Запасная ветка: связь есть в links, но не в relations. Имя берём
             // прежнее, чтобы адрес не сменился на ровном месте.
             const id = originalLink.id || generateId('rel');
             originalLink.id = id;
-            relations.push({ id, ...next });
+            relations.push(withoutEmptyOptional({ id, ...next }));
           }
 
           updateLinkOnGraph();
@@ -43427,11 +43600,127 @@
      * концепции, разойтись с файлами и снова смешать «нет» с «не указано» —
      * ровно то, от чего состояние и заводилось.
      */
+    // Ключи есть ВСЕГДА, пустые — null: иначе очистка источника не доходила
+    // до коммита (describeChange перебирает ключи нового значения). В запись
+    // пустыми они не попадают — их снимает withoutEmptyOptional.
     function provenanceFields(line, state) {
-      const fields = {};
-      if (line) fields.provenance = line;
-      if (state && state !== 'unspecified') fields.provenanceStatus = state;
-      return fields;
+      return { provenance: line || null,
+               provenanceStatus: (state && state !== 'unspecified') ? state : null };
+    }
+
+    // ---- сноски в описании: правка --------------------------------------
+    function footnoteRow(note) {
+      const opts = FOOTNOTE_STATE_ORDER.map(st =>
+        `<option value="${st}"${st === note.status ? ' selected' : ''}>${FOOTNOTE_LABELS[st]}</option>`).join('');
+      return `<div class="fn-row" data-fn-row="${note.id}">`
+        + `<span class="fn-num" data-fn-num></span>`
+        + `<select class="fn-status" onchange="refreshFootnoteRows()">${opts}</select>`
+        + `<input type="text" class="fn-text" maxlength="300" value="${escapeAttr(note.text || '')}"`
+        + ` placeholder="Локус: книга, глава, фрагмент">`
+        + `<button type="button" class="fn-remove" title="Удалить сноску вместе с меткой"`
+        + ` onclick="removeFootnote('${note.id}')">×</button>`
+        + `<span class="fn-row-warn" data-fn-warn></span></div>`;
+    }
+
+    function footnotesField(record) {
+      const notes = (record && record.footnotes) || [];
+      return `
+        <div class="modal-form-group fn-editor">
+          <label>Сноски к описанию <span class="необязательно">(необязательно)</span></label>
+          <div class="modal-form-note">Поставьте курсор в описание и нажмите «Вставить сноску»:
+            в текст встанет метка вида [^…], а ниже — строка её источника. Источник всей
+            записи (поле выше) от сносок не зависит.</div>
+          <div id="fnRows">${notes.map(footnoteRow).join('')}</div>
+          <div class="modal-form-note" id="fnSummary"></div>
+          <button type="button" class="btn btn-secondary" onclick="insertFootnote()">Вставить сноску</button>
+        </div>`;
+    }
+
+    // Порядок полей для нумерации — ТОТ ЖЕ, что в окне просмотра: у концепции
+    // пространное описание первым (окно показывает его, краткое — нет), иначе
+    // одна и та же сноска носила бы в форме и в окне разные номера.
+    function footnoteHosts() {
+      const hosts = Array.from(document.querySelectorAll('textarea.fn-host'));
+      return hosts.filter(h => h.hasAttribute('data-fn-first')).concat(hosts.filter(h => !h.hasAttribute('data-fn-first')));
+    }
+
+    function insertFootnote() {
+      const hosts = footnoteHosts();
+      if (!hosts.length) return;
+      const host = hosts.includes(lastFootnoteHost) ? lastFootnoteHost : hosts[hosts.length - 1];
+      const taken = new Set([...footnoteOrder(...hosts.map(h => h.value)).keys(),
+        ...Array.from(document.querySelectorAll('[data-fn-row]')).map(r => r.dataset.fnRow)]);
+      // Наименьший свободный f1, f2, … в пределах сущности. Не случайный:
+      // случайность ничего не давала (одновременная правка сносок одной
+      // сущности всё равно сталкивается целым полем), а делала неповторимым
+      // полный обход — нажатие «Вставить сноску» давало всякий раз иное окно.
+      let k = 1;
+      while (taken.has('f' + k)) k++;
+      const id = 'f' + k;
+      const at = host.selectionEnd != null ? host.selectionEnd : host.value.length;
+      host.value = host.value.slice(0, at) + `[^${id}]` + host.value.slice(at);
+      host.selectionStart = host.selectionEnd = at + id.length + 3;
+      const rows = document.getElementById('fnRows');
+      rows.insertAdjacentHTML('beforeend', footnoteRow({ id, status: 'sourced', text: '' }));
+      refreshFootnoteRows();
+      const input = rows.querySelector(`[data-fn-row="${id}"] .fn-text`);
+      if (input) input.focus();
+    }
+
+    function removeFootnote(id) {
+      const row = document.querySelector(`[data-fn-row="${id}"]`);
+      if (row) row.remove();
+      const mark = new RegExp('\\s?\\[\\^' + id + '\\]', 'g');
+      footnoteHosts().forEach(h => { h.value = h.value.replace(mark, ''); });
+      refreshFootnoteRows();
+    }
+
+    // Номера, пометки о несогласии и поле текста по состоянию: у «не найден»
+    // текста источника нет и быть не может (то же правило, что у записи).
+    function refreshFootnoteRows() {
+      const rows = Array.from(document.querySelectorAll('[data-fn-row]'));
+      const order = footnoteOrder(...footnoteHosts().map(h => h.value));
+      for (const row of rows) {
+        const id = row.dataset.fnRow, n = order.get(id);
+        row.querySelector('[data-fn-num]').textContent = n ? String(n) : '—';
+        row.querySelector('[data-fn-warn]').textContent = n ? '' : 'метки в тексте нет';
+        const st = row.querySelector('.fn-status').value, input = row.querySelector('.fn-text');
+        input.style.display = st === 'source_not_found' ? 'none' : '';
+        if (st === 'source_not_found') input.value = '';
+        input.placeholder = st === 'editorial_reasoning' ? 'Своими словами: на чём держится утверждение'
+                                                         : 'Локус: книга, глава, фрагмент';
+      }
+      const listed = new Set(rows.map(r => r.dataset.fnRow));
+      const orphan = [...order.keys()].filter(id => !listed.has(id));
+      const summary = document.getElementById('fnSummary');
+      if (summary) summary.textContent = orphan.length
+        ? `В тексте есть метки без строки источника: ${orphan.map(id => '[^' + id + ']').join(', ')}` : '';
+    }
+
+    // Список сносок из формы и несогласия, по которым сохранять нельзя.
+    function footnotesValue() {
+      const rows = Array.from(document.querySelectorAll('[data-fn-row]'));
+      const order = footnoteOrder(...footnoteHosts().map(h => h.value));
+      const list = [], problems = [];
+      for (const row of rows) {
+        const id = row.dataset.fnRow, status = row.querySelector('.fn-status').value;
+        const text = row.querySelector('.fn-text').value.trim();
+        const n = order.get(id);
+        if (!n) problems.push(`сноска ${id}: метки в тексте нет — удалите строку или верните метку`);
+        if (status !== 'source_not_found' && !text) problems.push(`сноска ${n || id}: у состояния «${FOOTNOTE_LABELS[status]}» нужен текст`);
+        list.push(status === 'source_not_found' ? { id, status } : { id, status, text });
+      }
+      const listed = new Set(list.map(x => x.id));
+      for (const id of order.keys()) if (!listed.has(id)) problems.push(`метка [^${id}] без строки источника`);
+      list.sort((a, b) => (order.get(a.id) || 1e9) - (order.get(b.id) || 1e9));
+      return { list, problems };
+    }
+
+    // Меняли ли сноски в открытой форме — для вопроса о несохранённом.
+    function footnotesChanged(record) {
+      if (!document.getElementById('fnRows')) return false;
+      const key = arr => JSON.stringify((arr || []).map(n => [n.id, n.status, (n.text || '').trim()]).sort());
+      return key(footnotesValue().list) !== key(record && record.footnotes);
     }
 
     function needsCitation(state) {
@@ -43575,10 +43864,11 @@
 
         <div class="modal-form-group">
           <label for="philDescription">Описание</label>
-          <textarea id="philDescription" rows="10"
+          <textarea id="philDescription" class="fn-host" rows="10"
                 placeholder="Подробное описание философа...">${philosopherData ? philosopherData.description || '' : ''}</textarea>
         </div>
         ${provenanceField(philosopherData)}
+        ${footnotesField(philosopherData)}
       `;
 
       if (philosopherData) {
@@ -43667,16 +43957,17 @@
 
         <div class="modal-form-group">
           <label for="conceptDescription">Краткое описание</label>
-          <textarea id="conceptDescription" rows="2"
+          <textarea id="conceptDescription" class="fn-host" rows="2"
                 placeholder="Краткое описание концепции">${conceptData ? conceptData.description || '' : ''}</textarea>
         </div>
 
         <div class="modal-form-group">
           <label for="conceptExtendedDescription">Расширенное описание</label>
-          <textarea id="conceptExtendedDescription" rows="6"
+          <textarea id="conceptExtendedDescription" class="fn-host" data-fn-first rows="6"
                 placeholder="Подробное описание концепции">${conceptData ? conceptData.extendedDescription || '' : ''}</textarea>
         </div>
         ${provenanceField(conceptData)}
+        ${footnotesField(conceptData && (storedRecord('concept', conceptData.id) || conceptData))}
       `;
 
       if (conceptData && conceptData.id) {
@@ -43921,13 +44212,14 @@
 
         <div class="modal-form-group">
           <label for="connDescription">Описание связи</label>
-          <textarea id="connDescription" rows="4"
+          <textarea id="connDescription" class="fn-host" rows="4"
                 placeholder="Две фразы: первая называет отношение и даёт краткую формулу, вторая разворачивает">${connectionData ? connectionData.description || '' : ''}</textarea>
           <div class="modal-form-note">
             Описания в базе — 190–270 знаков, две фразы.
           </div>
         </div>
         ${provenanceField(connectionData)}
+        ${footnotesField(connectionData && (storedRecord('relation', connectionData.id) || connectionData))}
       `;
 
       html += modalActions('saveConnectionData', 'deleteConnection',
@@ -44232,8 +44524,8 @@
               </div>
               ${conn.description ? `
                 <div class="connection-description show" style="margin-top:10px;padding:10px;background:rgba(108,92,231,0.1);border-radius:6px;font-size:12px;color:#e0e0e0;line-height:1.5;">
-                  ${conn.description}
-                </div>${provenanceBlock(conn.provenance, conn.provenanceStatus)}` : `
+                  ${footnotedText(conn.description, footnoteOrder(conn.description), (storedRecord('relation', conn.id) || conn).footnotes)}
+                </div>${provenanceBlock((storedRecord('relation', conn.id) || conn).provenance, (storedRecord('relation', conn.id) || conn).provenanceStatus)}${footnotesBlock((storedRecord('relation', conn.id) || conn).footnotes, footnoteOrder(conn.description))}` : `
                 <div style="margin-top:10px;font-size:11px;color: var(--fg-muted);font-style:italic;">
                   Описания у этой связи нет
                 </div>`}
@@ -44486,6 +44778,9 @@
     // metrics15 со всеми его наработками (поиск внутри окна, покрытие
     // описаниями по подсекциям, вес связи, блок похожих концепций).
     function generateConceptViewContent(conceptData) {
+      // Источник и сноски — из записи базы: узел мог отстать от неё.
+      const conceptRecord = storedRecord('concept', conceptData.id) || conceptData;
+      const conceptNotes = footnoteOrder(conceptRecord.extendedDescription, conceptRecord.description);
       if (!conceptData) return '<p>Концепция не найдена</p>';
       // Получаем рубрики этой концепции
       const conceptRubrics = conceptToRubrics[conceptData.id] || [];
@@ -44512,8 +44807,9 @@
            data-tip="Кликните для просмотра информации о философе">
           ${conceptData.concept}
         </div>
-        <div class="description">${conceptData.extendedDescription}</div>
-        ${provenanceBlock(conceptData.provenance, conceptData.provenanceStatus)}
+        <div class="description">${footnotedText(conceptRecord.extendedDescription, conceptNotes, conceptRecord.footnotes)}</div>
+        ${provenanceBlock(conceptRecord.provenance, conceptRecord.provenanceStatus)}
+        ${footnotesBlock(conceptRecord.footnotes, conceptNotes)}
         ${historyBlock('concept', conceptData.id)}
         <button class="goto-node-btn" onclick="gotoNodeFromModal('${conceptData.id}')">
           🎯 Перейти к узлу
@@ -44618,7 +44914,7 @@
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-${conceptData.id}-${connectedNode.id}">
-                  ${conn.description}
+                  ${withoutFootnotes(conn.description)}
                 </div>
               ` : ''}
             `;
@@ -44670,7 +44966,7 @@
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-${conceptData.id}-${connectedNode.id}">
-                  ${conn.description}
+                  ${withoutFootnotes(conn.description)}
                 </div>
               ` : ''}
             `;
@@ -45016,7 +45312,9 @@
       const philColor = philosopherConcepts[philosopherName].color;
       
       // Формируем описание с переносами строк
-      const formattedDescription = philosopherData.description.replace(/\n\n/g, '<br><br>');
+      const philNotes = footnoteOrder(philosopherData.description);
+      const formattedDescription = footnotedText(philosopherData.description, philNotes, philosopherData.footnotes)
+        .replace(/\n\n/g, '<br><br>');
       
       let html = `
         <div id="philSearch">
@@ -45040,6 +45338,7 @@
         </div>
         <div class="description">${formattedDescription}</div>
         ${provenanceBlock(philosopherData.provenance, philosopherData.provenanceStatus)}
+        ${footnotesBlock(philosopherData.footnotes, philNotes)}
         ${historyBlock('philosopher', philosopherData.id)}
         <button class="goto-node-btn" onclick="closeUniversalModal(); setTimeout(() => showPhilosopherProfileModal('${philosopherName}'), 100);">
           📊 Статистический профиль
@@ -45296,9 +45595,9 @@
                 <div class="concept-details-name">${conceptNode.label}</div>
                 <button class="toggle-concept-desc-btn" onclick="event.stopPropagation(); togglePhilosopherConceptDescription('${conceptNode.id}')">▼</button>
               </div>
-              <div class="concept-short-desc">${conceptNode.description}</div>
+              <div class="concept-short-desc">${withoutFootnotes(conceptNode.description)}</div>
               <div class="concept-extended-desc" id="phil-concept-desc-${conceptNode.id}">
-                ${conceptNode.extendedDescription}
+                ${withoutFootnotes(conceptNode.extendedDescription)}
               </div>
             </div>
           `;
@@ -45403,7 +45702,7 @@
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-phil-${srcNode.id}-${tgtNode.id}">
-                  ${conn.description}
+                  ${withoutFootnotes(conn.description)}
                 </div>
               ` : ''}
             `;
@@ -45471,7 +45770,7 @@
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-phil-${srcNode.id}-${tgtNode.id}">
-                  ${conn.description}
+                  ${withoutFootnotes(conn.description)}
                 </div>
               ` : ''}
             `;

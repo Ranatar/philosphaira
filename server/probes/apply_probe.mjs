@@ -242,6 +242,78 @@ try {
     (await отказ(() => directCommit(pool, { actor: редактор, message: 'мимо',
       changes: правка('name', 'Прямая', 'Моя') }))) !== 'ПРОШЛО', 'отказ', 'прошло');
 
+  // ── СНОСКИ (24.09.2026) ─────────────────────────────────────────────────
+  // Правило — graph/footnotes.js; здесь оно же на живой базе: правка сноски
+  // доходит до базы, пустое не пишется, несогласие меток и записей при
+  // применении — столкновение для рецензента.
+  const noteK1 = [{ id: 'k1', status: 'sourced', text: 'DK 22 B2' }];
+  await withTransaction(pool, client => importSet(client, 'concepts', [
+    { id: 'c1', label: 'Логос', philosopher: 'ph1', rubrics: [],
+      description: 'Логос[^k1] общ всем.', extendedDescription: 'x', footnotes: noteK1 },
+    { id: 'c2', label: 'Огонь', philosopher: 'ph1', rubrics: [],
+      description: 'Огонь[^k2] мера.', extendedDescription: 'y', provenance: 'DK 22 B30',
+      provenanceStatus: 'sourced', footnotes: [{ id: 'k2', status: 'source_not_found' }] },
+  ]));
+  const conceptById = async id => (await exportSet(pool, 'concepts')).find(c => c.id === id);
+  const conceptEdit = (id, fields) => [{ action: 'edit', kind: 'concept', entityId: id, fields }];
+
+  // правка ТЕКСТА сноски — прежде сравнение списков записей давало «уже внесено»
+  const noteK1b = [{ id: 'k1', status: 'sourced', text: 'DK 22 B1' }];
+  const { коммит: кС1 } = await createCommit(pool, { actor: редактор, message: 'уточнил локус',
+    changes: conceptEdit('c1', { footnotes: { base: noteK1, next: noteK1b } }) });
+  const иС1 = await reviewCommit(pool, { actor: модератор, commitId: кС1.commitId, action: 'approve' });
+  проверить('правка текста сноски применяется', иС1.исход === 'applied', 'applied', иС1.исход);
+  проверить('новый текст сноски в базе', (await conceptById('c1')).footnotes?.[0]?.text === 'DK 22 B1',
+    'DK 22 B1', JSON.stringify((await conceptById('c1')).footnotes));
+
+  // удаление сноски вместе с меткой: ключ уходит, а не остаётся пустым
+  const { коммит: кС2 } = await createCommit(pool, { actor: второй, message: 'убрал сноску',
+    changes: conceptEdit('c1', { description: { base: 'Логос[^k1] общ всем.', next: 'Логос общ всем.' },
+                                 footnotes: { base: noteK1b, next: null } }) });
+  const иС2 = await reviewCommit(pool, { actor: модератор, commitId: кС2.commitId, action: 'approve' });
+  const c1 = await conceptById('c1');
+  проверить('сноска убрана вместе с меткой', иС2.исход === 'applied' && c1.description === 'Логос общ всем.',
+    'applied, текст без метки', `${иС2.исход}, ${c1.description}`);
+  проверить('пустые сноски не пишутся — ключа нет', !('footnotes' in c1), 'нет ключа', JSON.stringify(c1.footnotes));
+
+  // метка осталась без записи — столкновение по полю footnotes, а не молчаливая запись
+  const { коммит: кС3 } = await createCommit(pool, { actor: редактор, message: 'сноску долой, метку забыл',
+    changes: conceptEdit('c2', { footnotes: { base: [{ id: 'k2', status: 'source_not_found' }], next: null } }) });
+  const иС3 = await reviewCommit(pool, { actor: модератор, commitId: кС3.commitId, action: 'approve' });
+  проверить('метка без записи при применении — столкновение', иС3.исход === 'conflicted', 'conflicted', иС3.исход);
+  проверить('столкновение названо полем footnotes', иС3.столкновения?.[0]?.field === 'footnotes',
+    'footnotes', иС3.столкновения?.[0]?.field);
+  проверить('при несогласии в базе ничего не тронуто', (await conceptById('c2')).footnotes?.length === 1,
+    '1 сноска', JSON.stringify((await conceptById('c2')).footnotes));
+
+  // негодная форма отклоняется ещё при подаче
+  проверить('негодное состояние сноски не принимается при подаче',
+    (await отказ(() => createCommit(pool, { actor: редактор, message: 'x',
+      changes: conceptEdit('c2', { footnotes: { base: [{ id: 'k2', status: 'source_not_found' }],
+        next: [{ id: 'k2', status: 'unspecified' }] } }) }))).includes('сноски'), 'отказ про сноски', 'иное');
+
+  // очищенный источник сущности уходит из записи, а не пишется null
+  const { коммит: кС4 } = await createCommit(pool, { actor: второй, message: 'источник отвергнут',
+    changes: conceptEdit('c2', { provenance: { base: 'DK 22 B30', next: null },
+                                 provenanceStatus: { base: 'sourced', next: null } }) });
+  const иС4 = await reviewCommit(pool, { actor: модератор, commitId: кС4.commitId, action: 'approve' });
+  const c2 = await conceptById('c2');
+  проверить('очищенный источник уходит из записи', иС4.исход === 'applied'
+    && !('provenance' in c2) && !('provenanceStatus' in c2), 'applied, ключей нет',
+    `${иС4.исход}, ${JSON.stringify({ p: c2.provenance, s: c2.provenanceStatus })}`);
+
+  // новая сущность с пустыми сносками — ключа нет вовсе
+  const { коммит: кС5 } = await createCommit(pool, { actor: редактор, message: 'новая',
+    changes: [{ action: 'add', kind: 'concept', entityId: 'c3', fields: {
+      label: { base: null, next: 'Новое' }, philosopher: { base: null, next: 'ph1' },
+      rubrics: { base: null, next: [] }, description: { base: null, next: 'без сносок' },
+      extendedDescription: { base: null, next: 'z' }, provenance: { base: null, next: null },
+      footnotes: { base: null, next: null } } }] });
+  const иС5 = await reviewCommit(pool, { actor: модератор, commitId: кС5.commitId, action: 'approve' });
+  const c3 = await conceptById('c3');
+  проверить('новая сущность без сносок — ключей-пустышек нет', иС5.исход === 'applied' && c3
+    && !('footnotes' in c3) && !('provenance' in c3), 'applied, ключей нет', `${иС5.исход}, ${JSON.stringify(c3)}`);
+
 } catch (e) {
   проверить('проба дошла до конца', false, 'дошла', e.message.slice(0, 90));
 } finally {

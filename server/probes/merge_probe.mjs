@@ -53,6 +53,24 @@ const падает = вход => {
 п('действие не указано вовсе — падает', 'упало', падает({ fields:{}, current:cur }));
 п('три известных действия по-прежнему приняты', 'add,edit,delete', ACTIONS.join(','));
 
+// ── СНОСКИ: списки записей сравниваются по содержимому (24.09.2026) ──
+// Прежде String() обращал всякую запись в «[object Object]», и два любых
+// списка сносок равной длины выходили одинаковыми: правка текста сноски
+// считалась внесённой и не применялась, чужая затиралась без столкновения.
+const noteA = [{ id: 'k1', status: 'sourced', text: 'DK 22 B1' }];
+const noteB = [{ id: 'k1', status: 'sourced', text: 'DK 22 B2' }];
+п('сноски с разным текстом — разные', false, sameValue(noteA, noteB));
+п('сноски, равные по содержимому, равны (порядок ключей, края текста)', true,
+  sameValue(noteA, [{ text: ' DK 22 B1 ', status: 'sourced', id: 'k1' }]));
+п('перестановка сносок — не правка', true,
+  sameValue([...noteA, { id: 'k2', status: 'source_not_found' }], [{ id: 'k2', status: 'source_not_found' }, ...noteA]));
+п('правка текста сноски применяется, а не считается внесённой', MERGE.CLEAN,
+  mergeEntityChange({ action: 'edit', fields: { footnotes: { base: noteA, next: noteB } },
+                      current: { description: 'x[^k1]', footnotes: noteA } }).outcome);
+п('чужая правка той же сноски — столкновение', MERGE.CONFLICT,
+  mergeField({ base: noteA, next: noteB, current: [{ id: 'k1', status: 'editorial_reasoning', text: 'своё' }] }));
+п('рубрики по-прежнему сравниваются как множество строк', true, sameValue(['r2', 'r1'], ['r1', 'r2']));
+
 for (const [verification,result,commitRow] of т) console.log(verification, result.padEnd(54,'.'), commitRow);
 const плохо = т.filter(x=>x[0]==='✗ ').length;
 console.log(`\nутверждений ${т.length}, не сошлось ${плохо}`);

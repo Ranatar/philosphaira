@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 130 модулей, 21838 строк.
+Составлено из готовой сборки: 130 модулей, 22094 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -43,13 +43,13 @@ tools/build/split_css.mjs <дерево>                              стили
 
 | Модуль | Строк | Вывозит | Ввозит из |
 |---|---|---|---|
-| `boot.js` | 322 | 1 | 66 |
+| `boot.js` | 325 | 1 | 67 |
 | `main.js` | 136 | 0 | 125 |
 | `modules/boot-defs.js` | 62 | 2 | 8 |
 | `modules/core/api.js` | 90 | 3 | 1 |
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
 | `modules/core/events.js` | 66 | 2 | 0 |
-| `modules/core/graph-index.js` | 221 | 15 | 1 |
+| `modules/core/graph-index.js` | 238 | 17 | 1 |
 | `modules/core/link-facts.js` | 86 | 11 | 2 |
 | `modules/core/long-task.js` | 121 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
@@ -93,23 +93,23 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/metrics/tradition-bridging.js` | 89 | 3 | 2 |
 | `modules/modal/assembly.js` | 56 | 3 | 2 |
 | `modules/modal/auth.js` | 220 | 4 | 8 |
-| `modules/modal/commits.js` | 420 | 19 | 7 |
-| `modules/modal/concept-view.js` | 438 | 2 | 10 |
+| `modules/modal/commits.js` | 444 | 19 | 7 |
+| `modules/modal/concept-view.js` | 442 | 2 | 10 |
 | `modules/modal/conflict.js` | 88 | 5 | 7 |
-| `modules/modal/connection-edit.js` | 288 | 5 | 13 |
+| `modules/modal/connection-edit.js` | 289 | 5 | 13 |
 | `modules/modal/connection-view.js` | 421 | 5 | 12 |
 | `modules/modal/context.js` | 11 | 1 | 0 |
 | `modules/modal/core.js` | 159 | 5 | 10 |
 | `modules/modal/descriptions.js` | 162 | 6 | 0 |
-| `modules/modal/dirty.js` | 112 | 1 | 5 |
-| `modules/modal/edit-forms.js` | 295 | 2 | 12 |
+| `modules/modal/dirty.js` | 116 | 1 | 6 |
+| `modules/modal/edit-forms.js` | 297 | 2 | 12 |
 | `modules/modal/edit-rights.js` | 61 | 4 | 4 |
 | `modules/modal/entry.js` | 124 | 12 | 10 |
-| `modules/modal/forms.js` | 81 | 5 | 2 |
+| `modules/modal/forms.js` | 207 | 12 | 3 |
 | `modules/modal/history.js` | 114 | 4 | 5 |
 | `modules/modal/integrity.js` | 265 | 7 | 7 |
-| `modules/modal/persist.js` | 450 | 6 | 14 |
-| `modules/modal/philosopher-view.js` | 665 | 1 | 15 |
+| `modules/modal/persist.js` | 464 | 6 | 14 |
+| `modules/modal/philosopher-view.js` | 668 | 1 | 15 |
 | `modules/modal/profile-concept.js` | 182 | 4 | 8 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
@@ -118,15 +118,15 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/users.js` | 97 | 7 | 3 |
 | `modules/paths/analysis.js` | 74 | 2 | 7 |
 | `modules/paths/chronology.js` | 175 | 6 | 4 |
-| `modules/paths/path-descriptions.js` | 179 | 3 | 8 |
-| `modules/paths/path-ui.js` | 421 | 5 | 10 |
+| `modules/paths/path-descriptions.js` | 180 | 3 | 9 |
+| `modules/paths/path-ui.js` | 423 | 5 | 11 |
 | `modules/paths/shortest-path.js` | 203 | 1 | 5 |
 | `modules/render/canvas-core.js` | 38 | 7 | 2 |
 | `modules/render/d3-layer.js` | 106 | 9 | 6 |
 | `modules/render/draw-link.js` | 73 | 6 | 6 |
 | `modules/render/geometry.js` | 105 | 4 | 4 |
 | `modules/render/grouping.js` | 115 | 3 | 6 |
-| `modules/render/interactions.js` | 317 | 4 | 18 |
+| `modules/render/interactions.js` | 318 | 4 | 19 |
 | `modules/render/loop.js` | 20 | 2 | 0 |
 | `modules/render/metric-visualization.js` | 371 | 3 | 5 |
 | `modules/render/picking.js` | 95 | 3 | 8 |
@@ -136,7 +136,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/render/similarity-overlay.js` | 256 | 5 | 9 |
 | `modules/render/simulation.js` | 128 | 8 | 10 |
 | `modules/render/tooltip-el.js` | 7 | 1 | 0 |
-| `modules/state/edit.js` | 12 | 1 | 0 |
+| `modules/state/edit.js` | 15 | 1 | 1 |
 | `modules/state/filters.js` | 20 | 3 | 2 |
 | `modules/state/metrics-scope.js` | 13 | 0 | 1 |
 | `modules/state/paths.js` | 18 | 0 | 2 |
@@ -145,17 +145,17 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/stats/coverage.js` | 66 | 3 | 6 |
 | `modules/stats/modal.js` | 245 | 8 | 17 |
 | `modules/stats/observations.js` | 223 | 5 | 6 |
-| `modules/stats/results.js` | 414 | 8 | 4 |
+| `modules/stats/results.js` | 416 | 8 | 5 |
 | `modules/stats/run.js` | 128 | 1 | 3 |
 | `modules/stats/views/advanced.js` | 275 | 10 | 4 |
 | `modules/stats/views/comparison.js` | 508 | 12 | 11 |
 | `modules/stats/views/network.js` | 223 | 9 | 4 |
 | `modules/stats/views/philosopher.js` | 171 | 4 | 6 |
-| `modules/stats/views/philosophical.js` | 473 | 12 | 7 |
+| `modules/stats/views/philosophical.js` | 474 | 12 | 8 |
 | `modules/stats/views/rankings.js` | 141 | 2 | 5 |
 | `modules/ui/about.js` | 102 | 3 | 1 |
 | `modules/ui/actions-byname.js` | 20 | 0 | 2 |
-| `modules/ui/actions-dyn.js` | 184 | 0 | 38 |
+| `modules/ui/actions-dyn.js` | 187 | 0 | 38 |
 | `modules/ui/actions-static.js` | 140 | 0 | 26 |
 | `modules/ui/actions.js` | 27 | 3 | 0 |
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
@@ -169,7 +169,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/ui/search-link.js` | 135 | 5 | 11 |
 | `modules/ui/search-philosopher.js` | 98 | 6 | 6 |
 | `modules/util/color.js` | 23 | 1 | 0 |
-| `modules/util/html.js` | 50 | 5 | 0 |
+| `modules/util/html.js` | 95 | 11 | 0 |
 | `modules/util/philosopher-label.js` | 40 | 5 | 3 |
 | `modules/util/ru.js` | 49 | 3 | 0 |
 | `modules/widgets/custom-select.js` | 103 | 4 | 5 |
@@ -179,7 +179,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `boot.js`
 
-Строк 322.
+Строк 325.
 
 **Вывозит:** `boot`
 
@@ -232,6 +232,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./modules/modal/core.js`: `modalStack`, `openUniversalModal`
 - из `./modules/modal/edit-rights.js`: `refreshEditHints`, `renderAuthControls`
 - из `./modules/modal/entry.js`: `closeDetailModal`, `openEditConceptModal`, `openEditConnectionModal`, `showDetailModal`
+- из `./modules/modal/forms.js`: `installFootnoteLinks`
 - из `./modules/modal/philosopher-view.js`: `makeLegendsEditable`
 - из `./modules/modal/users.js`: `banUserFromPanel`, `changeUserRoleFromPanel`
 - из `./modules/paths/path-ui.js`: `initPathFinder`
@@ -445,15 +446,15 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/graph-index.js`
 
-Строк 221.
+Строк 238.
 
-**Вывозит:** `buildConceptToRubrics`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `linksByConcept`, `nodesByPhilosopher`, `otherEndColor`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
+**Вывозит:** `buildConceptToRubrics`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `linksByConcept`, `nodesByPhilosopher`, `otherEndColor`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `storedRecord`, `traditionById`, `withoutEmptyOptional`
 
 **Ввозит:**
 
 - из `./ns.js`: `DATA`
 
-**Содержит:** `buildConceptToRubrics`, `buildIndexes`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `linksByConcept`, `nodesByPhilosopher`, `otherEndColor`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `traditionById`
+**Содержит:** `OMITTED_WHEN_EMPTY`, `buildConceptToRubrics`, `buildIndexes`, `buildPhilosopherTraditions`, `buildRubricsIndex`, `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `linksByConcept`, `nodesByPhilosopher`, `otherEndColor`, `philosopherByName`, `rebuildIndexes`, `rubricById`, `storedRecord`, `traditionById`, `withoutEmptyOptional`
 
 ### `modules/core/link-facts.js`
 
@@ -1066,7 +1067,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/commits.js`
 
-Строк 420.
+Строк 444.
 
 **Вывозит:** `applyRelayout`, `askLayoutRevert`, `cancelLayoutRevert`, `closeCommitsPanel`, `commitError`, `commitItems`, `commitTab`, `doLayoutRevert`, `layoutHistoryItems`, `layoutPlan`, `layoutRevertTo`, `loadCommits`, `loadLayoutHistory`, `openCommitsPanel`, `planRelayout`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `showImpact`, `switchCommitTab`
 
@@ -1078,27 +1079,27 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/perms.js`: `PERM`, `can`
 - из `../data/remote.js`: `pullGraphSince`
 - из `./forms.js`: `PROVENANCE_STATES`
-- из `../util/html.js`: `escapeAttr`
+- из `../util/html.js`: `FOOTNOTE_LABELS`, `escapeAttr`
 
-**Содержит:** `COMMIT_STATES`, `LAYOUT_KINDS`, `applyRelayout`, `askLayoutRevert`, `cancelLayoutRevert`, `closeCommitsPanel`, `commitError`, `commitItems`, `commitStateKind`, `commitStateWords`, `commitTab`, `describeImpact`, `doLayoutRevert`, `layoutError`, `layoutHistoryHtml`, `layoutHistoryItems`, `layoutPlan`, `layoutRevertTo`, `layoutTabHtml`, `loadCommits`, `loadLayoutHistory`, `openCommitsPanel`, `planRelayout`, `provenanceDiff`, `refreshEditCount`, `renderCommits`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `showImpact`, `stateInWords`, `switchCommitTab`
+**Содержит:** `COMMIT_STATES`, `LAYOUT_KINDS`, `applyRelayout`, `askLayoutRevert`, `cancelLayoutRevert`, `closeCommitsPanel`, `commitError`, `commitItems`, `commitStateKind`, `commitStateWords`, `commitTab`, `describeImpact`, `doLayoutRevert`, `footnotesDiff`, `layoutError`, `layoutHistoryHtml`, `layoutHistoryItems`, `layoutPlan`, `layoutRevertTo`, `layoutTabHtml`, `loadCommits`, `loadLayoutHistory`, `openCommitsPanel`, `planRelayout`, `provenanceDiff`, `refreshEditCount`, `renderCommits`, `revertCommitFromPanel`, `reviewCommitFromPanel`, `showImpact`, `stateInWords`, `switchCommitTab`
 
 ### `modules/modal/concept-view.js`
 
-Строк 438.
+Строк 442.
 
 **Вывозит:** `computeSimilarNetworkColumn`, `forceSimilarColumn`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
-- из `../core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`
+- из `../core/graph-index.js`: `conceptById`, `otherEndColor`, `rubricById`, `storedRecord`
 - из `../core/link-facts.js`: `orientLink`
 - из `../metrics/network.js`: `medianNodeDegree`, `nodeDegreeOf`
 - из `../metrics/similarity-concepts.js`: `ensureNetworkProfile`, `nearestConcepts`, `networkProgressPercent`, `networkSimilarityData`, `profileIsMeaningful`
 - из `./connection-view.js`: `linkArrow`
 - из `./history.js`: `historyBlock`
 - из `../util/color.js`: `getContrastColor`
-- из `../util/html.js`: `liveProgressHtml`, `provenanceBlock`, `updateLiveProgress`
+- из `../util/html.js`: `footnoteOrder`, `footnotedText`, `footnotesBlock`, `liveProgressHtml`, `provenanceBlock`, `updateLiveProgress`, `withoutFootnotes`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `VIEWS.generateConceptViewContent`, `_forcedSimilar`, `computeSimilarNetworkColumn`, `forceButtonHtml`, `forceSimilarColumn`, `refreshSimilarColumn`, `refreshSimilarNetworkColumn`, `similarColumnHtml`, `similarConceptsBlock`, `similarForced`, `similarItemHtml`, `similarNetworkColumnHtml`, `similarProfileColumnHtml`
@@ -1123,14 +1124,14 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/connection-edit.js`
 
-Строк 288.
+Строк 289.
 
 **Вывозит:** `createNewConceptForPhilosopher`, `createNewConnectionForConcept`, `onConnTypeChange`, `selectConnectionEditConcept`, `swapConnectionConcepts`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
-- из `../core/graph-index.js`: `conceptById`
+- из `../core/graph-index.js`: `conceptById`, `storedRecord`
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../core/relation-types.js`: `LAYER_NAMES`, `WEIGHT_OPTIONS`, `relationHint`
 - из `../core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
@@ -1139,7 +1140,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./connection-view.js`: `initConnectionSearchFields`
 - из `./context.js`: `ModalContext`
 - из `./core.js`: `openUniversalModal`
-- из `./forms.js`: `provenanceField`
+- из `./forms.js`: `footnotesField`, `provenanceField`
 - из `../util/html.js`: `escapeAttr`
 - из `../core/graph-index.js`: _ради побочного действия_
 
@@ -1154,7 +1155,7 @@ tools/build/split_css.mjs <дерево>                              стили
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
-- из `../core/graph-index.js`: `conceptById`, `traditionById`
+- из `../core/graph-index.js`: `conceptById`, `storedRecord`, `traditionById`
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../core/relation-types.js`: `CONN_WEIGHT_WORDS`, `WEIGHT_WORDS`, `relationHint`
 - из `../core/search.js`: `emptyList`, `pickConcepts`, `rowInner`
@@ -1163,7 +1164,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./context.js`: `ModalContext`
 - из `./history.js`: `historyBlock`
 - из `../util/color.js`: `getContrastColor`
-- из `../util/html.js`: `provenanceBlock`
+- из `../util/html.js`: `footnoteOrder`, `footnotedText`, `footnotesBlock`, `provenanceBlock`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `VIEWS.generateConnectionViewContent`, `conceptCircle`, `conceptPlate`, `connectionArrowSvg`, `connectionTraditionNote`, `generateConnectionVisualization`, `handleConnectionViewSearch`, `initConnectionSearchFields`, `linkArrow`, `selectConnectionViewConcept`, `toggleConnectionSearchSection`, `updateConnectionVisualization`
@@ -1211,36 +1212,37 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/dirty.js`
 
-Строк 112.
+Строк 116.
 
 **Вывозит:** `hasUnsavedChanges`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
-- из `../core/graph-index.js`: `philosopherByName`
+- из `../core/graph-index.js`: `philosopherByName`, `storedRecord`
 - из `./assembly.js`: `modalEntityExists`
 - из `./context.js`: `ModalContext`
+- из `./forms.js`: `footnotesChanged`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `hasConceptChanges`, `hasConnectionChanges`, `hasFilledFields`, `hasPhilosopherChanges`, `hasUnsavedChanges`
 
 ### `modules/modal/edit-forms.js`
 
-Строк 295.
+Строк 297.
 
 **Вывозит:** `syncPhilColorFromPicker`, `updatePhilColorSample`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `VIEWS`
-- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`
+- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `storedRecord`
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../core/relation-types.js`: `relationHint`
 - из `../graph/graph-data.js`: `getConceptConnections`
 - из `./assembly.js`: `modalActions`
 - из `./connection-view.js`: `linkArrow`
-- из `./forms.js`: `provenanceField`
+- из `./forms.js`: `footnotesField`, `provenanceField`
 - из `../util/color.js`: `getContrastColor`
 - из `../util/html.js`: `escapeAttr`
 - из `../util/philosopher-label.js`: `philosopherYears`, `sortPhilosophersByBirth`
@@ -1286,16 +1288,17 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/forms.js`
 
-Строк 81.
+Строк 207.
 
-**Вывозит:** `PROVENANCE_STATES`, `commitReasonField`, `provenanceField`, `provenanceValue`, `refreshProvenanceField`
+**Вывозит:** `PROVENANCE_STATES`, `commitReasonField`, `footnotesChanged`, `footnotesField`, `footnotesValue`, `insertFootnote`, `installFootnoteLinks`, `provenanceField`, `provenanceValue`, `refreshFootnoteRows`, `refreshProvenanceField`, `removeFootnote`
 
 **Ввозит:**
 
+- из `../core/ns.js`: `S`
 - из `../core/api.js`: `serverMode`
-- из `../util/html.js`: `escapeAttr`
+- из `../util/html.js`: `FOOTNOTE_LABELS`, `FOOTNOTE_STATE_ORDER`, `escapeAttr`, `footnoteOrder`
 
-**Содержит:** `PROVENANCE_STATES`, `commitReasonField`, `needsCitation`, `provenanceField`, `provenanceValue`, `refreshProvenanceField`
+**Содержит:** `PROVENANCE_STATES`, `commitReasonField`, `footnoteHosts`, `footnoteRow`, `footnotesChanged`, `footnotesField`, `footnotesValue`, `insertFootnote`, `installFootnoteLinks`, `needsCitation`, `provenanceField`, `provenanceValue`, `refreshFootnoteRows`, `refreshProvenanceField`, `removeFootnote`
 
 ### `modules/modal/history.js`
 
@@ -1333,14 +1336,14 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/persist.js`
 
-Строк 450.
+Строк 464.
 
 **Вывозит:** `deleteConcept`, `deleteConnection`, `deletePhilosopher`, `saveConceptData`, `saveConnectionData`, `savePhilosopherData`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
-- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`
+- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `withoutEmptyOptional`
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../data/backend.js`: `submitChange`
 - из `../data/commit-draft.js`: `describeChange`
@@ -1350,7 +1353,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./context.js`: `ModalContext`
 - из `./core.js`: `closeUniversalModal`, `openUniversalModal`
 - из `./entry.js`: `getIsolatedConceptsAfterDeletion`
-- из `./forms.js`: `provenanceValue`
+- из `./forms.js`: `footnotesValue`, `provenanceValue`
 - из `./integrity.js`: `conceptIntegrityWarnings`, `connectionIntegrityWarnings`, `nConcepts`, `nLinks`, `philosopherIntegrityWarnings`, `provenanceDriftWarning`, `relationIndexById`
 - из `../core/graph-index.js`: _ради побочного действия_
 
@@ -1358,7 +1361,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/philosopher-view.js`
 
-Строк 665.
+Строк 668.
 
 **Вывозит:** `makeLegendsEditable`
 
@@ -1375,7 +1378,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./history.js`: `historyBlock`
 - из `../render/selection.js`: `highlightPhilosopherOnGraph`
 - из `../util/color.js`: `getContrastColor`
-- из `../util/html.js`: `provenanceBlock`
+- из `../util/html.js`: `footnoteOrder`, `footnotedText`, `footnotesBlock`, `provenanceBlock`, `withoutFootnotes`
 - из `../util/philosopher-label.js`: `formatBirthYear`, `philosopherBirth`, `philosopherYears`, `sortPhilosophersByBirth`
 - из `../util/ru.js`: `conjugateVerb`, `declinePhilosopher`
 - из `../core/graph-index.js`: _ради побочного действия_
@@ -1461,7 +1464,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `./core.js`: `openUniversalModal`
 - из `../render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
-- из `../util/html.js`: `escapeAttr`
+- из `../util/html.js`: `escapeAttr`, `withoutFootnotes`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `PROVENANCE_LABELS`, `SELECTION_LIST_CHUNK`, `closeSelectionListModal`, `openSelectionLink`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionLabel`, `selectionListMore`, `selectionListOpenBlocks`, `selectionListOpenBodies`, `selectionListSets`, `selectionListShown`, `selectionMirrorCount`, `selectionPhilCount`, `selectionProvenance`, `selectionRowConcept`, `selectionRowPhilosopher`, `selectionRowRelation`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
@@ -1515,7 +1518,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/paths/path-descriptions.js`
 
-Строк 179.
+Строк 180.
 
 **Вывозит:** `closePathDescriptionsModal`, `showPathDescriptionsModal`, `togglePathNodesDescriptions`
 
@@ -1528,13 +1531,14 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./path-ui.js`: `resolvePathLinkList`
 - из `../render/simulation.js`: `freezeSimulation`, `unfreezeSimulation`
 - из `../util/color.js`: `getContrastColor`
+- из `../util/html.js`: `withoutFootnotes`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `closePathDescriptionsModal`, `nodesDescriptionsVisible`, `showPathDescriptionsModal`, `togglePathNodesDescriptions`
 
 ### `modules/paths/path-ui.js`
 
-Строк 421.
+Строк 423.
 
 **Вывозит:** `clearPathHighlight`, `findAndShowPath`, `handlePathArrowHover`, `initPathFinder`, `resolvePathLinkList`
 
@@ -1549,6 +1553,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./shortest-path.js`: `findShortestPath`
 - из `../render/d3-layer.js`: `gfxLinkAll`, `gfxNode`
 - из `../render/selection.js`: `resetHighlight`
+- из `../util/html.js`: `withoutFootnotes`
 - из `../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `ARROW_HOVER_DELAY`, `arrowHoverTimer`, `clearPathHighlight`, `findAndShowPath`, `handlePathArrowHover`, `highlightPath`, `initPathFinder`, `resolvePathLinkList`
@@ -1650,7 +1655,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/render/interactions.js`
 
-Строк 317.
+Строк 318.
 
 **Вывозит:** `initGraphEventHandlers`, `installLinkHover`, `installNodeDrag`, `installNodeHover`
 
@@ -1672,6 +1677,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../state/edit.js`: `editMode`
 - из `../state/filters.js`: `chosenPhilosophers`
 - из `../state/render.js`: `selectedEdges`
+- из `../util/html.js`: `withoutFootnotes`
 - из `../util/philosopher-label.js`: `labelWithAuthor`
 - из `../core/graph-index.js`: _ради побочного действия_
 
@@ -1833,13 +1839,15 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/state/edit.js`
 
-Строк 12.
+Строк 15.
 
 **Вывозит:** `editMode`
 
-**Ввозит:** _ничего_
+**Ввозит:**
 
-**Содержит:** `editMode`
+- из `../core/ns.js`: `S`
+
+**Содержит:** `S.lastFootnoteHost`, `editMode`
 
 ### `modules/state/filters.js`
 
@@ -1970,7 +1978,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/stats/results.js`
 
-Строк 414.
+Строк 416.
 
 **Вывозит:** `applyMetricLayout`, `generateCalculateButton`, `generateMetricDescriptionBlock`, `generateMetricResults`, `rankKeep`, `restoreMetricLayoutMode`, `toggleMetricDetails`, `toggleMetricLayout`
 
@@ -1980,6 +1988,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../metrics/descriptions.js`: `getMetricDescription`
 - из `../metrics/format.js`: `applyMetricMode`
 - из `./coverage.js`: `generateMetricCoverageBlock`
+- из `../util/html.js`: `withoutFootnotes`
 
 **Содержит:** `METRIC_FIELD_LABELS`, `S.metricLayoutMode`, `applyMetricLayout`, `generateCalculateButton`, `generateMetricDescriptionBlock`, `generateMetricResults`, `genericDetailsHTML`, `lastZeroCount`, `rankKeep`, `restoreMetricLayoutMode`, `toggleMetricDetails`, `toggleMetricLayout`
 
@@ -2068,7 +2077,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/stats/views/philosophical.js`
 
-Строк 473.
+Строк 474.
 
 **Вывозит:** `generateCoherenceContent`, `generateCriticalPowerContent`, `generateDialogicalContent`, `generateFoundationalContent`, `generateInfluenceContent`, `generateParadigmShiftContent`, `generateProblemGenerationContent`, `generateRevolutionaryContent`, `generateSyntheticContent`, `generateTensionContent`, `influenceScopeSwitcher`, `setInfluenceScope`
 
@@ -2080,6 +2089,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../../metrics/philosophical.js`: `INFLUENCE_SCOPE_LABELS`, `invalidateInfluenceIndexCache`
 - из `../../metrics/rankings.js`: `invalidateGeneratePhilosopherRankingsCache`
 - из `../results.js`: `generateMetricResults`, `rankKeep`
+- из `../../util/html.js`: `withoutFootnotes`
 - из `../../core/graph-index.js`: _ради побочного действия_
 
 **Содержит:** `generateCoherenceContent`, `generateCriticalPowerContent`, `generateDialogicalContent`, `generateFoundationalContent`, `generateInfluenceContent`, `generateParadigmShiftContent`, `generateProblemGenerationContent`, `generateRevolutionaryContent`, `generateSyntheticContent`, `generateTensionContent`, `influenceScopeSwitcher`, `setInfluenceScope`
@@ -2127,7 +2137,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/actions-dyn.js`
 
-Строк 184.
+Строк 187.
 
 **Вывозит:** _ничего_
 
@@ -2147,7 +2157,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../modal/descriptions.js`: `toggleAllConnectionDescriptions`, `toggleAllPhilosopherConceptDescriptions`, `toggleAllPhilosopherConnectionDescriptions`, `toggleConnectionDescription`, `togglePhilosopherConceptDescription`, `toggleSubsection`
 - из `../modal/edit-forms.js`: `syncPhilColorFromPicker`, `updatePhilColorSample`
 - из `../modal/entry.js`: `gotoNodeFromModal`, `openConceptById`, `openEditConceptModal`, `openEditConnectionModal`, `showAllConcepts`, `showPhilosopherDetailModal`
-- из `../modal/forms.js`: `refreshProvenanceField`
+- из `../modal/forms.js`: `insertFootnote`, `refreshFootnoteRows`, `refreshProvenanceField`, `removeFootnote`
 - из `../modal/history.js`: `revertEntityToVersion`, `toggleEntityHistory`
 - из `../modal/persist.js`: `deleteConcept`, `deleteConnection`
 - из `../modal/profile-concept.js`: `closeConceptProfileModal`, `showConceptProfileModal`, `toggleProfileOrder`
@@ -2414,13 +2424,13 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/util/html.js`
 
-Строк 50.
+Строк 95.
 
-**Вывозит:** `escapeAttr`, `liveProgressHtml`, `provenanceBlock`, `scrollToPickedRow`, `updateLiveProgress`
+**Вывозит:** `FOOTNOTE_LABELS`, `FOOTNOTE_STATE_ORDER`, `escapeAttr`, `footnoteOrder`, `footnotedText`, `footnotesBlock`, `liveProgressHtml`, `provenanceBlock`, `scrollToPickedRow`, `updateLiveProgress`, `withoutFootnotes`
 
 **Ввозит:** _ничего_
 
-**Содержит:** `escapeAttr`, `liveProgressHtml`, `provenanceBlock`, `scrollToPickedRow`, `updateLiveProgress`
+**Содержит:** `FOOTNOTE_LABELS`, `FOOTNOTE_MARK_SOURCE`, `FOOTNOTE_STATE_ORDER`, `escapeAttr`, `footnoteOrder`, `footnotedText`, `footnotesBlock`, `liveProgressHtml`, `provenanceBlock`, `scrollToPickedRow`, `updateLiveProgress`, `withoutFootnotes`
 
 ### `modules/util/philosopher-label.js`
 

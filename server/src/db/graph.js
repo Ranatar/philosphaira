@@ -143,12 +143,12 @@ export const upsertEntity = (client, { kind, entityId, ord, тело: payloadBuf
     [kind, entityId, ord, payloadBuf, actorId]);
 
 /** Пишет ТОЛЬКО чистые поля: совпавшие уже в базе, версию впустую не поднимаем. */
-export const patchEntity = (client, { kind, entityId, поля: fieldNames, actorId }) =>
+export const patchEntity = (client, { kind, entityId, поля: fieldNames, убрать: dropKeys = [], actorId }) =>
   client.query(`
-    UPDATE graph_entities SET data = data || $3::jsonb, version = version + 1,
+    UPDATE graph_entities SET data = (data || $3::jsonb) - $5::text[], version = version + 1,
            updated_at = NOW(), updated_by = $4
      WHERE kind = $1 AND entity_id = $2`,
-    [kind, entityId, JSON.stringify(fieldNames ?? {}), actorId]);
+    [kind, entityId, JSON.stringify(fieldNames ?? {}), actorId, dropKeys]);
 
 // ── откат и приращение (беседа 2.4) ─────────────────────────────────────
 
