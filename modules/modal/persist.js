@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
-import { conceptById, nodesByPhilosopher, philosopherByName, withoutEmptyOptional } from '../core/graph-index.js';
+import { conceptById, nodesByPhilosopher, philosopherByName, storedRecord, withoutEmptyOptional } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { submitChange } from '../data/backend.js';
 import { describeChange } from '../data/commit-draft.js';
@@ -222,7 +222,8 @@ function saveConceptData() {
 
       if (!confirmWarnings('Сохранение концепции',
           conceptIntegrityWarnings(label, philosopher, isNew ? null : original)
-            .concat(provenanceDriftWarning(isNew ? null : original,
+            // прежний источник — из записи: узел мог отстать (см. storedRecord)
+            .concat(provenanceDriftWarning(isNew ? null : (storedRecord('concept', original.id) || original),
               { description, extendedDescription, provenance })))) return;
 
       // Схемы разные: в concepts философ хранится ИДЕНТИФИКАТОРОМ,
@@ -349,7 +350,9 @@ function saveConnectionData() {
       if (!confirmWarnings('Сохранение связи',
           connectionIntegrityWarnings(source, target, type, weight,
                         bidirectional, originalLink)
-            .concat(provenanceDriftWarning(originalLink,
+            // из записи: у связи графа источника может не быть вовсе, и заслон
+            // для связей прежде не срабатывал никогда
+            .concat(provenanceDriftWarning(originalLink && (storedRecord('relation', originalLink.id) || originalLink),
               { description, provenance })))) return;
 
       // Описание идёт по ХРАНИМОЙ схеме — по relations, где концы лежат

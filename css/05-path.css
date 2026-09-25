@@ -520,7 +520,7 @@
     .fn-sourced             { --fn-color: #82E0AA; }
     .fn-editorial_reasoning { --fn-color: #AFC6FF; }
     .fn-source_not_found    { --fn-color: #F8C471; }
-    .fn-ref { font-size: 0.72em; vertical-align: super; line-height: 0; padding: 0 2px;
+    .fn-ref { font-size: 0.72em; vertical-align: super; line-height: 0; padding: 0 1px;
               border-radius: 3px; cursor: pointer; color: var(--fn-color, #9ecbff);
               outline: 2px solid transparent; outline-offset: 1px; }
     .fn-ref.fn-active { outline-color: var(--fn-color, #9ecbff); }
@@ -534,7 +534,12 @@
     .fn-state { color: var(--fn-color); font-weight: 600; white-space: nowrap; }
     .fn-text { color: var(--fg-dim, #c8c8d4); }
     .fn-row { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
-    .fn-row .fn-text { flex: 1; }
+    /* Общее правило формы растягивает select и input на всю ширину; в строке
+       сноски текст должен забирать остаток, а номер и состояние — нет. */
+    .fn-row .fn-num { flex: 0 0 1.6em; }
+    .fn-row .fn-status { flex: 0 0 13em; width: 13em; }
+    .fn-row .fn-text { flex: 1 1 auto; width: auto; min-width: 0; }
+    .fn-row .fn-remove { flex: 0 0 auto; }
     .fn-row-warn { color: #F8C471; font-size: 11px; }
 
     .connection-description {

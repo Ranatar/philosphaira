@@ -209,7 +209,7 @@ VIEWS.generateConceptEditContent = function generateConceptEditContent(conceptDa
           <textarea id="conceptExtendedDescription" class="fn-host" data-fn-first rows="6"
                 placeholder="Подробное описание концепции">${conceptData ? conceptData.extendedDescription || '' : ''}</textarea>
         </div>
-        ${provenanceField(conceptData)}
+        ${provenanceField(conceptData && (storedRecord('concept', conceptData.id) || conceptData))}
         ${footnotesField(conceptData && (storedRecord('concept', conceptData.id) || conceptData))}
       `;
 
