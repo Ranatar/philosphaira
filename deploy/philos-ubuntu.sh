@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # ΦilosΦaira на Ubuntu 24.04 — установка, развёртывание, управление.
 #
-# Спутник инструкции `philosphaira-развёртывание.md`: то же самое, но одной
+# Спутник инструкции `philosphaira-ubuntu.md`: то же самое, но одной
 # командой. Инструкцию стоит прочесть — здесь объяснены только те решения,
 # которые иначе выглядят произволом.
 #
 #   bash philos-ubuntu.sh установить          # пакеты, Node 22, PostgreSQL, Chrome
+#   PHILOS_NO_CHROME=1 bash philos-ubuntu.sh установить   # боевая машина: без Chrome
 #   bash philos-ubuntu.sh развернуть <путь>   # архив или каталог с проектом
 #   bash philos-ubuntu.sh пуск | стоп | состояние | журнал | адрес
 #   bash philos-ubuntu.sh служба              # автозапуск через systemd (ДВЕ службы)
@@ -127,23 +128,30 @@ mkdir -p "$LOGD"
   поставить postgresql python3 python3-venv curl unzip git
   годно "$(psql --version)"
 
-  шаг "библиотеки для Chrome"
-  # Без них Chrome на безголовой Ubuntu не стартует и молчит невнятно.
-  # `libasound2t64` — имя именно для 24.04; старое `libasound2` не найдётся.
-  поставить libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
-    libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
-    libgbm1 libpango-1.0-0 libasound2t64
-
-  шаг "Chrome $CHROME_VER"
-  # ИМЕННО ЭТА СБОРКА: эталоны `css_probe` учреждены на ней, а вычисленные
-  # стили машинно-зависимы. Другая сборка даст расхождение — и это не дефект
-  # проекта.
-  if [ -d "$HOME/chrome/linux-$CHROME_VER" ]; then
-    годно "уже есть"
+  # БОЕВОЙ МАШИНЕ CHROME НЕ НУЖЕН: он нужен только приёмке, а приёмка сносит
+  # philos_test и на рабочей машине не гоняется (philosphaira-hosting.md).
+  if [ "${PHILOS_NO_CHROME:-}" = 1 ]; then
+    шаг "Chrome пропущен (PHILOS_NO_CHROME=1)"
   else
-    ( cd "$HOME" && npx --yes @puppeteer/browsers install "chrome@$CHROME_VER" ) \
-      > /dev/null 2>&1 || беда "Chrome не поставился — приёмка приложения работать не будет"
-    годно "поставлен"
+    шаг "библиотеки для Chrome"
+    # Без них Chrome на безголовой Ubuntu не стартует и молчит невнятно.
+    # `libasound2t64` — имя именно для 24.04; старое `libasound2` не найдётся.
+    поставить libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+      libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+      libgbm1 libpango-1.0-0 libasound2t64
+
+    шаг "Chrome $CHROME_VER"
+    # ИМЕННО ЭТА СБОРКА: эталоны `css_probe` учреждены на ней, а вычисленные
+    # стили машинно-зависимы. Другая сборка даст расхождение — и это не дефект
+    # проекта.
+    if [ -d "$HOME/chrome/linux-$CHROME_VER" ]; then
+      годно "уже есть"
+    else
+      ( cd "$HOME" && npx --yes @puppeteer/browsers install "chrome@$CHROME_VER" ) \
+        > /dev/null 2>&1 || беда "Chrome не поставился — приёмка приложения работать не будет"
+      годно "поставлен"
+    fi
+
   fi
 
   шаг "служба PostgreSQL"
@@ -157,7 +165,16 @@ mkdir -p "$LOGD"
   [ -n "$SRC" ] || стоп "укажите архив или каталог: развернуть ~/philosphaira.zip"
 
   шаг "распаковка"
-  if [ -d "$SRC" ]; then
+  if [ -d "$SRC" ] && [ "$(realpath "$SRC")" = "$(realpath -m "$ROOT")" ]; then
+    # РАЗВЁРТЫВАНИЕ НА МЕСТЕ: каталог и есть корень — обычно клон git. Так
+    # обновление сводится к `git pull` (philosphaira-hosting.md, «Выкатка»).
+    # Прежде ветка каталога всегда копировала, и копия в саму себя
+    # останавливала скрипт.
+    for need in source tools server; do
+      [ -d "$ROOT/$need" ] || стоп "в «$ROOT» нет папки $need — это не дерево проекта"
+    done
+    годно "развёртывание на месте: $ROOT"
+  elif [ -d "$SRC" ]; then
     mkdir -p "$ROOT" && cp -r "$SRC"/. "$ROOT"/
     годно "скопировано из каталога"
   else
@@ -243,10 +260,12 @@ mkdir -p "$LOGD"
         && годно "$DB создана"
     fi
   done
+  # ПАРОЛЬ РОЛИ — СЛУЧАЙНЫЙ, и задаётся вместе с заведением окружения (ниже):
+  # прежде стоял 'philos', вшитый и в DATABASE_URL, — на машине с публичным
+  # адресом это пароль, известный каждому, кто читал этот скрипт.
   как_postgres psql -tAc \
     "SELECT 1 FROM pg_roles WHERE rolname='philos'" 2>/dev/null | grep -q 1 \
-    || как_postgres psql -c \
-      "CREATE ROLE philos LOGIN PASSWORD 'philos'" > /dev/null
+    || как_postgres psql -c "CREATE ROLE philos LOGIN" > /dev/null
   for DB in philos philos_test; do
     как_postgres psql -c \
       "ALTER DATABASE $DB OWNER TO philos" > /dev/null 2>&1 || true
@@ -258,8 +277,11 @@ mkdir -p "$LOGD"
     годно "$ENVF уже есть — не трогаю"
   else
     KEY=$(node -e "console.log(require('crypto').randomBytes(32).toString('base64'))")
+    DBPW=$(node -e "console.log(require('crypto').randomBytes(18).toString('base64url'))")
+    как_postgres psql -c "ALTER ROLE philos LOGIN PASSWORD '$DBPW'" > /dev/null \
+      || стоп "не удалось задать пароль роли philos"
     cat > "$ENVF" <<EOF
-DATABASE_URL=postgres://philos:philos@127.0.0.1:5432/philos
+DATABASE_URL=postgres://philos:$DBPW@127.0.0.1:5432/philos
 MFA_SECRET_KEY=$KEY
 PORT=8814
 # PUBLIC_URL=http://адрес-в-сети:8814   # корень ссылок в письмах
