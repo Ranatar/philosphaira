@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-130 модулей, 22094 строк, 929 объявлений,
-635 вывозов, 845 рёбер ввоза. Составлено 2026-09-25 05:46:34.
+130 модулей, 22120 строк, 930 объявлений,
+635 вывозов, 845 рёбер ввоза. Составлено 2026-09-25 07:33:12.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -147,16 +147,16 @@
 | `modules/modal/edit-forms.js` | 297 | 2 | 2 | 12 | DATA:5, VIEWS:2 |
 | `modules/modal/edit-rights.js` | 61 | 4 | 4 | 4 | — |
 | `modules/modal/entry.js` | 124 | 12 | 12 | 11 | DATA:3, S:2 |
-| `modules/modal/forms.js` | 207 | 15 | 12 | 3 | S:1 |
+| `modules/modal/forms.js` | 212 | 15 | 12 | 3 | S:1 |
 | `modules/modal/history.js` | 114 | 7 | 4 | 5 | — |
 | `modules/modal/integrity.js` | 265 | 11 | 7 | 7 | DATA:4 |
-| `modules/modal/persist.js` | 464 | 11 | 6 | 14 | DATA:9, S:1 |
+| `modules/modal/persist.js` | 467 | 11 | 6 | 14 | DATA:9, S:1 |
 | `modules/modal/philosopher-view.js` | 668 | 4 | 1 | 15 | DATA:6, VIEWS:1 |
 | `modules/modal/profile-concept.js` | 182 | 8 | 4 | 8 | DATA:4, S:3, MET:19 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 2 | 8 | DATA:3, S:3, MET:3 |
 | `modules/modal/search.js` | 43 | 3 | 3 | 1 | — |
 | `modules/modal/security.js` | 116 | 7 | 4 | 4 | S:1 |
-| `modules/modal/selection-list.js` | 321 | 23 | 13 | 8 | DATA:5 |
+| `modules/modal/selection-list.js` | 334 | 24 | 13 | 8 | DATA:5 |
 | `modules/modal/users.js` | 97 | 8 | 7 | 3 | — |
 | `modules/paths/analysis.js` | 74 | 2 | 2 | 7 | DATA:2 |
 | `modules/paths/chronology.js` | 175 | 10 | 6 | 4 | DATA:1, S:1 |
@@ -203,7 +203,7 @@
 | `modules/ui/delegation.js` | 70 | 3 | 1 | 1 | — |
 | `modules/ui/export.js` | 138 | 2 | 2 | 11 | DATA:4, S:2 |
 | `modules/ui/hint.js` | 60 | 7 | 4 | 1 | S:1 |
-| `modules/ui/legend.js` | 387 | 29 | 25 | 7 | DATA:9, S:9 |
+| `modules/ui/legend.js` | 392 | 29 | 25 | 7 | DATA:9, S:9 |
 | `modules/ui/link-state.js` | 282 | 13 | 6 | 17 | DATA:5, S:11 |
 | `modules/ui/notifications.js` | 99 | 10 | 8 | 2 | — |
 | `modules/ui/panels.js` | 40 | 2 | 2 | 0 | — |
@@ -959,7 +959,7 @@
 | `closeDetailModal` | function | 1 | да |
 | `closePhilosopherDetailModal` | function | 1 | да |
 
-### `modules/modal/forms.js` — 207 строк, объявлений 15
+### `modules/modal/forms.js` — 212 строк, объявлений 15
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -969,9 +969,9 @@
 | `refreshProvenanceField` | function | 17 | да |
 | `footnotesValue` | function | 17 | да |
 | `installFootnoteLinks` | function | 16 | да |
-| `footnotesField` | function | 13 | да |
+| `footnoteRow` | function | 15 | — |
+| `footnotesField` | function | 15 | да |
 | `provenanceValue` | function | 12 | да |
-| `footnoteRow` | function | 12 | — |
 | `commitReasonField` | function | 9 | да |
 | `removeFootnote` | function | 7 | да |
 | `footnotesChanged` | function | 5 | да |
@@ -1007,13 +1007,13 @@
 | `nLinks` | const | 1 | да |
 | `labelOf` | const | 1 | — |
 
-### `modules/modal/persist.js` — 464 строк, объявлений 11
+### `modules/modal/persist.js` — 467 строк, объявлений 11
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `savePhilosopherData` | function | 107 | да |
-| `saveConnectionData` | function | 98 | да |
-| `saveConceptData` | function | 82 | да |
+| `saveConnectionData` | function | 100 | да |
+| `saveConceptData` | function | 83 | да |
 | `deleteConnection` | function | 49 | да |
 | `deletePhilosopher` | function | 41 | да |
 | `deleteConcept` | function | 31 | да |
@@ -1072,18 +1072,19 @@
 | `securitySecret` | let | 1 | — |
 | `securityModalEl` | function | 1 | — |
 
-### `modules/modal/selection-list.js` — 321 строк, объявлений 23
+### `modules/modal/selection-list.js` — 334 строк, объявлений 24
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `renderSelectionList` | function | 82 | да |
-| `selectionListSets` | function | 61 | да |
+| `renderSelectionList` | function | 83 | да |
+| `selectionListSets` | function | 64 | да |
 | `selectionRowRelation` | function | 32 | — |
 | `selectionRowPhilosopher` | function | 15 | — |
 | `selectionRowConcept` | function | 15 | — |
 | `openSelectionListModal` | function | 12 | да |
 | `toggleSelectionBodies` | function | 11 | да |
 | `setSelectionProvenance` | function | 9 | да |
+| `provenanceKinds` | function | 8 | — |
 | `openSelectionLink` | function | 7 | да |
 | `provenanceState` | function | 6 | да |
 | `toggleSelectionBlock` | function | 5 | да |
@@ -1588,13 +1589,13 @@
 | `installHintOnClick` | function | 3 | да |
 | `hintBox` | let | 1 | — |
 
-### `modules/ui/legend.js` — 387 строк, объявлений 29
+### `modules/ui/legend.js` — 392 строк, объявлений 29
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `initFilters` | function | 89 | да |
+| `updateProvenanceCoverage` | function | 45 | — |
 | `toggleSection` | function | 42 | да |
-| `updateProvenanceCoverage` | function | 40 | — |
 | `syncTraditionRows` | function | 28 | да |
 | `updateFilterStats` | function | 12 | да |
 | `togglePhilosopher` | function | 8 | да |
@@ -2465,7 +2466,7 @@
 - из `modules/core/api.js`: `serverMode`
 - из `modules/util/html.js`: `FOOTNOTE_LABELS`, `FOOTNOTE_STATE_ORDER`, `escapeAttr`, `footnoteOrder`
 
-Чаще всего поминает: `S`×3, `footnoteOrder`×3, `escapeAttr`×2, `FOOTNOTE_LABELS`×2, `FOOTNOTE_STATE_ORDER`×1
+Чаще всего поминает: `footnoteOrder`×4, `S`×3, `escapeAttr`×2, `FOOTNOTE_LABELS`×2, `FOOTNOTE_STATE_ORDER`×1
 
 ### `modules/modal/history.js`
 
@@ -2493,7 +2494,7 @@
 
 - из `modules/core/ns.js`: `DATA`, `S`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `withoutEmptyOptional`
+- из `modules/core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `storedRecord`, `withoutEmptyOptional`
 - из `modules/core/link-facts.js`: `isReflexiveLink`
 - из `modules/data/backend.js`: `submitChange`
 - из `modules/data/commit-draft.js`: `describeChange`
@@ -2573,7 +2574,7 @@
 
 - из `modules/core/ns.js`: `DATA`
 - из `modules/core/graph-index.js`: _ради побочного действия_
-- из `modules/core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `otherEndColor`
+- из `modules/core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `otherEndColor`, `storedRecord`
 - из `modules/core/link-facts.js`: `directionMark`, `linkHasTwoHeads`
 - из `modules/core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `modules/modal/core.js`: `openUniversalModal`
@@ -3125,7 +3126,7 @@
 - из `modules/render/d3-layer.js`: `updateArrows`
 - из `modules/state/filters.js`: `chosenPhilosophers`
 
-Чаще всего поминает: `S`×33, `DATA`×27, `applyFilters`×15, `chosenPhilosophers`×1, `relationHint`×1
+Чаще всего поминает: `S`×33, `DATA`×29, `applyFilters`×15, `chosenPhilosophers`×1, `relationHint`×1
 
 ### `modules/ui/link-state.js`
 

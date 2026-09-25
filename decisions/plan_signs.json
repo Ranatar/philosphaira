@@ -186,7 +186,7 @@
    "E-1",
    "поле правки: концепция",
    "внутри",
-   "source/philosophy_graph_v3.html|provenanceField(conceptData)"
+   "source/philosophy_graph_v3.html|provenanceField(conceptData && (storedRecord('concept', conceptData.id) || conceptData))"
   ],
   [
    "E-1",
@@ -198,13 +198,13 @@
    "E-1",
    "поле правки: связь",
    "внутри",
-   "source/philosophy_graph_v3.html|provenanceField(connectionData)"
+   "source/philosophy_graph_v3.html|provenanceField(connectionData && (storedRecord('relation', connectionData.id) || connectionData))"
   ],
   [
    "E-1",
    "ЗАСЛОН: концепция",
    "внутри",
-   "source/philosophy_graph_v3.html|provenanceDriftWarning(isNew ? null : original,"
+   "source/philosophy_graph_v3.html|provenanceDriftWarning(isNew ? null : (storedRecord('concept', original.id) || original),"
   ],
   [
    "E-1",

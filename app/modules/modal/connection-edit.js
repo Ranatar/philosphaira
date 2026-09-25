@@ -174,7 +174,7 @@ VIEWS.generateConnectionEditContent = function generateConnectionEditContent(con
             Описания в базе — 190–270 знаков, две фразы.
           </div>
         </div>
-        ${provenanceField(connectionData)}
+        ${provenanceField(connectionData && (storedRecord('relation', connectionData.id) || connectionData))}
         ${footnotesField(connectionData && (storedRecord('relation', connectionData.id) || connectionData))}
       `;
 

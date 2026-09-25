@@ -1013,7 +1013,8 @@
   "refreshFootnoteRows": "modal/forms.js",
   "footnotesValue": "modal/forms.js",
   "footnotesChanged": "modal/forms.js",
-  "footnotesDiff": "modal/commits.js"
+  "footnotesDiff": "modal/commits.js",
+  "provenanceKinds": "modal/selection-list.js"
  },
  "новые": [
   "BUS_PHASES"

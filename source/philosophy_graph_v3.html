@@ -1685,7 +1685,7 @@
     .fn-sourced             { --fn-color: #82E0AA; }
     .fn-editorial_reasoning { --fn-color: #AFC6FF; }
     .fn-source_not_found    { --fn-color: #F8C471; }
-    .fn-ref { font-size: 0.72em; vertical-align: super; line-height: 0; padding: 0 2px;
+    .fn-ref { font-size: 0.72em; vertical-align: super; line-height: 0; padding: 0 1px;
               border-radius: 3px; cursor: pointer; color: var(--fn-color, #9ecbff);
               outline: 2px solid transparent; outline-offset: 1px; }
     .fn-ref.fn-active { outline-color: var(--fn-color, #9ecbff); }
@@ -1699,7 +1699,12 @@
     .fn-state { color: var(--fn-color); font-weight: 600; white-space: nowrap; }
     .fn-text { color: var(--fg-dim, #c8c8d4); }
     .fn-row { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
-    .fn-row .fn-text { flex: 1; }
+    /* Общее правило формы растягивает select и input на всю ширину; в строке
+       сноски текст должен забирать остаток, а номер и состояние — нет. */
+    .fn-row .fn-num { flex: 0 0 1.6em; }
+    .fn-row .fn-status { flex: 0 0 13em; width: 13em; }
+    .fn-row .fn-text { flex: 1 1 auto; width: auto; min-width: 0; }
+    .fn-row .fn-remove { flex: 0 0 auto; }
     .fn-row-warn { color: #F8C471; font-size: 11px; }
 
     .connection-description {
@@ -27188,8 +27193,12 @@
       };
       const byRelations = byState(relations);
       const byConcepts = byState(concepts);
+      // Философы — третьими (25.09.2026, решение автора): их описания строгой
+      // ссылки требуют реже, но у записи философа то же поле, окно отбора
+      // фильтрует все три рода, и сводка обязана считать то же, что отбор.
+      const byPhilosophers = byState(philosophers);
       const classified = counts => counts.sourced + counts.editorial_reasoning + counts.source_not_found;
-      if (!classified(byRelations) && !classified(byConcepts)) {
+      if (!classified(byRelations) && !classified(byConcepts) && !classified(byPhilosophers)) {
         slot.textContent = '';
         return;
       }
@@ -27198,7 +27207,8 @@
         + ' · не найден ' + counts.source_not_found
         + ' · не разобрано ' + (total - classified(counts));
       slot.textContent = asLine('связи', byRelations, (relations || []).length)
-        + '; ' + asLine('концепции', byConcepts, (concepts || []).length);
+        + '; ' + asLine('концепции', byConcepts, (concepts || []).length)
+        + '; ' + asLine('философы', byPhilosophers, (philosophers || []).length);
     }
 
     // ============================================
@@ -32537,6 +32547,24 @@
           || (line.startsWith('//') ? 'editorial_reasoning' : (line ? 'sourced' : 'unspecified'));
     }
 
+    /**
+     * КАКИЕ РОДЫ ОСНОВАНИЯ ЕСТЬ У ЗАПИСИ — для окна отбора (25.09.2026,
+     * решение автора). Отбор отвечает «есть ли источник такого-то типа», а не
+     * «каков общий источник»: тип есть, если он стоит в общем поле ИЛИ хотя бы
+     * в одной сноске. «Не разобрано» — только запись без общего источника и
+     * без сносок. Одна запись может найтись в нескольких отборах сразу.
+     * Сводка в легенде по-прежнему считает ОБЩИЙ источник: она меряет, сколько
+     * записей разобрано целиком, и сноски её не касаются.
+     */
+    function provenanceKinds(z) {
+      const kinds = new Set();
+      const own = provenanceState(z);
+      if (own !== 'unspecified') kinds.add(own);
+      for (const n of (z && z.footnotes) || []) kinds.add(n.status);
+      if (!kinds.size) kinds.add('unspecified');
+      return kinds;
+    }
+
     const PROVENANCE_LABELS = {
       all: 'все',
       unspecified: 'не разобрано',
@@ -32581,8 +32609,11 @@
       //
       // Вывод об устройстве по одному образцу данных — та же ошибка, что
       // прочесть адрес сущности из окна вместо схемы. Спрашивать надо схему.
-      const byProvenance = items => selectionProvenance === 'all'
-        ? items : items.filter(z => provenanceState(z) === selectionProvenance);
+      // Источник — ИЗ ЗАПИСИ, а не из узла или связи графа: связи начального
+      // построения поля не несут вовсе (отбор «источник» не находил ни одной),
+      // узлы отстают после правки. Философы — сами записи.
+      const byProvenance = (items, kind) => selectionProvenance === 'all'
+        ? items : items.filter(z => provenanceKinds(kind ? (storedRecord(kind, z.id) || z) : z).has(selectionProvenance));
       // Порядок — тот же, что везде: философы по хронологии (при равном
       // годе по алфавиту), концепции по философу и названию, связи —
       // внутренние вперёд. Указатели упорядочены при построении, но здесь
@@ -32602,7 +32633,7 @@
        * Зеркал 217 при 2720 записях; их число названо в заголовке блока,
        * чтобы «2937» не выглядело расхождением с базой.
        */
-      const visibleLinks = byProvenance(links.filter(isLinkVisible));
+      const visibleLinks = byProvenance(links.filter(isLinkVisible), 'relation');
       const withMirrors = [];
       for (const l of visibleLinks) {
         withMirrors.push(l);
@@ -32615,7 +32646,7 @@
         philosopher: byProvenance(
           philosophers.filter(p => selectionPhilCount[p.nameRu] > 0))
           .sort(comparePhilosophers),
-        concept: byProvenance(nodesShown).sort(compareConcepts),
+        concept: byProvenance(nodesShown, 'concept').sort(compareConcepts),
         relation: withMirrors.sort(compareLinks),
       };
     }
@@ -32865,7 +32896,8 @@
                      onclick="setSelectionProvenance('${v}')">${PROVENANCE_LABELS[v]}</button>`).join('')
         + (selectionProvenance === 'all' ? ''
            : `<span class="sel-prov-note">показаны все три рода: ${
-                PROVENANCE_LABELS[selectionProvenance]}</span>`)
+                PROVENANCE_LABELS[selectionProvenance]}${selectionProvenance === 'unspecified'
+                  ? ' — ни общего источника, ни сносок' : ' — в общем источнике или в сноске'}</span>`)
         + '</div>';
 
       /**
@@ -43259,7 +43291,8 @@
 
       if (!confirmWarnings('Сохранение концепции',
           conceptIntegrityWarnings(label, philosopher, isNew ? null : original)
-            .concat(provenanceDriftWarning(isNew ? null : original,
+            // прежний источник — из записи: узел мог отстать (см. storedRecord)
+            .concat(provenanceDriftWarning(isNew ? null : (storedRecord('concept', original.id) || original),
               { description, extendedDescription, provenance })))) return;
 
       // Схемы разные: в concepts философ хранится ИДЕНТИФИКАТОРОМ,
@@ -43404,7 +43437,9 @@
       if (!confirmWarnings('Сохранение связи',
           connectionIntegrityWarnings(source, target, type, weight,
                         bidirectional, originalLink)
-            .concat(provenanceDriftWarning(originalLink,
+            // из записи: у связи графа источника может не быть вовсе, и заслон
+            // для связей прежде не срабатывал никогда
+            .concat(provenanceDriftWarning(originalLink && (storedRecord('relation', originalLink.id) || originalLink),
               { description, provenance })))) return;
 
       // Описание идёт по ХРАНИМОЙ схеме — по relations, где концы лежат
@@ -43609,14 +43644,20 @@
     }
 
     // ---- сноски в описании: правка --------------------------------------
-    function footnoteRow(note) {
+    // Строка сразу в верном виде — номер и поле по состоянию — а не после
+    // первого нажатия: форма открывается и повторно, над сохранёнными
+    // сносками (снимок окна показал пустые номера и видимое поле у «не найден»).
+    function footnoteRow(note, n) {
       const opts = FOOTNOTE_STATE_ORDER.map(st =>
         `<option value="${st}"${st === note.status ? ' selected' : ''}>${FOOTNOTE_LABELS[st]}</option>`).join('');
+      const hidden = note.status === 'source_not_found' ? ' style="display:none"' : '';
+      const hint = note.status === 'editorial_reasoning' ? 'Своими словами: на чём держится утверждение'
+                                                          : 'Локус: книга, глава, фрагмент';
       return `<div class="fn-row" data-fn-row="${note.id}">`
-        + `<span class="fn-num" data-fn-num></span>`
+        + `<span class="fn-num" data-fn-num>${n || ''}</span>`
         + `<select class="fn-status" onchange="refreshFootnoteRows()">${opts}</select>`
         + `<input type="text" class="fn-text" maxlength="300" value="${escapeAttr(note.text || '')}"`
-        + ` placeholder="Локус: книга, глава, фрагмент">`
+        + ` placeholder="${hint}"${hidden}>`
         + `<button type="button" class="fn-remove" title="Удалить сноску вместе с меткой"`
         + ` onclick="removeFootnote('${note.id}')">×</button>`
         + `<span class="fn-row-warn" data-fn-warn></span></div>`;
@@ -43624,13 +43665,15 @@
 
     function footnotesField(record) {
       const notes = (record && record.footnotes) || [];
+      // тот же порядок полей, что у окна просмотра и у footnoteHosts
+      const order = footnoteOrder(record && record.extendedDescription, record && record.description);
       return `
         <div class="modal-form-group fn-editor">
           <label>Сноски к описанию <span class="необязательно">(необязательно)</span></label>
           <div class="modal-form-note">Поставьте курсор в описание и нажмите «Вставить сноску»:
             в текст встанет метка вида [^…], а ниже — строка её источника. Источник всей
             записи (поле выше) от сносок не зависит.</div>
-          <div id="fnRows">${notes.map(footnoteRow).join('')}</div>
+          <div id="fnRows">${notes.map(n => footnoteRow(n, order.get(n.id))).join('')}</div>
           <div class="modal-form-note" id="fnSummary"></div>
           <button type="button" class="btn btn-secondary" onclick="insertFootnote()">Вставить сноску</button>
         </div>`;
@@ -43966,7 +44009,7 @@
           <textarea id="conceptExtendedDescription" class="fn-host" data-fn-first rows="6"
                 placeholder="Подробное описание концепции">${conceptData ? conceptData.extendedDescription || '' : ''}</textarea>
         </div>
-        ${provenanceField(conceptData)}
+        ${provenanceField(conceptData && (storedRecord('concept', conceptData.id) || conceptData))}
         ${footnotesField(conceptData && (storedRecord('concept', conceptData.id) || conceptData))}
       `;
 
@@ -44218,7 +44261,7 @@
             Описания в базе — 190–270 знаков, две фразы.
           </div>
         </div>
-        ${provenanceField(connectionData)}
+        ${provenanceField(connectionData && (storedRecord('relation', connectionData.id) || connectionData))}
         ${footnotesField(connectionData && (storedRecord('relation', connectionData.id) || connectionData))}
       `;
 

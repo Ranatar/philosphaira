@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 130 модулей, 22094 строк.
+Составлено из готовой сборки: 130 модулей, 22120 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -105,16 +105,16 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/edit-forms.js` | 297 | 2 | 12 |
 | `modules/modal/edit-rights.js` | 61 | 4 | 4 |
 | `modules/modal/entry.js` | 124 | 12 | 10 |
-| `modules/modal/forms.js` | 207 | 12 | 3 |
+| `modules/modal/forms.js` | 212 | 12 | 3 |
 | `modules/modal/history.js` | 114 | 4 | 5 |
 | `modules/modal/integrity.js` | 265 | 7 | 7 |
-| `modules/modal/persist.js` | 464 | 6 | 14 |
+| `modules/modal/persist.js` | 467 | 6 | 14 |
 | `modules/modal/philosopher-view.js` | 668 | 1 | 15 |
 | `modules/modal/profile-concept.js` | 182 | 4 | 8 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
 | `modules/modal/security.js` | 116 | 4 | 4 |
-| `modules/modal/selection-list.js` | 321 | 13 | 8 |
+| `modules/modal/selection-list.js` | 334 | 13 | 8 |
 | `modules/modal/users.js` | 97 | 7 | 3 |
 | `modules/paths/analysis.js` | 74 | 2 | 7 |
 | `modules/paths/chronology.js` | 175 | 6 | 4 |
@@ -161,7 +161,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/ui/delegation.js` | 70 | 1 | 1 |
 | `modules/ui/export.js` | 138 | 2 | 11 |
 | `modules/ui/hint.js` | 60 | 4 | 1 |
-| `modules/ui/legend.js` | 387 | 25 | 7 |
+| `modules/ui/legend.js` | 392 | 25 | 7 |
 | `modules/ui/link-state.js` | 282 | 6 | 17 |
 | `modules/ui/notifications.js` | 99 | 8 | 2 |
 | `modules/ui/panels.js` | 40 | 2 | 0 |
@@ -1288,7 +1288,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/forms.js`
 
-Строк 207.
+Строк 212.
 
 **Вывозит:** `PROVENANCE_STATES`, `commitReasonField`, `footnotesChanged`, `footnotesField`, `footnotesValue`, `insertFootnote`, `installFootnoteLinks`, `provenanceField`, `provenanceValue`, `refreshFootnoteRows`, `refreshProvenanceField`, `removeFootnote`
 
@@ -1336,14 +1336,14 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/persist.js`
 
-Строк 464.
+Строк 467.
 
 **Вывозит:** `deleteConcept`, `deleteConnection`, `deletePhilosopher`, `saveConceptData`, `saveConnectionData`, `savePhilosopherData`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
-- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `withoutEmptyOptional`
+- из `../core/graph-index.js`: `conceptById`, `nodesByPhilosopher`, `philosopherByName`, `storedRecord`, `withoutEmptyOptional`
 - из `../core/link-facts.js`: `isReflexiveLink`
 - из `../data/backend.js`: `submitChange`
 - из `../data/commit-draft.js`: `describeChange`
@@ -1452,14 +1452,14 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/selection-list.js`
 
-Строк 321.
+Строк 334.
 
 **Вывозит:** `closeSelectionListModal`, `openSelectionLink`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionListMore`, `selectionListOpenBlocks`, `selectionListSets`, `selectionMirrorCount`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
-- из `../core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `otherEndColor`
+- из `../core/graph-index.js`: `compareConcepts`, `compareLinks`, `comparePhilosophers`, `conceptById`, `linkIsInternal`, `otherEndColor`, `storedRecord`
 - из `../core/link-facts.js`: `directionMark`, `linkHasTwoHeads`
 - из `../core/visibility.js`: `isLinkVisible`, `isNodeVisible`
 - из `./core.js`: `openUniversalModal`
@@ -1467,7 +1467,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../util/html.js`: `escapeAttr`, `withoutFootnotes`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `PROVENANCE_LABELS`, `SELECTION_LIST_CHUNK`, `closeSelectionListModal`, `openSelectionLink`, `openSelectionListModal`, `provenanceState`, `renderSelectionList`, `selectionLabel`, `selectionListMore`, `selectionListOpenBlocks`, `selectionListOpenBodies`, `selectionListSets`, `selectionListShown`, `selectionMirrorCount`, `selectionPhilCount`, `selectionProvenance`, `selectionRowConcept`, `selectionRowPhilosopher`, `selectionRowRelation`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
+**Содержит:** `PROVENANCE_LABELS`, `SELECTION_LIST_CHUNK`, `closeSelectionListModal`, `openSelectionLink`, `openSelectionListModal`, `provenanceKinds`, `provenanceState`, `renderSelectionList`, `selectionLabel`, `selectionListMore`, `selectionListOpenBlocks`, `selectionListOpenBodies`, `selectionListSets`, `selectionListShown`, `selectionMirrorCount`, `selectionPhilCount`, `selectionProvenance`, `selectionRowConcept`, `selectionRowPhilosopher`, `selectionRowRelation`, `setSelectionProvenance`, `toggleSelectionBlock`, `toggleSelectionBodies`, `toggleSelectionBody`
 
 ### `modules/modal/users.js`
 
@@ -2279,7 +2279,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/legend.js`
 
-Строк 387.
+Строк 392.
 
 **Вывозит:** `changeFilterMode`, `deselectAllPhilosophers`, `deselectAllRelations`, `deselectAllRubrics`, `deselectAllTraditions`, `initFilters`, `markChosenInLegend`, `onlyTradition`, `resetTradition`, `selectAllPhilosophers`, `selectAllRelations`, `selectAllRubrics`, `selectAllTraditions`, `syncLegendDirectionToggle`, `syncLegendWeightsToggle`, `syncPhilosopherCheckboxes`, `syncTraditionRows`, `togglePhilosopher`, `toggleRelation`, `toggleRubric`, `toggleSection`, `toggleTradition`, `toggleUniformLinkWidth`, `traditionMembers`, `updateFilterStats`
 

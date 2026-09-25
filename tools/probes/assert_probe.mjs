@@ -2311,6 +2311,29 @@ if (модуль) {
 
   await page.evaluate(id => { const A = window.__t; A.openUniversalModal('concept', A.DATA.nodes.find(n => n.id === id), 'edit'); }, noteId);
   await wait(600);
+  // ПОВТОРНОЕ ОТКРЫТИЕ формы над сохранёнными сносками: номера стоят сразу,
+  // у «не найден» поле текста скрыто, источник всей записи — из записи, а не
+  // из узла. Снимок окна (25.09.2026) показал все три изъяна; прибор их не
+  // видел — проверял форму только после нажатия кнопки.
+  const reopened = await page.evaluate(id => {
+    const A = window.__t, c = A.DATA.concepts.find(x => x.id === id);
+    const rows = [...document.querySelectorAll('[data-fn-row]')];
+    return { nums: rows.map(r => r.querySelector('[data-fn-num]').textContent).join(','),
+      hiddenNotFound: rows.filter(r => r.querySelector('.fn-status').value === 'source_not_found')
+        .every(r => getComputedStyle(r.querySelector('.fn-text')).display === 'none'),
+      textWidth: Math.round(rows[0].querySelector('.fn-text').getBoundingClientRect().width) };
+  }, noteId);
+  проверить('сноски: при повторном открытии формы номера стоят, у «не найден» поле скрыто, поле текста не сжато',
+    reopened.nums === '1,2' && reopened.hiddenNotFound && reopened.textWidth > 150,
+    '1,2; скрыто; шире 150 px', JSON.stringify(reopened));
+  await page.evaluate(id => { const A = window.__t, c = A.DATA.concepts.find(x => x.id === id);
+    c.provenance = 'проба записи'; c.provenanceStatus = 'sourced';
+    A.closeUniversalModal(); A.openUniversalModal('concept', A.DATA.nodes.find(n => n.id === id), 'edit'); }, noteId);
+  await wait(600);
+  const provInForm = await page.evaluate(() => ({ st: document.getElementById('entityProvenanceStatus').value,
+    line: document.getElementById('entityProvenance').value }));
+  проверить('сноски: источник всей записи в форме правки — из записи, а не из узла',
+    provInForm.st === 'sourced' && provInForm.line === 'проба записи', 'sourced / проба записи', JSON.stringify(provInForm));
   await page.click('[data-fn-row] .fn-remove');
   await wait(150);
   const marksLeft = await page.evaluate(() => ((document.getElementById('conceptDescription').value
@@ -2320,6 +2343,65 @@ if (модуль) {
   const afterRemove = await page.evaluate(id => (window.__t.DATA.concepts.find(c => c.id === id).footnotes || []).length, noteId);
   проверить('сноски: удаление снимает и строку, и метку', marksLeft === 1 && afterRemove === 1,
     '1 метка, 1 сноска', `${marksLeft}, ${afterRemove}`);
+
+  // ИСТОЧНИК ТОЛЬКО В ЗАПИСИ — отбор и заслон при сохранении обязаны его
+  // видеть. Прежде оба спрашивали связь и узел графа: у связей начального
+  // построения поля нет вовсе, и отбор «источник» не находил ни одной связи,
+  // а заслон «описание изменено, источник прежний» для связей не срабатывал.
+  const onlyInRecord = await page.evaluate(() => {
+    const A = window.__t, D = A.DATA;
+    const rel = D.relations.find(r => { const l = D.links.find(x => x.id === r.id); return l && A.isLinkVisible(l) && !r.provenance; });
+    const con = D.concepts.find(c => { const n = D.nodes.find(x => x.id === c.id); return n && A.isNodeVisible(n) && !c.provenance; });
+    rel.provenance = 'DK 22 B10'; rel.provenanceStatus = 'sourced';
+    con.provenance = 'DK 22 B1';  con.provenanceStatus = 'sourced';
+    A.openSelectionListModal();
+    A.setSelectionProvenance('sourced');
+    const sets = A.selectionListSets();
+    A.setSelectionProvenance('all');
+    A.closeSelectionListModal();
+    return { rel: sets.relation.some(l => l.id === rel.id), con: sets.concept.some(n => n.id === con.id), relId: rel.id };
+  });
+  проверить('источник: отбор «источник» находит связь и концепцию, чей источник есть только в записи',
+    onlyInRecord.rel && onlyInRecord.con, 'связь и концепция в отборе', JSON.stringify(onlyInRecord));
+  // СНОСКИ СЧИТАЮТСЯ НАЛИЧИЕМ (решение автора 25.09.2026): запись, у которой
+  // источник только в сноске, отбором «источник» находится и в «не разобрано»
+  // не попадает; запись с общим источником и сноской «не найден» — в обоих.
+  const byNotes = await page.evaluate(() => {
+    const A = window.__t, D = A.DATA;
+    const free = D.concepts.filter(c => { const n = D.nodes.find(x => x.id === c.id);
+      return n && A.isNodeVisible(n) && !c.provenance && !c.footnotes; });
+    const onlyNote = free[0], both = free[1];
+    onlyNote.footnotes = [{ id: 'f1', status: 'sourced', text: 'DK 22 B50' }];
+    Object.assign(both, { provenance: 'DK 22 B30', provenanceStatus: 'sourced',
+      footnotes: [{ id: 'f1', status: 'source_not_found' }] });
+    A.openSelectionListModal();
+    const inSet = (st, id) => { A.setSelectionProvenance(st); return A.selectionListSets().concept.some(n => n.id === id); };
+    const r = { onlyNoteSourced: inSet('sourced', onlyNote.id), onlyNoteUnsorted: inSet('unspecified', onlyNote.id),
+      bothSourced: inSet('sourced', both.id), bothNotFound: inSet('source_not_found', both.id),
+      note: (document.querySelector('.sel-prov-note') || {}).textContent || '' };
+    A.setSelectionProvenance('all'); A.closeSelectionListModal();
+    return r;
+  });
+  проверить('источник: отбор считает сноски наличием — только в сноске находится, «не разобрано» не находит',
+    byNotes.onlyNoteSourced && !byNotes.onlyNoteUnsorted, 'найдена; не в «не разобрано»', JSON.stringify(byNotes));
+  проверить('источник: общий источник и сноска «не найден» — запись в обоих отборах, пояснение про сноски',
+    byNotes.bothSourced && byNotes.bothNotFound && byNotes.note.includes('сноск'), 'в обоих; пояснение',
+    JSON.stringify(byNotes));
+  const dialogs = [];
+  const onDialog = d => dialogs.push(d.message());
+  page.on('dialog', onDialog);
+  await page.evaluate(id => { const A = window.__t;
+    A.openUniversalModal('connection', A.DATA.links.find(l => l.id === id), 'edit'); }, onlyInRecord.relId);
+  await wait(600);
+  await page.evaluate(() => { const t = document.getElementById('connDescription'); t.value = t.value + ' Уточнено.';
+    window.__t.saveConnectionData(); });
+  await wait(700);
+  page.off('dialog', onDialog);
+  проверить('источник: правка описания связи с источником спрашивает, подтверждает ли он новый текст',
+    dialogs.some(m => m.includes('Описание изменено, а источник остался прежним')), 'вопрос задан',
+    dialogs.map(m => m.slice(0, 60)).join(' | ') || 'вопроса не было');
+  await page.evaluate(() => window.__t.closeUniversalModal());
+  await wait(300);
 
   // утечка: метка во всех описаниях — и в записях, и в копиях узлов и связей
   const probeNode = await page.evaluate(() => {

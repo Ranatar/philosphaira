@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA } from '../core/ns.js';
 import '../core/graph-index.js';
-import { compareConcepts, compareLinks, comparePhilosophers, conceptById, linkIsInternal, otherEndColor } from '../core/graph-index.js';
+import { compareConcepts, compareLinks, comparePhilosophers, conceptById, linkIsInternal, otherEndColor, storedRecord } from '../core/graph-index.js';
 import { directionMark, linkHasTwoHeads } from '../core/link-facts.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
 import { openUniversalModal } from './core.js';
@@ -23,6 +23,15 @@ function provenanceState(z) {
       const line = String(z.provenance || '').trim();
       return z.provenanceStatus
           || (line.startsWith('//') ? 'editorial_reasoning' : (line ? 'sourced' : 'unspecified'));
+    }
+
+function provenanceKinds(z) {
+      const kinds = new Set();
+      const own = provenanceState(z);
+      if (own !== 'unspecified') kinds.add(own);
+      for (const n of (z && z.footnotes) || []) kinds.add(n.status);
+      if (!kinds.size) kinds.add('unspecified');
+      return kinds;
     }
 
 const PROVENANCE_LABELS = {
@@ -70,8 +79,11 @@ function selectionListSets() {
       //
       // Вывод об устройстве по одному образцу данных — та же ошибка, что
       // прочесть адрес сущности из окна вместо схемы. Спрашивать надо схему.
-      const byProvenance = items => selectionProvenance === 'all'
-        ? items : items.filter(z => provenanceState(z) === selectionProvenance);
+      // Источник — ИЗ ЗАПИСИ, а не из узла или связи графа: связи начального
+      // построения поля не несут вовсе (отбор «источник» не находил ни одной),
+      // узлы отстают после правки. Философы — сами записи.
+      const byProvenance = (items, kind) => selectionProvenance === 'all'
+        ? items : items.filter(z => provenanceKinds(kind ? (storedRecord(kind, z.id) || z) : z).has(selectionProvenance));
       // Порядок — тот же, что везде: философы по хронологии (при равном
       // годе по алфавиту), концепции по философу и названию, связи —
       // внутренние вперёд. Указатели упорядочены при построении, но здесь
@@ -91,7 +103,7 @@ function selectionListSets() {
        * Зеркал 217 при 2720 записях; их число названо в заголовке блока,
        * чтобы «2937» не выглядело расхождением с базой.
        */
-      const visibleLinks = byProvenance(DATA.links.filter(isLinkVisible));
+      const visibleLinks = byProvenance(DATA.links.filter(isLinkVisible), 'relation');
       const withMirrors = [];
       for (const l of visibleLinks) {
         withMirrors.push(l);
@@ -104,7 +116,7 @@ function selectionListSets() {
         philosopher: byProvenance(
           DATA.philosophers.filter(p => selectionPhilCount[p.nameRu] > 0))
           .sort(comparePhilosophers),
-        concept: byProvenance(nodesShown).sort(compareConcepts),
+        concept: byProvenance(nodesShown, 'concept').sort(compareConcepts),
         relation: withMirrors.sort(compareLinks),
       };
     }
@@ -259,7 +271,8 @@ function renderSelectionList() {
                      data-act-click="set-selection-provenance" data-a1="${v}">${PROVENANCE_LABELS[v]}</button>`).join('')
         + (selectionProvenance === 'all' ? ''
            : `<span class="sel-prov-note">показаны все три рода: ${
-                PROVENANCE_LABELS[selectionProvenance]}</span>`)
+                PROVENANCE_LABELS[selectionProvenance]}${selectionProvenance === 'unspecified'
+                  ? ' — ни общего источника, ни сносок' : ' — в общем источнике или в сноске'}</span>`)
         + '</div>';
 
       /**

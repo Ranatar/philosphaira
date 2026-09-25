@@ -82,14 +82,17 @@ function provenanceValue() {
       return { строка: needsCitation(state2) ? line : '', состояние: state2 };
     }
 
-function footnoteRow(note) {
+function footnoteRow(note, n) {
       const opts = FOOTNOTE_STATE_ORDER.map(st =>
         `<option value="${st}"${st === note.status ? ' selected' : ''}>${FOOTNOTE_LABELS[st]}</option>`).join('');
+      const hidden = note.status === 'source_not_found' ? ' style="display:none"' : '';
+      const hint = note.status === 'editorial_reasoning' ? 'Своими словами: на чём держится утверждение'
+                                                          : 'Локус: книга, глава, фрагмент';
       return `<div class="fn-row" data-fn-row="${note.id}">`
-        + `<span class="fn-num" data-fn-num></span>`
+        + `<span class="fn-num" data-fn-num>${n || ''}</span>`
         + `<select class="fn-status" data-act-change="refresh-footnote-rows-change">${opts}</select>`
         + `<input type="text" class="fn-text" maxlength="300" value="${escapeAttr(note.text || '')}"`
-        + ` placeholder="Локус: книга, глава, фрагмент">`
+        + ` placeholder="${hint}"${hidden}>`
         + `<button type="button" class="fn-remove" title="Удалить сноску вместе с меткой"`
         + ` data-act-click="remove-footnote" data-a1="${note.id}">×</button>`
         + `<span class="fn-row-warn" data-fn-warn></span></div>`;
@@ -97,13 +100,15 @@ function footnoteRow(note) {
 
 function footnotesField(record) {
       const notes = (record && record.footnotes) || [];
+      // тот же порядок полей, что у окна просмотра и у footnoteHosts
+      const order = footnoteOrder(record && record.extendedDescription, record && record.description);
       return `
         <div class="modal-form-group fn-editor">
           <label>Сноски к описанию <span class="необязательно">(необязательно)</span></label>
           <div class="modal-form-note">Поставьте курсор в описание и нажмите «Вставить сноску»:
             в текст встанет метка вида [^…], а ниже — строка её источника. Источник всей
             записи (поле выше) от сносок не зависит.</div>
-          <div id="fnRows">${notes.map(footnoteRow).join('')}</div>
+          <div id="fnRows">${notes.map(n => footnoteRow(n, order.get(n.id))).join('')}</div>
           <div class="modal-form-note" id="fnSummary"></div>
           <button type="button" class="btn btn-secondary" data-act-click="insert-footnote">Вставить сноску</button>
         </div>`;

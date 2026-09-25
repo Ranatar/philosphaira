@@ -356,8 +356,12 @@ function updateProvenanceCoverage() {
       };
       const byRelations = byState(DATA.relations);
       const byConcepts = byState(DATA.concepts);
+      // Философы — третьими (25.09.2026, решение автора): их описания строгой
+      // ссылки требуют реже, но у записи философа то же поле, окно отбора
+      // фильтрует все три рода, и сводка обязана считать то же, что отбор.
+      const byPhilosophers = byState(DATA.philosophers);
       const classified = counts => counts.sourced + counts.editorial_reasoning + counts.source_not_found;
-      if (!classified(byRelations) && !classified(byConcepts)) {
+      if (!classified(byRelations) && !classified(byConcepts) && !classified(byPhilosophers)) {
         slot.textContent = '';
         return;
       }
@@ -366,7 +370,8 @@ function updateProvenanceCoverage() {
         + ' · не найден ' + counts.source_not_found
         + ' · не разобрано ' + (total - classified(counts));
       slot.textContent = asLine('связи', byRelations, (DATA.relations || []).length)
-        + '; ' + asLine('концепции', byConcepts, (DATA.concepts || []).length);
+        + '; ' + asLine('концепции', byConcepts, (DATA.concepts || []).length)
+        + '; ' + asLine('философы', byPhilosophers, (DATA.philosophers || []).length);
     }
 
 const legendWeightsToggle = document.getElementById('useWeightsToggle');
