@@ -13,7 +13,7 @@ import { closeUniversalModal, openUniversalModal, popModalState, toggleModalMode
 import { toggleAllConnectionDescriptions, toggleAllPhilosopherConceptDescriptions, toggleAllPhilosopherConnectionDescriptions, toggleConnectionDescription, togglePhilosopherConceptDescription, toggleSubsection } from '../modal/descriptions.js';
 import { syncPhilColorFromPicker, updatePhilColorSample } from '../modal/edit-forms.js';
 import { gotoNodeFromModal, openConceptById, openEditConceptModal, openEditConnectionModal, showAllConcepts, showPhilosopherDetailModal } from '../modal/entry.js';
-import { refreshProvenanceField } from '../modal/forms.js';
+import { insertFootnote, refreshFootnoteRows, refreshProvenanceField, removeFootnote } from '../modal/forms.js';
 import { revertEntityToVersion, toggleEntityHistory } from '../modal/history.js';
 import { deleteConcept, deleteConnection } from '../modal/persist.js';
 import { closeConceptProfileModal, showConceptProfileModal, toggleProfileOrder } from '../modal/profile-concept.js';
@@ -92,6 +92,9 @@ registerActions({
   "open-security-modal": (el, ev) => { openSecurityModal(); },
   "auth-logout": (el, ev) => { authLogout(); },
   "refresh-provenance-field-change": (el, ev) => { refreshProvenanceField(); },
+  "refresh-footnote-rows-change": (el, ev) => { refreshFootnoteRows(); },
+  "remove-footnote": (el, ev) => { removeFootnote(el.dataset.a1); },
+  "insert-footnote": (el, ev) => { insertFootnote(); },
   "toggle-entity-history": (el, ev) => { toggleEntityHistory(el.dataset.a1, el.dataset.a2); },
   "revert-entity-to-version": (el, ev) => { revertEntityToVersion(el.dataset.a1, el.dataset.a2, el.dataset.a3); },
   "open-universal-modal-9": (el, ev) => { openUniversalModal('philosopher', el.dataset.a1, 'view'); },

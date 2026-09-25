@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
-import { conceptById, otherEndColor, rubricById } from '../core/graph-index.js';
+import { conceptById, otherEndColor, rubricById, storedRecord } from '../core/graph-index.js';
 import { orientLink } from '../core/link-facts.js';
 import { medianNodeDegree, nodeDegreeOf } from '../metrics/network.js';
 import { ensureNetworkProfile, nearestConcepts, networkProgressPercent, networkSimilarityData, profileIsMeaningful } from '../metrics/similarity-concepts.js';
@@ -10,7 +10,7 @@ import { linkArrow } from './connection-view.js';
 import { historyBlock } from './history.js';
 
 import { getContrastColor } from '../util/color.js';
-import { liveProgressHtml, provenanceBlock, updateLiveProgress } from '../util/html.js';
+import { footnoteOrder, footnotedText, footnotesBlock, liveProgressHtml, provenanceBlock, updateLiveProgress, withoutFootnotes } from '../util/html.js';
 
 function similarItemHtml(x) {
       const n = conceptById.get(x.id);
@@ -179,6 +179,9 @@ function similarConceptsBlock(conceptId) {
     }
 
 VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptData) {
+      // Источник и сноски — из записи базы: узел мог отстать от неё.
+      const conceptRecord = storedRecord('concept', conceptData.id) || conceptData;
+      const conceptNotes = footnoteOrder(conceptRecord.extendedDescription, conceptRecord.description);
       if (!conceptData) return '<p>Концепция не найдена</p>';
       // Получаем рубрики этой концепции
       const conceptRubrics = DATA.conceptToRubrics[conceptData.id] || [];
@@ -205,8 +208,9 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
            data-tip="Кликните для просмотра информации о философе">
           ${conceptData.concept}
         </div>
-        <div class="description">${conceptData.extendedDescription}</div>
-        ${provenanceBlock(conceptData.provenance, conceptData.provenanceStatus)}
+        <div class="description">${footnotedText(conceptRecord.extendedDescription, conceptNotes, conceptRecord.footnotes)}</div>
+        ${provenanceBlock(conceptRecord.provenance, conceptRecord.provenanceStatus)}
+        ${footnotesBlock(conceptRecord.footnotes, conceptNotes)}
         ${historyBlock('concept', conceptData.id)}
         <button class="goto-node-btn" data-act-click="goto-node-from-modal" data-a1="${conceptData.id}">
           🎯 Перейти к узлу
@@ -311,7 +315,7 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-${conceptData.id}-${connectedNode.id}">
-                  ${conn.description}
+                  ${withoutFootnotes(conn.description)}
                 </div>
               ` : ''}
             `;
@@ -363,7 +367,7 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-${conceptData.id}-${connectedNode.id}">
-                  ${conn.description}
+                  ${withoutFootnotes(conn.description)}
                 </div>
               ` : ''}
             `;

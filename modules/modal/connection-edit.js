@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, VIEWS } from '../core/ns.js';
 import '../core/graph-index.js';
-import { conceptById } from '../core/graph-index.js';
+import { conceptById, storedRecord } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { LAYER_NAMES, WEIGHT_OPTIONS, relationHint } from '../core/relation-types.js';
 import { emptyList, pickConcepts, rowInner } from '../core/search.js';
@@ -10,7 +10,7 @@ import { modalActions } from './assembly.js';
 import { initConnectionSearchFields } from './connection-view.js';
 import { ModalContext } from './context.js';
 import { openUniversalModal } from './core.js';
-import { provenanceField } from './forms.js';
+import { footnotesField, provenanceField } from './forms.js';
 
 import { escapeAttr } from '../util/html.js';
 
@@ -168,13 +168,14 @@ VIEWS.generateConnectionEditContent = function generateConnectionEditContent(con
 
         <div class="modal-form-group">
           <label for="connDescription">Описание связи</label>
-          <textarea id="connDescription" rows="4"
+          <textarea id="connDescription" class="fn-host" rows="4"
                 placeholder="Две фразы: первая называет отношение и даёт краткую формулу, вторая разворачивает">${connectionData ? connectionData.description || '' : ''}</textarea>
           <div class="modal-form-note">
             Описания в базе — 190–270 знаков, две фразы.
           </div>
         </div>
         ${provenanceField(connectionData)}
+        ${footnotesField(connectionData && (storedRecord('relation', connectionData.id) || connectionData))}
       `;
 
       html += modalActions('saveConnectionData', 'deleteConnection',

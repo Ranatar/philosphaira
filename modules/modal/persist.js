@@ -1,7 +1,7 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
-import { conceptById, nodesByPhilosopher, philosopherByName } from '../core/graph-index.js';
+import { conceptById, nodesByPhilosopher, philosopherByName, withoutEmptyOptional } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { submitChange } from '../data/backend.js';
 import { describeChange } from '../data/commit-draft.js';
@@ -11,7 +11,7 @@ import { modalEntityExists } from './assembly.js';
 import { ModalContext } from './context.js';
 import { closeUniversalModal, openUniversalModal } from './core.js';
 import { getIsolatedConceptsAfterDeletion } from './entry.js';
-import { provenanceValue } from './forms.js';
+import { footnotesValue, provenanceValue } from './forms.js';
 import { conceptIntegrityWarnings, connectionIntegrityWarnings, nConcepts, nLinks, philosopherIntegrityWarnings, provenanceDriftWarning, relationIndexById } from './integrity.js';
 
 function generateId(prefix = 'item') {
@@ -63,6 +63,10 @@ function savePhilosopherData() {
 
       // Происхождение читается ДО заслона: заслон о нём и спрашивает.
       const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
+      const footnotes = footnotesValue();
+      if (footnotes.problems.length) {
+        alert('Сноски не сходятся с текстом:\n\n' + footnotes.problems.join('\n')); return;
+      }
 
       // Полнота (у каждого хотя бы одна традиция) — договорённость, а не
       // запрет: предупреждаем и даём сохранить, как принято в этом окне.
@@ -93,7 +97,8 @@ function savePhilosopherData() {
       // у созданного философа не будет ни традиции, ни раздела в окне.
       const next = { name, nameRu: name, color,
                 birth, death, years, traditions: traditionIds, description,
-                ...provenanceFields(provenance, provenanceStatus) };
+                ...provenanceFields(provenance, provenanceStatus),
+                footnotes: footnotes.list.length ? footnotes.list : null };
       const philId = isNew
         ? (name.toLowerCase().replace(/\s+/g, '_')
              .replace(/[^a-z0-9_а-яё]/gi, '') || generateId('phil'))
@@ -104,11 +109,11 @@ function savePhilosopherData() {
                  isNew ? null : DATA.philosophers[i], next),
         () => {
           if (isNew) {
-            DATA.philosophers.push({ id: philId, ...next });
+            DATA.philosophers.push(withoutEmptyOptional({ id: philId, ...next }));
           } else {
             const oldName = originalName;
             const oldId   = DATA.philosophers[i].id;
-            DATA.philosophers[i] = { ...DATA.philosophers[i], ...next };
+            DATA.philosophers[i] = withoutEmptyOptional({ ...DATA.philosophers[i], ...next });
 
             if (name !== oldName) {
               // Переименование тянет за собой больше, чем в unimod:
@@ -201,6 +206,10 @@ function saveConceptData() {
       const description = descEl ? descEl.value.trim() : '';
       const extendedDescription = extEl ? extEl.value.trim() : '';
       const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
+      const footnotes = footnotesValue();
+      if (footnotes.problems.length) {
+        alert('Сноски не сходятся с текстом:\n\n' + footnotes.problems.join('\n')); return;
+      }
 
       if (!label || !philosopher) {
         alert('Укажите название концепции и философа'); return;
@@ -225,17 +234,19 @@ function saveConceptData() {
       // «источник — пустая строка».
       const next = { label, philosopher: philData.id,
               rubrics: selectedRubricIds, description, extendedDescription,
-              ...provenanceFields(provenance, provenanceStatus) };
+              ...provenanceFields(provenance, provenanceStatus),
+                footnotes: footnotes.list.length ? footnotes.list : null };
 
       if (isNew) {
         const id = generateId('concept');
         const newNode = { id, label, concept: philosopher,
                   rubrics: selectedRubricIds, description, extendedDescription,
-                  ...provenanceFields(provenance, provenanceStatus) };
+                  ...provenanceFields(provenance, provenanceStatus),
+                footnotes: footnotes.list.length ? footnotes.list : null };
         submitChange(
           describeChange('add', 'concept', id, null, next),
           () => {
-            DATA.concepts.push({ id, ...next });
+            DATA.concepts.push(withoutEmptyOptional({ id, ...next }));
             DATA.nodes.push(newNode);
             DATA.conceptToRubrics[id] = selectedRubricIds;
             addNodeToGraph(newNode);
@@ -252,7 +263,7 @@ function saveConceptData() {
       submitChange(
         describeChange('edit', 'concept', original.id, DATA.concepts[ci], next),
         () => {
-          DATA.concepts[ci] = { ...DATA.concepts[ci], ...next };
+          DATA.concepts[ci] = withoutEmptyOptional({ ...DATA.concepts[ci], ...next });
           DATA.nodes[ni] = Object.assign(DATA.nodes[ni], { label, concept: philosopher,
                    rubrics: selectedRubricIds, description, extendedDescription });
           DATA.conceptToRubrics[original.id] = selectedRubricIds;
@@ -331,6 +342,10 @@ function saveConnectionData() {
           original.target.id || original.target, false);
 
       const { строка: provenance, состояние: provenanceStatus } = provenanceValue();
+      const footnotes = footnotesValue();
+      if (footnotes.problems.length) {
+        alert('Сноски не сходятся с текстом:\n\n' + footnotes.problems.join('\n')); return;
+      }
       if (!confirmWarnings('Сохранение связи',
           connectionIntegrityWarnings(source, target, type, weight,
                         bidirectional, originalLink)
@@ -341,7 +356,8 @@ function saveConnectionData() {
       // идентификаторами. В links те же концы — объектами узлов, и путать
       // их нельзя: сервер примет только первое.
       const next = { source, target, type, weight, bidirectional, description,
-                ...provenanceFields(provenance, provenanceStatus) };
+                ...provenanceFields(provenance, provenanceStatus),
+                footnotes: footnotes.list.length ? footnotes.list : null };
 
       if (isNew) {
         const id = generateId('rel');
@@ -349,7 +365,7 @@ function saveConnectionData() {
         submitChange(
           describeChange('add', 'relation', id, null, next),
           () => {
-            DATA.relations.push({ id, ...next });
+            DATA.relations.push(withoutEmptyOptional({ id, ...next }));
             DATA.links.push(newLink);
             addLinkToGraph(newLink);
             afterDataChange({ nodes: true, links: true });
@@ -374,13 +390,13 @@ function saveConnectionData() {
           Object.assign(originalLink, { source: srcNode, target: tgtNode,
                           type, weight, bidirectional, description });
           if (ri !== -1) {
-            DATA.relations[ri] = { ...DATA.relations[ri], ...next };
+            DATA.relations[ri] = withoutEmptyOptional({ ...DATA.relations[ri], ...next });
           } else {
             // Запасная ветка: связь есть в links, но не в relations. Имя берём
             // прежнее, чтобы адрес не сменился на ровном месте.
             const id = originalLink.id || generateId('rel');
             originalLink.id = id;
-            DATA.relations.push({ id, ...next });
+            DATA.relations.push(withoutEmptyOptional({ id, ...next }));
           }
 
           updateLinkOnGraph();
@@ -440,10 +456,8 @@ function deleteConnection(sourceId = null, targetId = null) {
     }
 
 function provenanceFields(line, state) {
-      const fields = {};
-      if (line) fields.provenance = line;
-      if (state && state !== 'unspecified') fields.provenanceStatus = state;
-      return fields;
+      return { provenance: line || null,
+               provenanceStatus: (state && state !== 'unspecified') ? state : null };
     }
 
 export { deleteConcept, deleteConnection, deletePhilosopher, saveConceptData, saveConnectionData, savePhilosopherData };

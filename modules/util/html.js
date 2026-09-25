@@ -41,9 +41,54 @@ function provenanceBlock(value, status) {
         + '<span class="provenance-text">' + body + '</span></div>';
     }
 
+const FOOTNOTE_MARK_SOURCE = String.raw`\[\^([a-z0-9]{1,12})\]`;
+
+const FOOTNOTE_LABELS = { sourced: 'Источник', editorial_reasoning: 'Основание',
+                              source_not_found: 'Источник не найден' };
+
+const FOOTNOTE_STATE_ORDER = ['sourced', 'editorial_reasoning', 'source_not_found'];
+
+function withoutFootnotes(text) {
+      if (text == null) return text;
+      return String(text).replace(new RegExp('\\s?' + FOOTNOTE_MARK_SOURCE, 'g'), '');
+    }
+
+function footnoteOrder(...texts) {
+      const order = new Map();
+      for (const text of texts) {
+        if (typeof text !== 'string') continue;
+        for (const m of text.matchAll(new RegExp(FOOTNOTE_MARK_SOURCE, 'g')))
+          if (!order.has(m[1])) order.set(m[1], order.size + 1);
+      }
+      return order;
+    }
+
+function footnotedText(text, order, notes) {
+      if (text == null) return text;
+      const status = new Map((notes || []).map(n => [n.id, n.status]));
+      return String(text).replace(new RegExp(FOOTNOTE_MARK_SOURCE, 'g'), (whole, id) => {
+        const n = order.get(id);
+        const cls = status.has(id) ? ' fn-' + status.get(id) : '';
+        return `<sup class="fn-ref${cls}" data-fn="${id}" tabindex="0" role="button"`
+          + ` aria-label="сноска ${n || '?'}">${n || '?'}</sup>`;
+      });
+    }
+
+function footnotesBlock(notes, order) {
+      if (!notes || !notes.length) return '';
+      const items = notes.slice()
+        .sort((a, b) => (order.get(a.id) || 1e9) - (order.get(b.id) || 1e9))
+        .map(n => `<li class="fn-item fn-${n.status}" data-fn="${n.id}" tabindex="0">`
+          + `<span class="fn-num">${order.get(n.id) || '—'}</span>`
+          + `<span class="fn-state">${FOOTNOTE_LABELS[n.status] || n.status}</span>`
+          + `<span class="fn-text">${n.status === 'source_not_found' ? 'искали, пока не нашли' : escapeAttr(n.text || '')}</span></li>`)
+        .join('');
+      return `<div class="fn-list"><div class="fn-list-title">Источники к тексту</div><ol>${items}</ol></div>`;
+    }
+
 function escapeAttr(s) {
       return String(s == null ? '' : s).replace(/&/g, '&amp;')
         .replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-export { escapeAttr, liveProgressHtml, provenanceBlock, scrollToPickedRow, updateLiveProgress };
+export { FOOTNOTE_LABELS, FOOTNOTE_STATE_ORDER, escapeAttr, footnoteOrder, footnotedText, footnotesBlock, liveProgressHtml, provenanceBlock, scrollToPickedRow, updateLiveProgress, withoutFootnotes };

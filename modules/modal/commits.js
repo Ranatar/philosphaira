@@ -6,7 +6,7 @@ import { PERM, can } from '../core/perms.js';
 import { pullGraphSince } from '../data/remote.js';
 import { PROVENANCE_STATES } from './forms.js';
 
-import { escapeAttr } from '../util/html.js';
+import { FOOTNOTE_LABELS, escapeAttr } from '../util/html.js';
 
 let commitTab = 'mine';
 
@@ -184,6 +184,29 @@ function provenanceDiff(changes) {
         + rows.join('') + '</div>';
     }
 
+function footnotesDiff(changes) {
+      const say = n => (FOOTNOTE_LABELS[n.status] || n.status)
+        + (n.status === 'source_not_found' ? '' : ': ' + (n.text || '—'));
+      const rows = [];
+      for (const change of changes || []) {
+        const f = (change.fields || {}).footnotes;
+        if (!f) continue;
+        const was = new Map((f.base || []).map(n => [n.id, n]));
+        const now = new Map((f.next || []).map(n => [n.id, n]));
+        const row = (what, a, b) => rows.push('<div class="prov-diff-row">'
+          + '<span class="prov-diff-what">' + escapeAttr((change.entityId || '') + ' · ' + what) + '</span>'
+          + '<span class="prov-diff-was">было: ' + escapeAttr(a) + '</span>'
+          + '<span class="prov-diff-now">стало: ' + escapeAttr(b) + '</span></div>');
+        for (const [id, n] of now) {
+          if (!was.has(id)) row('сноска ' + id + ' добавлена', '—', say(n));
+          else if (say(was.get(id)) !== say(n)) row('сноска ' + id + ' изменена', say(was.get(id)), say(n));
+        }
+        for (const [id, n] of was) if (!now.has(id)) row('сноска ' + id + ' убрана', say(n), '—');
+      }
+      if (!rows.length) return '';
+      return '<div class="prov-diff"><div class="prov-diff-head">Сноски</div>' + rows.join('') + '</div>';
+    }
+
 function stateInWords(stateCode) {
       const found = PROVENANCE_STATES.find(([candidate]) => candidate === (stateCode || 'unspecified'));
       return found ? found[1] : String(stateCode);
@@ -322,6 +345,7 @@ function renderCommits() {
         return '<div class="commit-item">'
           + head
           + provenanceDiff(commit.changes)
+          + footnotesDiff(commit.changes)
           + `<div class="commit-meta">${escapeAttr(commit.authorName || '')} · `
           + `<span class="commit-state state-${commitStateKind(commit.status)}">`
           + `${escapeAttr(commitStateWords(commit.status))}</span></div>`

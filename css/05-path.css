@@ -515,6 +515,27 @@
       font-size: 10px;
     }
     .provenance-text { color: var(--fg-dim, #c8c8d4); }
+    /* Сноски в описании. Цвета состояний нарочно не из палитры графа: ни
+       типов связей, ни золота выделения, ни жёлтого пунктира противоречия. */
+    .fn-sourced             { --fn-color: #82E0AA; }
+    .fn-editorial_reasoning { --fn-color: #AFC6FF; }
+    .fn-source_not_found    { --fn-color: #F8C471; }
+    .fn-ref { font-size: 0.72em; vertical-align: super; line-height: 0; padding: 0 2px;
+              border-radius: 3px; cursor: pointer; color: var(--fn-color, #9ecbff);
+              outline: 2px solid transparent; outline-offset: 1px; }
+    .fn-ref.fn-active { outline-color: var(--fn-color, #9ecbff); }
+    .fn-list { margin-top: 10px; font-size: 12px; }
+    .fn-list-title { color: var(--fg-muted, #9a9ab0); margin-bottom: 4px; }
+    .fn-list ol { margin: 0; padding: 0; list-style: none; }
+    .fn-item { display: flex; gap: 8px; align-items: baseline; padding: 3px 6px; margin: 2px 0;
+               border-radius: 4px; outline: 2px solid transparent; outline-offset: 1px; }
+    .fn-item.fn-active { outline-color: var(--fn-color); background: rgba(255, 255, 255, 0.04); }
+    .fn-num { min-width: 1.4em; color: var(--fg-muted, #9a9ab0); text-align: right; }
+    .fn-state { color: var(--fn-color); font-weight: 600; white-space: nowrap; }
+    .fn-text { color: var(--fg-dim, #c8c8d4); }
+    .fn-row { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
+    .fn-row .fn-text { flex: 1; }
+    .fn-row-warn { color: #F8C471; font-size: 11px; }
 
     .connection-description {
       /* `width:100%` при отступах слева и справа даёт коробку ШИРЕ родителя

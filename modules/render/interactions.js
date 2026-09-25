@@ -17,6 +17,7 @@ import { tooltip } from './tooltip-el.js';
 import { editMode } from '../state/edit.js';
 import { chosenPhilosophers } from '../state/filters.js';
 import { selectedEdges } from '../state/render.js';
+import { withoutFootnotes } from '../util/html.js';
 import { labelWithAuthor } from '../util/philosopher-label.js';
 
 // gfxSvg.call(d3.drag() @36e303a8
@@ -153,7 +154,7 @@ function initGraphEventHandlers() {
       gfxCanvas.addEventListener("click", dispatchClick);
     }
 
-// gfxNode.on("mouseover") @a3eb00f6
+// gfxNode.on("mouseover") @72dda2d2
 function installNodeHover() {
 gfxNode.on("mouseover", function(event, d) {
       if (S.tooltipTimeout) clearTimeout(S.tooltipTimeout);
@@ -170,7 +171,7 @@ gfxNode.on("mouseover", function(event, d) {
         }
         tooltip
           .style("opacity", 1)
-          .html(`<strong>${labelWithAuthor(d)}</strong><br/>${d.description}<br/><em>${d.concept}</em>${simNote}`)
+          .html(`<strong>${labelWithAuthor(d)}</strong><br/>${withoutFootnotes(d.description)}<br/><em>${d.concept}</em>${simNote}`)
           .style("left", (event.pageX + 15) + "px")
           .style("top", (event.pageY - 15) + "px");
       }, 100); // Небольшая задержка
@@ -184,7 +185,7 @@ gfxNode.on("mouseover", function(event, d) {
     });
 }
 
-// gfxLink.on("mouseover") @54b79ad6
+// gfxLink.on("mouseover") @86ad9ea0
 function installLinkHover() {
 gfxLink.on("mouseover", function(event, d) {
       const tooltip = document.getElementById('tooltip');
@@ -290,7 +291,7 @@ gfxLink.on("mouseover", function(event, d) {
       
       // Для выделенных связей добавляем описание, если оно есть
       if (selectedEdges.has(d) && d.description) {
-        tooltipContent += `<div class="tooltip-description">${d.description}</div>`;
+        tooltipContent += `<div class="tooltip-description">${withoutFootnotes(d.description)}</div>`;
       }
       
       tooltip.innerHTML = tooltipContent;
