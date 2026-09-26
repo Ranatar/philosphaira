@@ -59,7 +59,7 @@ import { draw, updateGraphData } from './modules/render/scene.js';
 import { clearSimilarityOverlay } from './modules/render/similarity-overlay.js';
 import { pinnedDespiteFilter } from './modules/state/filters.js';
 import { installLayoutPull, layoutFromStore, storedLayoutComplaint } from './modules/state/render.js';
-import { closeStatsModal, loadStatsContent, switchStatsView } from './modules/stats/modal.js';
+import { closeStatsModal, loadStatsContent, refreshObservationsNav, switchStatsView } from './modules/stats/modal.js';
 import { renderComparison } from './modules/stats/views/comparison.js';
 import { initFilters, markChosenInLegend, syncTraditionRows, updateFilterStats } from './modules/ui/legend.js';
 import { initLinkState } from './modules/ui/link-state.js';
@@ -168,6 +168,8 @@ export async function boot() {
   subscribe('notification-arrived', () => { refreshUnread(); });
   
   subscribe('session-changed', () => { renderBell(); refreshUnread(); });
+  
+  subscribe('session-changed', refreshObservationsNav);
   
   document.addEventListener('click', ev => {
         const button = ev.target && ev.target.closest

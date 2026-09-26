@@ -1,6 +1,8 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA, S } from '../core/ns.js';
+import { serverMode } from '../core/api.js';
 import { emit } from '../core/events.js';
+import { authSession } from '../core/session.js';
 import { invalidateGraphCache } from '../metrics/graph-cache.js';
 import { initializePhilosophyMetrics } from '../metrics/link-indexes.js';
 import { invalidateEverythingForScope } from '../metrics/scope-reset.js';
@@ -18,6 +20,7 @@ import { generateCoherenceContent, generateCriticalPowerContent, generateDialogi
 import { generateConceptRankingsContent, generatePhilosopherRankingsContent } from './views/rankings.js';
 
 function openStatsModal() {
+      refreshObservationsNav();
       if (!DATA.concepts || !DATA.relations) {
         initializePhilosophyMetrics();
       }
@@ -73,14 +76,24 @@ function closeStatsModal() {
         && needsContinuousAnimation()) {
         ensureAnimLoop();
       }
-      initializePhilosophyMetrics();
-      invalidateGraphCache();
-      // ИМЕННО invalidateEverythingForScope, а не invalidateAllMetricsCaches:
-      // восьми путевых кэшей (PageRank, Betweenness, Closeness, Eigenvector,
-      // Clustering, WeightedClustering, LocalCohesion, RichClub) во второй
-      // НЕТ. Из-за этого после смены галочки вид показывал прежнюю таблицу
-      // из старого кэша — ни пересчёта, ни кнопки «Рассчитать».
-      invalidateEverythingForScope();
+      // СБРОС — ТОЛЬКО ЕСЛИ ОКНО СЧИТАЛО НА КОПИИ (26.09.2026). Прежде сброс
+      // был безусловным, и признак cachesMatchLive, вычисленный строкой выше,
+      // уважало только ОТКРЫТИЕ окна: закрытие выбрасывало годные кеши. Автор
+      // заметил: сетевое сходство, посчитанное в окне концепции, выживало в
+      // окне статистики, но после его закрытия окно другой концепции считало
+      // его заново (замер: 3,5 с). Если окно считало на копии (выключен
+      // переключатель, охват не весь граф), кеши держат числа копии, и сброс
+      // обязателен — это стережёт встречное утверждение assert_probe.
+      if (!S.cachesMatchLive) {
+        initializePhilosophyMetrics();
+        invalidateGraphCache();
+        // ИМЕННО invalidateEverythingForScope, а не invalidateAllMetricsCaches:
+        // восьми путевых кэшей (PageRank, Betweenness, Closeness, Eigenvector,
+        // Clustering, WeightedClustering, LocalCohesion, RichClub) во второй
+        // НЕТ. Из-за этого после смены галочки вид показывал прежнюю таблицу
+        // из старого кэша — ни пересчёта, ни кнопки «Рассчитать».
+        invalidateEverythingForScope();
+      }
 
       const modal = document.getElementById('statsModal');
       modal.classList.remove('active');
@@ -123,7 +136,18 @@ function handleStatsParameterChange() {
       }
     }
 
+function observationsAllowed() {
+      return !!(serverMode && authSession && authSession.user);
+    }
+
+function refreshObservationsNav() {
+      const group = document.getElementById('statsObservationsGroup');
+      if (group) group.style.display = observationsAllowed() ? '' : 'none';
+      if (!observationsAllowed() && S.currentStatsView === 'observations') S.currentStatsView = 'overview';
+    }
+
 function switchStatsView(viewName, event) {
+      if (viewName === 'observations' && !observationsAllowed()) viewName = 'overview';
       // Подсветку ставим ПО ИМЕНИ ВИДА, а не по событию: пункты зовут
       // switchStatsView('имя') без второго довода, и параметр event
       // всегда undefined.
@@ -241,4 +265,4 @@ document.addEventListener('keydown', function(event) {
     });
 }
 
-export { closeStatsModal, handleStatsParameterChange, installStatsEscape, installStatsModalDismiss, loadStatsContent, openStatsModal, switchStatsView, updateActiveNavItem };
+export { closeStatsModal, handleStatsParameterChange, installStatsEscape, installStatsModalDismiss, loadStatsContent, openStatsModal, refreshObservationsNav, switchStatsView, updateActiveNavItem };

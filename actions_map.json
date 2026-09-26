@@ -490,275 +490,275 @@
   "откуда": "index.html"
  },
  "switch-stats-view-2": {
-  "код": "switchStatsView('observations')",
-  "attr": "onclick",
-  "тело": "switchStatsView('observations')",
-  "аргументов": 0,
-  "откуда": "index.html"
- },
- "switch-stats-view-3": {
-  "код": "switchStatsView('comparison')",
-  "attr": "onclick",
-  "тело": "switchStatsView('comparison')",
-  "аргументов": 0,
-  "откуда": "index.html"
- },
- "switch-stats-view-4": {
-  "код": "switchStatsView('closest-pairs')",
-  "attr": "onclick",
-  "тело": "switchStatsView('closest-pairs')",
-  "аргументов": 0,
-  "откуда": "index.html"
- },
- "switch-stats-view-5": {
-  "код": "switchStatsView('philosopher-comparison')",
-  "attr": "onclick",
-  "тело": "switchStatsView('philosopher-comparison')",
-  "аргументов": 0,
-  "откуда": "index.html"
- },
- "switch-stats-view-6": {
-  "код": "switchStatsView('philosopher-pairs')",
-  "attr": "onclick",
-  "тело": "switchStatsView('philosopher-pairs')",
-  "аргументов": 0,
-  "откуда": "index.html"
- },
- "switch-stats-view-7": {
   "код": "switchStatsView('degree')",
   "attr": "onclick",
   "тело": "switchStatsView('degree')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-8": {
+ "switch-stats-view-3": {
   "код": "switchStatsView('pagerank')",
   "attr": "onclick",
   "тело": "switchStatsView('pagerank')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-9": {
+ "switch-stats-view-4": {
   "код": "switchStatsView('betweenness')",
   "attr": "onclick",
   "тело": "switchStatsView('betweenness')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-10": {
+ "switch-stats-view-5": {
   "код": "switchStatsView('closeness')",
   "attr": "onclick",
   "тело": "switchStatsView('closeness')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-11": {
+ "switch-stats-view-6": {
   "код": "switchStatsView('eigenvector')",
   "attr": "onclick",
   "тело": "switchStatsView('eigenvector')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-12": {
+ "switch-stats-view-7": {
   "код": "switchStatsView('weighted-clustering')",
   "attr": "onclick",
   "тело": "switchStatsView('weighted-clustering')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-13": {
+ "switch-stats-view-8": {
   "код": "switchStatsView('local-cohesion')",
   "attr": "onclick",
   "тело": "switchStatsView('local-cohesion')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-14": {
+ "switch-stats-view-9": {
   "код": "switchStatsView('rich-club')",
   "attr": "onclick",
   "тело": "switchStatsView('rich-club')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-15": {
+ "switch-stats-view-10": {
   "код": "switchStatsView('problem-generation')",
   "attr": "onclick",
   "тело": "switchStatsView('problem-generation')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-16": {
+ "switch-stats-view-11": {
   "код": "switchStatsView('critical-power')",
   "attr": "onclick",
   "тело": "switchStatsView('critical-power')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-17": {
+ "switch-stats-view-12": {
   "код": "switchStatsView('tension')",
   "attr": "onclick",
   "тело": "switchStatsView('tension')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-18": {
+ "switch-stats-view-13": {
   "код": "switchStatsView('revolutionary')",
   "attr": "onclick",
   "тело": "switchStatsView('revolutionary')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-19": {
+ "switch-stats-view-14": {
   "код": "switchStatsView('paradigm-shift')",
   "attr": "onclick",
   "тело": "switchStatsView('paradigm-shift')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-20": {
+ "switch-stats-view-15": {
   "код": "switchStatsView('influence')",
   "attr": "onclick",
   "тело": "switchStatsView('influence')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-21": {
+ "switch-stats-view-16": {
   "код": "switchStatsView('foundational')",
   "attr": "onclick",
   "тело": "switchStatsView('foundational')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-22": {
+ "switch-stats-view-17": {
   "код": "switchStatsView('synthetic')",
   "attr": "onclick",
   "тело": "switchStatsView('synthetic')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-23": {
+ "switch-stats-view-18": {
   "код": "switchStatsView('dialogical')",
   "attr": "onclick",
   "тело": "switchStatsView('dialogical')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-24": {
+ "switch-stats-view-19": {
   "код": "switchStatsView('coherence')",
   "attr": "onclick",
   "тело": "switchStatsView('coherence')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-25": {
+ "switch-stats-view-20": {
   "код": "switchStatsView('transformation')",
   "attr": "onclick",
   "тело": "switchStatsView('transformation')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-26": {
+ "switch-stats-view-21": {
   "код": "switchStatsView('fertility')",
   "attr": "onclick",
   "тело": "switchStatsView('fertility')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-27": {
+ "switch-stats-view-22": {
   "код": "switchStatsView('complexity')",
   "attr": "onclick",
   "тело": "switchStatsView('complexity')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-28": {
+ "switch-stats-view-23": {
   "код": "switchStatsView('continuity')",
   "attr": "onclick",
   "тело": "switchStatsView('continuity')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-29": {
+ "switch-stats-view-24": {
   "код": "switchStatsView('generative')",
   "attr": "onclick",
   "тело": "switchStatsView('generative')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-30": {
+ "switch-stats-view-25": {
   "код": "switchStatsView('instrumental')",
   "attr": "onclick",
   "тело": "switchStatsView('instrumental')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-31": {
+ "switch-stats-view-26": {
   "код": "switchStatsView('bridging')",
   "attr": "onclick",
   "тело": "switchStatsView('bridging')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-32": {
+ "switch-stats-view-27": {
   "код": "switchStatsView('abstraction')",
   "attr": "onclick",
   "тело": "switchStatsView('abstraction')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-33": {
+ "switch-stats-view-28": {
   "код": "switchStatsView('deductive')",
   "attr": "onclick",
   "тело": "switchStatsView('deductive')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-34": {
+ "switch-stats-view-29": {
   "код": "switchStatsView('temporal-influence')",
   "attr": "onclick",
   "тело": "switchStatsView('temporal-influence')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-35": {
+ "switch-stats-view-30": {
   "код": "switchStatsView('philosopher-profile')",
   "attr": "onclick",
   "тело": "switchStatsView('philosopher-profile')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-36": {
+ "switch-stats-view-31": {
   "код": "switchStatsView('philosopher-systematic')",
   "attr": "onclick",
   "тело": "switchStatsView('philosopher-systematic')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-37": {
+ "switch-stats-view-32": {
   "код": "switchStatsView('philosopher-reach')",
   "attr": "onclick",
   "тело": "switchStatsView('philosopher-reach')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-38": {
+ "switch-stats-view-33": {
   "код": "switchStatsView('philosopher-interdisciplinary')",
   "attr": "onclick",
   "тело": "switchStatsView('philosopher-interdisciplinary')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-39": {
+ "switch-stats-view-34": {
+  "код": "switchStatsView('comparison')",
+  "attr": "onclick",
+  "тело": "switchStatsView('comparison')",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "switch-stats-view-35": {
+  "код": "switchStatsView('closest-pairs')",
+  "attr": "onclick",
+  "тело": "switchStatsView('closest-pairs')",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "switch-stats-view-36": {
+  "код": "switchStatsView('philosopher-comparison')",
+  "attr": "onclick",
+  "тело": "switchStatsView('philosopher-comparison')",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "switch-stats-view-37": {
+  "код": "switchStatsView('philosopher-pairs')",
+  "attr": "onclick",
+  "тело": "switchStatsView('philosopher-pairs')",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "switch-stats-view-38": {
   "код": "switchStatsView('concept-rankings')",
   "attr": "onclick",
   "тело": "switchStatsView('concept-rankings')",
   "аргументов": 0,
   "откуда": "index.html"
  },
- "switch-stats-view-40": {
+ "switch-stats-view-39": {
   "код": "switchStatsView('philosopher-rankings')",
   "attr": "onclick",
   "тело": "switchStatsView('philosopher-rankings')",
+  "аргументов": 0,
+  "откуда": "index.html"
+ },
+ "switch-stats-view-40": {
+  "код": "switchStatsView('observations')",
+  "attr": "onclick",
+  "тело": "switchStatsView('observations')",
   "аргументов": 0,
   "откуда": "index.html"
  },
