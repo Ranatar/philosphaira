@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-130 модулей, 22146 строк, 932 объявлений,
-636 вывозов, 847 рёбер ввоза. Составлено 2026-09-26 04:07:14.
+130 модулей, 22206 строк, 936 объявлений,
+638 вывозов, 852 рёбер ввоза. Составлено 2026-09-26 06:32:49.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -24,7 +24,7 @@
 | `modules/util/html.js` | 24 |
 | `modules/render/canvas-core.js` | 19 |
 | `modules/state/render.js` | 19 |
-| `modules/core/api.js` | 14 |
+| `modules/core/api.js` | 15 |
 | `modules/modal/core.js` | 14 |
 | `modules/core/perms.js` | 13 |
 | `modules/metrics/link-indexes.js` | 13 |
@@ -73,12 +73,11 @@
 внутри своего модуля. Таких сейчас **0**.
 
 Отдельно считаются имена, которые держатся только приборами приёмки
-(2): в дереве они выглядят мёртвыми, а на деле
+(1): в дереве они выглядят мёртвыми, а на деле
 их ввозят измерительные программы.
 
 | Имя | Модуль |
 |---|---|
-| `hasUnsaved` | `modules/data/save.js` |
 | `actionNames` | `modules/ui/actions.js` |
 
 ## Модули
@@ -102,12 +101,12 @@
 | `modules/core/session.js` | 23 | 4 | 4 | 1 | — |
 | `modules/core/time.js` | 13 | 2 | 2 | 0 | — |
 | `modules/core/visibility.js` | 13 | 2 | 2 | 1 | S:2 |
-| `modules/data/backend.js` | 121 | 7 | 4 | 4 | — |
+| `modules/data/backend.js` | 123 | 7 | 4 | 5 | — |
 | `modules/data/commit-draft.js` | 37 | 2 | 1 | 0 | — |
 | `modules/data/load.js` | 9 | 0 | 1 | 1 | — |
 | `modules/data/mutate.js` | 89 | 3 | 1 | 6 | DATA:11, S:1 |
-| `modules/data/remote.js` | 174 | 9 | 5 | 6 | DATA:8, S:3 |
-| `modules/data/save.js` | 72 | 10 | 7 | 1 | DATA:6 |
+| `modules/data/remote.js` | 186 | 10 | 6 | 7 | DATA:8, S:3 |
+| `modules/data/save.js` | 87 | 12 | 8 | 2 | DATA:6 |
 | `modules/dead.js` | 86 | 6 | 6 | 5 | DATA:1, S:5, MET:1 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 | 2 | — |
 | `modules/filters/chains.js` | 273 | 6 | 3 | 4 | DATA:3, S:2 |
@@ -134,7 +133,7 @@
 | `modules/metrics/tension-cache.js` | 13 | 1 | 1 | 1 | S:2 |
 | `modules/metrics/tradition-bridging.js` | 89 | 4 | 3 | 2 | S:4, MET:1 |
 | `modules/modal/assembly.js` | 56 | 3 | 3 | 2 | — |
-| `modules/modal/auth.js` | 220 | 9 | 4 | 8 | S:1 |
+| `modules/modal/auth.js` | 247 | 10 | 4 | 9 | S:1 |
 | `modules/modal/commits.js` | 444 | 32 | 19 | 7 | — |
 | `modules/modal/concept-view.js` | 442 | 12 | 2 | 10 | DATA:5, VIEWS:1 |
 | `modules/modal/conflict.js` | 88 | 5 | 5 | 7 | — |
@@ -205,7 +204,7 @@
 | `modules/ui/hint.js` | 60 | 7 | 4 | 1 | S:1 |
 | `modules/ui/legend.js` | 392 | 29 | 25 | 7 | DATA:9, S:9 |
 | `modules/ui/link-state.js` | 282 | 13 | 6 | 17 | DATA:5, S:11 |
-| `modules/ui/notifications.js` | 99 | 10 | 8 | 2 | — |
+| `modules/ui/notifications.js` | 103 | 10 | 8 | 3 | — |
 | `modules/ui/panels.js` | 40 | 2 | 2 | 0 | — |
 | `modules/ui/search-legend.js` | 141 | 7 | 6 | 17 | S:2 |
 | `modules/ui/search-link.js` | 135 | 7 | 5 | 12 | DATA:3, S:2 |
@@ -357,13 +356,13 @@
 | `isNodeVisible` | function | 1 | да |
 | `isLinkVisible` | function | 1 | да |
 
-### `modules/data/backend.js` — 121 строк, объявлений 7
+### `modules/data/backend.js` — 123 строк, объявлений 7
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `sendCommit` | async function | 58 | — |
+| `sendCommit` | async function | 60 | — |
 | `reportSubmit` | function | 19 | да |
-| `submitChange` | function | 17 | да |
+| `submitChange` | function | 16 | да |
 | `commitMessageFor` | function | 9 | — |
 | `lastSubmitted` | let | 1 | да |
 | `noticeTimer` | let | 1 | — |
@@ -384,31 +383,34 @@
 | `afterDataChange` | function | 36 | да |
 | `rebuildPhilosopherTraditions` | function | 4 | — |
 
-### `modules/data/remote.js` — 174 строк, объявлений 9
+### `modules/data/remote.js` — 186 строк, объявлений 10
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `rebuildDerived` | function | 43 | — |
-| `connectLive` | function | 33 | да |
+| `connectLive` | function | 38 | да |
 | `pullGraphSince` | async function | 30 | да |
 | `applyIncrement` | function | 18 | — |
 | `applyFreshGraph` | function | 17 | да |
 | `replaceEntity` | function | 9 | — |
+| `disconnectLive` | function | 5 | да |
 | `knownGraphVersion` | let | 1 | да |
 | `liveSocket` | let | 1 | да |
 | `liveRetry` | let | 1 | — |
 
-### `modules/data/save.js` — 72 строк, объявлений 10
+### `modules/data/save.js` — 87 строк, объявлений 12
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `saveToFolder` | async function | 23 | да |
+| `trackDirectEdit` | function | 11 | да |
 | `deliverFile` | function | 11 | — |
 | `installUnsavedGuard` | function | 7 | да |
 | `downloadData` | function | 6 | да |
 | `collectData` | function | 3 | да |
 | `DATA_SETS` | const | 1 | да |
 | `hasUnsavedEdits` | let | 1 | — |
+| `unconfirmedDirect` | let | 1 | — |
 | `markDirty` | function | 1 | да |
 | `hasUnsaved` | function | 1 | да |
 | `dataFolder` | let | 1 | — |
@@ -775,19 +777,20 @@
 | `modalActions` | function | 15 | да |
 | `modalEntityExists` | function | 13 | да |
 
-### `modules/modal/auth.js` — 220 строк, объявлений 9
+### `modules/modal/auth.js` — 247 строк, объявлений 10
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
-| `submitAuth` | async function | 96 | да |
+| `submitAuth` | async function | 99 | да |
+| `authLogout` | function | 45 | да |
 | `openAuthModal` | function | 29 | да |
-| `authLogout` | function | 24 | да |
 | `showAuthNotice` | function | 14 | — |
 | `authNoticeAdmin` | function | 13 | — |
 | `closeAuthModal` | function | 10 | да |
 | `authNoticeMember` | function | 6 | — |
 | `authError` | function | 4 | — |
 | `authModalEl` | function | 1 | — |
+| `logoutInFlight` | let | 1 | — |
 
 ### `modules/modal/commits.js` — 444 строк, объявлений 32
 
@@ -1643,15 +1646,15 @@
 | `_linkMissed` | let | 1 | да |
 | `_linkLastHash` | let | 1 | — |
 
-### `modules/ui/notifications.js` — 99 строк, объявлений 10
+### `modules/ui/notifications.js` — 103 строк, объявлений 10
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `renderNotifyList` | function | 18 | — |
 | `notifyWords` | function | 16 | — |
+| `refreshUnread` | async function | 11 | да |
 | `renderBell` | function | 9 | да |
 | `markNotificationRead` | async function | 9 | да |
-| `refreshUnread` | async function | 8 | да |
 | `loadNotifications` | async function | 7 | да |
 | `toggleNotifyPanel` | function | 7 | да |
 | `markAllNotificationsRead` | async function | 7 | да |
@@ -2032,8 +2035,9 @@
 - из `modules/core/events.js`: `emit`
 - из `modules/core/perms.js`: `PERM`, `can`
 - из `modules/data/remote.js`: `applyFreshGraph`
+- из `modules/data/save.js`: `trackDirectEdit`
 
-Чаще всего поминает: `api`×2, `serverMode`×1, `can`×1, `PERM`×1, `applyFreshGraph`×1
+Чаще всего поминает: `api`×2, `serverMode`×1, `can`×1, `PERM`×1, `trackDirectEdit`×1
 
 ### `modules/data/load.js`
 
@@ -2058,6 +2062,7 @@
 - из `modules/core/graph-index.js`: _ради побочного действия_
 - из `modules/core/api.js`: `api`, `serverMode`
 - из `modules/core/events.js`: `emit`
+- из `modules/core/session.js`: `authSession`
 - из `modules/data/mutate.js`: `afterDataChange`
 - из `modules/state/render.js`: `applyServerLayout`
 
@@ -2066,8 +2071,9 @@
 ### `modules/data/save.js`
 
 - из `modules/core/ns.js`: `DATA`
+- из `modules/core/api.js`: `serverMode`
 
-Чаще всего поминает: `DATA`×6
+Чаще всего поминает: `DATA`×6, `serverMode`×1
 
 ### `modules/dead.js`
 
@@ -2313,7 +2319,8 @@
 - из `modules/core/api.js`: `api`, `detectServerMode`, `serverMode`
 - из `modules/core/events.js`: `emit`
 - из `modules/core/session.js`: `AUTH_ADMIN`, `authAccounts`, `setSessionUser`
-- из `modules/data/remote.js`: `connectLive`, `pullGraphSince`
+- из `modules/data/backend.js`: `reportSubmit`
+- из `modules/data/remote.js`: `connectLive`, `disconnectLive`, `pullGraphSince`
 - из `modules/modal/context.js`: `ModalContext`
 - из `modules/modal/core.js`: `toggleModalMode`
 - из `modules/modal/edit-rights.js`: `refreshEditHints`, `refreshOpenModalToolbar`, `renderAuthControls`
@@ -3157,9 +3164,10 @@
 ### `modules/ui/notifications.js`
 
 - из `modules/core/api.js`: `api`, `serverMode`
+- из `modules/core/session.js`: `authSession`
 - из `modules/util/html.js`: `escapeAttr`
 
-Чаще всего поминает: `serverMode`×5, `api`×4, `escapeAttr`×3
+Чаще всего поминает: `serverMode`×5, `api`×4, `authSession`×3, `escapeAttr`×3
 
 ### `modules/ui/search-legend.js`
 

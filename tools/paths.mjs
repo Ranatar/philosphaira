@@ -140,8 +140,13 @@ export function программа(имя) {
 // но переменные CHROME и PUPPETEER перекрывают их без правки кода.
 export const БРАУЗЕР = process.env.CHROME
   || '/home/claude/.cache/puppeteer/chrome/linux-131.0.6778.204/chrome-linux64/chrome';
+// PUPPETEER — СВОЙ, из node_modules проекта (версия закреплена в
+// package.json). До 26.09.2026 умолчанием стоял puppeteer 23.11.1 из недр
+// mermaid-cli, а accept.sh перекрывал его своим 25.7.0: один и тот же
+// прибор, запущенный руками и из приёмки, шёл через РАЗНЫЕ выпуски. Браузер
+// в обоих случаях один, но «чем меряешь» должно отвечаться одним местом.
 export const PUPPETEER = process.env.PUPPETEER
-  || '/home/claude/.npm-global/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer';
+  || path.join(КОРЕНЬ, 'node_modules/puppeteer-core');
 export const D3 = process.env.PG_D3
   || path.join(КОРЕНЬ, 'node_modules/d3/dist/d3.min.js');
 export const СЕРВЕР = process.env.BASE || 'http://127.0.0.1:8711/';

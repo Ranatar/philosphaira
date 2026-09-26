@@ -94,6 +94,24 @@ try {
   await pageHtml.setViewport({ width: 1440, height: 900 });
   const ошибки = [];
   pageHtml.on('pageerror', e => ошибки.push(String(e).split('\n')[0]));
+  // ГОСТЬ НЕ СТУЧИТСЯ (26.09.2026). Прежде гость получал 401 на счёт
+  // непрочитанного и открывал сокет, который сервер ему не даёт, — снова и
+  // снова, с удвоением паузы до 30 с. pageerror этого не видит: это отказы
+  // сети, а не исключения. Считаем ответы 4xx и рукопожатия сокета.
+  const отказы = [];
+  pageHtml.on('response', r => { if (r.status() >= 400) отказы.push(r.status() + ' ' + r.url()); });
+  await pageHtml.evaluateOnNewDocument(() => {
+    const Прежний = window.WebSocket;
+    window.__сокетов = 0;
+    window.WebSocket = class extends Прежний {
+      constructor(...д) { super(...д); window.__сокетов++; }
+    };
+  });
+  const сокетов = () => pageHtml.evaluate(`window.__сокетов`);
+  const колоколВиден = () => pageHtml.evaluate(`(function(){
+    const b = document.getElementById('notifyBell');
+    return !!b && b.style.display !== 'none';
+  })()`);
 
   await pageHtml.goto('http://127.0.0.1:8814/index.html',
     { waitUntil: 'domcontentloaded' });
@@ -123,6 +141,13 @@ try {
     return shown;
   })()`);
   проверить('гостю раздела «Замеры» нет', (await observationsShown()) === false, 'скрыт', 'виден');
+  проверить('гость не открывает сокета', (await сокетов()) === 0, 0, await сокетов());
+  проверить('гость не получает отказов 4xx (ни 401 колокола, ни 404 значка)',
+    отказы.length === 0, 0, отказы.slice(0, 3).join(' | '));
+  проверить('гостю колокол не показан', (await колоколВиден()) === false, 'скрыт', 'виден');
+  проверить('нетронутая страница гостя не числит несохранённого',
+    (await pageHtml.evaluate(`window.__app.hasUnsaved()`)) === false, false,
+    await pageHtml.evaluate(`window.__app.hasUnsaved()`));
 
   // ── 3. ВХОД ЧЕРЕЗ СЕРВЕР ────────────────────────────────────────────────
   await pageHtml.evaluate(`(function(){
@@ -154,6 +179,10 @@ try {
     await pageHtml.evaluate(`window.__app.can(window.__app.PERM.CREATE_COMMIT)`), true,
     await pageHtml.evaluate(`window.__app.can(window.__app.PERM.CREATE_COMMIT)`));
   проверить('вошедшему раздел «Замеры» виден', (await observationsShown()) === true, 'виден', 'скрыт');
+  // ВСТРЕЧНЫЕ к утверждениям о госте: без них «сокетов 0» и «колокол
+  // скрыт» сходились бы и у страницы, которая не открывает их никому.
+  проверить('вошедшему сокет открыт', (await сокетов()) >= 1, '≥1', await сокетов());
+  проверить('вошедшему колокол показан', (await колоколВиден()) === true, 'виден', 'скрыт');
   проверить('и это тот же набор, что отдаёт сервер',
     await pageHtml.evaluate(`(async () => {
       const о = await fetch('/api/users/me', { credentials: 'same-origin' });
@@ -196,6 +225,9 @@ try {
       .rows[0]?.status === 'applied', 'applied',
     (await pool.query(`SELECT status FROM commits ORDER BY created_at DESC LIMIT 1`))
       .rows[0]?.status);
+  проверить('принятая прямая правка не числится несохранённой',
+    (await pageHtml.evaluate(`window.__app.hasUnsaved()`)) === false, false,
+    await pageHtml.evaluate(`window.__app.hasUnsaved()`));
   проверить('и рецензента у неё нет — это прямая правка, а не самоодобрение',
     (await pool.query(`SELECT reviewed_by FROM commits ORDER BY created_at DESC LIMIT 1`))
       .rows[0]?.reviewed_by === null, null,
@@ -206,8 +238,24 @@ try {
   await register(pool, { username: 'редактор', email: 'r@e.рф', password: ПАРОЛЬ });
   await pool.query(`UPDATE users SET role='editor', email_verified_at=NOW()
                      WHERE username='редактор'`);
+  const сокетовДоВыхода = await сокетов();
   await pageHtml.evaluate(`window.__app.authLogout()`);
   await ждать(300);
+  // ВЫХОД ГАСИТ СЕАНС НА СЕРВЕРЕ (26.09.2026). Прежде кнопка снимала права
+  // только на странице: cookie жил, сервер отвечал «вошёл», сокет с личными
+  // извещениями не закрывался, а перезагрузка возвращала под той же записью.
+  let сервер = 'не спросили';
+  for (let i = 0; i < 20; i++) {
+    сервер = await pageHtml.evaluate(`fetch('/api/users/me', { credentials: 'same-origin' })
+      .then(о => о.json()).then(т => т.data && т.data.гость ? 'гость' : (т.data && т.data.username))`);
+    if (сервер === 'гость') break;
+    await ждать(150);
+  }
+  проверить('ПОСЛЕ ВЫХОДА СЕРВЕР СЧИТАЕТ ГОСТЕМ', сервер === 'гость', 'гость', сервер);
+  await ждать(1500);   // пауза восстановления сокета — 500 мс с удвоением
+  проверить('после выхода сокет не открывается заново',
+    (await сокетов()) === сокетовДоВыхода, сокетовДоВыхода, await сокетов());
+  проверить('после выхода колокол скрыт', (await колоколВиден()) === false, 'скрыт', 'виден');
   await pageHtml.evaluate(`(function(){
     window.__app.openAuthModal('login');
     document.getElementById('authLogin').value = 'r@e.рф';
@@ -801,6 +849,28 @@ try {
     await pageHtml.evaluate(`(document.getElementById('authError')||{}).textContent || ''`)
       .then(т => /адрес или пароль/i.test(т)), 'адрес или пароль',
     await pageHtml.evaluate(`(document.getElementById('authError')||{}).textContent || ''`));
+
+  // ВХОД ОБРАТНО АДМИНИСТРАТОРОМ. Всё, что ниже (колокол, правки с
+  // источником, окно отбора), делается от вошедшего. До 26.09.2026 проба
+  // шла дальше «гостем» после неверного пароля — и работала лишь потому,
+  // что выход на странице не гасил сеанс на сервере: cookie администратора
+  // жил, и правки уходили от его имени. Проба держалась на дефекте, который
+  // должна была ловить; с настоящим выходом она честно покраснела (11 мест).
+  await pageHtml.evaluate(`(function(){
+    window.__app.openAuthModal('login');
+    document.getElementById('authLogin').value = 'p@e.рф';
+    document.getElementById('authPassword').value = ${JSON.stringify(ПАРОЛЬ)};
+  })()`);
+  await pageHtml.evaluate(`window.__app.submitAuth()`);
+  await ждать(1000);
+  await pageHtml.evaluate(`(function(){
+    document.getElementById('authPassword').value = '${totpКод(заведение.секрет)}';
+  })()`);
+  await pageHtml.evaluate(`window.__app.submitAuth()`);
+  await ждать(1500);
+  проверить('после неверного пароля администратор входит снова',
+    await pageHtml.evaluate(`!!(window.__app.authSession && window.__app.authSession.user)`),
+    'вошёл', 'нет');
 
 
   // ── КОЛОКОЛ (покрытие многопользовательской части) ────────────────────

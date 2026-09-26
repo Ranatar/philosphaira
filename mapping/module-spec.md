@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 130 модулей, 22146 строк.
+Составлено из готовой сборки: 130 модулей, 22206 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -60,12 +60,12 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/core/session.js` | 23 | 4 | 1 |
 | `modules/core/time.js` | 13 | 2 | 0 |
 | `modules/core/visibility.js` | 13 | 2 | 1 |
-| `modules/data/backend.js` | 121 | 4 | 4 |
+| `modules/data/backend.js` | 123 | 4 | 5 |
 | `modules/data/commit-draft.js` | 37 | 1 | 0 |
 | `modules/data/load.js` | 9 | 1 | 1 |
 | `modules/data/mutate.js` | 89 | 1 | 6 |
-| `modules/data/remote.js` | 174 | 5 | 6 |
-| `modules/data/save.js` | 72 | 7 | 1 |
+| `modules/data/remote.js` | 186 | 6 | 7 |
+| `modules/data/save.js` | 87 | 8 | 2 |
 | `modules/dead.js` | 86 | 6 | 5 |
 | `modules/filters/beyond-filter.js` | 21 | 2 | 2 |
 | `modules/filters/chains.js` | 273 | 3 | 4 |
@@ -92,7 +92,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/metrics/tension-cache.js` | 13 | 1 | 1 |
 | `modules/metrics/tradition-bridging.js` | 89 | 3 | 2 |
 | `modules/modal/assembly.js` | 56 | 3 | 2 |
-| `modules/modal/auth.js` | 220 | 4 | 8 |
+| `modules/modal/auth.js` | 247 | 4 | 9 |
 | `modules/modal/commits.js` | 444 | 19 | 7 |
 | `modules/modal/concept-view.js` | 442 | 2 | 10 |
 | `modules/modal/conflict.js` | 88 | 5 | 7 |
@@ -163,7 +163,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/ui/hint.js` | 60 | 4 | 1 |
 | `modules/ui/legend.js` | 392 | 25 | 7 |
 | `modules/ui/link-state.js` | 282 | 6 | 17 |
-| `modules/ui/notifications.js` | 99 | 8 | 2 |
+| `modules/ui/notifications.js` | 103 | 8 | 3 |
 | `modules/ui/panels.js` | 40 | 2 | 0 |
 | `modules/ui/search-legend.js` | 141 | 6 | 16 |
 | `modules/ui/search-link.js` | 135 | 5 | 11 |
@@ -572,7 +572,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/data/backend.js`
 
-Строк 121.
+Строк 123.
 
 **Вывозит:** `lastSubmitResult`, `lastSubmitted`, `reportSubmit`, `submitChange`
 
@@ -582,6 +582,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/events.js`: `emit`
 - из `../core/perms.js`: `PERM`, `can`
 - из `./remote.js`: `applyFreshGraph`
+- из `./save.js`: `trackDirectEdit`
 
 **Содержит:** `commitMessageFor`, `lastSubmitResult`, `lastSubmitted`, `noticeTimer`, `reportSubmit`, `sendCommit`, `submitChange`
 
@@ -626,32 +627,34 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/data/remote.js`
 
-Строк 174.
+Строк 186.
 
-**Вывозит:** `applyFreshGraph`, `connectLive`, `knownGraphVersion`, `liveSocket`, `pullGraphSince`
+**Вывозит:** `applyFreshGraph`, `connectLive`, `disconnectLive`, `knownGraphVersion`, `liveSocket`, `pullGraphSince`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
 - из `../core/api.js`: `api`, `serverMode`
 - из `../core/events.js`: `emit`
+- из `../core/session.js`: `authSession`
 - из `./mutate.js`: `afterDataChange`
 - из `../state/render.js`: `applyServerLayout`
 - из `../core/graph-index.js`: _ради побочного действия_
 
-**Содержит:** `S.liveClosedOnPurpose`, `applyFreshGraph`, `applyIncrement`, `connectLive`, `knownGraphVersion`, `liveRetry`, `liveSocket`, `pullGraphSince`, `rebuildDerived`, `replaceEntity`
+**Содержит:** `S.liveClosedOnPurpose`, `applyFreshGraph`, `applyIncrement`, `connectLive`, `disconnectLive`, `knownGraphVersion`, `liveRetry`, `liveSocket`, `pullGraphSince`, `rebuildDerived`, `replaceEntity`
 
 ### `modules/data/save.js`
 
-Строк 72.
+Строк 87.
 
-**Вывозит:** `DATA_SETS`, `collectData`, `downloadData`, `hasUnsaved`, `installUnsavedGuard`, `markDirty`, `saveToFolder`
+**Вывозит:** `DATA_SETS`, `collectData`, `downloadData`, `hasUnsaved`, `installUnsavedGuard`, `markDirty`, `saveToFolder`, `trackDirectEdit`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`
+- из `../core/api.js`: `serverMode`
 
-**Содержит:** `DATA_SETS`, `collectData`, `dataFolder`, `deliverFile`, `downloadData`, `hasUnsaved`, `hasUnsavedEdits`, `installUnsavedGuard`, `markDirty`, `saveToFolder`
+**Содержит:** `DATA_SETS`, `collectData`, `dataFolder`, `deliverFile`, `downloadData`, `hasUnsaved`, `hasUnsavedEdits`, `installUnsavedGuard`, `markDirty`, `saveToFolder`, `trackDirectEdit`, `unconfirmedDirect`
 
 ### `modules/dead.js`
 
@@ -1048,7 +1051,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/auth.js`
 
-Строк 220.
+Строк 247.
 
 **Вывозит:** `authLogout`, `closeAuthModal`, `openAuthModal`, `submitAuth`
 
@@ -1058,12 +1061,13 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `../core/api.js`: `api`, `detectServerMode`, `serverMode`
 - из `../core/events.js`: `emit`
 - из `../core/session.js`: `AUTH_ADMIN`, `authAccounts`, `setSessionUser`
-- из `../data/remote.js`: `connectLive`, `pullGraphSince`
+- из `../data/backend.js`: `reportSubmit`
+- из `../data/remote.js`: `connectLive`, `disconnectLive`, `pullGraphSince`
 - из `./context.js`: `ModalContext`
 - из `./core.js`: `toggleModalMode`
 - из `./edit-rights.js`: `refreshEditHints`, `refreshOpenModalToolbar`, `renderAuthControls`
 
-**Содержит:** `S.authModalKind`, `authError`, `authLogout`, `authModalEl`, `authNoticeAdmin`, `authNoticeMember`, `closeAuthModal`, `openAuthModal`, `showAuthNotice`, `submitAuth`
+**Содержит:** `S.authModalKind`, `authError`, `authLogout`, `authModalEl`, `authNoticeAdmin`, `authNoticeMember`, `closeAuthModal`, `logoutInFlight`, `openAuthModal`, `showAuthNotice`, `submitAuth`
 
 ### `modules/modal/commits.js`
 
@@ -2327,13 +2331,14 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/ui/notifications.js`
 
-Строк 99.
+Строк 103.
 
 **Вывозит:** `loadNotifications`, `markAllNotificationsRead`, `markNotificationRead`, `notifyItems`, `refreshUnread`, `renderBell`, `toggleNotifyPanel`, `unreadCount`
 
 **Ввозит:**
 
 - из `../core/api.js`: `api`, `serverMode`
+- из `../core/session.js`: `authSession`
 - из `../util/html.js`: `escapeAttr`
 
 **Содержит:** `loadNotifications`, `markAllNotificationsRead`, `markNotificationRead`, `notifyItems`, `notifyWords`, `refreshUnread`, `renderBell`, `renderNotifyList`, `toggleNotifyPanel`, `unreadCount`

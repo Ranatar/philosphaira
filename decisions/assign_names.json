@@ -119,6 +119,7 @@
   "authAccounts": "core/session.js",
   "authError": "modal/auth.js",
   "authLogout": "modal/auth.js",
+  "logoutInFlight": "modal/auth.js",
   "authModalEl": "modal/auth.js",
   "authModalKind": "modal/auth.js",
   "authNoticeAdmin": "modal/auth.js",
@@ -209,6 +210,7 @@
   "conjugateVerb": "util/ru.js",
   "connEditSelectedBlock": "modal/connection-edit.js",
   "connectLive": "data/remote.js",
+  "disconnectLive": "data/remote.js",
   "connectionArrowSvg": "modal/connection-view.js",
   "connectionIntegrityWarnings": "modal/integrity.js",
   "connectionTraditionNote": "modal/connection-view.js",
@@ -522,6 +524,8 @@
   "markAllNotificationsRead": "ui/notifications.js",
   "markChosenInLegend": "ui/legend.js",
   "markDirty": "data/save.js",
+  "unconfirmedDirect": "data/save.js",
+  "trackDirectEdit": "data/save.js",
   "markNotificationRead": "ui/notifications.js",
   "maxTicks": "render/simulation.js",
   "maxTicksFor": "render/simulation.js",
@@ -1074,7 +1078,7 @@
    "модуль": "render/grouping.js",
    "имя": "buildGroupPositions"
   },
-  "window.addEventListener('beforeunload') @adf47dee": {
+  "window.addEventListener('beforeunload') @b3c60506": {
    "модуль": "data/save.js",
    "имя": "installUnsavedGuard"
   },

@@ -85,13 +85,13 @@ function Get-PsqlPath {
 # СЛУЖЕБНАЯ РОЛЬ, А НЕ СИСТЕМНЫЙ ПОЛЬЗОВАТЕЛЬ. В Ubuntu скрипт ходит
 # `sudo -u postgres`; здесь такого пользователя нет вовсе, и единственный
 # путь — пароль роли postgres, заданный при установке.
-function Invoke-Psql($sqlText, [switch]$Quiet) {
+function Invoke-Psql($sqlText, [switch]$Quiet, [string]$Db = 'postgres') {
   $psql = Get-PsqlPath
   if (-not $psql) { Die "psql не найден — PostgreSQL не установлен?" }
   $old = $env:PGPASSWORD
   $env:PGPASSWORD = if ($env:POSTGRES_PASSWORD) { $env:POSTGRES_PASSWORD } else { 'postgres' }
   try {
-    $out = & $psql -U postgres -h 127.0.0.1 -tAc $sqlText 2>&1
+    $out = & $psql -U postgres -h 127.0.0.1 -d $Db -tAc $sqlText 2>&1
     if (-not $Quiet -and $LASTEXITCODE -ne 0) { Bad ($out | Select-Object -First 1) }
     return $out
   } finally { $env:PGPASSWORD = $old }
@@ -138,9 +138,10 @@ function Invoke-Install {
   }
 
   Step "Chrome $ChromeVer"
-  # ИМЕННО ЭТА СБОРКА: эталоны `css_probe` учреждены на ней, а вычисленные
-  # стили машинно-зависимы. Другая сборка даст расхождение — и это будет не
-  # дефект проекта. Ставим не системный Chrome, а отдельную копию для проб,
+  # ИМЕННО ЭТА СБОРКА: на ней учреждены эталоны приёмки; другая даст
+  # расхождения, и искать их причину в проекте бессмысленно. (Прежнее
+  # «вычисленные стили машинно-зависимы» readme §6 разбирает как ложный
+  # вывод — его дал прогон не тем браузером.) Ставим не системный Chrome, а отдельную копию для проб,
   # чтобы обновление браузера у человека не ломало приёмку.
   $chromeHome = Join-Path $HOME 'chrome'
   if (Test-Path (Join-Path $chromeHome "win64-$ChromeVer")) {
@@ -221,12 +222,12 @@ function Invoke-Deploy($source) {
   Step 'зависимости'
   # Два места: корень (приборы приёмки приложения) и server (сам узел).
   Push-Location $Root
-  try { & npm install --no-audit --no-fund *> $null }
+  try { & npm ci --no-audit --no-fund *> $null }
   finally { Pop-Location }
   if ($LASTEXITCODE -eq 0) { Ok 'корень' } else { Bad 'корень не встал — приёмка приложения не пойдёт' }
 
   Push-Location (Join-Path $Root 'server')
-  try { & npm install --no-audit --no-fund *> $null }
+  try { & npm ci --no-audit --no-fund *> $null }
   finally { Pop-Location }
   if ($LASTEXITCODE -ne 0) { Die 'зависимости сервера не встали' }
   Ok 'server'
@@ -242,22 +243,46 @@ function Invoke-Deploy($source) {
   # до пустого места. Одна база на оба дела — потерянные данные при первом
   # же прогоне приёмки.
   #
-  # Локаль C.UTF-8 в Windows-сборке PostgreSQL недоступна; годится
-  # collation `C` с кодировкой UTF8. Существенно здесь одно: единственность
-  # логина держится на `lower()`, а в голой C `lower('ИВАН')` вернёт `ИВАН`.
-  # Поэтому кодировка обязана быть UTF8 — проверяем это ниже прямо.
+  # Локаль C.UTF-8 в Windows-сборке PostgreSQL недоступна. Единственность
+  # логина и почты держится на `lower()` (уникальные индексы 001_init), а при
+  # LC_CTYPE 'C' PostgreSQL сворачивает ТОЛЬКО ASCII — `lower('ИВАН')` вернёт
+  # `ИВАН`, и «ИВАН» с «иван» заведутся двумя людьми.
+  #
+  # ПРЕЖНЯЯ РЕДАКЦИЯ заводила именно такую базу (UTF8 + LC_CTYPE 'C') и
+  # проверяла только КОДИРОВКУ — а кодировка тут ни при чём. Замер 26.09.2026
+  # на PostgreSQL 16: база того же вида даёт UTF8 и `lower('ИВАН') = 'ИВАН'`.
+  # Поведение это ядра PostgreSQL, а не ОС, так что на Windows то же самое.
+  #
+  # ЛЕЧЕНИЕ — ICU (в сборках EDB он есть): регистр сворачивает ICU, а
+  # LC_COLLATE/LC_CTYPE остаются 'C'. Проверено там же: `lower('ИВАН')` —
+  # `иван`, приёмка сервера зелёная, выгрузка графа совпала с семенем
+  # побайтово. НА WINDOWS ЖИВЬЁМ НЕ ПРОГНАНО — поэтому ниже не кодировка, а
+  # сама способность сворачивать, прямым запросом, и при отказе — останов.
   foreach ($db in @('philos', 'philos_test')) {
     $exists = Invoke-Psql "SELECT 1 FROM pg_database WHERE datname='$db'" -Quiet
     if ("$exists".Trim() -eq '1') {
       Ok "$db уже есть"
     } else {
-      Invoke-Psql "CREATE DATABASE $db ENCODING 'UTF8' LC_COLLATE 'C' LC_CTYPE 'C' TEMPLATE template0" | Out-Null
+      Invoke-Psql "CREATE DATABASE $db ENCODING 'UTF8' LOCALE_PROVIDER icu ICU_LOCALE 'und' LC_COLLATE 'C' LC_CTYPE 'C' TEMPLATE template0" | Out-Null
       Ok "$db создана"
     }
   }
-  $enc = Invoke-Psql "SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname='philos'" -Quiet
-  if ("$enc".Trim() -ne 'UTF8') { Die "кодировка базы philos — $enc, нужна UTF8" }
-  Ok 'кодировка UTF8 подтверждена'
+  foreach ($db in @('philos', 'philos_test')) {
+    # ЗАПРОС И ОТВЕТ — ЧИСТЫЙ ASCII. Кириллица в аргументе psql.exe идёт
+    # через кодовые страницы консоли (866/1251) и может исказиться ДО базы —
+    # тогда заслон остановил бы исправную базу. Буквы заданы кодами:
+    # chr(1048..) = «ИВАН», chr(1080..) = «иван»; ответ — t или f.
+    $folded = Invoke-Psql "SELECT lower(chr(1048)||chr(1042)||chr(1040)||chr(1053)) = chr(1080)||chr(1074)||chr(1072)||chr(1085)" -Quiet -Db $db
+    if ("$folded".Trim() -ne 't') {
+      Die @"
+база $db не сворачивает кириллицу (lower('ИВАН') <> 'иван', ответ: '$("$folded".Trim())').
+Единственность логина держаться не будет. Если база заведена прежней
+редакцией скрипта (LC_CTYPE 'C' без ICU) — удалите её и разверните заново:
+  DROP DATABASE $db;   (от роли postgres, пока в ней нет нужных данных)
+"@
+    }
+  }
+  Ok 'обе базы сворачивают кириллицу: lower(''ИВАН'') = иван'
 
   $role = Invoke-Psql "SELECT 1 FROM pg_roles WHERE rolname='philos'" -Quiet
   if ("$role".Trim() -ne '1') {
@@ -300,27 +325,24 @@ function Invoke-Deploy($source) {
   } finally { Pop-Location }
 
   Step 'семя графа'
+  # ОТКАЗ НА НЕПУСТОМ ГРАФЕ — ЗАЩИТА; ВСЯКИЙ ДРУГОЙ ПРОВАЛ — БЕДА. Прежде
+  # любой неуспех назывался «граф уже не пуст». Защиту узнаём по её фразе.
   Push-Location (Join-Path $Root 'server')
   try {
-    & npm run graph:import *> $null
-    if ($LASTEXITCODE -eq 0) { Ok 'наборы внесены' }
-    else { Ok 'граф уже не пуст — семя не трогаю (так и задумано)' }
+    $importOut = (& npm run graph:import 2>&1 | Out-String)
+    if ($LASTEXITCODE -eq 0) { Ok 'семь наборов внесены: шесть в граф, седьмой — раскладка из семени' }
+    elseif ($importOut -match 'уже есть живые сущности') { Ok 'граф уже не пуст — семя не трогаю (так и задумано)' }
+    else { Die "перенос графа не прошёл: $(($importOut -split "`n" | Select-Object -Last 3) -join ' ')" }
   } finally { Pop-Location }
 
-  Step 'первая раскладка'
-  # ХРАНИМАЯ РАСКЛАДКА (миграции 013–014). Прежде каждый клиент считал её
-  # сам, и выходила она у всех разная: один и тот же d3 в разных движках
-  # расходится с медианой около 65 px. Пока человек один — незаметно; как
-  # только двое, общий язык про «вон тот сгусток справа» пропадает.
-  $relayout = Join-Path $Root 'server\scripts\relayout.mjs'
-  if (Test-Path $relayout) {
-    Push-Location (Join-Path $Root 'server')
-    try {
-      & node scripts/relayout.mjs --применить *> $null
-      if ($LASTEXITCODE -eq 0) { Ok 'раскладка посчитана и записана' }
-      else { Ok 'раскладка не понадобилась (уже есть или нечего класть)' }
-    } finally { Pop-Location }
-  } else { Bad 'relayout.mjs нет — сборка старше миграций 013–014' }
+  Step 'раскладка'
+  # ПЕРЕКЛАДКУ ЗДЕСЬ НЕ ЗОВЁМ. Первую раскладку кладёт сам перенос — седьмой
+  # набор, посчитанный в Chrome (server/README.md §5б). Прежде шаг звал
+  # `relayout --применить` и затирал её пересчётом в node (замер 26.09.2026:
+  # медиана 54,6 px, худший узел 393 px). Теперь только проверка.
+  $layouts = Invoke-Psql 'SELECT count(*) FROM graph_layout' -Quiet -Db philos
+  if ("$layouts".Trim() -match '^[1-9]') { Ok "раскладка на месте (строк в истории: $("$layouts".Trim()))" }
+  else { Bad 'раскладки нет — страница будет считать её сама' }
 
   Step 'первый администратор'
   if (-not $env:BOOTSTRAP_ADMIN_PASSWORD) {
@@ -331,8 +353,20 @@ function Invoke-Deploy($source) {
   if (-not $env:BOOTSTRAP_ADMIN_LOGIN) { $env:BOOTSTRAP_ADMIN_LOGIN = 'admin' }
   if (-not $env:BOOTSTRAP_ADMIN_EMAIL) { $env:BOOTSTRAP_ADMIN_EMAIL = 'admin@example.invalid' }
   Push-Location (Join-Path $Root 'server')
-  try { & npm run bootstrap-admin 2>&1 | Select-Object -Last 3 }
+  # `-Last 4`, а не 3, и логин ОТДЕЛЬНОЙ строкой — как в Ubuntu-близнеце:
+  # bootstrap-admin печатает четыре строки, и первая из них называет логин.
+  # Обрезка до трёх съедала именно её.
+  # На повторе («ничего не сделано») логин не печатается: заведён он был
+  # прежде и мог быть другим.
+  try { $adminOut = (& npm run bootstrap-admin 2>&1 | Out-String) }
   finally { Pop-Location; $env:BOOTSTRAP_ADMIN_PASSWORD = $null }
+  if ($adminOut -match 'ничего не сделано') {
+    Ok 'люди в базе уже есть — администратора не завожу (так и задумано)'
+  } else {
+    ($adminOut -split "`r?`n" | Where-Object { $_ -and $_ -notmatch '^>' } | Select-Object -Last 4) | ForEach-Object { Write-Host $_ }
+    Write-Host ''
+    Ok "ЛОГИН ДЛЯ ВХОДА: $($env:BOOTSTRAP_ADMIN_LOGIN)   (пароль — тот, что вы сейчас задали)"
+  }
 }
 
 # ── управление ───────────────────────────────────────────────────────────

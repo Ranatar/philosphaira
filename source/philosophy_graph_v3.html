@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Пустой значок: без него браузер сам просит /favicon.ico, получает 404
+       и печатает ошибку в консоль в обоих ладах. Своего значка у проекта нет;
+       появится — заменить data:, на него. -->
+  <link rel="icon" href="data:,">
   <title>ΦilosΦaira — граф философских концепций</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
   <style>
@@ -33058,10 +33062,10 @@
     // ---- «Замеры» — только вошедшему (решение автора, 25.09.2026) --------
     // Замер пишется на сервер от имени пользователя: гостю и странице без
     // сервера раздел ни к чему. Перепроверяется по session-changed (вход,
-    // запуск), при каждом открытии окна и здесь, в switchStatsView, — куда
-    // сходятся и навигация, и восстановление вида из адреса страницы.
-    // При выходе событие не шлётся (подписанный колокол спросил бы сервер и
-    // получил 401), поэтому раздел скрывается при следующем открытии окна.
+    // запуск, выход), при каждом открытии окна и здесь, в switchStatsView, —
+    // куда сходятся и навигация, и восстановление вида из адреса страницы.
+    // При выходе событие шлётся с 26.09.2026: колокол гостя сервер больше
+    // не спрашивает, и раздел скрывается сразу, а не при следующем открытии.
     function observationsAllowed() {
       return !!(serverMode && authSession && authSession.user);
     }
@@ -40372,6 +40376,7 @@
     // ---- вход, регистрация, выход ---------------------------------------
 
     async function submitAuth() {
+      if (logoutInFlight) await logoutInFlight;   // см. authLogout
       const login = (document.getElementById('authLogin') || {}).value || '';
       const pass  = (document.getElementById('authPassword') || {}).value || '';
       if (!login.trim() || !pass) { authError('Заполните логин и пароль'); return; }
@@ -40383,6 +40388,8 @@
         await detectServerMode();
         await pullGraphSince();
         connectLive();
+        // Как и обычный вход: колокол и «Замеры» перепроверяются по событию.
+        emit('session-changed');
         renderAuthControls();
         refreshEditHints();
         refreshOpenModalToolbar();
@@ -40468,6 +40475,8 @@
       authNoticeMember(l);
     }
 
+    let logoutInFlight = null;
+
     function authLogout() {
       const modal = document.getElementById('universalModal');
       const open = modal && modal.classList.contains('show');
@@ -40478,6 +40487,27 @@
       setSessionUser(null);
       renderAuthControls();
       refreshEditHints();
+
+      // СЕРВЕРНЫЙ ЛАД: выход гасит СЕАНС, а не только вид. Прежде кнопка
+      // снимала права на странице, а cookie оставался жив: сервер считал
+      // человека вошедшим, сокет с личными извещениями не закрывался, и
+      // перезагрузка возвращала его под той же записью (замер 26.09.2026 —
+      // на общем компьютере «Выйти» не выходило). Теперь событие о смене
+      // сеанса шлётся и при выходе: колокол гостя сервер больше не спрашивает.
+      if (serverMode) {
+        disconnectLive();
+        // Ответ выхода ЧИСТИТ cookie сеанса. Придись он позже ответа нового
+        // входа — стёр бы уже новый сеанс; поэтому вход ждёт этот обещанный
+        // ответ (logoutInFlight), а не полагается на порядок доставки.
+        logoutInFlight = api('/api/auth/logout', { метод: 'POST' }).then(reply => {
+          logoutInFlight = null;
+          if (!reply.годно) {
+            reportSubmit('отказ', 'Сервер не подтвердил выход: сеанс может остаться открытым. '
+              + 'Перезагрузите страницу и выйдите ещё раз.');
+          }
+        });
+        emit('session-changed');
+      }
 
       if (wasEdit) {
         // Через тот же ход, что и кнопка «👁️ Просмотр»: он спросит про
@@ -41047,8 +41077,31 @@
                          'relationTypes', 'concepts', 'relations'];
     let hasUnsavedEdits = false;
 
-    function markDirty() { hasUnsavedEdits = true; }
-    function hasUnsaved() { return hasUnsavedEdits; }
+    // СЕРВЕРНЫЙ ЛАД. Признак ставился всяким afterDataChange — а в серверном
+    // ладе через эту дверь идёт и граф, взятый у сервера при запуске, и
+    // чужие приращения. Гость, не тронувший ничего, получал при уходе
+    // вопрос о несохранённом (замер 26.09.2026: 1 окно против 0 без сервера).
+    // Там база хранится на сервере, и «не сохранено» значит одно: прямая
+    // правка легла на страницу, а сервер её ещё не принял — или отказал.
+    // Это и считает unconfirmedDirect; отказ ставит признак до выгрузки.
+    let unconfirmedDirect = 0;
+
+    function markDirty() { if (!serverMode) hasUnsavedEdits = true; }
+    function hasUnsaved() { return hasUnsavedEdits || unconfirmedDirect > 0; }
+
+    /** Прямая правка ушла на сервер: пока ответа нет, уход со страницы
+     *  спрашивает; отказ оставляет правку только здесь — признак остаётся. */
+    function trackDirectEdit(sending) {
+      unconfirmedDirect++;
+      // Исключение по дороге — тот же отказ: счёт обязан вернуться, иначе
+      // уход со страницы спрашивал бы вечно.
+      const settle = accepted => {
+        unconfirmedDirect--;
+        if (!accepted) hasUnsavedEdits = true;
+        return accepted;
+      };
+      return sending.then(settle, () => settle(false));
+    }
 
     function collectData() {
       return { traditions, philosophers, rubrics, relationTypes, concepts, relations };
@@ -41100,7 +41153,7 @@
     }
 
     window.addEventListener('beforeunload', ev => {
-      if (!hasUnsavedEdits) return;
+      if (!hasUnsaved()) return;
       ev.preventDefault();
       ev.returnValue = '';
     });
@@ -41283,9 +41336,8 @@
       // которой ещё нет, было бы обманом: человек уйдёт с экрана в
       // уверенности, что дело сделано.
       const direct = can(PERM.REVIEW_COMMIT);
-      if (direct) apply();
-
-      sendCommit(descr, direct);
+      if (direct) { apply(); trackDirectEdit(sendCommit(descr, direct)); }
+      else sendCommit(descr, direct);
       return direct;
     }
 
@@ -41312,7 +41364,7 @@
         const serverMessage = (reply.тело && reply.тело.error && reply.тело.error.message)
           || 'Не удалось отправить правку';
         reportSubmit('отказ', serverMessage);
-        return;
+        return false;
       }
       const commitData = reply.тело.data || {};
 
@@ -41338,10 +41390,11 @@
         // распорядитель говорит, ЧТО случилось, а кто это показывает —
         // не его забота.
         emit('commit-conflicted', { descr, столкновения: commitData.столкновения || [] });
-        return;
+        // Страница взяла состояние сервера — своего непринятого на ней нет.
+        return true;
       }
 
-      if (commitData.прямая || direct) { reportSubmit('применено', 'Правка внесена'); return; }
+      if (commitData.прямая || direct) { reportSubmit('применено', 'Правка внесена'); return true; }
 
       let text = 'Правка отправлена на рассмотрение';
       if (commitData.пересечения && commitData.пересечения.length) {
@@ -41352,6 +41405,7 @@
                + (firstOverlap.поля && firstOverlap.поля.length ? `поле «${firstOverlap.поля[0]}»` : 'ту же запись');
       }
       reportSubmit('в очереди', text);
+      return true;
     }
 
     /** Сообщение к коммиту: коротко и по делу — его будет читать рецензент. */
@@ -42026,6 +42080,9 @@
 
     async function refreshUnread() {
       if (!serverMode) return 0;
+      // Гостю извещений нет: сервер отвечает 401, и он был в консоли у
+      // каждого гостя при запуске. Счёт гасим — после выхода он чужой.
+      if (!authSession.user) { unreadCount = 0; renderBell(); return 0; }
       const reply = await api('/api/notifications/unread-count');
       if (!reply.годно || !reply.тело) return unreadCount;
       unreadCount = (reply.тело.data && reply.тело.data.count) || 0;
@@ -42034,7 +42091,7 @@
     }
 
     async function loadNotifications() {
-      if (!serverMode) return [];
+      if (!serverMode || !authSession.user) return [];
       const reply = await api('/api/notifications?limit=50');
       notifyItems = (reply.годно && reply.тело && reply.тело.data) || [];
       renderNotifyList();
@@ -42044,7 +42101,7 @@
     function renderBell() {
       const bell = document.getElementById('notifyBell');
       if (!bell) return;
-      bell.style.display = serverMode ? 'inline-block' : 'none';
+      bell.style.display = serverMode && authSession.user ? 'inline-block' : 'none';
       const badge = document.getElementById('notifyBadge');
       if (!badge) return;
       badge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
@@ -42302,6 +42359,11 @@
      */
     function connectLive() {
       if (!serverMode || typeof WebSocket === 'undefined') return null;
+      // ТОЛЬКО ВОШЕДШЕМУ. Гостю сервер сокета не открывает (README сервера,
+      // §6а), а страница стучалась при запуске и потом бесконечно — с
+      // удвоением паузы до 30 с, по рукопожатию в полминуты на вкладку
+      // (замер 26.09.2026). Вход откроет соединение сам.
+      if (!authSession.user) return null;
       // Прежнее соединение закрываем: иначе после входа их станет два, и
       // каждое приращение возьмётся дважды.
       if (liveSocket) { try { liveSocket.close(); } catch (e) { /* уже мертво */ } }
@@ -42326,7 +42388,7 @@
       // получить отказ и от исправного сервера.
       socket.addEventListener('close', () => {
         liveSocket = null;
-        if (!serverMode || liveClosedOnPurpose) return;
+        if (!serverMode || liveClosedOnPurpose || !authSession.user) return;
         const pause = Math.min(30000, 500 * Math.pow(2, liveRetry++));
         setTimeout(() => { if (!liveSocket) connectLive(); }, pause);
       });
@@ -42337,6 +42399,14 @@
     let liveSocket = null;
     let liveRetry = 0;
     let liveClosedOnPurpose = false;
+
+    /** Выход: соединение закрывается и не восстанавливается — сеанса нет,
+     *  а по сокету идут и личные извещения. Вход откроет новое. */
+    function disconnectLive() {
+      const socket = liveSocket;
+      liveSocket = null;
+      if (socket) { try { socket.close(); } catch (e) { /* уже мертво */ } }
+    }
 
     /** Уход со страницы: соединение закрываем НАРОЧНО и не восстанавливаем. */
     window.addEventListener('pagehide', () => {
