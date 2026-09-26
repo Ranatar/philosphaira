@@ -169,7 +169,7 @@ function generateConnectionVisualization(sourceNode, targetNode, connectionData)
         const trNote = connectionTraditionNote(dispSrc.concept, dispTgt.concept);
 
         html += `
-          <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:20px;margin-bottom:15px;border:1px solid rgba(255,255,255,0.1);">
+          <div data-fn-scope style="background:rgba(255,255,255,0.03);border-radius:10px;padding:20px;margin-bottom:15px;border:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;justify-content:space-around;align-items:flex-start;gap:10px;margin-bottom:10px;">
               ${reflexive ? '' : conceptPlate(dispSrc)}
               <div style="flex:1.4;display:flex;align-items:center;justify-content:center;" data-tip="${hint}">

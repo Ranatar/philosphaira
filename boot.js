@@ -40,8 +40,8 @@ import { resetBeyondFilter } from './modules/filters/beyond-filter.js';
 import { applyFiltersImmediate } from './modules/filters/filters.js';
 import { initializePhilosophyMetrics } from './modules/metrics/link-indexes.js';
 import { invalidateEverythingForScope } from './modules/metrics/scope-reset.js';
-import { revertCommitFromPanel, reviewCommitFromPanel, showImpact } from './modules/modal/commits.js';
-import { showConflict, warnRemoteEdit } from './modules/modal/conflict.js';
+import { closeCommitsPanel, commitItems, revertCommitFromPanel, reviewCommitFromPanel, showImpact } from './modules/modal/commits.js';
+import { rebuildOverCurrent, showConflict, warnRemoteEdit } from './modules/modal/conflict.js';
 import { selectConnectionEditConcept } from './modules/modal/connection-edit.js';
 import { selectConnectionViewConcept } from './modules/modal/connection-view.js';
 import { modalStack, openUniversalModal } from './modules/modal/core.js';
@@ -137,8 +137,8 @@ export async function boot() {
   
   installUnsavedGuard();
   
-  subscribe('commit-conflicted', ({ descr, столкновения: clashes }) =>
-        showConflict(descr, clashes));
+  subscribe('commit-conflicted', ({ descr, столкновения: clashes, commitId }) =>
+        showConflict(descr, clashes, commitId));
   
   document.addEventListener('click', ev => {
         const target = ev.target;
@@ -159,6 +159,12 @@ export async function boot() {
         const rejectBtn = target.closest('.commit-reject');
         const revertBtn = target.closest('.commit-revert');
         const impactAsk = target.closest('.commit-impact-btn');
+        const rebuildBtn = target.closest('.commit-rebuild');
+        if (rebuildBtn) {
+          const own = commitItems.find(x => String(x.commitId) === String(rebuildBtn.getAttribute('data-id')));
+          if (own) { closeCommitsPanel(); rebuildOverCurrent({ описание: own.changes[0], clashes: own.conflicts || [], commitId: own.commitId }); }
+          return;
+        }
         if (approveBtn) reviewCommitFromPanel(approveBtn.getAttribute('data-id'), 'approve');
         else if (rejectBtn) reviewCommitFromPanel(rejectBtn.getAttribute('data-id'), 'reject');
         else if (revertBtn) revertCommitFromPanel(revertBtn.getAttribute('data-id'));

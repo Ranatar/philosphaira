@@ -63,6 +63,7 @@ function notifyWords(kind) {
         commit_rejected: 'Ваше изменение отклонено',
         commit_conflicted: 'Ваше изменение столкнулось с чужим',
         commit_coincided: 'То же самое уже внесли',
+        commit_reverted: 'Ваше изменение откатили',
         new_commit_pending: 'Новое изменение на рассмотрении',
         role_changed: 'Ваша роль изменена',
         user_promoted: 'Повышение в правах',

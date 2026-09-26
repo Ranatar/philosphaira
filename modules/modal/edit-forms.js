@@ -12,7 +12,7 @@ import { linkArrow } from './connection-view.js';
 import { footnotesField, provenanceField } from './forms.js';
 
 import { getContrastColor } from '../util/color.js';
-import { escapeAttr } from '../util/html.js';
+import { descriptionHtml, escapeAttr } from '../util/html.js';
 import { philosopherYears, sortPhilosophersByBirth } from '../util/philosopher-label.js';
 
 function updatePhilColorSample() {
@@ -112,7 +112,7 @@ VIEWS.generatePhilosopherEditContent = function generatePhilosopherEditContent(p
         <div class="modal-form-group">
           <label for="philDescription">Описание</label>
           <textarea id="philDescription" class="fn-host" rows="10"
-                placeholder="Подробное описание философа...">${philosopherData ? philosopherData.description || '' : ''}</textarea>
+                placeholder="Подробное описание философа...">${philosopherData ? escapeAttr(philosopherData.description || '') : ''}</textarea>
         </div>
         ${provenanceField(philosopherData)}
         ${footnotesField(philosopherData)}
@@ -129,7 +129,7 @@ VIEWS.generatePhilosopherEditContent = function generatePhilosopherEditContent(p
           html += `
             <div class="modal-edit-list-item">
               <div class="modal-edit-list-item-content">
-                <strong>${c.label}</strong>${c.description ? ' — ' + c.description : ''}
+                <strong>${escapeAttr(c.label)}</strong>${c.description ? ' — ' + descriptionHtml(c.description) : ''}
               </div>
               <button class="modal-btn-secondary" style="flex:none;padding:6px 10px;"
                   data-tip="Просмотр"
@@ -200,14 +200,14 @@ VIEWS.generateConceptEditContent = function generateConceptEditContent(conceptDa
 
         <div class="modal-form-group">
           <label for="conceptDescription">Краткое описание</label>
-          <textarea id="conceptDescription" class="fn-host" rows="2"
-                placeholder="Краткое описание концепции">${conceptData ? conceptData.description || '' : ''}</textarea>
+          <textarea id="conceptDescription" rows="2"
+                placeholder="Краткое описание концепции">${conceptData ? escapeAttr(conceptData.description || '') : ''}</textarea>
         </div>
 
         <div class="modal-form-group">
           <label for="conceptExtendedDescription">Расширенное описание</label>
           <textarea id="conceptExtendedDescription" class="fn-host" data-fn-first rows="6"
-                placeholder="Подробное описание концепции">${conceptData ? conceptData.extendedDescription || '' : ''}</textarea>
+                placeholder="Подробное описание концепции">${conceptData ? escapeAttr(conceptData.extendedDescription || '') : ''}</textarea>
         </div>
         ${provenanceField(conceptData && (storedRecord('concept', conceptData.id) || conceptData))}
         ${footnotesField(conceptData && (storedRecord('concept', conceptData.id) || conceptData))}

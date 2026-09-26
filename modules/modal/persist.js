@@ -81,7 +81,7 @@ function savePhilosopherData() {
             // потому что философ и опознаётся по имени).
             .concat(provenanceDriftWarning(
               isNew ? null : philosopherByName.get(originalName),
-              { description, provenance })))) return;
+              { description, provenance, footnotes: footnotesValue().list })))) return;
 
       // years собирается по тому же правилу, что formatBirthYear:
       // отрицательный год без пояснения читается как «-515»
@@ -224,7 +224,7 @@ function saveConceptData() {
           conceptIntegrityWarnings(label, philosopher, isNew ? null : original)
             // прежний источник — из записи: узел мог отстать (см. storedRecord)
             .concat(provenanceDriftWarning(isNew ? null : (storedRecord('concept', original.id) || original),
-              { description, extendedDescription, provenance })))) return;
+              { description, extendedDescription, provenance, footnotes: footnotesValue().list })))) return;
 
       // Схемы разные: в concepts философ хранится ИДЕНТИФИКАТОРОМ,
       // в nodes — ИМЕНЕМ. Их нельзя перепутать местами. Описание идёт по
@@ -353,7 +353,7 @@ function saveConnectionData() {
             // из записи: у связи графа источника может не быть вовсе, и заслон
             // для связей прежде не срабатывал никогда
             .concat(provenanceDriftWarning(originalLink && (storedRecord('relation', originalLink.id) || originalLink),
-              { description, provenance })))) return;
+              { description, provenance, footnotes: footnotesValue().list })))) return;
 
       // Описание идёт по ХРАНИМОЙ схеме — по relations, где концы лежат
       // идентификаторами. В links те же концы — объектами узлов, и путать
