@@ -77,9 +77,23 @@ try {
     (await отказ(() => revertCommit(pool, { actor: редактор, commitId: к1.commitId,
       reason: 'зачем-то' }))) !== 'ПРОШЛО', 'отказ', 'прошло');
 
+  // ОТКАТ ИЗВЕЩАЕТ ОТКРЫТЫЕ СТРАНИЦЫ (26.09.2026): прежде GRAPH_CHANGED
+  // шли только одобрение и прямая правка, и откат до чужих страниц не доходил.
+  const graphChangedCount = async () => Number((await pool.query(
+    `SELECT count(*) AS n FROM outbox WHERE channel = 'broadcast' AND payload->>'type' = 'graph_changed'`)).rows[0].n);
+  const beforeRevert = await graphChangedCount();
   const о1 = await revertCommit(pool, { actor: модератор, commitId: к1.commitId,
     reason: 'передумали' });
   проверить('откат применился', о1.исход === 'applied', 'applied', о1.исход);
+  проверить('откат извещает открытые страницы (graph_changed в исходящих)',
+    (await graphChangedCount()) === beforeRevert + 1, beforeRevert + 1, await graphChangedCount());
+  // АВТОРУ — ЧТО ЕГО ПРАВКУ ОТКАТИЛИ (решение автора, 26.09.2026).
+  const revertedNotes = async userId => (await pool.query(
+    `SELECT data FROM notifications WHERE type = 'commit_reverted' AND user_id = $1`, [userId])).rows;
+  const toAuthor = await revertedNotes(редактор.userId);
+  проверить('автор откатанной правки извещён: кто и почему',
+    toAuthor.length === 1 && toAuthor[0].data.commitId === к1.commitId && toAuthor[0].data.comment === 'передумали',
+    '1 извещение с причиной', JSON.stringify(toAuthor.map(r => r.data)).slice(0, 120));
   const послеОтката = await слепок(pool);
   проверить('ГРАФ ВЕРНУЛСЯ ПОСИМВОЛЬНО',
     послеОтката.traditions === доПравки.traditions,
@@ -100,6 +114,8 @@ try {
   // ── 2. ОТКАТ ОТКАТА ─────────────────────────────────────────────────────
   const о2 = await revertCommit(pool, { actor: модератор, commitId: о1.commitId,
     reason: 'всё-таки нужно' });
+  проверить('ВСТРЕЧНОЕ: откат СВОЕЙ правки (откат отката) себя не извещает',
+    (await revertedNotes(модератор.userId)).length === 0, 0, (await revertedNotes(модератор.userId)).length);
   проверить('откат отката применился', о2.исход === 'applied', 'applied', о2.исход);
   проверить('ГРАФ ВЕРНУЛСЯ К ПРАВЛЕНОМУ ВИДУ',
     (await exportSet(pool, 'traditions'))[0].description === 'новое', 'новое',

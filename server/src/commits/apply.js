@@ -16,7 +16,7 @@ import { bumpGraphVersion, lockEntity, nextOrd, markEntityDeleted,
          upsertEntity, patchEntity, stampVersion, exportAll } from '../db/graph.js';
 import { currentLayout, saveLayout } from '../db/layout.js';
 import { touchesLayout, growLayout, divergence } from '../graph/layout.js';
-import { SETS, SET_BY_KIND, OMITTED_WHEN_EMPTY, isEmptyOptional } from '../graph/schema.js';
+import { SETS, SET_BY_KIND, OMITTED_WHEN_EMPTY, isEmptyOptional, provenanceProblems } from '../graph/schema.js';
 import { footnoteProblems, FOOTNOTE_HOST_FIELDS } from '../graph/footnotes.js';
 import { Conflict } from '../http/errors.js';
 
@@ -51,14 +51,34 @@ export async function applyCommit(client, { changes, actorId = null }) {
     // одно описание, а записи сносок лежат в сущности; и два по отдельности
     // верных коммита при слиянии дают несогласие (один убрал метку, другой
     // правил её сноску). Такое — столкновение для рецензента, а не отказ.
-    if (change.action !== 'delete' && FOOTNOTE_HOST_FIELDS[change.kind]) {
-      const result = change.action === 'add'
-        ? Object.fromEntries(Object.entries(change.fields ?? {}).map(([k, v]) => [k, v.next]))
-        : { ...(alive ?? {}), ...(merged.apply ?? {}) };
+    //
+    // И ТОЛЬКО ЕСЛИ ПРАВКА ИХ КАСАЕТСЯ. Прежде суд шёл при любой правке
+    // сущности: запись, пришедшая с несогласной сноской семенем, запиралась
+    // целиком — правка её рубрик получала «сноски не сходятся» и не писалась
+    // (замер 26.09.2026). Касается — значит трогает сноски или текст, где
+    // стоят метки; тогда несогласие и правда дело этой правки.
+    const touched = Object.keys(change.fields ?? {});
+    const result = change.action === 'add'
+      ? Object.fromEntries(Object.entries(change.fields ?? {}).map(([k, v]) => [k, v.next]))
+      : { ...(alive ?? {}), ...(merged.apply ?? {}) };
+    const touchesNotes = change.action === 'add' || touched.includes('footnotes')
+      || (FOOTNOTE_HOST_FIELDS[change.kind] ?? []).some(f => touched.includes(f));
+    if (change.action !== 'delete' && FOOTNOTE_HOST_FIELDS[change.kind] && touchesNotes) {
       const problems = footnoteProblems(change.kind, result);
       if (problems.length) {
         conflicts.push({ набор: SET_BY_KIND[change.kind], kind: change.kind, entityId: change.entityId,
           action: change.action, field: 'footnotes', reason: 'сноски не сходятся с текстом: ' + problems.join('; ') });
+        continue;
+      }
+    }
+    // СОГЛАСИЕ ИСТОЧНИКА — по итогу, тем же ходом и по тому же поводу: если
+    // правка трогала источник или его состояние.
+    if (change.action !== 'delete'
+        && (touched.includes('provenance') || touched.includes('provenanceStatus'))) {
+      const problems = provenanceProblems(result);
+      if (problems.length) {
+        conflicts.push({ набор: SET_BY_KIND[change.kind], kind: change.kind, entityId: change.entityId,
+          action: change.action, field: 'provenanceStatus', reason: 'источник не согласован: ' + problems.join('; ') });
         continue;
       }
     }

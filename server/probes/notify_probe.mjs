@@ -71,7 +71,11 @@ try {
   // Список мест, где уведомления РОЖДАЮТСЯ. Пополняется вместе с ними:
   // auth/service.js добавился, когда регистрация начала класть письмо с
   // подтверждением адреса.
+  // src/commits/revert.js и revert-to-version.js добавились 26.09.2026,
+  // когда откат начал извещать страницы (GRAPH_CHANGED) и автора
+  // откатанной правки (COMMIT_REVERTED); прежде откат не извещал вовсе.
   const исходники = ['src/commits/service.js', 'src/commits/review.js',
+                     'src/commits/revert.js', 'src/commits/revert-to-version.js',
                      'src/users/service.js', 'src/auth/service.js',
                      'src/graph/relayout-service.js']
     .map(ф => fs.readFileSync(path.join(КОРЕНЬ, ф), 'utf8')).join('\n');

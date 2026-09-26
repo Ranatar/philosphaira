@@ -6,7 +6,7 @@ import { directionMark, linkHasTwoHeads } from '../core/link-facts.js';
 import { isLinkVisible, isNodeVisible } from '../core/visibility.js';
 import { openUniversalModal } from './core.js';
 import { freezeSimulation, unfreezeSimulation } from '../render/simulation.js';
-import { escapeAttr, withoutFootnotes } from '../util/html.js';
+import { descriptionHtml, escapeAttr } from '../util/html.js';
 
 let selectionListOpenBlocks = new Set();
 
@@ -185,7 +185,7 @@ function selectionRowPhilosopher(p) {
             <span class="sel-meta">${escapeAttr(p.years || '')} · концепций в отборе ${selectionPhilCount[p.nameRu] || 0}</span>
             <button class="sel-toggle" data-act-click="toggle-selection-body" data-a1="${escapeAttr(bodyKey)}">${openBody ? '▲' : '▼'}</button>
           </div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(withoutFootnotes(p.description) || 'Описания нет')}</div>` : ''}
+          ${openBody ? `<div class="sel-body">${(descriptionHtml(p.description) || 'Описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -200,8 +200,8 @@ function selectionRowConcept(n) {
             <span class="sel-name" data-act-click="open-universal-modal-14" data-a1="${escapeAttr(n.id)}">${escapeAttr(n.label)}</span>
             <button class="sel-toggle" data-act-click="toggle-selection-body" data-a1="${escapeAttr(bodyKey)}">${openBody ? '▲' : '▼'}</button>
           </div>
-          <div class="sel-caption">${escapeAttr(withoutFootnotes(n.description) || '')}</div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(withoutFootnotes(n.extendedDescription) || 'Пространного описания нет')}</div>` : ''}
+          <div class="sel-caption">${(descriptionHtml(n.description) || '')}</div>
+          ${openBody ? `<div class="sel-body">${(descriptionHtml(n.extendedDescription) || 'Пространного описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -242,7 +242,7 @@ function selectionRowRelation(l) {
             <button class="sel-toggle" data-act-click="toggle-selection-body" data-a1="${escapeAttr(bodyKey)}">${openBody ? '▲' : '▼'}</button>
           </div>
           ${caption ? `<div class="sel-caption">${escapeAttr(caption)}</div>` : ''}
-          ${openBody ? `<div class="sel-body">${escapeAttr(withoutFootnotes(l.description) || 'Описания нет')}</div>` : ''}
+          ${openBody ? `<div class="sel-body">${(descriptionHtml(l.description) || 'Описания нет')}</div>` : ''}
         </div>`;
     }
 

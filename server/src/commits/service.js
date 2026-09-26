@@ -11,6 +11,7 @@
 
 import { withTransaction } from '../db/tx.js';
 import { footnoteShapeProblems } from '../graph/footnotes.js';
+import { textProblems } from '../graph/text-rules.js';
 import { paginate } from '../db/paginate.js';
 import { insertCommit, findCommit, findOwnPendingForUpdate, updateOwnCommit,
          deleteCommit, overlappingPending, commitsFrom, commitsSelect,
@@ -71,6 +72,12 @@ export function assertChanges(changes) {
           `${where}, поле ${fieldKey}: нужны ОБА значения — base и next. ` +
           'Без «было» нельзя отличить одинаковую правку от разной.');
       }
+    }
+    // ПРАВИЛА ТЕКСТА — до всего прочего: разметка не должна лечь в базу ни
+    // в очереди, ни тем более после одобрения (graph/text-rules.js).
+    for (const [fieldKey, spec] of Object.entries(fieldNames)) {
+      const problems = textProblems(change.kind, fieldKey, spec.next);
+      if (problems.length) throw new Forbidden(`${where}: ${problems.join('; ')}`);
     }
     assertProvenance(fieldNames, where);
     if ('footnotes' in fieldNames) {

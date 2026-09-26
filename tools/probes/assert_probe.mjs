@@ -2417,13 +2417,19 @@ if (модуль) {
 
   await page.evaluate(id => { const A = window.__t; A.openUniversalModal('concept', A.DATA.nodes.find(n => n.id === id), 'view'); }, noteId);
   await wait(600);
-  const shown = await page.evaluate(() => ({
+  const shown = await page.evaluate(id => ({
     refs: document.querySelectorAll('.description .fn-ref').length,
     items: [...document.querySelectorAll('.fn-item .fn-num')].map(x => x.textContent).join(','),
-    leaks: (document.body.innerText.match(/\[\^/g) || []).length }));
-  проверить('сноски: номер в тексте, источники под ним, номера как в форме',
-    shown.refs === 1 && shown.items === '1,2' && formNumbers === '1,2',
-    'номер 1 в тексте; 1,2 в списке и в форме', `${shown.refs}; ${shown.items}; форма ${formNumbers}`);
+    leaks: (document.body.innerText.match(/\[\^/g) || []).length,
+    shortMarks: ((window.__t.DATA.concepts.find(c => c.id === id).description || '').match(/\[\^/g) || []).length }), noteId);
+  // С 26.09.2026 краткое описание концепции — не место для сносок (решение
+  // автора): прежде вторая сноска ложилась в него, и в тексте окна был ОДИН
+  // номер при двух в списке — источник висел без места. Теперь фокус в
+  // кратком описании метку туда не ставит: она уходит в полное, и оба номера
+  // стоят в показанном тексте.
+  проверить('сноски: оба номера в тексте, источники под ним, номера как в форме; в кратком описании меток нет',
+    shown.refs === 2 && shown.items === '1,2' && formNumbers === '1,2' && shown.shortMarks === 0,
+    'номера 1,2 в тексте; 1,2 в списке и в форме; в кратком 0', `${shown.refs}; ${shown.items}; форма ${formNumbers}; в кратком ${shown.shortMarks}`);
   const supBox = await (await page.$('.description .fn-ref')).boundingBox();
   await page.mouse.move(supBox.x + supBox.width / 2, supBox.y + supBox.height / 2);
   await wait(150);
@@ -2531,6 +2537,120 @@ if (модуль) {
   await page.evaluate(() => window.__t.closeUniversalModal());
   await wait(300);
 
+  // ── ТЕКСТ И СНОСКИ, 26.09.2026 ────────────────────────────────────────
+  // (1) показ описания экранирует, возвращая ровно <b> и <i>. Замер: нагрузка
+  //     из описания, одобренная модератором, исполнилась у гостя.
+  const rich = await page.evaluate(async () => {
+    const A = window.__t, c = A.DATA.concepts.find(x => !x.footnotes && !x.provenance && A.DATA.nodes.some(n => n.id === x.id));
+    const keep = c.extendedDescription;
+    c.extendedDescription = 'Начало <b>жирно</b> и <i>курсив</i> <img src="x" onerror="window.__richHit=1"> и <b>незакрытое';
+    A.openUniversalModal('concept', A.DATA.nodes.find(n => n.id === c.id), 'view');
+    await new Promise(r => setTimeout(r, 700));
+    const box = document.querySelector('#universalModal .description');
+    const r = { hit: window.__richHit === 1, img: box ? box.querySelectorAll('img').length : -1,
+      literal: box ? box.textContent.includes('<img') : false, b: box ? box.querySelectorAll('b').length : -1,
+      i: box ? box.querySelectorAll('i').length : -1,
+      closed: box ? (box.innerHTML.match(/<b>/g) || []).length === (box.innerHTML.match(/<\/b>/g) || []).length : false,
+      // Незакрытый <b> разбор страницы ВОССТАНАВЛИВАЕТ в следующих узлах
+      // (правило «активных элементов оформления»), и жирным становится всё
+      // ниже. Мера — жирные узлы окна ВНЕ описания.
+      outside: [...document.querySelectorAll('#universalModal b')].filter(x => !box.contains(x)).length };
+    A.closeUniversalModal(); c.extendedDescription = keep;
+    return r;
+  });
+  проверить('текст: разметка в описании не исполняется и видна буквами; <b> и <i> работают',
+    !rich.hit && rich.img === 0 && rich.literal && rich.b === 2 && rich.i === 1, 'сценарий нет, img 0, буквами, b 2, i 1',
+    JSON.stringify(rich));
+  проверить('текст: незакрытый <b> закрыт внутри описания, дальше окна не течёт',
+    rich.closed && rich.outside === 0, 'закрыт; вне описания <b> нет', JSON.stringify({ closed: rich.closed, outside: rich.outside }));
+
+  // (2) сноска ставится только в полное описание концепции (решение автора)
+  const hosts = await page.evaluate(async () => {
+    const A = window.__t, c = A.DATA.concepts.find(x => !x.footnotes && !x.provenance && A.DATA.nodes.some(n => n.id === x.id));
+    A.openEditConceptModal(c.id); await new Promise(r => setTimeout(r, 600));
+    const r = { short: !!document.querySelector('#conceptDescription.fn-host'), full: !!document.querySelector('#conceptExtendedDescription.fn-host') };
+    A.closeUniversalModal(); return r;
+  });
+  проверить('сноски: краткое описание концепции — не место для сносок, полное — место',
+    !hosts.short && hosts.full, 'краткое нет, полное да', JSON.stringify(hosts));
+
+  // (3) заслон спрашивает о формулировке, а не о строке: одна вставка метки
+  //     под прежним источником вопроса не даёт. ВСТРЕЧНОЕ — утверждение выше
+  //     («правка описания связи с источником спрашивает»).
+  const driftDialogs = [];
+  const onDrift = d => driftDialogs.push(d.message());
+  page.on('dialog', onDrift);
+  const driftId = await page.evaluate(async () => {
+    const A = window.__t, c = A.DATA.concepts.filter(x => !x.footnotes && !x.provenance && A.DATA.nodes.some(n => n.id === x.id))[1];
+    A.openEditConceptModal(c.id); await new Promise(r => setTimeout(r, 600));
+    const st = document.getElementById('entityProvenanceStatus'); st.value = 'sourced'; A.refreshProvenanceField();
+    document.getElementById('entityProvenance').value = 'Диоген Лаэртский, IX 1'; A.saveConceptData();
+    await new Promise(r => setTimeout(r, 600));
+    return c.id;
+  });
+  driftDialogs.length = 0;
+  await page.evaluate(async id => {
+    const A = window.__t;
+    A.openEditConceptModal(id); await new Promise(r => setTimeout(r, 600));
+    const h = document.getElementById('conceptExtendedDescription'); h.focus(); h.selectionStart = h.selectionEnd = h.value.length;
+    [...document.querySelectorAll('#universalModal button')].find(x => /Вставить сноску/.test(x.textContent)).click();
+    document.querySelector('[data-fn-row] .fn-text').value = 'Платон, Федон 96a';
+    A.saveConceptData(); await new Promise(r => setTimeout(r, 600));
+  }, driftId);
+  page.off('dialog', onDrift);
+  const driftSaved = await page.evaluate(id => JSON.stringify(window.__t.DATA.concepts.find(c => c.id === id).footnotes || null), driftId);
+  проверить('источник: вставка одной метки под прежним источником вопроса не задаёт — и сноска сохранена',
+    !driftDialogs.some(m => m.includes('Описание изменено')) && driftSaved.includes('Федон'),
+    'вопроса нет; сноска в записи', (driftDialogs.map(m => m.slice(0, 50)).join(' | ') || 'вопроса нет') + '; ' + driftSaved);
+  await page.evaluate(() => window.__t.closeUniversalModal());
+
+  // (3б) у сноски свой вопрос: переписана ФРАЗА перед меткой — спрошено;
+  //      правлен другой кусок текста — о сноске не спрошено (встречное).
+  const phraseAsk = async edit => {
+    const got = [];
+    const on = d => got.push(d.message());
+    page.on('dialog', on);
+    await page.evaluate(async ({ id, edit }) => {
+      const A = window.__t;
+      A.openEditConceptModal(id); await new Promise(r => setTimeout(r, 600));
+      const h = document.getElementById('conceptExtendedDescription');
+      h.value = edit === 'phrase' ? h.value.replace('[^f1]', ' — и это уточнено[^f1]') : 'Вступление без сносок. ' + h.value;
+      A.saveConceptData(); await new Promise(r => setTimeout(r, 600));
+    }, { id: driftId, edit });
+    page.off('dialog', on);
+    await page.evaluate(() => window.__t.closeUniversalModal());
+    return got.filter(m => m.includes('Фраза у сноски'));
+  };
+  const askedPhrase = await phraseAsk('phrase');
+  const askedOther = await phraseAsk('other');
+  проверить('источник: переписана фраза под сноской — спрошено именно о ней',
+    askedPhrase.length === 1 && askedPhrase[0].includes('сноски 1') && askedPhrase[0].includes('Федон'),
+    'вопрос о сноске 1 с её источником', askedPhrase.map(m => m.slice(0, 90)).join(' | ') || 'вопроса не было');
+  проверить('источник: ВСТРЕЧНОЕ — правлен другой кусок текста, о сноске не спрошено',
+    askedOther.length === 0, 'вопроса о сноске нет', askedOther.map(m => m.slice(0, 90)).join(' | '));
+
+  // (4) подсветка пары — в пределах своей связи: окно связи показывает обе
+  //     связи пары, и у обеих первая сноска — f1.
+  const scoped = await page.evaluate(async () => {
+    const A = window.__t, key = r => [r.source, r.target].sort().join('|');
+    const by = new Map(); for (const r of A.DATA.relations) by.set(key(r), (by.get(key(r)) || []).concat(r));
+    const pair = [...by.values()].find(v => v.length === 2 && v.every(r => !r.footnotes));
+    pair.forEach((r, i) => { r.description = (r.description || 'Утверждение') + '[^f1]';
+      r.footnotes = [{ id: 'f1', status: i ? 'editorial_reasoning' : 'sourced', text: i ? 'Своё построение' : 'Кант, КЧР B 1' }];
+      const l = A.DATA.links.find(x => x.id === r.id); if (l) { l.description = r.description; l.footnotes = r.footnotes; } });
+    A.openUniversalModal('connection', { source: pair[0].source, target: pair[0].target }, 'view');
+    await new Promise(r => setTimeout(r, 700));
+    return document.querySelectorAll('#universalModal sup.fn-ref').length;
+  });
+  await page.hover('#universalModal sup.fn-ref');
+  await wait(250);
+  const litScoped = await page.evaluate(() => [...document.querySelectorAll('.fn-active')].filter(x => x.classList.contains('fn-item'))
+    .map(x => x.querySelector('.fn-text').textContent));
+  проверить('сноски: наведение обводит источник СВОЕЙ связи, а не одноимённую сноску соседней',
+    scoped === 2 && litScoped.length === 1 && litScoped[0] === 'Кант, КЧР B 1', 'одна строка: Кант', `номеров ${scoped}; обведено ${JSON.stringify(litScoped)}`);
+  await page.evaluate(() => window.__t.closeUniversalModal());
+  await wait(300);
+
   // утечка: метка во всех описаниях — и в записях, и в копиях узлов и связей
   const probeNode = await page.evaluate(() => {
     const A = window.__t, mark = ' [^leak01]';
@@ -2551,25 +2671,35 @@ if (модуль) {
   await wait(500);
   const leakTooltip = await page.evaluate(() => (document.body.innerText.match(/\[\^/g) || []).length);
   const leakViews = [];
-  for (const [kind, key] of [['concept', 'node'], ['philosopher', 'phil'], ['connection', 'link']]) {
-    await page.evaluate(({ kind, key, p }) => {
+  // ФОРМА ПРАВКИ ФИЛОСОФА — четвёртым: её список концепций выводил описание
+  // сырым, и метка была видна (замер 26.09.2026); прежде обход её не смотрел.
+  for (const [kind, key, mode] of [['concept', 'node', 'view'], ['philosopher', 'phil', 'view'], ['connection', 'link', 'view'], ['philosopher', 'phil', 'edit']]) {
+    await page.evaluate(({ kind, key, p, mode }) => {
       const A = window.__t;
       const arg = kind === 'concept' ? A.DATA.nodes.find(n => n.id === p.id)
         : kind === 'philosopher' ? p.phil
         : A.DATA.links.find(l => (l.source.id || l.source) === p.id || (l.target.id || l.target) === p.id);
-      A.openUniversalModal(kind, arg, 'view');
-    }, { kind, key, p: probeNode });
+      A.openUniversalModal(kind, arg, mode);
+    }, { kind, key, p: probeNode, mode });
     await wait(700);
     leakViews.push(await page.evaluate(() => {
       // своё описание окна показывается С НОМЕРОМ: метка без записи даёт «?»,
-      // а не сырую [^…]. Сырая метка где угодно — утечка.
-      return (document.body.innerText.match(/\[\^/g) || []).length;
+      // а не сырую [^…]. Сырая метка где угодно — утечка. В форме правки
+      // метки в ПОЛЯХ ВВОДА законны — это и есть правка; считается текст
+      // страницы без полей.
+      const copy = document.body.cloneNode(true);
+      copy.querySelectorAll('textarea, input, select').forEach(x => x.remove());
+      copy.style.position = 'absolute'; document.documentElement.appendChild(copy);
+      // Считаются НАСТОЯЩИЕ метки [^id], а не «[^»: подсказка редактора
+      // сносок нарочно показывает образец «метка вида [^…]».
+      const n = (copy.innerText.match(/\[\^[a-z0-9]{1,12}\]/g) || []).length; copy.remove();
+      return n;
     }));
     await page.evaluate(() => window.__t.closeUniversalModal());
     await wait(300);
   }
-  проверить('сноски: метки не просачиваются в подсказку графа и окна (концепция, философ, связь)',
-    leakTooltip === 0 && leakViews.every(n => n === 0), 'подсказка 0; окна 0,0,0',
+  проверить('сноски: метки не просачиваются в подсказку графа и окна (концепция, философ, связь, правка философа)',
+    leakTooltip === 0 && leakViews.every(n => n === 0), 'подсказка 0; окна 0,0,0,0',
     `подсказка ${leakTooltip}; окна ${leakViews.join(',')}`);
 }
 

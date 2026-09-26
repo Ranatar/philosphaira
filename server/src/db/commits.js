@@ -1,6 +1,21 @@
 // ХРАНИЛИЩЕ КОММИТОВ. Единственное место с SQL по commits.
 
+import { createHash } from 'node:crypto';
 import { SET_BY_KIND } from '../graph/schema.js';
+
+/**
+ * ОТПЕЧАТОК СОДЕРЖАНИЯ КОММИТА — того, что видит рецензент: заголовок,
+ * пояснение, правки. Одобрение приносит отпечаток увиденного, и если автор
+ * успел поправить ожидающий коммит, сервер откажет, а не применит то, чего
+ * рецензент не читал (26.09.2026). Метка времени годилась бы хуже: сверять
+ * надо содержание, а не момент. `changes` приходит из jsonb — порядок ключей
+ * в нём нормализован базой, и строка устойчива от чтения к чтению.
+ */
+export function commitDigest({ message, authorComment, changes }) {
+  return createHash('sha256')
+    .update(JSON.stringify([message ?? '', authorComment ?? null, changes ?? null]))
+    .digest('hex').slice(0, 32);
+}
 
 /** Как коммит выглядит наружу. Змеиным именам хода за пределы src/db/ нет. */
 const commit = since => Object.freeze({
@@ -25,6 +40,7 @@ const commit = since => Object.freeze({
   // что это были три захода на одно и то же.
   supersedes:    since.supersedes ?? null,
   createdAt:     since.created_at,
+  digest:        commitDigest({ message: since.message, authorComment: since.author_comment, changes: since.changes }),
 });
 
 const COLUMNS = `
@@ -119,9 +135,11 @@ export async function overlappingPending(db, { authorId, changes }) {
 
 export async function lockCommit(client, commitId) {
   const { rows } = await client.query(`
-    SELECT commit_id AS "commitId", author_id AS "authorId", changes, status
+    SELECT commit_id AS "commitId", author_id AS "authorId", changes, status,
+           message, author_comment AS "authorComment"
       FROM commits WHERE commit_id = $1 FOR UPDATE`, [commitId]);
-  return rows[0] ?? null;
+  const row = rows[0];
+  return row ? { ...row, digest: commitDigest(row) } : null;
 }
 
 export const markRejected = (client, { commitId, reviewerId, comment }) =>

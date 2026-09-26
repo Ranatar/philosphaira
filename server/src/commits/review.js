@@ -27,7 +27,7 @@ import { N } from '../notify/catalog.js';
 import { Conflict, Forbidden, NotFound } from '../http/errors.js';
 
 export async function reviewCommit(pool, { actor, commitId, action, comment = null,
-                                           ip = null }) {
+                                           seenDigest = null, ip = null }) {
   assertCan(actor, P.REVIEW_COMMIT);
   if (action !== 'approve' && action !== 'reject') {
     throw new Forbidden(`Неизвестное решение «${action}»: approve или reject`);
@@ -43,6 +43,16 @@ export async function reviewCommit(pool, { actor, commitId, action, comment = nu
       throw new Conflict(`Коммит уже рассмотрен: ${commit.status}`);
     }
     assertNotSelfReview(actor, commit);
+    // РЕШАЕТСЯ ТО, ЧТО ВИДЕЛИ. Автор вправе править ожидающий коммит, и
+    // прежде одобрение применяло его в том виде, какой он имел в миг нажатия,
+    // а не в том, какой прочёл рецензент. Страница присылает отпечаток
+    // увиденного всегда; внешний клиент, не приславший его, от сверки
+    // отказался сам (решение 26.09.2026: отпечаток обязателен для страницы,
+    // не для службы).
+    if (seenDigest != null && seenDigest !== commit.digest) {
+      throw new Conflict('Коммит изменился после того, как вы его открыли: перечитайте очередь и решите заново',
+        { digest: commit.digest });
+    }
 
     if (action === 'reject') {
       await markRejected(client, { commitId, reviewerId: actor.userId,
@@ -97,11 +107,16 @@ export async function reviewCommit(pool, { actor, commitId, action, comment = nu
  * чужое, тот вправе вносить своё без очереди.
  */
 export async function directCommit(pool, { actor, message, authorComment = null,
-                                           changes, ip = null }) {
+                                           changes, supersedes = null, ip = null }) {
   assertCan(actor, P.REVIEW_COMMIT);
   // наРассмотрение: false — очереди не будет, извещать о ней некого.
   const { коммит: commit, пересечения: overlaps } = await createCommit(pool,
-    { actor, message, authorComment, changes, ip, наРассмотрение: false });
+    // РОДСТВО И У ПРЯМОЙ ПРАВКИ. Прежде ход наружу `supersedes` у прямой
+    // правки выбрасывал, а эта функция его не принимала: пересборка
+    // модератора после столкновения не связывалась с прежней попыткой
+    // никогда (замер 26.09.2026). Проверку «свой, не ожидающий» делает
+    // createCommit — та же, что у очереди.
+    { actor, message, authorComment, changes, supersedes, ip, наРассмотрение: false });
 
   return withTransaction(pool, async client => {
     let merged;

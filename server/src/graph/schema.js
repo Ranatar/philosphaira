@@ -42,6 +42,22 @@ export const SETS = Object.freeze({
  * в правке значит «убрать ключ», а не «записать null». Прочие null хранятся
  * как есть — `death: null` у живущего философа есть в файлах семени.
  */
+/**
+ * СОГЛАСИЕ ИСТОЧНИКА ЗАПИСИ — по ИТОГУ, а не по правке. Те же два правила,
+ * что `assertProvenance` при подаче: «источник есть» без строки и «не
+ * указано» (оно же отсутствие поля) при заполненной строке утверждают то,
+ * чего нет. При подаче правка, не тронувшая одно из двух полей, судилась
+ * «нечем проверить» и проходила: замер 26.09.2026 — одно состояние `sourced`
+ * без строки и одно стирание строки под `sourced` применились оба.
+ */
+export function provenanceProblems(entity) {
+  const status = entity?.provenanceStatus ?? PROVENANCE_STATUS.UNSPECIFIED;
+  const citation = String(entity?.provenance ?? '').trim();
+  if (status === PROVENANCE_STATUS.SOURCED && !citation) return ['состояние «источник есть», а строка источника пуста'];
+  if (status === PROVENANCE_STATUS.UNSPECIFIED && citation) return ['состояние «не указано», а строка источника заполнена'];
+  return [];
+}
+
 export const OMITTED_WHEN_EMPTY = Object.freeze(['provenance', 'provenanceStatus', 'footnotes']);
 export const isEmptyOptional = v => v == null || v === '' || (Array.isArray(v) && v.length === 0);
 

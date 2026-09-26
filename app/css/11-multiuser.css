@@ -98,7 +98,7 @@
     /* Общая кожа мелкой кнопки: та же, что у .modal-btn, но по содержимому,
        а не во всю ширину — их в строке несколько. */
     .commit-impact-btn,
-    .commit-approve, .commit-reject, .commit-revert,
+    .commit-approve, .commit-reject, .commit-revert, .commit-rebuild,
     .user-role, .user-ban, .user-unban,
     .notify-mark, .commits-tabs button {
       padding: 6px 12px;
@@ -113,7 +113,7 @@
     }
 
     .commit-impact-btn:hover,
-    .commit-approve:hover, .commit-reject:hover, .commit-revert:hover,
+    .commit-approve:hover, .commit-reject:hover, .commit-revert:hover, .commit-rebuild:hover,
     .user-role:hover, .user-ban:hover, .user-unban:hover,
     .notify-mark:hover, .commits-tabs button:hover {
       background: var(--surface-hover);

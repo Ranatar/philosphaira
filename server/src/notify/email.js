@@ -47,6 +47,13 @@ export const TEMPLATES = Object.freeze({
         + paragraph('Коммит', d.commitId)
         + paragraph('Разошлось полей', (d.столкновения ?? []).length),
   }),
+  [N.COMMIT_REVERTED]: d => ({
+    subject: 'Ваше изменение откатили',
+    text: `Коммит: ${d.commitId}\nОткатил: ${d.reviewerName ?? '—'}\nПричина: ${d.comment ?? ''}`,
+    html: `<h2>Ваше изменение откатили</h2>`
+        + paragraph('Коммит', d.commitId) + paragraph('Откатил', d.reviewerName ?? '—')
+        + paragraph('Причина', d.comment ?? ''),
+  }),
   [N.COMMIT_COINCIDED]: d => ({
     subject: 'То же самое уже внесли',
     text: `Коммит: ${d.commitId}\nВаша правка совпала с уже применённой.`,

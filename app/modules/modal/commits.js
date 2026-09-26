@@ -4,9 +4,10 @@ import { emit } from '../core/events.js';
 import { showTemporaryMessage } from '../core/long-task.js';
 import { PERM, can } from '../core/perms.js';
 import { pullGraphSince } from '../data/remote.js';
+import { conflictRowsHtml, conflictValue } from './conflict.js';
 import { PROVENANCE_STATES } from './forms.js';
 
-import { FOOTNOTE_LABELS, escapeAttr } from '../util/html.js';
+import { FOOTNOTE_LABELS, escapeAttr, richText } from '../util/html.js';
 
 let commitTab = 'mine';
 
@@ -149,6 +150,36 @@ function commitStateWords(state2) {
 
 function commitStateKind(state2) {
       return (COMMIT_STATES[state2] || {}).вид || 'прочее';
+    }
+
+const CHANGE_FIELD_LABELS = { label: 'название', name: 'имя', nameRu: 'имя по-русски',
+      description: 'описание', extendedDescription: 'полное описание', philosopher: 'философ',
+      rubrics: 'рубрики', traditions: 'традиции', type: 'тип', weight: 'вес', bidirectional: 'двусторонняя',
+      source: 'от', target: 'к', birth: 'рождение', death: 'смерть', years: 'годы', color: 'цвет' };
+
+const CHANGE_KIND_LABELS = { concept: 'концепция', relation: 'связь', philosopher: 'философ',
+      tradition: 'традиция', rubric: 'рубрика', relationType: 'тип связи' };
+
+function changesDiff(changes) {
+      const own = new Set(['provenance', 'provenanceStatus', 'footnotes']);
+      const show = (field, v) => (v == null || v === '') ? '—'
+        : (field === 'description' || field === 'extendedDescription') ? richText(v) : escapeAttr(conflictValue(v));
+      const blocks = (changes || []).map(change => {
+        const head = escapeAttr((CHANGE_KIND_LABELS[change.kind] || change.kind) + ' ' + (change.entityId || ''))
+          + ' · ' + (change.action === 'add' ? 'новая' : change.action === 'delete' ? 'удаление' : 'правка');
+        if (change.action === 'delete') return '<div class="prov-diff-row"><span class="prov-diff-what">' + head + '</span></div>';
+        const rows = Object.entries(change.fields || {})
+          .filter(([f, v]) => !own.has(f) && JSON.stringify(v.base ?? null) !== JSON.stringify(v.next ?? null))
+          .map(([f, v]) => '<div class="prov-diff-row">'
+            + '<span class="prov-diff-what">' + escapeAttr(CHANGE_FIELD_LABELS[f] || f) + '</span>'
+            + (change.action === 'add' ? '' : '<span class="prov-diff-was">было: ' + show(f, v.base) + '</span>')
+            + '<span class="prov-diff-now">стало: ' + show(f, v.next) + '</span></div>');
+        // правка одного лишь источника или сносок — её покажут свои разборы
+        if (!rows.length && change.action === 'edit') return '';
+        return '<div class="prov-diff-row"><span class="prov-diff-what">' + head + '</span></div>' + rows.join('');
+      }).filter(Boolean);
+      if (!blocks.length) return '';
+      return '<div class="commit-changes"><div class="prov-diff-head">Правка</div>' + blocks.join('') + '</div>';
     }
 
 function provenanceDiff(changes) {
@@ -311,6 +342,11 @@ function renderCommits() {
           ? `<button class="commit-approve" data-id="${escapeAttr(commit.commitId)}">Одобрить</button>`
           + `<button class="commit-reject" data-id="${escapeAttr(commit.commitId)}">Отклонить</button>`
           : '';
+        // Свой столкнувшийся коммит — пересобрать поверх нынешнего тем же
+        // ходом, что из окна столкновения, с родством.
+        const rebuild = (commitTab === 'mine' && commit.status === 'conflicted' && commit.changes && commit.changes.length)
+          ? `<button class="commit-rebuild" data-id="${escapeAttr(commit.commitId)}">Пересобрать поверх нынешнего</button>`
+          : '';
         const revert = (commit.status === 'applied' && can(PERM.REVERT_COMMIT))
           ? `<button class="commit-revert" data-id="${escapeAttr(commit.commitId)}">Откатить</button>`
           : '';
@@ -326,8 +362,14 @@ function renderCommits() {
           ? '<div class="commit-what">Взамен правки '
             + escapeAttr(String(commit.supersedes).slice(0, 8)) + '…</div>'
           : '';
+        // ЧТО РАЗОШЛОСЬ — АВТОРУ ВИДНО. Сервер хранит столкновения коммита
+        // (conflicts), а панель выводила одно «пересоберите»: автор узнавал
+        // причину, лишь открыв форму заново, — а у столкновения по правилу
+        // (сноски, источник) не узнавал вовсе.
         const breakdown = (commit.status === 'conflicted')
           ? '<div class="commit-why">Пересоберите правку поверх нынешнего состояния.</div>'
+            + (commit.conflicts && commit.conflicts.length
+                ? '<div class="commit-conflicts">' + conflictRowsHtml(commit.conflicts) + '</div>' : '')
           : '';
         // Если автор объяснил — крупно идёт ЗАЧЕМ, а машинный адрес мелко
         // под ним. Не объяснил — заголовком служит адрес: он всегда есть.
@@ -344,6 +386,7 @@ function renderCommits() {
           + `data-id="${escapeAttr(commit.commitId)}">Последствия</button>`;
         return '<div class="commit-item">'
           + head
+          + changesDiff(commit.changes)
           + provenanceDiff(commit.changes)
           + footnotesDiff(commit.changes)
           + `<div class="commit-meta">${escapeAttr(commit.authorName || '')} · `
@@ -351,7 +394,7 @@ function renderCommits() {
           + `${escapeAttr(commitStateWords(commit.status))}</span></div>`
           + supersedesLine + reason + breakdown
           + `<div class="commit-impact" data-for="${escapeAttr(commit.commitId)}"></div>`
-          + impactButton + reviewBtn + revert + '</div>';
+          + impactButton + reviewBtn + revert + rebuild + '</div>';
       }).join('');
     }
 
@@ -368,7 +411,10 @@ async function reviewCommitFromPanel(id, verdict) {
         ? prompt('Причина отказа (обязательна):') : null;
       if (verdict === 'reject' && !comment) return;
       const reply = await api('/api/commits/' + encodeURIComponent(id) + '/review',
-        { метод: 'POST', тело: { action: verdict, comment: comment } });
+        // ОТПЕЧАТОК УВИДЕННОГО: сервер откажет (409), если автор успел
+        // поправить коммит после того, как очередь была загружена.
+        { метод: 'POST', тело: { action: verdict, comment: comment,
+          digest: ((commitItems.find(c => String(c.commitId) === String(id)) || {}).digest) || null } });
       if (!reply.годно) {
         // ОТКАЗ ПОКАЗЫВАЕТСЯ, а не проглатывается.
         commitError = (reply.тело && reply.тело.error && reply.тело.error.message)

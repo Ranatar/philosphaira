@@ -82,6 +82,11 @@ createdb --maintenance-db="$MAINT" --locale=C.UTF-8 --template=template0 "$DBNAM
   > /tmp/развёрт_база.log 2>&1; verdict "база $DBNAME заведена" $?
 export DATABASE_URL="$DBURL"
 export MFA_SECRET_KEY="${MFA_SECRET_KEY:-$(node -e "console.log(require('crypto').randomBytes(32).toString('base64'))")}"
+# ПАРОЛЬ ИСПЫТАТЕЛЬНОГО АДМИНИСТРАТОРА — как ключ выше: не задан, значит
+# порождается. Прежде его не было, и на чистой машине без переменной
+# «развёртывание с нуля» падало на шаге, где проверять нечего (найдено
+# 26.09.2026: прогон без окружения автора). Пароль одноразовый, как и база.
+export BOOTSTRAP_ADMIN_PASSWORD="${BOOTSTRAP_ADMIN_PASSWORD:-$(node -e "console.log(require('crypto').randomBytes(18).toString('base64url'))")}"
 (cd server && node scripts/migrate.mjs up > /tmp/развёрт_миграции.log 2>&1); verdict "миграции накатились" $?
 
 step "перенос графа и первый администратор"

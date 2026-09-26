@@ -6,6 +6,7 @@ import { applyFilters } from '../filters/filters.js';
 import { renderState } from '../render/canvas-core.js';
 import { updateArrows } from '../render/d3-layer.js';
 import { chosenPhilosophers } from '../state/filters.js';
+import { descriptionPlain, escapeAttr } from '../util/html.js';
 
 function markChosenInLegend() {
       document.querySelectorAll('#philosopherFilters .legend-item').forEach(item => {
@@ -83,7 +84,7 @@ function initFilters() {
           tradContainer.appendChild(item);
         };
         DATA.traditions.forEach(tr => traditionRow(
-          tr.id, tr.name, (tr.description || '').replace(/"/g, '&quot;')));
+          tr.id, tr.name, escapeAttr(descriptionPlain(tr.description))));
         traditionRow(WITHOUT_TRADITION, 'Вне традиций',
           'Философы, которым традиция не проставлена');
       }

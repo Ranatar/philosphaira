@@ -378,8 +378,10 @@
       transform: rotate(180deg);
     }
 
-    /* Изменение основания в записи правки: рядом с адресом, но тише его. */
-    .prov-diff {
+    /* Изменение основания в записи правки: рядом с адресом, но тише его.
+       Предлагаемая правка по полям (.commit-changes) — той же кожей, но своим
+       классом: первый .prov-diff панели — разбор основания, и на нём стоит проба. */
+    .prov-diff, .commit-changes {
       margin-top: 6px; padding: 6px 8px; font-size: 11px;
       border-left: 2px solid var(--accent, #6c5ce7);
       background: rgba(108,92,231,0.06);

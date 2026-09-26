@@ -5,17 +5,25 @@ import { serverMode } from '../core/api.js';
 import { FOOTNOTE_LABELS, FOOTNOTE_STATE_ORDER, escapeAttr, footnoteOrder } from '../util/html.js';
 
 function installFootnoteLinks() {
-      const light = id => document.querySelectorAll('[data-fn]').forEach(x =>
-        x.classList.toggle('fn-active', x.dataset.fn === id));
+      // ПРЕДЕЛ — СВОЯ СУЩНОСТЬ. Номера f1, f2… выдаются в пределах записи, и
+      // окно связи показывает разом все связи пары (таких пар 116): наведение
+      // на «1» одной связи обводило и «1» другой вместе с её источником (замер
+      // 26.09.2026). Предел — ближайший [data-fn-scope], иначе весь документ.
+      const light = (id, from) => {
+        const root = (from && from.closest && from.closest('[data-fn-scope]')) || document;
+        document.querySelectorAll('.fn-active').forEach(x => x.classList.remove('fn-active'));
+        if (id) root.querySelectorAll('[data-fn]').forEach(x =>
+          x.classList.toggle('fn-active', x.dataset.fn === id));
+      };
       const at = ev => ev.target && ev.target.closest ? ev.target.closest('[data-fn]') : null;
-      document.addEventListener('mouseover', ev => { const el = at(ev); if (el) light(el.dataset.fn); });
+      document.addEventListener('mouseover', ev => { const el = at(ev); if (el) light(el.dataset.fn, el); });
       document.addEventListener('mouseout',  ev => { if (at(ev)) light(null); });
       document.addEventListener('focusin',   ev => {
-        const el = at(ev); if (el) light(el.dataset.fn);
+        const el = at(ev); if (el) light(el.dataset.fn, el);
         if (ev.target && ev.target.classList && ev.target.classList.contains('fn-host')) S.lastFootnoteHost = ev.target;
       });
       document.addEventListener('focusout',  ev => { if (at(ev)) light(null); });
-      document.addEventListener('click',     ev => { const el = at(ev); if (el) light(el.dataset.fn); });
+      document.addEventListener('click',     ev => { const el = at(ev); if (el) light(el.dataset.fn, el); });
       document.addEventListener('input',     ev => {
         if (ev.target && ev.target.classList && ev.target.classList.contains('fn-host')) refreshFootnoteRows();
       });

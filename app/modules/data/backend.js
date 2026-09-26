@@ -24,6 +24,12 @@ function submitChange(descr, apply) {
       return direct;
     }
 
+let supersedesNext = null;
+
+function markSupersedes(commitId, kind, entityId) {
+      supersedesNext = commitId ? { commitId, kind, entityId } : null;
+    }
+
 async function sendCommit(descr, direct) {
       // Причина уходит ОТДЕЛЬНЫМ полем, а не вместо заголовка: заголовок —
       // адрес правки, по нему её ищут и разбирают столкновения, и терять
@@ -34,8 +40,11 @@ async function sendCommit(descr, direct) {
       const reply = await api('/api/commits', {
         метод: 'POST',
         тело: { message: commitMessageFor(descr), authorComment: why || null,
-                changes: [descr] },
+                changes: [descr],
+                supersedes: (supersedesNext && supersedesNext.kind === descr.kind
+                  && supersedesNext.entityId === descr.entityId) ? supersedesNext.commitId : null },
       });
+      supersedesNext = null;
 
       if (!reply.годно) {
         const serverMessage = (reply.тело && reply.тело.error && reply.тело.error.message)
@@ -66,7 +75,7 @@ async function sendCommit(descr, direct) {
         // modal/conflict.js ввозили друг друга. Событие развязывает их:
         // распорядитель говорит, ЧТО случилось, а кто это показывает —
         // не его забота.
-        emit('commit-conflicted', { descr, столкновения: commitData.столкновения || [] });
+        emit('commit-conflicted', { descr, столкновения: commitData.столкновения || [], commitId: commitData.commitId || null });
         // Страница взяла состояние сервера — своего непринятого на ней нет.
         return true;
       }
@@ -119,4 +128,4 @@ let noticeTimer = null;
 
 let lastSubmitResult = null;
 
-export { lastSubmitResult, lastSubmitted, reportSubmit, submitChange };
+export { lastSubmitResult, lastSubmitted, markSupersedes, reportSubmit, submitChange };

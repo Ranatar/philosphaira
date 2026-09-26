@@ -14,7 +14,7 @@ import { historyBlock } from './history.js';
 import { highlightPhilosopherOnGraph } from '../render/selection.js';
 
 import { getContrastColor } from '../util/color.js';
-import { footnoteOrder, footnotedText, footnotesBlock, provenanceBlock, withoutFootnotes } from '../util/html.js';
+import { descriptionHtml, descriptionPlain, escapeAttr, footnoteOrder, footnotedText, footnotesBlock, provenanceBlock } from '../util/html.js';
 import { formatBirthYear, philosopherBirth, philosopherYears, sortPhilosophersByBirth } from '../util/philosopher-label.js';
 import { conjugateVerb, declinePhilosopher } from '../util/ru.js';
 
@@ -35,7 +35,7 @@ function philosopherTraditionsBlock(name) {
         return `
           <div class="rubric-section">
             <div class="rubric-title">🏛 Традиция: ${tr.name}</div>
-            <div class="rubric-description">${tr.description || ''}</div>
+            <div class="rubric-description">${descriptionHtml(tr.description)}</div>
             ${others.length ? `
               <div class="related-concepts">
                 <div class="related-title">Также в этой традиции (${others.length}):</div>
@@ -149,7 +149,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
 
       if (philTraditions.length > 0) {
         const traditionNames = philTraditions.map(t => `
-            <span class="rubric-name-tooltip" data-tip="${t.description}">${t.name}</span>
+            <span class="rubric-name-tooltip" data-tip="${escapeAttr(descriptionPlain(t.description))}">${t.name}</span>
         `).join(', ');
 
         html += `
@@ -355,7 +355,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
           const rubric = rubricById.get(rubricId);
           if (!rubric) return '';
           return `
-            <span class="rubric-name-tooltip" data-tip="${rubric.description}">${rubric.name}</span>
+            <span class="rubric-name-tooltip" data-tip="${escapeAttr(descriptionPlain(rubric.description))}">${rubric.name}</span>
           `;
         }).filter(r => r).join(', ');
         
@@ -386,9 +386,9 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
                 <div class="concept-details-name">${conceptNode.label}</div>
                 <button class="toggle-concept-desc-btn" data-act-click="stop-propagation-3" data-a1="${conceptNode.id}">▼</button>
               </div>
-              <div class="concept-short-desc">${withoutFootnotes(conceptNode.description)}</div>
+              <div class="concept-short-desc">${descriptionHtml(conceptNode.description)}</div>
               <div class="concept-extended-desc" id="phil-concept-desc-${conceptNode.id}">
-                ${withoutFootnotes(conceptNode.extendedDescription)}
+                ${descriptionHtml(conceptNode.extendedDescription)}
               </div>
             </div>
           `;
@@ -493,7 +493,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-phil-${srcNode.id}-${tgtNode.id}">
-                  ${withoutFootnotes(conn.description)}
+                  ${descriptionHtml(conn.description)}
                 </div>
               ` : ''}
             `;
@@ -561,7 +561,7 @@ VIEWS.generatePhilosopherViewContent = function generatePhilosopherViewContent(p
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-phil-${srcNode.id}-${tgtNode.id}">
-                  ${withoutFootnotes(conn.description)}
+                  ${descriptionHtml(conn.description)}
                 </div>
               ` : ''}
             `;

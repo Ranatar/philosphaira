@@ -169,7 +169,7 @@ VIEWS.generateConnectionEditContent = function generateConnectionEditContent(con
         <div class="modal-form-group">
           <label for="connDescription">Описание связи</label>
           <textarea id="connDescription" class="fn-host" rows="4"
-                placeholder="Две фразы: первая называет отношение и даёт краткую формулу, вторая разворачивает">${connectionData ? connectionData.description || '' : ''}</textarea>
+                placeholder="Две фразы: первая называет отношение и даёт краткую формулу, вторая разворачивает">${connectionData ? escapeAttr(connectionData.description || '') : ''}</textarea>
           <div class="modal-form-note">
             Описания в базе — 190–270 знаков, две фразы.
           </div>

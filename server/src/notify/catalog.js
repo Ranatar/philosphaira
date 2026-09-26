@@ -24,6 +24,7 @@ export const N = Object.freeze({
   COMMIT_REJECTED:    'commit_rejected',
   COMMIT_CONFLICTED:  'commit_conflicted',
   COMMIT_COINCIDED:   'commit_coincided',
+  COMMIT_REVERTED:    'commit_reverted',
   NEW_COMMIT_PENDING: 'new_commit_pending',
   ROLE_CHANGED:       'role_changed',
   USER_PROMOTED:      'user_promoted',
@@ -85,6 +86,13 @@ export const CATALOG = Object.freeze({
   // иначе труд человека выглядел бы как ошибка.
   [N.COMMIT_COINCIDED]: {
     audience: { kind: 'author' }, category: 'commitStatus', priority: 'low',
+  },
+  // ОТКАТ ВАШЕЙ ПРАВКИ (решение автора, 26.09.2026). Прежде автор узнавал об
+  // этом, только наткнувшись на прежний текст: правка исчезала без вести, и
+  // спросить «почему» было не у кого. Важность — как у отказа: это тоже
+  // решение о чужом труде, только принятое после применения.
+  [N.COMMIT_REVERTED]: {
+    audience: { kind: 'author' }, category: 'commitStatus', priority: 'high',
   },
   [N.NEW_COMMIT_PENDING]: {
     audience: { kind: 'staff', minLevel: ROLES.moderator.level },

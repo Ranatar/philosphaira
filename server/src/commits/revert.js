@@ -27,6 +27,8 @@ import { P } from '../access/roles.js';
 import { applyCommit } from './apply.js';
 import { SETS, SET_BY_KIND } from '../graph/schema.js';
 import { Conflict, Forbidden, NotFound } from '../http/errors.js';
+import { notify } from '../notify/notify.js';
+import { N } from '../notify/catalog.js';
 
 /** Построить обращающие изменения. Читает базу — потому и берёт client. */
 export async function invertChanges(client, changes) {
@@ -109,6 +111,20 @@ export async function revertCommit(pool, { actor, commitId, reason, ip = null })
     await audit(client, { actorId: actor.userId, action: 'commit.revert',
                           subjectType: 'commit', subjectId: commitId,
                           payload: { откат: revertRecord.commitId, версия: merged.версия }, ip });
+    // ОТКАТ МЕНЯЕТ ГРАФ — И ИЗВЕЩАЕТ, как одобрение и прямая правка. Прежде
+    // извещения не было вовсе: откат доходил только до страницы того, кто
+    // откатывал, а у всех прочих открытых страниц граф оставался прежним до
+    // перезагрузки — молча (найдено чтением 26.09.2026, стережёт revert_probe).
+    if (merged.исход === 'applied') {
+      await notify(client, N.GRAPH_CHANGED,
+        { commitId: revertRecord.commitId, версия: merged.версия, применено: merged.применено });
+    }
+    // АВТОРУ — ЧТО ЕГО ПРАВКУ ОТКАТИЛИ, кем и почему. Себе самому — нет:
+    // откативший свою правку знает это и так.
+    if (target.authorId !== actor.userId) {
+      await notify(client, N.COMMIT_REVERTED, { authorId: target.authorId, commitId,
+        reviewerName: actor.username, comment: String(reason).trim() });
+    }
     return { ...merged, commitId: revertRecord.commitId, отменён: commitId };
   });
 }

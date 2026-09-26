@@ -646,7 +646,12 @@
   "profileSimilarity": "metrics/similarity-concepts.js",
   "provenanceBlock": "util/html.js",
   "provenanceDiff": "modal/commits.js",
+  "CHANGE_FIELD_LABELS": "modal/commits.js",
+  "CHANGE_KIND_LABELS": "modal/commits.js",
+  "changesDiff": "modal/commits.js",
   "provenanceDriftWarning": "modal/integrity.js",
+  "footnotePhrase": "modal/integrity.js",
+  "provenanceEntityDrift": "modal/integrity.js",
   "provenanceField": "modal/forms.js",
   "provenanceFields": "modal/persist.js",
   "provenanceValue": "modal/forms.js",
@@ -744,6 +749,8 @@
   "selectedSourceNode": "state/paths.js",
   "selectedTargetNode": "state/paths.js",
   "sendCommit": "data/backend.js",
+  "supersedesNext": "data/backend.js",
+  "markSupersedes": "data/backend.js",
   "serverMode": "core/api.js",
   "setInfluenceScope": "stats/views/philosophical.js",
   "setPainter": "render/loop.js",
@@ -756,6 +763,8 @@
   "showAuthNotice": "modal/auth.js",
   "showConceptProfileModal": "modal/profile-concept.js",
   "showConflict": "modal/conflict.js",
+  "conflictValue": "modal/conflict.js",
+  "conflictRowsHtml": "modal/conflict.js",
   "showCustomSelectDropdown": "widgets/custom-select.js",
   "showDetailModal": "modal/entry.js",
   "showFoundLinks": "ui/search-link.js",
@@ -1004,6 +1013,10 @@
   "FOOTNOTE_LABELS": "util/html.js",
   "FOOTNOTE_STATE_ORDER": "util/html.js",
   "withoutFootnotes": "util/html.js",
+  "RICH_TAG": "util/html.js",
+  "richText": "util/html.js",
+  "descriptionHtml": "util/html.js",
+  "descriptionPlain": "util/html.js",
   "footnoteOrder": "util/html.js",
   "footnotedText": "util/html.js",
   "footnotesBlock": "util/html.js",
@@ -1066,11 +1079,11 @@
    "модуль": "render/simulation.js",
    "имя": "installSimulationLog"
   },
-  "gfxNode.on(\"mouseover\") @72dda2d2": {
+  "gfxNode.on(\"mouseover\") @22e59e56": {
    "модуль": "render/interactions.js",
    "имя": "installNodeHover"
   },
-  "gfxLink.on(\"mouseover\") @86ad9ea0": {
+  "gfxLink.on(\"mouseover\") @8b3d2149": {
    "модуль": "render/interactions.js",
    "имя": "installLinkHover"
   },

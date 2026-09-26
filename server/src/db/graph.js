@@ -187,7 +187,7 @@ export async function changesSince(db, since) {
 /** История сущности: применённые коммиты, тронувшие этот адрес. */
 export async function entityHistory(db, { kind, entityId }) {
   const { rows } = await db.query(`
-    SELECT c.commit_id AS "commitId", c.status, c.message, c.created_at AS "createdAt",
+    SELECT c.commit_id AS "commitId", c.author_id AS "authorId", c.status, c.message, c.created_at AS "createdAt",
            c.applied_version AS "версия", u.username AS "author",
            c.changes AS "changes"
       FROM commits c JOIN users u ON u.user_id = c.author_id

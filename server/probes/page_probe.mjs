@@ -29,6 +29,7 @@ import fs from 'node:fs';
 import { beginEnroll, confirmEnroll } from '../src/auth/mfa.js';
 import { totpCode as totpКод } from '../src/auth/totp.js';
 import { findById } from '../src/db/users.js';
+import { editOwnCommit } from '../src/commits/service.js';
 
 const КОРЕНЬ = ПАПКА_СЕРВЕРА();
 function ПАПКА_СЕРВЕРА() { return path.dirname(path.dirname(fileURLToPath(import.meta.url))); }
@@ -98,17 +99,17 @@ try {
   // непрочитанного и открывал сокет, который сервер ему не даёт, — снова и
   // снова, с удвоением паузы до 30 с. pageerror этого не видит: это отказы
   // сети, а не исключения. Считаем ответы 4xx и рукопожатия сокета.
-  const отказы = [];
-  pageHtml.on('response', r => { if (r.status() >= 400) отказы.push(r.status() + ' ' + r.url()); });
+  const httpFailures = [];
+  pageHtml.on('response', r => { if (r.status() >= 400) httpFailures.push(r.status() + ' ' + r.url()); });
   await pageHtml.evaluateOnNewDocument(() => {
-    const Прежний = window.WebSocket;
-    window.__сокетов = 0;
-    window.WebSocket = class extends Прежний {
-      constructor(...д) { super(...д); window.__сокетов++; }
+    const NativeWebSocket = window.WebSocket;
+    window.__wsOpened = 0;
+    window.WebSocket = class extends NativeWebSocket {
+      constructor(...д) { super(...д); window.__wsOpened++; }
     };
   });
-  const сокетов = () => pageHtml.evaluate(`window.__сокетов`);
-  const колоколВиден = () => pageHtml.evaluate(`(function(){
+  const wsCount = () => pageHtml.evaluate(`window.__wsOpened`);
+  const bellVisible = () => pageHtml.evaluate(`(function(){
     const b = document.getElementById('notifyBell');
     return !!b && b.style.display !== 'none';
   })()`);
@@ -141,10 +142,10 @@ try {
     return shown;
   })()`);
   проверить('гостю раздела «Замеры» нет', (await observationsShown()) === false, 'скрыт', 'виден');
-  проверить('гость не открывает сокета', (await сокетов()) === 0, 0, await сокетов());
+  проверить('гость не открывает сокета', (await wsCount()) === 0, 0, await wsCount());
   проверить('гость не получает отказов 4xx (ни 401 колокола, ни 404 значка)',
-    отказы.length === 0, 0, отказы.slice(0, 3).join(' | '));
-  проверить('гостю колокол не показан', (await колоколВиден()) === false, 'скрыт', 'виден');
+    httpFailures.length === 0, 0, httpFailures.slice(0, 3).join(' | '));
+  проверить('гостю колокол не показан', (await bellVisible()) === false, 'скрыт', 'виден');
   проверить('нетронутая страница гостя не числит несохранённого',
     (await pageHtml.evaluate(`window.__app.hasUnsaved()`)) === false, false,
     await pageHtml.evaluate(`window.__app.hasUnsaved()`));
@@ -181,8 +182,8 @@ try {
   проверить('вошедшему раздел «Замеры» виден', (await observationsShown()) === true, 'виден', 'скрыт');
   // ВСТРЕЧНЫЕ к утверждениям о госте: без них «сокетов 0» и «колокол
   // скрыт» сходились бы и у страницы, которая не открывает их никому.
-  проверить('вошедшему сокет открыт', (await сокетов()) >= 1, '≥1', await сокетов());
-  проверить('вошедшему колокол показан', (await колоколВиден()) === true, 'виден', 'скрыт');
+  проверить('вошедшему сокет открыт', (await wsCount()) >= 1, '≥1', await wsCount());
+  проверить('вошедшему колокол показан', (await bellVisible()) === true, 'виден', 'скрыт');
   проверить('и это тот же набор, что отдаёт сервер',
     await pageHtml.evaluate(`(async () => {
       const о = await fetch('/api/users/me', { credentials: 'same-origin' });
@@ -238,24 +239,24 @@ try {
   await register(pool, { username: 'редактор', email: 'r@e.рф', password: ПАРОЛЬ });
   await pool.query(`UPDATE users SET role='editor', email_verified_at=NOW()
                      WHERE username='редактор'`);
-  const сокетовДоВыхода = await сокетов();
+  const wsBeforeLogout = await wsCount();
   await pageHtml.evaluate(`window.__app.authLogout()`);
   await ждать(300);
   // ВЫХОД ГАСИТ СЕАНС НА СЕРВЕРЕ (26.09.2026). Прежде кнопка снимала права
   // только на странице: cookie жил, сервер отвечал «вошёл», сокет с личными
   // извещениями не закрывался, а перезагрузка возвращала под той же записью.
-  let сервер = 'не спросили';
+  let serverSays = 'не спросили';
   for (let i = 0; i < 20; i++) {
-    сервер = await pageHtml.evaluate(`fetch('/api/users/me', { credentials: 'same-origin' })
+    serverSays = await pageHtml.evaluate(`fetch('/api/users/me', { credentials: 'same-origin' })
       .then(о => о.json()).then(т => т.data && т.data.гость ? 'гость' : (т.data && т.data.username))`);
-    if (сервер === 'гость') break;
+    if (serverSays === 'гость') break;
     await ждать(150);
   }
-  проверить('ПОСЛЕ ВЫХОДА СЕРВЕР СЧИТАЕТ ГОСТЕМ', сервер === 'гость', 'гость', сервер);
+  проверить('ПОСЛЕ ВЫХОДА СЕРВЕР СЧИТАЕТ ГОСТЕМ', serverSays === 'гость', 'гость', serverSays);
   await ждать(1500);   // пауза восстановления сокета — 500 мс с удвоением
   проверить('после выхода сокет не открывается заново',
-    (await сокетов()) === сокетовДоВыхода, сокетовДоВыхода, await сокетов());
-  проверить('после выхода колокол скрыт', (await колоколВиден()) === false, 'скрыт', 'виден');
+    (await wsCount()) === wsBeforeLogout, wsBeforeLogout, await wsCount());
+  проверить('после выхода колокол скрыт', (await bellVisible()) === false, 'скрыт', 'виден');
   await pageHtml.evaluate(`(function(){
     window.__app.openAuthModal('login');
     document.getElementById('authLogin').value = 'r@e.рф';
@@ -414,8 +415,38 @@ try {
     await pageHtml.evaluate(
       `(document.getElementById('conceptDescription')||{}).value || ''`));
 
+  // РОДСТВО (E-4, 26.09.2026): пересобранная правка несёт ссылку на
+  // столкнувшуюся. Прежде страница «взамен» не слала никогда.
+  const { rows: [clashed] } = await pool.query(
+    `SELECT commit_id FROM commits WHERE status='conflicted' ORDER BY created_at DESC LIMIT 1`);
+  await pageHtml.evaluate(`document.getElementById('conceptDescription').value = 'пересобранное описание'`);
+  await pageHtml.evaluate(`window.__app.saveConceptData()`);
+  await ждать(1500);
+  const { rows: [rebuilt] } = await pool.query(
+    `SELECT status, supersedes FROM commits ORDER BY created_at DESC LIMIT 1`);
+  проверить('ПЕРЕСОБРАННАЯ ПРАВКА НЕСЁТ «ВЗАМЕН» столкнувшейся',
+    clashed && rebuilt && rebuilt.supersedes === clashed.commit_id && rebuilt.status === 'applied',
+    'supersedes = столкнувшийся, applied', JSON.stringify({ rebuilt, clashed: clashed && clashed.commit_id }));
+  // Вставка подняла версию сервера; раздел 7 начинается с условия «версии
+  // совпали», и страница догоняет тем же ходом, что при живом обновлении.
+  await pageHtml.evaluate(`window.__app.pullGraphSince()`);
+  await ждать(800);
+
   await pageHtml.evaluate(`window.__app.closeUniversalModal()`);
   await ждать(300);
+
+  // (показ проверяется ПОСЛЕ раздела 6: он подменяет последнее столкновение,
+  //  а «взять нынешнее» раздела 6 читает именно его)
+  // ── ОКНО СТОЛКНОВЕНИЯ: причина правила и сноски словами (26.09.2026) ──
+  await pageHtml.evaluate(`window.__app.showConflict({}, [
+    { entityId: 'c1', field: 'footnotes', reason: 'сноски не сходятся с текстом: метка [^f1] без записи сноски' },
+    { entityId: 'c1', field: 'footnotes', base: [{ id: 'f1', status: 'sourced', text: 'Кант, КЧР B 1' }], yours: [], current: null }])`);
+  await ждать(300);
+  const conflictText = await pageHtml.evaluate(`(document.getElementById('conflictBody') || {}).textContent || ''`);
+  проверить('окно столкновения называет ПРИЧИНУ правила и показывает сноски словами',
+    /сноски не сходятся/.test(conflictText) && /Кант, КЧР B 1/.test(conflictText) && !/object Object/.test(conflictText),
+    'причина; сноска словами; без [object Object]', conflictText.replace(/\s+/g, ' ').slice(0, 90));
+  await pageHtml.evaluate(`(function(){ const m = document.getElementById('conflictModal'); if (m) m.style.display = 'none'; })()`);
 
   // ── 7. ПРИХОД ИЗВНЕ: чужая правка БЕЗ ПЕРЕЗАГРУЗКИ ─────────────────────
   // Версию НЕ сравниваем с нулём: сразу после переноса она и есть ноль, и
@@ -733,6 +764,26 @@ try {
   const ждёт = await pool.query(
     `SELECT commit_id FROM commits WHERE status='pending' LIMIT 1`);
   if (ждёт.rows[0]) {
+    // ── РЕЦЕНЗЕНТ ВИДИТ ПРАВКУ И РЕШАЕТ ТО, ЧТО ВИДЕЛ (26.09.2026) ───────
+    const { rows: [pendingRow] } = await pool.query(
+      `SELECT author_id, changes FROM commits WHERE commit_id=$1`, [ждёт.rows[0].commit_id]);
+    const proposed = (() => { for (const ch of pendingRow.changes || []) for (const [f, v] of Object.entries(ch.fields || {}))
+      if (!['provenance', 'provenanceStatus', 'footnotes'].includes(f) && typeof v.next === 'string' && v.next.trim()) return v.next; return null; })();
+    const queueText = await pageHtml.evaluate(`(document.querySelector('#commitsBody .commit-changes') || {}).textContent || ''`);
+    проверить('очередь показывает ПРЕДЛАГАЕМЫЙ ТЕКСТ, а не только заголовок',
+      proposed != null && queueText.includes(proposed.replace(/<\/?[bi]>/g, '').slice(0, 30)) && /стало:/.test(queueText),
+      'текст правки на панели', queueText.replace(/\s+/g, ' ').slice(0, 80) || 'блока нет');
+    // автор поправил коммит, пока очередь открыта у рецензента
+    await editOwnCommit(pool, { actor: await findById(pool, pendingRow.author_id),
+      commitId: ждёт.rows[0].commit_id, message: 'поправлено после того, как рецензент открыл очередь' });
+    await pageHtml.evaluate(`(function(){ const к = document.querySelector('.commit-approve'); if (к) к.click(); })()`);
+    await ждать(1500);
+    const staleStatus = (await pool.query(`SELECT status FROM commits WHERE commit_id=$1`, [ждёт.rows[0].commit_id])).rows[0].status;
+    const staleSaid = await pageHtml.evaluate(`window.__app.commitError || ''`);
+    проверить('одобрение УВИДЕННОГО: поправленный после прочтения коммит не одобряется',
+      staleStatus === 'pending' && /изменился/.test(staleSaid), 'pending; сказано «изменился»', `${staleStatus}; ${staleSaid.slice(0, 60)}`);
+    await pageHtml.evaluate(`window.__app.loadCommits()`);
+    await ждать(1500);
     await pageHtml.evaluate(`(function(){
       const к = document.querySelector('.commit-approve');
       if (к) к.click();
@@ -945,8 +996,13 @@ try {
     await window.__app.api('/api/commits', { метод: 'POST', тело: {
       message: 'проба: источник',
       changes: [{ action: 'edit', kind: 'concept', entityId: c.id,
+                  // СТРОКА И СОСТОЯНИЕ ВМЕСТЕ — как подаёт окно (provenanceFields).
+                  // Прежде уходила одна строка при «не указано»: несогласие,
+                  // которое сервер пропускал до 26.09.2026 (суд только по
+                  // правке) и отвергает теперь (суд по итогу).
                   fields: { provenance: { base: null,
-                    next: 'Гераклит, фр. B1 (Дильс–Кранц)' } } }] } });
+                    next: 'Гераклит, фр. B1 (Дильс–Кранц)' },
+                    provenanceStatus: { base: null, next: 'sourced' } } }] } });
     await window.__app.pullGraphSince();
   })()`);
   await ждать(1500);
@@ -1033,6 +1089,24 @@ try {
   // основание надо показывать и у применённых.
   await pageHtml.evaluate(`window.__app.switchCommitTab('mine')`);
   await ждать(1500);
+  проверить('у своего столкнувшегося коммита есть «Пересобрать поверх нынешнего», и она открывает правку',
+    await pageHtml.evaluate(`(async () => {
+      const b = document.querySelector('#commitsBody .commit-rebuild');
+      if (!b) return false;
+      b.click(); await new Promise(r => setTimeout(r, 1500));
+      const opened = !!document.getElementById('conceptDescription');
+      window.__app.closeUniversalModal(); window.__app.openCommitsPanel();
+      await new Promise(r => setTimeout(r, 800));
+      window.__app.switchCommitTab('mine'); await new Promise(r => setTimeout(r, 1200));
+      return opened;
+    })()`), 'кнопка есть, форма открылась', 'нет');
+  проверить('автор видит, ЧТО разошлось у его столкнувшейся правки',
+    (await pageHtml.evaluate(`document.querySelectorAll('#commitsBody .commit-conflicts .conflict-row').length`)) > 0
+    || !(await pool.query(`SELECT 1 FROM commits WHERE status='conflicted'`)).rows.length,
+    'строки столкновения под правкой', await pageHtml.evaluate(`(() => {
+      const c = (window.__app.commitItems || []).filter(x => x.status === 'conflicted');
+      return 'столкнувшихся ' + c.length + '; строк ' + document.querySelectorAll('#commitsBody .commit-conflicts .conflict-row').length;
+    })()`));
   const основание = await pageHtml.evaluate(
     `(document.querySelector('.prov-diff') || {}).textContent || ''`);
   проверить('в записи правки видно ИЗМЕНЕНИЕ ОСНОВАНИЯ',

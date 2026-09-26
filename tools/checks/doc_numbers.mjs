@@ -102,32 +102,32 @@ for (const [образец, ждём, зачем] of сверки) {
 // boot_values.mjs, а не пересчитывается здесь: второй счёт того же — второе
 // правило, которое однажды разойдётся с первым.
 {
-  const вывод = execFileSync('node', [программа('boot_values.mjs'), path.join(КОРЕНЬ, 'app')],
+  const bootOutput = execFileSync('node', [программа('boot_values.mjs'), path.join(КОРЕНЬ, 'app')],
     { encoding: 'utf8' });
-  const м = вывод.match(/кусков (\d+), строк (\d+)/);
-  const вТексте = readme.match(/boot\(\): кусков (\d+), строк (\d+)/);
-  const прозой = readme.match(/Ныне\s+это (\d+) строк/);
-  if (!м) проверки.push({ имя: 'boot() (§17)', годно: false, ждали: 'ответ boot_values', вышло: 'НЕ ОТВЕТИЛ' });
+  const bootMatch = bootOutput.match(/кусков (\d+), строк (\d+)/);
+  const inText = readme.match(/boot\(\): кусков (\d+), строк (\d+)/);
+  const inProse = readme.match(/Ныне\s+это (\d+) строк/);
+  if (!bootMatch) проверки.push({ имя: 'boot() (§17)', годно: false, ждали: 'ответ boot_values', вышло: 'НЕ ОТВЕТИЛ' });
   else {
-    if (вТексте) {
-      п('кусков boot() (§17)', Number(вТексте[1]), Number(м[1]));
-      п('строк boot() (§17)', Number(вТексте[2]), Number(м[2]));
-    } else проверки.push({ имя: 'boot() (§17)', годно: false, ждали: м[0], вышло: 'НЕ НАЙДЕНО В ТЕКСТЕ' });
-    if (прозой) п('строк boot() (§17, прозой)', Number(прозой[1]), Number(м[2]));
-    else проверки.push({ имя: 'строк boot() (§17, прозой)', годно: false, ждали: м[2], вышло: 'НЕ НАЙДЕНО В ТЕКСТЕ' });
+    if (inText) {
+      п('кусков boot() (§17)', Number(inText[1]), Number(bootMatch[1]));
+      п('строк boot() (§17)', Number(inText[2]), Number(bootMatch[2]));
+    } else проверки.push({ имя: 'boot() (§17)', годно: false, ждали: bootMatch[0], вышло: 'НЕ НАЙДЕНО В ТЕКСТЕ' });
+    if (inProse) п('строк boot() (§17, прозой)', Number(inProse[1]), Number(bootMatch[2]));
+    else проверки.push({ имя: 'строк boot() (§17, прозой)', годно: false, ждали: bootMatch[2], вышло: 'НЕ НАЙДЕНО В ТЕКСТЕ' });
   }
 }
 
 // ПРОСТРАНСТВА ИМЁН (§13). Состав S readme велит считать ТОЛЬКО по
 // namespaces.json — по нему и сверяем.
 {
-  const пр = JSON.parse(читать('app/namespaces.json'));
-  const сколько = {};
-  for (const и in пр) сколько[пр[и]] = (сколько[пр[и]] || 0) + 1;
-  const м = readme.match(/`DATA` (\d+), `S` (\d+), `MET` (\d+), `VIEWS` (\d+)/);
-  if (!м) проверки.push({ имя: 'пространства имён (§13)', годно: false, ждали: 'строка', вышло: 'НЕ НАЙДЕНО В ТЕКСТЕ' });
+  const nsMap = JSON.parse(читать('app/namespaces.json'));
+  const nsCount = {};
+  for (const и in nsMap) nsCount[nsMap[и]] = (nsCount[nsMap[и]] || 0) + 1;
+  const nsMatch = readme.match(/`DATA` (\d+), `S` (\d+), `MET` (\d+), `VIEWS` (\d+)/);
+  if (!nsMatch) проверки.push({ имя: 'пространства имён (§13)', годно: false, ждали: 'строка', вышло: 'НЕ НАЙДЕНО В ТЕКСТЕ' });
   else ['DATA', 'S', 'MET', 'VIEWS'].forEach((имя, i) =>
-    п(`полей ${имя} (§13)`, Number(м[i + 1]), сколько[имя] || 0));
+    п(`полей ${имя} (§13)`, Number(nsMatch[i + 1]), nsCount[имя] || 0));
 }
 
 // Главы стилей названы словом («в одиннадцати главах») — сверяем по счёту.

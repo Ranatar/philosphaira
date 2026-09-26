@@ -10,7 +10,7 @@ import { linkArrow } from './connection-view.js';
 import { historyBlock } from './history.js';
 
 import { getContrastColor } from '../util/color.js';
-import { footnoteOrder, footnotedText, footnotesBlock, liveProgressHtml, provenanceBlock, updateLiveProgress, withoutFootnotes } from '../util/html.js';
+import { descriptionHtml, footnoteOrder, footnotedText, footnotesBlock, liveProgressHtml, provenanceBlock, updateLiveProgress } from '../util/html.js';
 
 function similarItemHtml(x) {
       const n = conceptById.get(x.id);
@@ -315,7 +315,7 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-${conceptData.id}-${connectedNode.id}">
-                  ${withoutFootnotes(conn.description)}
+                  ${descriptionHtml(conn.description)}
                 </div>
               ` : ''}
             `;
@@ -367,7 +367,7 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-${conceptData.id}-${connectedNode.id}">
-                  ${withoutFootnotes(conn.description)}
+                  ${descriptionHtml(conn.description)}
                 </div>
               ` : ''}
             `;
@@ -401,7 +401,7 @@ VIEWS.generateConceptViewContent = function generateConceptViewContent(conceptDa
           html += `
             <div class="rubric-section">
               <div class="rubric-title">📚 Рубрика: ${rubricData.name}</div>
-              <div class="rubric-description">${rubricData.description}</div>
+              <div class="rubric-description">${descriptionHtml(rubricData.description)}</div>
               
               ${relatedConcepts.length > 0 ? `
                 <div class="related-concepts">

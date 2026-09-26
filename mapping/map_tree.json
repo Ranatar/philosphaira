@@ -1,22 +1,22 @@
 {
  "меры": {
   "модулей": 130,
-  "строк": 22206,
-  "объявлений": 936,
-  "вывозов": 638,
-  "рёбер": 852,
+  "строк": 22366,
+  "объявлений": 949,
+  "вывозов": 645,
+  "рёбер": 857,
   "круговыхГрупп": 0,
   "лишнихВывозов": 0,
-  "вывозовДляПриборов": 36,
+  "вывозовДляПриборов": 35,
   "мёртвыхСущностей": 0,
   "сложеноВСклад": 6,
   "держатсяПриборами": 1,
-  "составлено": "2026-09-26 06:32:49"
+  "составлено": "2026-09-26 13:02:33"
  },
  "модули": [
   {
    "путь": "boot.js",
-   "строк": 327,
+   "строк": 333,
    "объявлений": 0,
    "вывозит": 1,
    "ввозитИз": 67,
@@ -280,6 +280,8 @@
     {
      "откуда": "modules/modal/commits.js",
      "имена": [
+      "closeCommitsPanel",
+      "commitItems",
       "revertCommitFromPanel",
       "reviewCommitFromPanel",
       "showImpact"
@@ -288,6 +290,7 @@
     {
      "откуда": "modules/modal/conflict.js",
      "имена": [
+      "rebuildOverCurrent",
       "showConflict",
       "warnRemoteEdit"
      ]
@@ -1866,14 +1869,15 @@
   },
   {
    "путь": "modules/data/backend.js",
-   "строк": 123,
-   "объявлений": 7,
-   "вывозит": 4,
+   "строк": 132,
+   "объявлений": 9,
+   "вывозит": 5,
    "ввозитИз": 5,
    "вНС": {},
    "вывоз": [
     "lastSubmitResult",
     "lastSubmitted",
+    "markSupersedes",
     "reportSubmit",
     "submitChange"
    ],
@@ -1923,9 +1927,19 @@
      "строк": 16
     },
     {
+     "имя": "supersedesNext",
+     "вид": "let",
+     "строк": 1
+    },
+    {
+     "имя": "markSupersedes",
+     "вид": "function",
+     "строк": 3
+    },
+    {
      "имя": "sendCommit",
      "вид": "async function",
-     "строк": 60
+     "строк": 63
     },
     {
      "имя": "commitMessageFor",
@@ -5523,10 +5537,10 @@
   },
   {
    "путь": "modules/modal/commits.js",
-   "строк": 444,
-   "объявлений": 32,
+   "строк": 490,
+   "объявлений": 35,
    "вывозит": 19,
-   "ввозитИз": 7,
+   "ввозитИз": 8,
    "вНС": {},
    "вывоз": [
     "applyRelayout",
@@ -5582,6 +5596,13 @@
      ]
     },
     {
+     "откуда": "modules/modal/conflict.js",
+     "имена": [
+      "conflictRowsHtml",
+      "conflictValue"
+     ]
+    },
+    {
      "откуда": "modules/modal/forms.js",
      "имена": [
       "PROVENANCE_STATES"
@@ -5591,7 +5612,8 @@
      "откуда": "modules/util/html.js",
      "имена": [
       "FOOTNOTE_LABELS",
-      "escapeAttr"
+      "escapeAttr",
+      "richText"
      ]
     }
    ],
@@ -5697,6 +5719,21 @@
      "строк": 3
     },
     {
+     "имя": "CHANGE_FIELD_LABELS",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "CHANGE_KIND_LABELS",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "changesDiff",
+     "вид": "function",
+     "строк": 21
+    },
+    {
      "имя": "provenanceDiff",
      "вид": "function",
      "строк": 32
@@ -5729,7 +5766,7 @@
     {
      "имя": "renderCommits",
      "вид": "function",
-     "строк": 74
+     "строк": 86
     },
     {
      "имя": "refreshEditCount",
@@ -5739,7 +5776,7 @@
     {
      "имя": "reviewCommitFromPanel",
      "вид": "async function",
-     "строк": 17
+     "строк": 20
     },
     {
      "имя": "revertCommitFromPanel",
@@ -5760,7 +5797,7 @@
    "чащеВсего": [
     {
      "имя": "escapeAttr",
-     "раз": 30,
+     "раз": 34,
      "откуда": "modules/util/html.js"
     },
     {
@@ -5864,13 +5901,13 @@
     {
      "откуда": "modules/util/html.js",
      "имена": [
+      "descriptionHtml",
       "footnoteOrder",
       "footnotedText",
       "footnotesBlock",
       "liveProgressHtml",
       "provenanceBlock",
-      "updateLiveProgress",
-      "withoutFootnotes"
+      "updateLiveProgress"
      ]
     }
    ],
@@ -5966,19 +6003,33 @@
   },
   {
    "путь": "modules/modal/conflict.js",
-   "строк": 88,
-   "объявлений": 5,
-   "вывозит": 5,
-   "ввозитИз": 7,
-   "вНС": {},
+   "строк": 112,
+   "объявлений": 7,
+   "вывозит": 7,
+   "ввозитИз": 9,
+   "вНС": {
+    "DATA": 1
+   },
    "вывоз": [
     "closeConflictModal",
+    "conflictRowsHtml",
+    "conflictValue",
     "lastConflict",
     "rebuildOverCurrent",
     "showConflict",
     "warnRemoteEdit"
    ],
    "ввоз": [
+    {
+     "откуда": "modules/core/ns.js",
+     "имена": [
+      "DATA"
+     ]
+    },
+    {
+     "откуда": "modules/core/graph-index.js",
+     "имена": []
+    },
     {
      "откуда": "modules/core/api.js",
      "имена": [
@@ -5988,6 +6039,7 @@
     {
      "откуда": "modules/data/backend.js",
      "имена": [
+      "markSupersedes",
       "reportSubmit"
      ]
     },
@@ -6013,12 +6065,14 @@
      "откуда": "modules/modal/entry.js",
      "имена": [
       "openEditConceptModal",
+      "openEditConnectionModal",
       "openEditPhilosopherModal"
      ]
     },
     {
      "откуда": "modules/util/html.js",
      "имена": [
+      "FOOTNOTE_LABELS",
       "escapeAttr"
      ]
     }
@@ -6032,12 +6086,22 @@
     {
      "имя": "showConflict",
      "вид": "function",
-     "строк": 31
+     "строк": 21
+    },
+    {
+     "имя": "conflictValue",
+     "вид": "function",
+     "строк": 7
+    },
+    {
+     "имя": "conflictRowsHtml",
+     "вид": "function",
+     "строк": 16
     },
     {
      "имя": "rebuildOverCurrent",
      "вид": "async function",
-     "строк": 22
+     "строк": 29
     },
     {
      "имя": "closeConflictModal",
@@ -6052,14 +6116,14 @@
    ],
    "чащеВсего": [
     {
+     "имя": "escapeAttr",
+     "раз": 6,
+     "откуда": "modules/util/html.js"
+    },
+    {
      "имя": "reportSubmit",
      "раз": 5,
      "откуда": "modules/data/backend.js"
-    },
-    {
-     "имя": "escapeAttr",
-     "раз": 5,
-     "откуда": "modules/util/html.js"
     },
     {
      "имя": "ModalContext",
@@ -6067,14 +6131,14 @@
      "откуда": "modules/modal/context.js"
     },
     {
+     "имя": "FOOTNOTE_LABELS",
+     "раз": 1,
+     "откуда": "modules/util/html.js"
+    },
+    {
      "имя": "api",
      "раз": 1,
      "откуда": "modules/core/api.js"
-    },
-    {
-     "имя": "applyFreshGraph",
-     "раз": 1,
-     "откуда": "modules/data/remote.js"
     }
    ]
   },
@@ -6249,9 +6313,9 @@
      "откуда": "modules/graph/graph-data.js"
     },
     {
-     "имя": "relationHint",
+     "имя": "escapeAttr",
      "раз": 2,
-     "откуда": "modules/core/relation-types.js"
+     "откуда": "modules/util/html.js"
     }
    ]
   },
@@ -6861,6 +6925,7 @@
     {
      "откуда": "modules/util/html.js",
      "имена": [
+      "descriptionHtml",
       "escapeAttr"
      ]
     },
@@ -6886,14 +6951,14 @@
    ],
    "чащеВсего": [
     {
+     "имя": "escapeAttr",
+     "раз": 9,
+     "откуда": "modules/util/html.js"
+    },
+    {
      "имя": "DATA",
      "раз": 7,
      "откуда": "modules/core/ns.js"
-    },
-    {
-     "имя": "escapeAttr",
-     "раз": 5,
-     "откуда": "modules/util/html.js"
     },
     {
      "имя": "VIEWS",
@@ -7189,7 +7254,7 @@
   },
   {
    "путь": "modules/modal/forms.js",
-   "строк": 212,
+   "строк": 220,
    "объявлений": 15,
    "вывозит": 12,
    "ввозитИз": 3,
@@ -7237,7 +7302,7 @@
     {
      "имя": "installFootnoteLinks",
      "вид": "function",
-     "строк": 16
+     "строк": 24
     },
     {
      "имя": "PROVENANCE_STATES",
@@ -7452,10 +7517,10 @@
   },
   {
    "путь": "modules/modal/integrity.js",
-   "строк": 265,
-   "объявлений": 11,
+   "строк": 307,
+   "объявлений": 13,
    "вывозит": 7,
-   "ввозитИз": 7,
+   "ввозитИз": 8,
    "вНС": {
     "DATA": 4
    },
@@ -7497,6 +7562,14 @@
      "откуда": "modules/modal/entry.js",
      "имена": [
       "isConceptIsolated"
+     ]
+    },
+    {
+     "откуда": "modules/util/html.js",
+     "имена": [
+      "FOOTNOTE_MARK_SOURCE",
+      "footnoteOrder",
+      "withoutFootnotes"
      ]
     },
     {
@@ -7555,9 +7628,19 @@
      "строк": 138
     },
     {
+     "имя": "footnotePhrase",
+     "вид": "function",
+     "строк": 12
+    },
+    {
      "имя": "provenanceDriftWarning",
      "вид": "function",
-     "строк": 10
+     "строк": 22
+    },
+    {
+     "имя": "provenanceEntityDrift",
+     "вид": "function",
+     "строк": 15
     },
     {
      "имя": "conceptIntegrityWarnings",
@@ -7902,11 +7985,13 @@
     {
      "откуда": "modules/util/html.js",
      "имена": [
+      "descriptionHtml",
+      "descriptionPlain",
+      "escapeAttr",
       "footnoteOrder",
       "footnotedText",
       "footnotesBlock",
-      "provenanceBlock",
-      "withoutFootnotes"
+      "provenanceBlock"
      ]
     },
     {
@@ -7965,14 +8050,14 @@
      "откуда": "modules/core/graph-index.js"
     },
     {
+     "имя": "descriptionHtml",
+     "раз": 5,
+     "откуда": "modules/util/html.js"
+    },
+    {
      "имя": "conjugateVerb",
      "раз": 5,
      "откуда": "modules/util/ru.js"
-    },
-    {
-     "имя": "getContrastColor",
-     "раз": 4,
-     "откуда": "modules/util/color.js"
     }
    ]
   },
@@ -8459,8 +8544,8 @@
     {
      "откуда": "modules/util/html.js",
      "имена": [
-      "escapeAttr",
-      "withoutFootnotes"
+      "descriptionHtml",
+      "escapeAttr"
      ]
     }
    ],
@@ -8589,7 +8674,7 @@
    "чащеВсего": [
     {
      "имя": "escapeAttr",
-     "раз": 19,
+     "раз": 15,
      "откуда": "modules/util/html.js"
     },
     {
@@ -8598,7 +8683,7 @@
      "откуда": "modules/core/ns.js"
     },
     {
-     "имя": "withoutFootnotes",
+     "имя": "descriptionHtml",
      "раз": 4,
      "откуда": "modules/util/html.js"
     },
@@ -9005,7 +9090,7 @@
     {
      "откуда": "modules/util/html.js",
      "имена": [
-      "withoutFootnotes"
+      "descriptionHtml"
      ]
     }
    ],
@@ -9043,7 +9128,7 @@
      "откуда": "modules/core/ns.js"
     },
     {
-     "имя": "withoutFootnotes",
+     "имя": "descriptionHtml",
      "раз": 2,
      "откуда": "modules/util/html.js"
     },
@@ -9142,7 +9227,9 @@
     {
      "откуда": "modules/util/html.js",
      "имена": [
-      "withoutFootnotes"
+      "descriptionHtml",
+      "descriptionPlain",
+      "escapeAttr"
      ]
     }
    ],
@@ -9205,8 +9292,8 @@
      "откуда": "modules/render/selection.js"
     },
     {
-     "имя": "withoutFootnotes",
-     "раз": 2,
+     "имя": "escapeAttr",
+     "раз": 3,
      "откуда": "modules/util/html.js"
     },
     {
@@ -10039,7 +10126,7 @@
     {
      "откуда": "modules/util/html.js",
      "имена": [
-      "withoutFootnotes"
+      "descriptionHtml"
      ]
     },
     {
@@ -12134,7 +12221,7 @@
     {
      "откуда": "modules/util/html.js",
      "имена": [
-      "withoutFootnotes"
+      "descriptionHtml"
      ]
     }
    ],
@@ -12217,7 +12304,7 @@
      "откуда": "modules/metrics/descriptions.js"
     },
     {
-     "имя": "withoutFootnotes",
+     "имя": "descriptionHtml",
      "раз": 1,
      "откуда": "modules/util/html.js"
     }
@@ -12946,7 +13033,7 @@
     {
      "откуда": "modules/util/html.js",
      "имена": [
-      "withoutFootnotes"
+      "descriptionHtml"
      ]
     }
    ],
@@ -14078,10 +14165,10 @@
   },
   {
    "путь": "modules/ui/legend.js",
-   "строк": 392,
+   "строк": 393,
    "объявлений": 29,
    "вывозит": 25,
-   "ввозитИз": 7,
+   "ввозитИз": 8,
    "вНС": {
     "DATA": 9,
     "S": 9
@@ -14153,6 +14240,13 @@
      "откуда": "modules/state/filters.js",
      "имена": [
       "chosenPhilosophers"
+     ]
+    },
+    {
+     "откуда": "modules/util/html.js",
+     "имена": [
+      "descriptionPlain",
+      "escapeAttr"
      ]
     }
    ],
@@ -14553,7 +14647,7 @@
   },
   {
    "путь": "modules/ui/notifications.js",
-   "строк": 103,
+   "строк": 104,
    "объявлений": 10,
    "вывозит": 8,
    "ввозитИз": 3,
@@ -14623,7 +14717,7 @@
     {
      "имя": "notifyWords",
      "вид": "function",
-     "строк": 16
+     "строк": 17
     },
     {
      "имя": "toggleNotifyPanel",
@@ -15172,20 +15266,24 @@
   },
   {
    "путь": "modules/util/html.js",
-   "строк": 95,
-   "объявлений": 12,
-   "вывозит": 11,
+   "строк": 118,
+   "объявлений": 16,
+   "вывозит": 15,
    "ввозитИз": 0,
    "вНС": {},
    "вывоз": [
     "FOOTNOTE_LABELS",
+    "FOOTNOTE_MARK_SOURCE",
     "FOOTNOTE_STATE_ORDER",
+    "descriptionHtml",
+    "descriptionPlain",
     "escapeAttr",
     "footnoteOrder",
     "footnotedText",
     "footnotesBlock",
     "liveProgressHtml",
     "provenanceBlock",
+    "richText",
     "scrollToPickedRow",
     "updateLiveProgress",
     "withoutFootnotes"
@@ -15229,6 +15327,26 @@
     },
     {
      "имя": "withoutFootnotes",
+     "вид": "function",
+     "строк": 4
+    },
+    {
+     "имя": "RICH_TAG",
+     "вид": "const",
+     "строк": 1
+    },
+    {
+     "имя": "richText",
+     "вид": "function",
+     "строк": 13
+    },
+    {
+     "имя": "descriptionHtml",
+     "вид": "function",
+     "строк": 1
+    },
+    {
+     "имя": "descriptionPlain",
      "вид": "function",
      "строк": 4
     },
@@ -15494,7 +15612,7 @@
   },
   {
    "имя": "DATA",
-   "ввозятМодулей": 61
+   "ввозятМодулей": 62
   },
   {
    "имя": "conceptById",
@@ -15509,6 +15627,10 @@
    "ввозятМодулей": 21
   },
   {
+   "имя": "escapeAttr",
+   "ввозятМодулей": 14
+  },
+  {
    "имя": "initializePhilosophyMetrics",
    "ввозятМодулей": 12
   },
@@ -15518,10 +15640,6 @@
   },
   {
    "имя": "can",
-   "ввозятМодулей": 11
-  },
-  {
-   "имя": "escapeAttr",
    "ввозятМодулей": 11
   },
   {
@@ -15573,8 +15691,8 @@
    "ввозятМодулей": 9
   },
   {
-   "имя": "withoutFootnotes",
-   "ввозятМодулей": 8
+   "имя": "descriptionHtml",
+   "ввозятМодулей": 9
   },
   {
    "имя": "pickConcepts",
@@ -15592,11 +15710,15 @@
  "держатДом": [
   {
    "модуль": "modules/core/ns.js",
-   "ввозятИзНего": 99
+   "ввозятИзНего": 100
   },
   {
    "модуль": "modules/core/graph-index.js",
-   "ввозятИзНего": 57
+   "ввозятИзНего": 58
+  },
+  {
+   "модуль": "modules/util/html.js",
+   "ввозятИзНего": 26
   },
   {
    "модуль": "modules/core/events.js",
@@ -15604,10 +15726,6 @@
   },
   {
    "модуль": "modules/core/link-facts.js",
-   "ввозятИзНего": 24
-  },
-  {
-   "модуль": "modules/util/html.js",
    "ввозятИзНего": 24
   },
   {
@@ -15690,14 +15808,9 @@
    "внутри": 6
   },
   {
-   "имя": "commitItems",
-   "модуль": "modules/modal/commits.js",
-   "внутри": 6
-  },
-  {
    "имя": "commitTab",
    "модуль": "modules/modal/commits.js",
-   "внутри": 7
+   "внутри": 8
   },
   {
    "имя": "layoutHistoryItems",
@@ -15886,8 +15999,8 @@
     },
     {
      "поле": "links",
-     "раз": 67,
-     "модулей": 33
+     "раз": 68,
+     "модулей": 34
     },
     {
      "поле": "relationTypesObj",

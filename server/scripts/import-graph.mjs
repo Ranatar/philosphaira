@@ -11,6 +11,9 @@ import { createPool } from '../src/db/pool.js';
 import { withTransaction } from '../src/db/tx.js';
 import { importSet, bumpGraphVersion, counts } from '../src/db/graph.js';
 import { saveLayout } from '../src/db/layout.js';
+import { footnoteProblems, FOOTNOTE_HOST_FIELDS } from '../src/graph/footnotes.js';
+import { entityTextProblems } from '../src/graph/text-rules.js';
+import { SETS } from '../src/graph/schema.js';
 import { SET_NAMES } from '../src/graph/schema.js';
 
 const папка = process.argv[2];
@@ -22,6 +25,29 @@ try {
   // на непустой базе он перезапишет содержимое серверных сущностей старым
   // JSON и поднимет их версии. Шесть файлов — это СЕМЯ, а рабочее состояние
   // живёт в базе; спутать их значит потерять чужую работу молча.
+  // СЕМЯ ПРОВЕРЯЕТСЯ ТЕМИ ЖЕ ПРАВИЛАМИ, ЧТО ПРАВКА. Прежде перенос брал
+  // что дали: запись с меткой сноски без записи ложилась в базу и потом
+  // запиралась для правки через сервер (замер 26.09.2026), а разметка в
+  // тексте шла прямо в показ. Семя пишет человек мимо интерфейса — ему и
+  // нужен громкий отказ с перечнем, а не тихий приём.
+  {
+    const beda = [];
+    for (const [setName, { kind }] of Object.entries(SETS)) {
+      const filePath = path.join(папка, setName + '.json');
+      if (!fs.existsSync(filePath)) continue;
+      for (const entity of JSON.parse(fs.readFileSync(filePath, 'utf8'))) {
+        const problems = [...entityTextProblems(kind, entity),
+          ...(FOOTNOTE_HOST_FIELDS[kind] ? footnoteProblems(kind, entity) : [])];
+        for (const p of problems) beda.push(`${setName}/${entity.id}: ${p}`);
+      }
+    }
+    if (beda.length) {
+      console.error(`Семя не прошло правил текста и сносок (${beda.length}):\n  ` + beda.slice(0, 30).join('\n  ')
+        + (beda.length > 30 ? `\n  …и ещё ${beda.length - 30}` : '') + '\nПоправьте исходник и пересоберите; перенос не начат.');
+      await pool.end();
+      process.exit(1);
+    }
+  }
   const previous = await counts(pool);
   if (Object.values(previous).some(n => Number(n) > 0)
       && process.env.ALLOW_GRAPH_REIMPORT !== '1') {

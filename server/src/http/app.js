@@ -214,7 +214,7 @@ export function createApp({ pool, безопасныеCookie: secureCookies = tr
     const { message, authorComment, changes, supersedes } = req.body ?? {};
     if (can(req.user, P.REVIEW_COMMIT)) {
       const result = await directCommit(pool, { actor: req.user, message, authorComment,
-        changes, ip: req.ip });
+        changes, supersedes, ip: req.ip });
       return res.status(201).json({ data: { ...result, прямая: true } });
     }
     const result = await createCommit(pool, { actor: req.user, message, authorComment,
@@ -394,7 +394,7 @@ export function createApp({ pool, безопасныеCookie: secureCookies = tr
   app.post('/api/commits/:id/review', requireAuth, wrap(async (req, res) => {
     res.json({ data: await reviewCommit(pool, { actor: req.user,
       commitId: req.params.id, action: req.body?.action,
-      comment: req.body?.comment, ip: req.ip }) });
+      comment: req.body?.comment, seenDigest: req.body?.digest ?? null, ip: req.ip }) });
   }));
 
   // ПОСЛЕДСТВИЯ КОММИТА ДЛЯ СТРОЕНИЯ. Право то же, что на просмотр самого

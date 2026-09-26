@@ -28,6 +28,8 @@ import { P } from '../access/roles.js';
 import { applyCommit } from './apply.js';
 import { SETS, SET_BY_KIND } from '../graph/schema.js';
 import { Conflict, Forbidden, NotFound } from '../http/errors.js';
+import { notify } from '../notify/notify.js';
+import { N } from '../notify/catalog.js';
 
 /**
  * Тело сущности на указанной версии.
@@ -70,7 +72,7 @@ export async function bodyAtVersion(client, { kind, entityId, version }) {
       }
     }
   }
-  return { нынешнее: current.тело, прежнее: body, правок: later.length };
+  return { нынешнее: current.тело, прежнее: body, правок: later.length, undone: later };
 }
 
 export async function revertEntityToVersion(pool, {
@@ -88,7 +90,7 @@ export async function revertEntityToVersion(pool, {
   }
 
   return withTransaction(pool, async client => {
-    const { нынешнее: now, прежнее: was } =
+    const { нынешнее: now, прежнее: was, undone } =
       await bodyAtVersion(client, { kind, entityId, version: Number(version) });
 
     // Изменение ОДНО и только по полям, которые на деле разошлись. Писать в
@@ -136,6 +138,18 @@ export async function revertEntityToVersion(pool, {
     await audit(client, { actorId: actor.userId, action: 'graph.revert_to_version',
                           subjectType: kind, subjectId: entityId,
                           payload: { версия: Number(version), коммит: record.commitId }, ip });
+    // ОТКАТ МЕНЯЕТ ГРАФ — И ИЗВЕЩАЕТ (см. revert.js): прежде извещения не было,
+    // и возврат к версии доходил только до страницы того, кто возвращал.
+    if (merged.исход === 'applied') {
+      await notify(client, N.GRAPH_CHANGED,
+        { commitId: record.commitId, версия: merged.версия, применено: merged.применено });
+      // АВТОРАМ СНЯТЫХ ПРАВОК — каждому о его коммите; себе — нет.
+      for (const undoneCommit of undone) {
+        if (!undoneCommit.authorId || undoneCommit.authorId === actor.userId) continue;
+        await notify(client, N.COMMIT_REVERTED, { authorId: undoneCommit.authorId,
+          commitId: undoneCommit.commitId, reviewerName: actor.username, comment: String(reason).trim() });
+      }
+    }
     return { ...merged, commitId: record.commitId, кВерсии: Number(version),
              полей: Object.keys(fields).length };
   });

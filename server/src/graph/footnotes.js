@@ -34,8 +34,12 @@ export const FOOTNOTE_TEXT_MAX = 300;
 export const FOOTNOTES_MAX = 60;
 
 /** В каких полях сущности бывают метки. */
+// У концепции — ТОЛЬКО полное описание (решение автора, 26.09.2026): окно
+// концепции краткое описание не показывает, и сноска к нему висела номером
+// в списке источников без места в тексте. Краткое описание всюду выводится
+// одной строкой без сносок.
 export const FOOTNOTE_HOST_FIELDS = Object.freeze({
-  concept:     Object.freeze(['description', 'extendedDescription']),
+  concept:     Object.freeze(['extendedDescription']),
   relation:    Object.freeze(['description']),
   philosopher: Object.freeze(['description']),
 });

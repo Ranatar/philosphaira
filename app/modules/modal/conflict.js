@@ -1,11 +1,13 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
+import { DATA } from '../core/ns.js';
+import '../core/graph-index.js';
 import { api } from '../core/api.js';
-import { reportSubmit } from '../data/backend.js';
+import { markSupersedes, reportSubmit } from '../data/backend.js';
 import { applyFreshGraph } from '../data/remote.js';
 import { ModalContext } from './context.js';
 import { closeUniversalModal } from './core.js';
-import { openEditConceptModal, openEditPhilosopherModal } from './entry.js';
-import { escapeAttr } from '../util/html.js';
+import { openEditConceptModal, openEditConnectionModal, openEditPhilosopherModal } from './entry.js';
+import { FOOTNOTE_LABELS, escapeAttr } from '../util/html.js';
 
 function warnRemoteEdit(touched) {
       const modal = document.getElementById('universalModal');
@@ -22,23 +24,13 @@ function warnRemoteEdit(touched) {
         + 'Ваш текст цел; при сохранении вы увидите, что разошлось.');
     }
 
-function showConflict(descr, clashes) {
+function showConflict(descr, clashes, commitId = null) {
       // ПОЛЕ ОСТАЁТСЯ «описание»: его читает rebuildOverCurrent и проба.
       // Переименование довода свернуло запись в `{ descr, … }`, и
       // пересборка поверх текущего падала на `c.описание.entityId`.
-      lastConflict = { описание: descr, clashes, когда: Date.now() };
+      lastConflict = { описание: descr, clashes, commitId, когда: Date.now() };
 
-      const lines = clashes.map(clash => {
-        if (!clash.field) {
-          return `<div class="conflict-row"><b>${escapeAttr(String(clash.reason || 'столкновение'))}</b></div>`;
-        }
-        return '<div class="conflict-row">'
-          + `<div><b>${escapeAttr(clash.field)}</b></div>`
-          + `<div>вы видели: ${escapeAttr(String(clash.base ?? ''))}</div>`
-          + `<div>вы хотели: ${escapeAttr(String(clash.yours ?? ''))}</div>`
-          + `<div>сейчас там: ${escapeAttr(String(clash.current ?? ''))}</div>`
-          + '</div>';
-      }).join('');
+      const lines = conflictRowsHtml(clashes);
 
       const modal = document.getElementById('conflictModal');
       const body = document.getElementById('conflictBody');
@@ -54,8 +46,33 @@ function showConflict(descr, clashes) {
       reportSubmit('столкновение', 'Правка столкнулась с чужой');
     }
 
-async function rebuildOverCurrent() {
-      const c = lastConflict;
+function conflictValue(v) {
+      if (v == null || v === '') return '—';
+      if (Array.isArray(v)) return v.length ? v.map(x => (x && typeof x === 'object')
+        ? [x.id, FOOTNOTE_LABELS[x.status] || x.status, x.text].filter(Boolean).join(' · ') : String(x)).join('; ') : '—';
+      if (typeof v === 'object') return JSON.stringify(v);
+      return String(v);
+    }
+
+function conflictRowsHtml(clashes) {
+      return (clashes || []).map(clash => {
+        const where = [clash.entityId, clash.field].filter(Boolean).join(' · ');
+        if (!clash.field || !('yours' in clash)) {
+          return '<div class="conflict-row">'
+            + (where ? `<div><b>${escapeAttr(where)}</b></div>` : '')
+            + `<div>${escapeAttr(String(clash.reason || 'столкновение'))}</div></div>`;
+        }
+        return '<div class="conflict-row">'
+          + `<div><b>${escapeAttr(where)}</b></div>`
+          + `<div>вы видели: ${escapeAttr(conflictValue(clash.base))}</div>`
+          + `<div>вы хотели: ${escapeAttr(conflictValue(clash.yours))}</div>`
+          + `<div>сейчас там: ${escapeAttr(conflictValue(clash.current))}</div>`
+          + '</div>';
+      }).join('');
+    }
+
+async function rebuildOverCurrent(given = null) {
+      const c = (given && given.описание) ? given : lastConflict;
       closeConflictModal();
       if (!c) return;
 
@@ -72,8 +89,15 @@ async function rebuildOverCurrent() {
       // спасаем. Первый набросок так и делал, и проба это показала.
       closeUniversalModal();
       const address = c.описание.entityId;
+      markSupersedes(c.commitId || null, c.описание.kind, address);
       if (c.описание.kind === 'concept') openEditConceptModal(address);
       else if (c.описание.kind === 'philosopher') openEditPhilosopherModal(address);
+      // СВЯЗЬ ТОЖЕ: прежде пересборка связи закрывала окно, говорила «правьте
+      // заново» — и правку не открывала.
+      else if (c.описание.kind === 'relation') {
+        const link = DATA.links.find(l => l.id === address);
+        if (link) openEditConnectionModal(link);
+      }
       reportSubmit('пересобрано', 'Взято нынешнее состояние — правьте заново');
     }
 
@@ -84,4 +108,4 @@ function closeConflictModal() {
 
 let lastConflict = null;
 
-export { closeConflictModal, lastConflict, rebuildOverCurrent, showConflict, warnRemoteEdit };
+export { closeConflictModal, conflictRowsHtml, conflictValue, lastConflict, rebuildOverCurrent, showConflict, warnRemoteEdit };

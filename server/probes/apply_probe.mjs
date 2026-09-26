@@ -12,10 +12,12 @@ import { withTransaction } from '../src/db/tx.js';
 import { register } from '../src/auth/service.js';
 import { findById } from '../src/db/users.js';
 import { importSet, exportSet, graphVersion } from '../src/db/graph.js';
-import { createCommit } from '../src/commits/service.js';
+import { createCommit, editOwnCommit } from '../src/commits/service.js';
 import { reviewCommit, directCommit } from '../src/commits/review.js';
 import { findCommit } from '../src/db/commits.js';
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -249,9 +251,9 @@ try {
   const noteK1 = [{ id: 'k1', status: 'sourced', text: 'DK 22 B2' }];
   await withTransaction(pool, client => importSet(client, 'concepts', [
     { id: 'c1', label: 'Логос', philosopher: 'ph1', rubrics: [],
-      description: 'Логос[^k1] общ всем.', extendedDescription: 'x', footnotes: noteK1 },
+      description: 'x', extendedDescription: 'Логос[^k1] общ всем.', footnotes: noteK1 },
     { id: 'c2', label: 'Огонь', philosopher: 'ph1', rubrics: [],
-      description: 'Огонь[^k2] мера.', extendedDescription: 'y', provenance: 'DK 22 B30',
+      description: 'y', extendedDescription: 'Огонь[^k2] мера.', provenance: 'DK 22 B30',
       provenanceStatus: 'sourced', footnotes: [{ id: 'k2', status: 'source_not_found' }] },
   ]));
   const conceptById = async id => (await exportSet(pool, 'concepts')).find(c => c.id === id);
@@ -268,12 +270,12 @@ try {
 
   // удаление сноски вместе с меткой: ключ уходит, а не остаётся пустым
   const { коммит: кС2 } = await createCommit(pool, { actor: второй, message: 'убрал сноску',
-    changes: conceptEdit('c1', { description: { base: 'Логос[^k1] общ всем.', next: 'Логос общ всем.' },
+    changes: conceptEdit('c1', { extendedDescription: { base: 'Логос[^k1] общ всем.', next: 'Логос общ всем.' },
                                  footnotes: { base: noteK1b, next: null } }) });
   const иС2 = await reviewCommit(pool, { actor: модератор, commitId: кС2.commitId, action: 'approve' });
   const c1 = await conceptById('c1');
-  проверить('сноска убрана вместе с меткой', иС2.исход === 'applied' && c1.description === 'Логос общ всем.',
-    'applied, текст без метки', `${иС2.исход}, ${c1.description}`);
+  проверить('сноска убрана вместе с меткой', иС2.исход === 'applied' && c1.extendedDescription === 'Логос общ всем.',
+    'applied, текст без метки', `${иС2.исход}, ${c1.extendedDescription}`);
   проверить('пустые сноски не пишутся — ключа нет', !('footnotes' in c1), 'нет ключа', JSON.stringify(c1.footnotes));
 
   // метка осталась без записи — столкновение по полю footnotes, а не молчаливая запись
@@ -313,6 +315,93 @@ try {
   const c3 = await conceptById('c3');
   проверить('новая сущность без сносок — ключей-пустышек нет', иС5.исход === 'applied' && c3
     && !('footnotes' in c3) && !('provenance' in c3), 'applied, ключей нет', `${иС5.исход}, ${JSON.stringify(c3)}`);
+
+  // ── ТЕКСТ, ИСТОЧНИК, СЕМЯ (26.09.2026) ────────────────────────────────
+  // Сквозной опыт: разметка из метки и описания, одобренная модератором,
+  // исполнилась у гостя. Правило — graph/text-rules.js.
+  const submitEdit = fields => отказ(() => createCommit(pool, { actor: редактор, message: 'т', changes: conceptEdit('c3', fields) }));
+  проверить('сценарий в описании отвергается при подаче',
+    (await submitEdit({ extendedDescription: { base: 'z', next: 'z<img src=x onerror="alert(1)">' } })).includes('разметка'),
+    'отказ «разметка»', 'иное');
+  проверить('знак < в метке отвергается', (await submitEdit({ label: { base: 'Новое', next: 'Новое<b>' } })).includes('< и >'),
+    'отказ', 'иное');
+  проверить('прямая кавычка в метке отвергается', (await submitEdit({ label: { base: 'Новое', next: 'Новое"' } })).includes('кавычка'),
+    'отказ', 'иное');
+  проверить('разметка в тексте сноски отвергается', (await submitEdit({ extendedDescription: { base: 'z', next: 'z[^a1]' },
+    footnotes: { base: null, next: [{ id: 'a1', status: 'sourced', text: '<i>Книга</i>' }] } })).includes('footnotes'),
+    'отказ по footnotes', 'иное');
+  проверить('метка сноски в КРАТКОМ описании отвергается', (await submitEdit({ description: { base: 'без сносок', next: 'без сносок[^a1]' } }))
+    .includes('метки сносок здесь не ставятся'), 'отказ', 'иное');
+  const { коммит: cT1 } = await createCommit(pool, { actor: редактор, message: 'жирный и курсив',
+    changes: conceptEdit('c3', { extendedDescription: { base: 'z', next: '<b>Логос</b> и <i>эпос</i>' } }) });
+  const rT1 = await reviewCommit(pool, { actor: модератор, commitId: cT1.commitId, action: 'approve' });
+  проверить('<b> и <i> без атрибутов проходят', rT1.исход === 'applied'
+    && (await conceptById('c3')).extendedDescription === '<b>Логос</b> и <i>эпос</i>', 'applied', rT1.исход);
+  проверить('<b> с атрибутом отвергается', (await submitEdit({ extendedDescription: { base: '<b>Логос</b> и <i>эпос</i>',
+    next: '<b onclick="x()">Логос</b>' } })).includes('разметка'), 'отказ', 'иное');
+
+  // согласие источника — по итогу: правка одного из двух полей
+  const { коммит: cP1 } = await createCommit(pool, { actor: редактор, message: 'только состояние',
+    changes: conceptEdit('c3', { provenanceStatus: { base: null, next: 'sourced' } }) });
+  const rP1 = await reviewCommit(pool, { actor: модератор, commitId: cP1.commitId, action: 'approve' });
+  проверить('«источник есть» без строки — столкновение по итогу', rP1.исход === 'conflicted'
+    && !('provenanceStatus' in (await conceptById('c3'))), 'conflicted, в базе пусто', rP1.исход);
+  await withTransaction(pool, client => importSet(client, 'concepts', [
+    { id: 'c4', label: 'С источником', philosopher: 'ph1', rubrics: ['r1'], description: 'd', extendedDescription: 'e',
+      provenance: 'Диоген Лаэртский, IX 1', provenanceStatus: 'sourced' }]));
+  const { коммит: cP2 } = await createCommit(pool, { actor: редактор, message: 'стёр строку',
+    changes: conceptEdit('c4', { provenance: { base: 'Диоген Лаэртский, IX 1', next: null } }) });
+  const rP2 = await reviewCommit(pool, { actor: модератор, commitId: cP2.commitId, action: 'approve' });
+  проверить('строка стёрта под «источник есть» — столкновение по итогу', rP2.исход === 'conflicted'
+    && (await conceptById('c4')).provenance === 'Диоген Лаэртский, IX 1', 'conflicted, строка цела', rP2.исход);
+
+  // запись, пришедшая семенем с несогласной сноской, не запирается целиком
+  await withTransaction(pool, client => importSet(client, 'concepts', [
+    { id: 'c5', label: 'Из семени', philosopher: 'ph1', rubrics: ['r1'], description: 'd', extendedDescription: 'утверждение[^f1]' }]));
+  const { коммит: cS1 } = await createCommit(pool, { actor: редактор, message: 'рубрики',
+    changes: conceptEdit('c5', { rubrics: { base: ['r1'], next: ['r1', 'r2'] } }) });
+  const rS1 = await reviewCommit(pool, { actor: модератор, commitId: cS1.commitId, action: 'approve' });
+  проверить('несогласная сноска из семени не запирает правку рубрик', rS1.исход === 'applied', 'applied', rS1.исход);
+  const { коммит: cS2 } = await createCommit(pool, { actor: редактор, message: 'текст',
+    changes: conceptEdit('c5', { extendedDescription: { base: 'утверждение[^f1]', next: 'утверждение, уточнённое[^f1]' } }) });
+  const rS2 = await reviewCommit(pool, { actor: модератор, commitId: cS2.commitId, action: 'approve' });
+  проверить('ВСТРЕЧНОЕ: правка текста с меткой без записи — всё ещё столкновение', rS2.исход === 'conflicted', 'conflicted', rS2.исход);
+
+  // перенос семени проверяет те же правила и отказывает громко
+  {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'семя-'));
+    for (const f of fs.readdirSync(path.join(КОРЕНЬ, '..', 'app', 'data'))) fs.copyFileSync(path.join(КОРЕНЬ, '..', 'app', 'data', f), path.join(tmp, f));
+    const cs = JSON.parse(fs.readFileSync(path.join(tmp, 'concepts.json'), 'utf8'));
+    cs[0].extendedDescription += '[^q1]';
+    fs.writeFileSync(path.join(tmp, 'concepts.json'), JSON.stringify(cs));
+    let importOutput = '';
+    try { execFileSync('node', [path.join(КОРЕНЬ, 'scripts', 'import-graph.mjs'), tmp], { encoding: 'utf8', env: process.env, stdio: 'pipe' }); importOutput = 'ПРИНЯТО'; }
+    catch (e) { importOutput = String(e.stderr || e.message); }
+    проверить('перенос несогласного семени отказывает с перечнем', importOutput.includes('не прошло правил') && importOutput.includes('[^q1]'),
+      'отказ с меткой q1', importOutput.slice(0, 80));
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+
+  // ── РЕШАЕТСЯ ТО, ЧТО ВИДЕЛИ (26.09.2026) ─────────────────────────────
+  // Одобрение несёт отпечаток увиденного; автор поправил коммит после того,
+  // как рецензент его прочёл, — старый отпечаток не проходит.
+  {
+    const { коммит: seen } = await createCommit(pool, { actor: редактор, message: 'безобидная правка',
+      changes: conceptEdit('c4', { description: { base: 'd', next: 'd, уточнено' } }) });
+    const digestSeen = (await findCommit(pool, seen.commitId)).digest;
+    await editOwnCommit(pool, { actor: редактор, commitId: seen.commitId,
+      changes: conceptEdit('c4', { description: { base: 'd', next: 'совсем другое' } }) });
+    const stale = await отказ(() => reviewCommit(pool, { actor: модератор, commitId: seen.commitId,
+      action: 'approve', seenDigest: digestSeen }));
+    проверить('одобрение со СТАРЫМ отпечатком отвергается — автор поправил коммит после прочтения',
+      stale.includes('изменился') && (await findCommit(pool, seen.commitId)).status === 'pending'
+      && (await conceptById('c4')).description === 'd', 'отказ; коммит ждёт; база цела', stale.slice(0, 60));
+    const fresh = (await findCommit(pool, seen.commitId)).digest;
+    проверить('отпечаток меняется вместе с содержанием коммита', fresh !== digestSeen, 'другой', fresh);
+    const ok = await reviewCommit(pool, { actor: модератор, commitId: seen.commitId, action: 'approve', seenDigest: fresh });
+    проверить('ВСТРЕЧНОЕ: со свежим отпечатком одобрение проходит', ok.исход === 'applied'
+      && (await conceptById('c4')).description === 'совсем другое', 'applied', ok.исход);
+  }
 
 } catch (e) {
   проверить('проба дошла до конца', false, 'дошла', e.message.slice(0, 90));

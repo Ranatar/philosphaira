@@ -1547,8 +1547,10 @@
       transform: rotate(180deg);
     }
 
-    /* Изменение основания в записи правки: рядом с адресом, но тише его. */
-    .prov-diff {
+    /* Изменение основания в записи правки: рядом с адресом, но тише его.
+       Предлагаемая правка по полям (.commit-changes) — той же кожей, но своим
+       классом: первый .prov-diff панели — разбор основания, и на нём стоит проба. */
+    .prov-diff, .commit-changes {
       margin-top: 6px; padding: 6px 8px; font-size: 11px;
       border-left: 2px solid var(--accent, #6c5ce7);
       background: rgba(108,92,231,0.06);
@@ -4920,7 +4922,7 @@
     /* Общая кожа мелкой кнопки: та же, что у .modal-btn, но по содержимому,
        а не во всю ширину — их в строке несколько. */
     .commit-impact-btn,
-    .commit-approve, .commit-reject, .commit-revert,
+    .commit-approve, .commit-reject, .commit-revert, .commit-rebuild,
     .user-role, .user-ban, .user-unban,
     .notify-mark, .commits-tabs button {
       padding: 6px 12px;
@@ -4935,7 +4937,7 @@
     }
 
     .commit-impact-btn:hover,
-    .commit-approve:hover, .commit-reject:hover, .commit-revert:hover,
+    .commit-approve:hover, .commit-reject:hover, .commit-revert:hover, .commit-rebuild:hover,
     .user-role:hover, .user-ban:hover, .user-unban:hover,
     .notify-mark:hover, .commits-tabs button:hover {
       background: var(--surface-hover);
@@ -24837,7 +24839,7 @@
             <span class="path-philosopher">${node.concept}</span>
             <span class="path-node path-open" style="border-color: ${philosopherColor};"
                   onclick="openConceptById('${node.id}')"
-                  data-tip="${node.concept}: ${withoutFootnotes(node.description)} · щёлкните, чтобы открыть">
+                  data-tip="${escapeAttr(node.concept)}: ${escapeAttr(descriptionPlain(node.description))} · щёлкните, чтобы открыть">
               ${node.label}
             </span>
           </span>
@@ -24854,7 +24856,7 @@
           if (link) {
             const linkColor = relationTypesObj[link.type].color;
             const linkLabel = relationTypesObj[link.type].label;
-            const linkDescription = withoutFootnotes(link.description) || '';
+            const linkDescription = descriptionHtml(link.description) || '';
             const src = link.source.id || link.source;
             const tgt = link.target.id || link.target;
             
@@ -24886,7 +24888,7 @@
                   onclick="openUniversalModal('connection', findConnection('${currentNode.id}', '${nextNode.id}', false), 'view')" 
                   data-tip="${trHint}"
                   data-link-type="${linkLabel}"
-                  data-link-description="${linkDescription.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
+                  data-link-description="${escapeAttr(linkDescription)}"
                   onmouseenter="handlePathArrowHover(event, true)"
                   onmouseleave="handlePathArrowHover(event, false)">
                 ${arrow}
@@ -25189,7 +25191,7 @@
                data-tip="Открыть окно философа">
             ${node.concept}${phil ? ' · ' + phil.years : ''}
           </div>
-          <p><strong>Описание:</strong> ${withoutFootnotes(node.extendedDescription) || 'Описание отсутствует'}</p>
+          <p><strong>Описание:</strong> ${descriptionHtml(node.extendedDescription) || 'Описание отсутствует'}</p>
         </div>
       `;
       };
@@ -25241,7 +25243,7 @@
                      </div>`;
               })()}
               ${link.description ? `
-                <div class="path-description-text">${withoutFootnotes(link.description)}</div>
+                <div class="path-description-text">${descriptionHtml(link.description)}</div>
               ` : `
                 <div class="path-description-text" style="color: var(--fg-muted); font-style: italic;">
                   Описание связи отсутствует
@@ -26858,7 +26860,7 @@
           tradContainer.appendChild(item);
         };
         traditions.forEach(tr => traditionRow(
-          tr.id, tr.name, (tr.description || '').replace(/"/g, '&quot;')));
+          tr.id, tr.name, escapeAttr(descriptionPlain(tr.description))));
         traditionRow(WITHOUT_TRADITION, 'Вне традиций',
           'Философы, которым традиция не проставлена');
       }
@@ -32816,7 +32818,7 @@
             <span class="sel-meta">${escapeAttr(p.years || '')} · концепций в отборе ${selectionPhilCount[p.nameRu] || 0}</span>
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(withoutFootnotes(p.description) || 'Описания нет')}</div>` : ''}
+          ${openBody ? `<div class="sel-body">${(descriptionHtml(p.description) || 'Описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -32838,8 +32840,8 @@
             <span class="sel-name" onclick="openUniversalModal('concept', nodes.find(x => x.id === '${escapeAttr(n.id)}'), 'view')">${escapeAttr(n.label)}</span>
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
-          <div class="sel-caption">${escapeAttr(withoutFootnotes(n.description) || '')}</div>
-          ${openBody ? `<div class="sel-body">${escapeAttr(withoutFootnotes(n.extendedDescription) || 'Пространного описания нет')}</div>` : ''}
+          <div class="sel-caption">${(descriptionHtml(n.description) || '')}</div>
+          ${openBody ? `<div class="sel-body">${(descriptionHtml(n.extendedDescription) || 'Пространного описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -32892,7 +32894,7 @@
             <button class="sel-toggle" onclick="toggleSelectionBody('${escapeAttr(bodyKey)}')">${openBody ? '▲' : '▼'}</button>
           </div>
           ${caption ? `<div class="sel-caption">${escapeAttr(caption)}</div>` : ''}
-          ${openBody ? `<div class="sel-body">${escapeAttr(withoutFootnotes(l.description) || 'Описания нет')}</div>` : ''}
+          ${openBody ? `<div class="sel-body">${(descriptionHtml(l.description) || 'Описания нет')}</div>` : ''}
         </div>`;
     }
 
@@ -34025,7 +34027,7 @@
       const {
         isComposite = false,
         getDetailsHTML = null,
-        getConceptDescription = (item) => withoutFootnotes(item.node.description) || null,
+        getConceptDescription = (item) => descriptionHtml(item.node.description) || null,
         // Приписка к самому числу: короткая, из тех величин, из которых
         // число собрано. Нужна там, где одно число рейтинга без разбора
         // читается неверно — см. мостовость.
@@ -34828,7 +34830,7 @@
             ${r.node.description ? 
               `<div class="metric-concept-description">
                 <strong>О концепции:</strong>
-                <p>${withoutFootnotes(r.node.description)}</p>
+                <p>${descriptionHtml(r.node.description)}</p>
               </div>` : ''}
           </div>
         `;
@@ -34845,7 +34847,7 @@
         {
           isComposite: true,
           getDetailsHTML: getTensionDetailsHTML,
-          getConceptDescription: (item) => withoutFootnotes(item.node.description)
+          getConceptDescription: (item) => descriptionHtml(item.node.description)
         }
       );
     }
@@ -39159,7 +39161,7 @@
         }
         tooltip
           .style("opacity", 1)
-          .html(`<strong>${labelWithAuthor(d)}</strong><br/>${withoutFootnotes(d.description)}<br/><em>${d.concept}</em>${simNote}`)
+          .html(`<strong>${labelWithAuthor(d)}</strong><br/>${descriptionHtml(d.description)}<br/><em>${d.concept}</em>${simNote}`)
           .style("left", (event.pageX + 15) + "px")
           .style("top", (event.pageY - 15) + "px");
       }, 100); // Небольшая задержка
@@ -39277,7 +39279,7 @@
       
       // Для выделенных связей добавляем описание, если оно есть
       if (selectedEdges.has(d) && d.description) {
-        tooltipContent += `<div class="tooltip-description">${withoutFootnotes(d.description)}</div>`;
+        tooltipContent += `<div class="tooltip-description">${descriptionHtml(d.description)}</div>`;
       }
       
       tooltip.innerHTML = tooltipContent;
@@ -41347,6 +41349,18 @@
      * в первой редакции документа fetch не считал 403 ошибкой, и панель
      * рапортовала об успехе на отказ сервера.
      */
+    // РОДСТВО ПРАВОК (E-4). Сервер хранит «взамен» (supersedes) и проверяет
+    // его, панель показывает строку «Взамен правки …» — а страница поле не
+    // слала НИКОГДА: единственным, кто его заводил, была проба. Пересборка
+    // после столкновения порождала новый коммит без связи с прежним — ровно
+    // «несвязанные попытки», против которых поле заводилось (26.09.2026).
+    // Пересборка отмечает, КАКОЙ коммит заменяется; следующая подача той же
+    // сущности уходит с этой ссылкой, и отметка гаснет.
+    let supersedesNext = null;
+    function markSupersedes(commitId, kind, entityId) {
+      supersedesNext = commitId ? { commitId, kind, entityId } : null;
+    }
+
     async function sendCommit(descr, direct) {
       // Причина уходит ОТДЕЛЬНЫМ полем, а не вместо заголовка: заголовок —
       // адрес правки, по нему её ищут и разбирают столкновения, и терять
@@ -41357,8 +41371,11 @@
       const reply = await api('/api/commits', {
         метод: 'POST',
         тело: { message: commitMessageFor(descr), authorComment: why || null,
-                changes: [descr] },
+                changes: [descr],
+                supersedes: (supersedesNext && supersedesNext.kind === descr.kind
+                  && supersedesNext.entityId === descr.entityId) ? supersedesNext.commitId : null },
       });
+      supersedesNext = null;
 
       if (!reply.годно) {
         const serverMessage = (reply.тело && reply.тело.error && reply.тело.error.message)
@@ -41389,7 +41406,7 @@
         // modal/conflict.js ввозили друг друга. Событие развязывает их:
         // распорядитель говорит, ЧТО случилось, а кто это показывает —
         // не его забота.
-        emit('commit-conflicted', { descr, столкновения: commitData.столкновения || [] });
+        emit('commit-conflicted', { descr, столкновения: commitData.столкновения || [], commitId: commitData.commitId || null });
         // Страница взяла состояние сервера — своего непринятого на ней нет.
         return true;
       }
@@ -41426,8 +41443,8 @@
      * сам, а значит должен ВИДЕТЬ — какое поле разошлось, что он видел,
      * что хотел и что там теперь. Три величины, а не одна.
      */
-    subscribe('commit-conflicted', ({ descr, столкновения: clashes }) =>
-      showConflict(descr, clashes));
+    subscribe('commit-conflicted', ({ descr, столкновения: clashes, commitId }) =>
+      showConflict(descr, clashes, commitId));
 
     // ══════════════════════════════════════════════════════════════
     // ПАНЕЛЬ ПОЛЬЗОВАТЕЛЕЙ
@@ -41729,6 +41746,40 @@
      * Показывается ТОЛЬКО когда основание тронуто. Строка «источник не
      * менялся» под каждой правкой была бы шумом.
      */
+    // ЧТО ПРЕДЛАГАЕТСЯ — ПО ПОЛЯМ, «было → стало». Прежде панель показывала
+    // заголовок, основание и сноски, но не сами тексты: модератор одобрял
+    // формулировку, которой не видел (замер 26.09.2026). Описания идут через
+    // richText — рецензент видит тот же <b>/<i>, что увидит читатель, а
+    // разметка сверх того не исполняется. Источник и сноски — своими разборами
+    // ниже, здесь их нет.
+    const CHANGE_FIELD_LABELS = { label: 'название', name: 'имя', nameRu: 'имя по-русски',
+      description: 'описание', extendedDescription: 'полное описание', philosopher: 'философ',
+      rubrics: 'рубрики', traditions: 'традиции', type: 'тип', weight: 'вес', bidirectional: 'двусторонняя',
+      source: 'от', target: 'к', birth: 'рождение', death: 'смерть', years: 'годы', color: 'цвет' };
+    const CHANGE_KIND_LABELS = { concept: 'концепция', relation: 'связь', philosopher: 'философ',
+      tradition: 'традиция', rubric: 'рубрика', relationType: 'тип связи' };
+    function changesDiff(changes) {
+      const own = new Set(['provenance', 'provenanceStatus', 'footnotes']);
+      const show = (field, v) => (v == null || v === '') ? '—'
+        : (field === 'description' || field === 'extendedDescription') ? richText(v) : escapeAttr(conflictValue(v));
+      const blocks = (changes || []).map(change => {
+        const head = escapeAttr((CHANGE_KIND_LABELS[change.kind] || change.kind) + ' ' + (change.entityId || ''))
+          + ' · ' + (change.action === 'add' ? 'новая' : change.action === 'delete' ? 'удаление' : 'правка');
+        if (change.action === 'delete') return '<div class="prov-diff-row"><span class="prov-diff-what">' + head + '</span></div>';
+        const rows = Object.entries(change.fields || {})
+          .filter(([f, v]) => !own.has(f) && JSON.stringify(v.base ?? null) !== JSON.stringify(v.next ?? null))
+          .map(([f, v]) => '<div class="prov-diff-row">'
+            + '<span class="prov-diff-what">' + escapeAttr(CHANGE_FIELD_LABELS[f] || f) + '</span>'
+            + (change.action === 'add' ? '' : '<span class="prov-diff-was">было: ' + show(f, v.base) + '</span>')
+            + '<span class="prov-diff-now">стало: ' + show(f, v.next) + '</span></div>');
+        // правка одного лишь источника или сносок — её покажут свои разборы
+        if (!rows.length && change.action === 'edit') return '';
+        return '<div class="prov-diff-row"><span class="prov-diff-what">' + head + '</span></div>' + rows.join('');
+      }).filter(Boolean);
+      if (!blocks.length) return '';
+      return '<div class="commit-changes"><div class="prov-diff-head">Правка</div>' + blocks.join('') + '</div>';
+    }
+
     function provenanceDiff(changes) {
       const rows = [];
       for (const change of changes || []) {
@@ -41901,6 +41952,11 @@
           ? `<button class="commit-approve" data-id="${escapeAttr(commit.commitId)}">Одобрить</button>`
           + `<button class="commit-reject" data-id="${escapeAttr(commit.commitId)}">Отклонить</button>`
           : '';
+        // Свой столкнувшийся коммит — пересобрать поверх нынешнего тем же
+        // ходом, что из окна столкновения, с родством.
+        const rebuild = (commitTab === 'mine' && commit.status === 'conflicted' && commit.changes && commit.changes.length)
+          ? `<button class="commit-rebuild" data-id="${escapeAttr(commit.commitId)}">Пересобрать поверх нынешнего</button>`
+          : '';
         const revert = (commit.status === 'applied' && can(PERM.REVERT_COMMIT))
           ? `<button class="commit-revert" data-id="${escapeAttr(commit.commitId)}">Откатить</button>`
           : '';
@@ -41916,8 +41972,14 @@
           ? '<div class="commit-what">Взамен правки '
             + escapeAttr(String(commit.supersedes).slice(0, 8)) + '…</div>'
           : '';
+        // ЧТО РАЗОШЛОСЬ — АВТОРУ ВИДНО. Сервер хранит столкновения коммита
+        // (conflicts), а панель выводила одно «пересоберите»: автор узнавал
+        // причину, лишь открыв форму заново, — а у столкновения по правилу
+        // (сноски, источник) не узнавал вовсе.
         const breakdown = (commit.status === 'conflicted')
           ? '<div class="commit-why">Пересоберите правку поверх нынешнего состояния.</div>'
+            + (commit.conflicts && commit.conflicts.length
+                ? '<div class="commit-conflicts">' + conflictRowsHtml(commit.conflicts) + '</div>' : '')
           : '';
         // Если автор объяснил — крупно идёт ЗАЧЕМ, а машинный адрес мелко
         // под ним. Не объяснил — заголовком служит адрес: он всегда есть.
@@ -41934,6 +41996,7 @@
           + `data-id="${escapeAttr(commit.commitId)}">Последствия</button>`;
         return '<div class="commit-item">'
           + head
+          + changesDiff(commit.changes)
           + provenanceDiff(commit.changes)
           + footnotesDiff(commit.changes)
           + `<div class="commit-meta">${escapeAttr(commit.authorName || '')} · `
@@ -41941,7 +42004,7 @@
           + `${escapeAttr(commitStateWords(commit.status))}</span></div>`
           + supersedesLine + reason + breakdown
           + `<div class="commit-impact" data-for="${escapeAttr(commit.commitId)}"></div>`
-          + impactButton + reviewBtn + revert + '</div>';
+          + impactButton + reviewBtn + revert + rebuild + '</div>';
       }).join('');
     }
 
@@ -41964,7 +42027,10 @@
         ? prompt('Причина отказа (обязательна):') : null;
       if (verdict === 'reject' && !comment) return;
       const reply = await api('/api/commits/' + encodeURIComponent(id) + '/review',
-        { метод: 'POST', тело: { action: verdict, comment: comment } });
+        // ОТПЕЧАТОК УВИДЕННОГО: сервер откажет (409), если автор успел
+        // поправить коммит после того, как очередь была загружена.
+        { метод: 'POST', тело: { action: verdict, comment: comment,
+          digest: ((commitItems.find(c => String(c.commitId) === String(id)) || {}).digest) || null } });
       if (!reply.годно) {
         // ОТКАЗ ПОКАЗЫВАЕТСЯ, а не проглатывается.
         commitError = (reply.тело && reply.тело.error && reply.тело.error.message)
@@ -42057,6 +42123,12 @@
       const rejectBtn = target.closest('.commit-reject');
       const revertBtn = target.closest('.commit-revert');
       const impactAsk = target.closest('.commit-impact-btn');
+      const rebuildBtn = target.closest('.commit-rebuild');
+      if (rebuildBtn) {
+        const own = commitItems.find(x => String(x.commitId) === String(rebuildBtn.getAttribute('data-id')));
+        if (own) { closeCommitsPanel(); rebuildOverCurrent({ описание: own.changes[0], clashes: own.conflicts || [], commitId: own.commitId }); }
+        return;
+      }
       if (approveBtn) reviewCommitFromPanel(approveBtn.getAttribute('data-id'), 'approve');
       else if (rejectBtn) reviewCommitFromPanel(rejectBtn.getAttribute('data-id'), 'reject');
       else if (revertBtn) revertCommitFromPanel(revertBtn.getAttribute('data-id'));
@@ -42135,6 +42207,7 @@
         commit_rejected: 'Ваше изменение отклонено',
         commit_conflicted: 'Ваше изменение столкнулось с чужим',
         commit_coincided: 'То же самое уже внесли',
+        commit_reverted: 'Ваше изменение откатили',
         new_commit_pending: 'Новое изменение на рассмотрении',
         role_changed: 'Ваша роль изменена',
         user_promoted: 'Повышение в правах',
@@ -42213,23 +42286,13 @@
 
     subscribe('graph-updated-remotely', warnRemoteEdit);
 
-    function showConflict(descr, clashes) {
+    function showConflict(descr, clashes, commitId = null) {
       // ПОЛЕ ОСТАЁТСЯ «описание»: его читает rebuildOverCurrent и проба.
       // Переименование довода свернуло запись в `{ descr, … }`, и
       // пересборка поверх текущего падала на `c.описание.entityId`.
-      lastConflict = { описание: descr, clashes, когда: Date.now() };
+      lastConflict = { описание: descr, clashes, commitId, когда: Date.now() };
 
-      const lines = clashes.map(clash => {
-        if (!clash.field) {
-          return `<div class="conflict-row"><b>${escapeAttr(String(clash.reason || 'столкновение'))}</b></div>`;
-        }
-        return '<div class="conflict-row">'
-          + `<div><b>${escapeAttr(clash.field)}</b></div>`
-          + `<div>вы видели: ${escapeAttr(String(clash.base ?? ''))}</div>`
-          + `<div>вы хотели: ${escapeAttr(String(clash.yours ?? ''))}</div>`
-          + `<div>сейчас там: ${escapeAttr(String(clash.current ?? ''))}</div>`
-          + '</div>';
-      }).join('');
+      const lines = conflictRowsHtml(clashes);
 
       const modal = document.getElementById('conflictModal');
       const body = document.getElementById('conflictBody');
@@ -42250,8 +42313,41 @@
      * её в базу страницы и открываем правку заново. Правщик увидит чужое
      * изменение и решит сам — это и есть разрешение столкновения.
      */
-    async function rebuildOverCurrent() {
-      const c = lastConflict;
+    // ПОКАЗ СТОЛКНОВЕНИЙ — ОДИН, для окна и для панели правок. Столкновение
+    // бывает двух родов: поле, правленное по-разному (было / хотел / сейчас),
+    // и нарушенное ПРАВИЛО итога — несогласие сносок с текстом, источника со
+    // строкой; у второго есть поле и причина, но нет трёх значений. Прежде
+    // окно рисовало для него три пустые строки, а причину не выводило вовсе
+    // (замер 26.09.2026); список сносок в строках выходил «[object Object]».
+    function conflictValue(v) {
+      if (v == null || v === '') return '—';
+      if (Array.isArray(v)) return v.length ? v.map(x => (x && typeof x === 'object')
+        ? [x.id, FOOTNOTE_LABELS[x.status] || x.status, x.text].filter(Boolean).join(' · ') : String(x)).join('; ') : '—';
+      if (typeof v === 'object') return JSON.stringify(v);
+      return String(v);
+    }
+    function conflictRowsHtml(clashes) {
+      return (clashes || []).map(clash => {
+        const where = [clash.entityId, clash.field].filter(Boolean).join(' · ');
+        if (!clash.field || !('yours' in clash)) {
+          return '<div class="conflict-row">'
+            + (where ? `<div><b>${escapeAttr(where)}</b></div>` : '')
+            + `<div>${escapeAttr(String(clash.reason || 'столкновение'))}</div></div>`;
+        }
+        return '<div class="conflict-row">'
+          + `<div><b>${escapeAttr(where)}</b></div>`
+          + `<div>вы видели: ${escapeAttr(conflictValue(clash.base))}</div>`
+          + `<div>вы хотели: ${escapeAttr(conflictValue(clash.yours))}</div>`
+          + `<div>сейчас там: ${escapeAttr(conflictValue(clash.current))}</div>`
+          + '</div>';
+      }).join('');
+    }
+
+    // Довод — столкновение из панели правок (свой столкнувшийся коммит);
+    // без довода — последнее из окна. Проверка поля, а не наличия довода:
+    // делегирование вправе передать событие.
+    async function rebuildOverCurrent(given = null) {
+      const c = (given && given.описание) ? given : lastConflict;
       closeConflictModal();
       if (!c) return;
 
@@ -42268,8 +42364,15 @@
       // спасаем. Первый набросок так и делал, и проба это показала.
       closeUniversalModal();
       const address = c.описание.entityId;
+      markSupersedes(c.commitId || null, c.описание.kind, address);
       if (c.описание.kind === 'concept') openEditConceptModal(address);
       else if (c.описание.kind === 'philosopher') openEditPhilosopherModal(address);
+      // СВЯЗЬ ТОЖЕ: прежде пересборка связи закрывала окно, говорила «правьте
+      // заново» — и правку не открывала.
+      else if (c.описание.kind === 'relation') {
+        const link = links.find(l => l.id === address);
+        if (link) openEditConnectionModal(link);
+      }
       reportSubmit('пересобрано', 'Взято нынешнее состояние — правьте заново');
     }
 
@@ -42834,6 +42937,38 @@
       return String(text).replace(new RegExp('\\s?' + FOOTNOTE_MARK_SOURCE, 'g'), '');
     }
 
+    // ── ПОКАЗ СВОБОДНОГО ТЕКСТА: ОДНА ДВЕРЬ ─────────────────────────────
+    // Описания пишут люди, а показ вставлял их в разметку как есть: замер
+    // 26.09.2026 — нагрузка из описания, одобренная модератором, исполнилась
+    // у гостя в окне концепции. Теперь всякий показ описания идёт через
+    // richText: текст экранируется целиком, и возвращаются РОВНО четыре тега
+    // — <b>, </b>, <i>, </i>, без атрибутов (решение автора); незакрытые
+    // закрываются, лишние закрывающие снимаются, иначе один <b> сделал бы
+    // жирным всё окно ниже описания. Сервер пропускает те же четыре тега и
+    // ничего больше (server/src/graph/text-rules.js) — два заслона, а не один:
+    // семя и сохранение в файлы идут мимо сервера.
+    const RICH_TAG = /&lt;(\/?)([bi])&gt;/g;
+    function richText(text) {
+      if (text == null) return '';
+      const open = [];
+      const out = escapeAttr(text).replace(RICH_TAG, (whole, close, tag) => {
+        if (!close) { open.push(tag); return '<' + tag + '>'; }
+        const at = open.lastIndexOf(tag);
+        if (at < 0) return '';
+        // закрыть и то, что было открыто внутри, — вложенность держится
+        const inner = open.splice(at);
+        return inner.reverse().map(t => '</' + t + '>').join('');
+      });
+      return out + open.reverse().map(t => '</' + t + '>').join('');
+    }
+    // Описание для показа вне своего окна: без меток сносок, безопасное.
+    function descriptionHtml(text) { return richText(withoutFootnotes(text)); }
+    // Описание для атрибутов и подсказок-строк: без меток и без тегов.
+    function descriptionPlain(text) {
+      if (text == null) return '';
+      return String(withoutFootnotes(text)).replace(/<\/?[bi]>/g, '');
+    }
+
     // Номера сносок: порядок первого появления меток в переданных текстах.
     function footnoteOrder(...texts) {
       const order = new Map();
@@ -42849,9 +42984,9 @@
     function footnotedText(text, order, notes) {
       if (text == null) return text;
       const status = new Map((notes || []).map(n => [n.id, n.status]));
-      return String(text).replace(new RegExp(FOOTNOTE_MARK_SOURCE, 'g'), (whole, id) => {
+      return richText(text).replace(new RegExp(FOOTNOTE_MARK_SOURCE, 'g'), (whole, id) => {
         const n = order.get(id);
-        const cls = status.has(id) ? ' fn-' + status.get(id) : '';
+        const cls = status.has(id) ? ' fn-' + escapeAttr(status.get(id)) : '';
         return `<sup class="fn-ref${cls}" data-fn="${id}" tabindex="0" role="button"`
           + ` aria-label="сноска ${n || '?'}">${n || '?'}</sup>`;
       });
@@ -42863,9 +42998,9 @@
       if (!notes || !notes.length) return '';
       const items = notes.slice()
         .sort((a, b) => (order.get(a.id) || 1e9) - (order.get(b.id) || 1e9))
-        .map(n => `<li class="fn-item fn-${n.status}" data-fn="${n.id}" tabindex="0">`
+        .map(n => `<li class="fn-item fn-${escapeAttr(n.status)}" data-fn="${escapeAttr(n.id)}" tabindex="0">`
           + `<span class="fn-num">${order.get(n.id) || '—'}</span>`
-          + `<span class="fn-state">${FOOTNOTE_LABELS[n.status] || n.status}</span>`
+          + `<span class="fn-state">${FOOTNOTE_LABELS[n.status] || escapeAttr(n.status)}</span>`
           + `<span class="fn-text">${n.status === 'source_not_found' ? 'искали, пока не нашли' : escapeAttr(n.text || '')}</span></li>`)
         .join('');
       return `<div class="fn-list"><div class="fn-list-title">Источники к тексту</div><ol>${items}</ol></div>`;
@@ -42876,17 +43011,25 @@
     // правили последним: туда встаёт новая метка.
     let lastFootnoteHost = null;
     function installFootnoteLinks() {
-      const light = id => document.querySelectorAll('[data-fn]').forEach(x =>
-        x.classList.toggle('fn-active', x.dataset.fn === id));
+      // ПРЕДЕЛ — СВОЯ СУЩНОСТЬ. Номера f1, f2… выдаются в пределах записи, и
+      // окно связи показывает разом все связи пары (таких пар 116): наведение
+      // на «1» одной связи обводило и «1» другой вместе с её источником (замер
+      // 26.09.2026). Предел — ближайший [data-fn-scope], иначе весь документ.
+      const light = (id, from) => {
+        const root = (from && from.closest && from.closest('[data-fn-scope]')) || document;
+        document.querySelectorAll('.fn-active').forEach(x => x.classList.remove('fn-active'));
+        if (id) root.querySelectorAll('[data-fn]').forEach(x =>
+          x.classList.toggle('fn-active', x.dataset.fn === id));
+      };
       const at = ev => ev.target && ev.target.closest ? ev.target.closest('[data-fn]') : null;
-      document.addEventListener('mouseover', ev => { const el = at(ev); if (el) light(el.dataset.fn); });
+      document.addEventListener('mouseover', ev => { const el = at(ev); if (el) light(el.dataset.fn, el); });
       document.addEventListener('mouseout',  ev => { if (at(ev)) light(null); });
       document.addEventListener('focusin',   ev => {
-        const el = at(ev); if (el) light(el.dataset.fn);
+        const el = at(ev); if (el) light(el.dataset.fn, el);
         if (ev.target && ev.target.classList && ev.target.classList.contains('fn-host')) lastFootnoteHost = ev.target;
       });
       document.addEventListener('focusout',  ev => { if (at(ev)) light(null); });
-      document.addEventListener('click',     ev => { const el = at(ev); if (el) light(el.dataset.fn); });
+      document.addEventListener('click',     ev => { const el = at(ev); if (el) light(el.dataset.fn, el); });
       document.addEventListener('input',     ev => {
         if (ev.target && ev.target.classList && ev.target.classList.contains('fn-host')) refreshFootnoteRows();
       });
@@ -43148,10 +43291,55 @@
      * Не запрет, а вопрос: бывает, что источник подтверждает и новую
      * формулировку тоже, и решать это может только человек.
      */
+    // ФРАЗА СНОСКИ — отрезок перед меткой: от конца предыдущего предложения
+    // или от предыдущей метки до самой метки, без меток, с пробелами в одну
+    // черту. Сноска удостоверяет именно её; остальной текст может меняться
+    // сколько угодно, не задевая сноски.
+    function footnotePhrase(texts, id) {
+      for (const text of texts) {
+        if (typeof text !== 'string') continue;
+        const at = text.indexOf('[^' + id + ']');
+        if (at < 0) continue;
+        const before = text.slice(0, at).split(new RegExp(FOOTNOTE_MARK_SOURCE)).pop();
+        const core = before.replace(/[\s.!?…]+$/, '');
+        const cut = Math.max(...['. ', '! ', '? ', '… '].map(t => core.lastIndexOf(t)));
+        return core.slice(cut < 0 ? 0 : cut + 2).replace(/\s+/g, ' ').trim();
+      }
+      return null;
+    }
+
     function provenanceDriftWarning(prev, next) {
+      if (!prev) return [];
+      // СНОСКИ — СВОЙ ВОПРОС, И ОН НЕЗАВИСИМ ОТ ОБЩЕГО ИСТОЧНИКА (решение
+      // автора: сноска уточняет отдельное утверждение). Переписанная фраза
+      // под прежней сноской — ровно тот случай, ради которого заслон заведён,
+      // только точнее: сноска молча «подтверждала» новое утверждение.
+      // Спрашиваем по сноске, которая была и осталась, если ей есть что
+      // подтверждать (у «не найден» источника нет) и её фраза изменилась.
+      const warnings = [];
+      const texts = r => [r.extendedDescription, r.description];
+      const kept = new Map(((next.footnotes) || []).map(n => [n.id, n]));
+      const order = footnoteOrder(...texts(next));
+      for (const was of prev.footnotes || []) {
+        const now = kept.get(was.id);
+        if (!now || now.status === 'source_not_found') continue;
+        const a = footnotePhrase(texts(prev), was.id), b = footnotePhrase(texts(next), was.id);
+        if (a == null || b == null || a === b) continue;
+        warnings.push(`Фраза у сноски ${order.get(was.id) || was.id} изменилась: «${a.slice(-80)}» → «${b.slice(-80)}». `
+          + `Подтверждает ли её источник (${String(now.text || '').slice(0, 60)})?`);
+      }
+      return provenanceEntityDrift(prev, next).concat(warnings);
+    }
+
+    function provenanceEntityDrift(prev, next) {
       if (!prev || !prev.provenance) return [];
+      // ФОРМУЛИРОВКА, А НЕ СТРОКА. Метка сноски меняет строку, не меняя
+      // сказанного: прежде одна вставка [^f1] под прежним источником давала
+      // вопрос «описание изменено» (замер 26.09.2026). Вопрос, заданный зря,
+      // приучает отвечать «да» не читая — и тогда он молчит и там, где нужен.
+      const said = text => withoutFootnotes(text ?? '') ?? '';
       const textChanged = ['description', 'extendedDescription'].some(field =>
-        (next[field] ?? '') !== (prev[field] ?? ''));
+        said(next[field]) !== said(prev[field]));
       if (!textChanged) return [];
       if ((next.provenance ?? '') !== (prev.provenance ?? '')) return [];
       return ['Описание изменено, а источник остался прежним: '
@@ -43263,7 +43451,7 @@
             // потому что философ и опознаётся по имени).
             .concat(provenanceDriftWarning(
               isNew ? null : philosopherByName.get(originalName),
-              { description, provenance })))) return;
+              { description, provenance, footnotes: footnotesValue().list })))) return;
 
       // years собирается по тому же правилу, что formatBirthYear:
       // отрицательный год без пояснения читается как «-515»
@@ -43412,7 +43600,7 @@
           conceptIntegrityWarnings(label, philosopher, isNew ? null : original)
             // прежний источник — из записи: узел мог отстать (см. storedRecord)
             .concat(provenanceDriftWarning(isNew ? null : (storedRecord('concept', original.id) || original),
-              { description, extendedDescription, provenance })))) return;
+              { description, extendedDescription, provenance, footnotes: footnotesValue().list })))) return;
 
       // Схемы разные: в concepts философ хранится ИДЕНТИФИКАТОРОМ,
       // в nodes — ИМЕНЕМ. Их нельзя перепутать местами. Описание идёт по
@@ -43559,7 +43747,7 @@
             // из записи: у связи графа источника может не быть вовсе, и заслон
             // для связей прежде не срабатывал никогда
             .concat(provenanceDriftWarning(originalLink && (storedRecord('relation', originalLink.id) || originalLink),
-              { description, provenance })))) return;
+              { description, provenance, footnotes: footnotesValue().list })))) return;
 
       // Описание идёт по ХРАНИМОЙ схеме — по relations, где концы лежат
       // идентификаторами. В links те же концы — объектами узлов, и путать
@@ -44027,7 +44215,7 @@
         <div class="modal-form-group">
           <label for="philDescription">Описание</label>
           <textarea id="philDescription" class="fn-host" rows="10"
-                placeholder="Подробное описание философа...">${philosopherData ? philosopherData.description || '' : ''}</textarea>
+                placeholder="Подробное описание философа...">${philosopherData ? escapeAttr(philosopherData.description || '') : ''}</textarea>
         </div>
         ${provenanceField(philosopherData)}
         ${footnotesField(philosopherData)}
@@ -44044,7 +44232,7 @@
           html += `
             <div class="modal-edit-list-item">
               <div class="modal-edit-list-item-content">
-                <strong>${c.label}</strong>${c.description ? ' — ' + c.description : ''}
+                <strong>${escapeAttr(c.label)}</strong>${c.description ? ' — ' + descriptionHtml(c.description) : ''}
               </div>
               <button class="modal-btn-secondary" style="flex:none;padding:6px 10px;"
                   data-tip="Просмотр"
@@ -44119,14 +44307,14 @@
 
         <div class="modal-form-group">
           <label for="conceptDescription">Краткое описание</label>
-          <textarea id="conceptDescription" class="fn-host" rows="2"
-                placeholder="Краткое описание концепции">${conceptData ? conceptData.description || '' : ''}</textarea>
+          <textarea id="conceptDescription" rows="2"
+                placeholder="Краткое описание концепции">${conceptData ? escapeAttr(conceptData.description || '') : ''}</textarea>
         </div>
 
         <div class="modal-form-group">
           <label for="conceptExtendedDescription">Расширенное описание</label>
           <textarea id="conceptExtendedDescription" class="fn-host" data-fn-first rows="6"
-                placeholder="Подробное описание концепции">${conceptData ? conceptData.extendedDescription || '' : ''}</textarea>
+                placeholder="Подробное описание концепции">${conceptData ? escapeAttr(conceptData.extendedDescription || '') : ''}</textarea>
         </div>
         ${provenanceField(conceptData && (storedRecord('concept', conceptData.id) || conceptData))}
         ${footnotesField(conceptData && (storedRecord('concept', conceptData.id) || conceptData))}
@@ -44375,7 +44563,7 @@
         <div class="modal-form-group">
           <label for="connDescription">Описание связи</label>
           <textarea id="connDescription" class="fn-host" rows="4"
-                placeholder="Две фразы: первая называет отношение и даёт краткую формулу, вторая разворачивает">${connectionData ? connectionData.description || '' : ''}</textarea>
+                placeholder="Две фразы: первая называет отношение и даёт краткую формулу, вторая разворачивает">${connectionData ? escapeAttr(connectionData.description || '') : ''}</textarea>
           <div class="modal-form-note">
             Описания в базе — 190–270 знаков, две фразы.
           </div>
@@ -44661,7 +44849,7 @@
         const trNote = connectionTraditionNote(dispSrc.concept, dispTgt.concept);
 
         html += `
-          <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:20px;margin-bottom:15px;border:1px solid rgba(255,255,255,0.1);">
+          <div data-fn-scope style="background:rgba(255,255,255,0.03);border-radius:10px;padding:20px;margin-bottom:15px;border:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;justify-content:space-around;align-items:flex-start;gap:10px;margin-bottom:10px;">
               ${reflexive ? '' : conceptPlate(dispSrc)}
               <div style="flex:1.4;display:flex;align-items:center;justify-content:center;" data-tip="${hint}">
@@ -45076,7 +45264,7 @@
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-${conceptData.id}-${connectedNode.id}">
-                  ${withoutFootnotes(conn.description)}
+                  ${descriptionHtml(conn.description)}
                 </div>
               ` : ''}
             `;
@@ -45128,7 +45316,7 @@
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-${conceptData.id}-${connectedNode.id}">
-                  ${withoutFootnotes(conn.description)}
+                  ${descriptionHtml(conn.description)}
                 </div>
               ` : ''}
             `;
@@ -45162,7 +45350,7 @@
           html += `
             <div class="rubric-section">
               <div class="rubric-title">📚 Рубрика: ${rubricData.name}</div>
-              <div class="rubric-description">${rubricData.description}</div>
+              <div class="rubric-description">${descriptionHtml(rubricData.description)}</div>
               
               ${relatedConcepts.length > 0 ? `
                 <div class="related-concepts">
@@ -45401,7 +45589,7 @@
         return `
           <div class="rubric-section">
             <div class="rubric-title">🏛 Традиция: ${tr.name}</div>
-            <div class="rubric-description">${tr.description || ''}</div>
+            <div class="rubric-description">${descriptionHtml(tr.description)}</div>
             ${others.length ? `
               <div class="related-concepts">
                 <div class="related-title">Также в этой традиции (${others.length}):</div>
@@ -45520,7 +45708,7 @@
 
       if (philTraditions.length > 0) {
         const traditionNames = philTraditions.map(t => `
-            <span class="rubric-name-tooltip" data-tip="${t.description}">${t.name}</span>
+            <span class="rubric-name-tooltip" data-tip="${escapeAttr(descriptionPlain(t.description))}">${t.name}</span>
         `).join(', ');
 
         html += `
@@ -45726,7 +45914,7 @@
           const rubric = rubricById.get(rubricId);
           if (!rubric) return '';
           return `
-            <span class="rubric-name-tooltip" data-tip="${rubric.description}">${rubric.name}</span>
+            <span class="rubric-name-tooltip" data-tip="${escapeAttr(descriptionPlain(rubric.description))}">${rubric.name}</span>
           `;
         }).filter(r => r).join(', ');
         
@@ -45757,9 +45945,9 @@
                 <div class="concept-details-name">${conceptNode.label}</div>
                 <button class="toggle-concept-desc-btn" onclick="event.stopPropagation(); togglePhilosopherConceptDescription('${conceptNode.id}')">▼</button>
               </div>
-              <div class="concept-short-desc">${withoutFootnotes(conceptNode.description)}</div>
+              <div class="concept-short-desc">${descriptionHtml(conceptNode.description)}</div>
               <div class="concept-extended-desc" id="phil-concept-desc-${conceptNode.id}">
-                ${withoutFootnotes(conceptNode.extendedDescription)}
+                ${descriptionHtml(conceptNode.extendedDescription)}
               </div>
             </div>
           `;
@@ -45864,7 +46052,7 @@
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-phil-${srcNode.id}-${tgtNode.id}">
-                  ${withoutFootnotes(conn.description)}
+                  ${descriptionHtml(conn.description)}
                 </div>
               ` : ''}
             `;
@@ -45932,7 +46120,7 @@
               </div>
               ${conn.description ? `
                 <div class="connection-description" id="desc-phil-${srcNode.id}-${tgtNode.id}">
-                  ${withoutFootnotes(conn.description)}
+                  ${descriptionHtml(conn.description)}
                 </div>
               ` : ''}
             `;

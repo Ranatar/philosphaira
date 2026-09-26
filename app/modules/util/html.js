@@ -53,6 +53,29 @@ function withoutFootnotes(text) {
       return String(text).replace(new RegExp('\\s?' + FOOTNOTE_MARK_SOURCE, 'g'), '');
     }
 
+const RICH_TAG = /&lt;(\/?)([bi])&gt;/g;
+
+function richText(text) {
+      if (text == null) return '';
+      const open = [];
+      const out = escapeAttr(text).replace(RICH_TAG, (whole, close, tag) => {
+        if (!close) { open.push(tag); return '<' + tag + '>'; }
+        const at = open.lastIndexOf(tag);
+        if (at < 0) return '';
+        // закрыть и то, что было открыто внутри, — вложенность держится
+        const inner = open.splice(at);
+        return inner.reverse().map(t => '</' + t + '>').join('');
+      });
+      return out + open.reverse().map(t => '</' + t + '>').join('');
+    }
+
+function descriptionHtml(text) { return richText(withoutFootnotes(text)); }
+
+function descriptionPlain(text) {
+      if (text == null) return '';
+      return String(withoutFootnotes(text)).replace(/<\/?[bi]>/g, '');
+    }
+
 function footnoteOrder(...texts) {
       const order = new Map();
       for (const text of texts) {
@@ -66,9 +89,9 @@ function footnoteOrder(...texts) {
 function footnotedText(text, order, notes) {
       if (text == null) return text;
       const status = new Map((notes || []).map(n => [n.id, n.status]));
-      return String(text).replace(new RegExp(FOOTNOTE_MARK_SOURCE, 'g'), (whole, id) => {
+      return richText(text).replace(new RegExp(FOOTNOTE_MARK_SOURCE, 'g'), (whole, id) => {
         const n = order.get(id);
-        const cls = status.has(id) ? ' fn-' + status.get(id) : '';
+        const cls = status.has(id) ? ' fn-' + escapeAttr(status.get(id)) : '';
         return `<sup class="fn-ref${cls}" data-fn="${id}" tabindex="0" role="button"`
           + ` aria-label="сноска ${n || '?'}">${n || '?'}</sup>`;
       });
@@ -78,9 +101,9 @@ function footnotesBlock(notes, order) {
       if (!notes || !notes.length) return '';
       const items = notes.slice()
         .sort((a, b) => (order.get(a.id) || 1e9) - (order.get(b.id) || 1e9))
-        .map(n => `<li class="fn-item fn-${n.status}" data-fn="${n.id}" tabindex="0">`
+        .map(n => `<li class="fn-item fn-${escapeAttr(n.status)}" data-fn="${escapeAttr(n.id)}" tabindex="0">`
           + `<span class="fn-num">${order.get(n.id) || '—'}</span>`
-          + `<span class="fn-state">${FOOTNOTE_LABELS[n.status] || n.status}</span>`
+          + `<span class="fn-state">${FOOTNOTE_LABELS[n.status] || escapeAttr(n.status)}</span>`
           + `<span class="fn-text">${n.status === 'source_not_found' ? 'искали, пока не нашли' : escapeAttr(n.text || '')}</span></li>`)
         .join('');
       return `<div class="fn-list"><div class="fn-list-title">Источники к тексту</div><ol>${items}</ol></div>`;
@@ -91,4 +114,4 @@ function escapeAttr(s) {
         .replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-export { FOOTNOTE_LABELS, FOOTNOTE_STATE_ORDER, escapeAttr, footnoteOrder, footnotedText, footnotesBlock, liveProgressHtml, provenanceBlock, scrollToPickedRow, updateLiveProgress, withoutFootnotes };
+export { FOOTNOTE_LABELS, FOOTNOTE_MARK_SOURCE, FOOTNOTE_STATE_ORDER, descriptionHtml, descriptionPlain, escapeAttr, footnoteOrder, footnotedText, footnotesBlock, liveProgressHtml, provenanceBlock, richText, scrollToPickedRow, updateLiveProgress, withoutFootnotes };

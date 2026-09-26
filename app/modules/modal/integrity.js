@@ -4,6 +4,7 @@ import '../core/graph-index.js';
 import { conceptById, nodesByPhilosopher, philosopherByName } from '../core/graph-index.js';
 import { isReflexiveLink } from '../core/link-facts.js';
 import { isConceptIsolated } from './entry.js';
+import { FOOTNOTE_MARK_SOURCE, footnoteOrder, withoutFootnotes } from '../util/html.js';
 import { philosopherBirth, philosopherYears } from '../util/philosopher-label.js';
 import { pluralRu } from '../util/ru.js';
 
@@ -214,10 +215,51 @@ function connectionIntegrityWarnings(srcId, tgtId, type, weight, bidir, original
       return w;
     }
 
+function footnotePhrase(texts, id) {
+      for (const text of texts) {
+        if (typeof text !== 'string') continue;
+        const at = text.indexOf('[^' + id + ']');
+        if (at < 0) continue;
+        const before = text.slice(0, at).split(new RegExp(FOOTNOTE_MARK_SOURCE)).pop();
+        const core = before.replace(/[\s.!?…]+$/, '');
+        const cut = Math.max(...['. ', '! ', '? ', '… '].map(t => core.lastIndexOf(t)));
+        return core.slice(cut < 0 ? 0 : cut + 2).replace(/\s+/g, ' ').trim();
+      }
+      return null;
+    }
+
 function provenanceDriftWarning(prev, next) {
+      if (!prev) return [];
+      // СНОСКИ — СВОЙ ВОПРОС, И ОН НЕЗАВИСИМ ОТ ОБЩЕГО ИСТОЧНИКА (решение
+      // автора: сноска уточняет отдельное утверждение). Переписанная фраза
+      // под прежней сноской — ровно тот случай, ради которого заслон заведён,
+      // только точнее: сноска молча «подтверждала» новое утверждение.
+      // Спрашиваем по сноске, которая была и осталась, если ей есть что
+      // подтверждать (у «не найден» источника нет) и её фраза изменилась.
+      const warnings = [];
+      const texts = r => [r.extendedDescription, r.description];
+      const kept = new Map(((next.footnotes) || []).map(n => [n.id, n]));
+      const order = footnoteOrder(...texts(next));
+      for (const was of prev.footnotes || []) {
+        const now = kept.get(was.id);
+        if (!now || now.status === 'source_not_found') continue;
+        const a = footnotePhrase(texts(prev), was.id), b = footnotePhrase(texts(next), was.id);
+        if (a == null || b == null || a === b) continue;
+        warnings.push(`Фраза у сноски ${order.get(was.id) || was.id} изменилась: «${a.slice(-80)}» → «${b.slice(-80)}». `
+          + `Подтверждает ли её источник (${String(now.text || '').slice(0, 60)})?`);
+      }
+      return provenanceEntityDrift(prev, next).concat(warnings);
+    }
+
+function provenanceEntityDrift(prev, next) {
       if (!prev || !prev.provenance) return [];
+      // ФОРМУЛИРОВКА, А НЕ СТРОКА. Метка сноски меняет строку, не меняя
+      // сказанного: прежде одна вставка [^f1] под прежним источником давала
+      // вопрос «описание изменено» (замер 26.09.2026). Вопрос, заданный зря,
+      // приучает отвечать «да» не читая — и тогда он молчит и там, где нужен.
+      const said = text => withoutFootnotes(text ?? '') ?? '';
       const textChanged = ['description', 'extendedDescription'].some(field =>
-        (next[field] ?? '') !== (prev[field] ?? ''));
+        said(next[field]) !== said(prev[field]));
       if (!textChanged) return [];
       if ((next.provenance ?? '') !== (prev.provenance ?? '')) return [];
       return ['Описание изменено, а источник остался прежним: '

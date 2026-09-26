@@ -12,7 +12,7 @@ import { findShortestPath } from './shortest-path.js';
 import { gfxLinkAll, gfxNode } from '../render/d3-layer.js';
 import { resetHighlight } from '../render/selection.js';
 
-import { withoutFootnotes } from '../util/html.js';
+import { descriptionHtml, descriptionPlain, escapeAttr } from '../util/html.js';
 
 function initPathFinder() {
       const sourceSelect = document.getElementById('sourceSelect');
@@ -131,7 +131,7 @@ function findAndShowPath() {
             <span class="path-philosopher">${node.concept}</span>
             <span class="path-node path-open" style="border-color: ${philosopherColor};"
                   data-act-click="open-concept-by-id-2" data-a1="${node.id}"
-                  data-tip="${node.concept}: ${withoutFootnotes(node.description)} · щёлкните, чтобы открыть">
+                  data-tip="${escapeAttr(node.concept)}: ${escapeAttr(descriptionPlain(node.description))} · щёлкните, чтобы открыть">
               ${node.label}
             </span>
           </span>
@@ -148,7 +148,7 @@ function findAndShowPath() {
           if (link) {
             const linkColor = DATA.relationTypesObj[link.type].color;
             const linkLabel = DATA.relationTypesObj[link.type].label;
-            const linkDescription = withoutFootnotes(link.description) || '';
+            const linkDescription = descriptionHtml(link.description) || '';
             const src = link.source.id || link.source;
             const tgt = link.target.id || link.target;
             
@@ -180,7 +180,7 @@ function findAndShowPath() {
                   data-act-click="open-universal-modal-17" data-a1="${currentNode.id}" data-a2="${nextNode.id}" 
                   data-tip="${trHint}"
                   data-link-type="${linkLabel}"
-                  data-link-description="${linkDescription.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
+                  data-link-description="${escapeAttr(linkDescription)}"
                   data-act-enter="handle-path-arrow-hover-mouseenter"
                   data-act-leave="handle-path-arrow-hover-mouseleave">
                 ${arrow}
