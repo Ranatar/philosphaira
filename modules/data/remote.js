@@ -3,6 +3,7 @@ import { DATA, S } from '../core/ns.js';
 import '../core/graph-index.js';
 import { api, serverMode } from '../core/api.js';
 import { emit } from '../core/events.js';
+import { authSession } from '../core/session.js';
 import { afterDataChange } from './mutate.js';
 import { applyServerLayout } from '../state/render.js';
 
@@ -70,6 +71,11 @@ async function pullGraphSince() {
 
 function connectLive() {
       if (!serverMode || typeof WebSocket === 'undefined') return null;
+      // ТОЛЬКО ВОШЕДШЕМУ. Гостю сервер сокета не открывает (README сервера,
+      // §6а), а страница стучалась при запуске и потом бесконечно — с
+      // удвоением паузы до 30 с, по рукопожатию в полминуты на вкладку
+      // (замер 26.09.2026). Вход откроет соединение сам.
+      if (!authSession.user) return null;
       // Прежнее соединение закрываем: иначе после входа их станет два, и
       // каждое приращение возьмётся дважды.
       if (liveSocket) { try { liveSocket.close(); } catch (e) { /* уже мертво */ } }
@@ -94,7 +100,7 @@ function connectLive() {
       // получить отказ и от исправного сервера.
       socket.addEventListener('close', () => {
         liveSocket = null;
-        if (!serverMode || S.liveClosedOnPurpose) return;
+        if (!serverMode || S.liveClosedOnPurpose || !authSession.user) return;
         const pause = Math.min(30000, 500 * Math.pow(2, liveRetry++));
         setTimeout(() => { if (!liveSocket) connectLive(); }, pause);
       });
@@ -107,6 +113,12 @@ let liveSocket = null;
 let liveRetry = 0;
 
 S.liveClosedOnPurpose = false;
+
+function disconnectLive() {
+      const socket = liveSocket;
+      liveSocket = null;
+      if (socket) { try { socket.close(); } catch (e) { /* уже мертво */ } }
+    }
 
 function rebuildDerived() {
       const byName = {};
@@ -170,4 +182,4 @@ function applyFreshGraph(state2) {
       return true;
     }
 
-export { applyFreshGraph, connectLive, knownGraphVersion, liveSocket, pullGraphSince };
+export { applyFreshGraph, connectLive, disconnectLive, knownGraphVersion, liveSocket, pullGraphSince };

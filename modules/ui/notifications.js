@@ -1,5 +1,6 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { api, serverMode } from '../core/api.js';
+import { authSession } from '../core/session.js';
 import { escapeAttr } from '../util/html.js';
 
 let unreadCount = 0;
@@ -8,6 +9,9 @@ let notifyItems = [];
 
 async function refreshUnread() {
       if (!serverMode) return 0;
+      // Гостю извещений нет: сервер отвечает 401, и он был в консоли у
+      // каждого гостя при запуске. Счёт гасим — после выхода он чужой.
+      if (!authSession.user) { unreadCount = 0; renderBell(); return 0; }
       const reply = await api('/api/notifications/unread-count');
       if (!reply.годно || !reply.тело) return unreadCount;
       unreadCount = (reply.тело.data && reply.тело.data.count) || 0;
@@ -16,7 +20,7 @@ async function refreshUnread() {
     }
 
 async function loadNotifications() {
-      if (!serverMode) return [];
+      if (!serverMode || !authSession.user) return [];
       const reply = await api('/api/notifications?limit=50');
       notifyItems = (reply.годно && reply.тело && reply.тело.data) || [];
       renderNotifyList();
@@ -26,7 +30,7 @@ async function loadNotifications() {
 function renderBell() {
       const bell = document.getElementById('notifyBell');
       if (!bell) return;
-      bell.style.display = serverMode ? 'inline-block' : 'none';
+      bell.style.display = serverMode && authSession.user ? 'inline-block' : 'none';
       const badge = document.getElementById('notifyBadge');
       if (!badge) return;
       badge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);

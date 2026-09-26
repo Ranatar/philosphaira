@@ -1,14 +1,29 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { DATA } from '../core/ns.js';
+import { serverMode } from '../core/api.js';
 
 const DATA_SETS = ['traditions', 'philosophers', 'rubrics',
                          'relationTypes', 'concepts', 'relations'];
 
 let hasUnsavedEdits = false;
 
-function markDirty() { hasUnsavedEdits = true; }
+let unconfirmedDirect = 0;
 
-function hasUnsaved() { return hasUnsavedEdits; }
+function markDirty() { if (!serverMode) hasUnsavedEdits = true; }
+
+function hasUnsaved() { return hasUnsavedEdits || unconfirmedDirect > 0; }
+
+function trackDirectEdit(sending) {
+      unconfirmedDirect++;
+      // Исключение по дороге — тот же отказ: счёт обязан вернуться, иначе
+      // уход со страницы спрашивал бы вечно.
+      const settle = accepted => {
+        unconfirmedDirect--;
+        if (!accepted) hasUnsavedEdits = true;
+        return accepted;
+      };
+      return sending.then(settle, () => settle(false));
+    }
 
 function collectData() {
       return { traditions: DATA.traditions, philosophers: DATA.philosophers, rubrics: DATA.rubrics, relationTypes: DATA.relationTypes, concepts: DATA.concepts, relations: DATA.relations };
@@ -59,13 +74,13 @@ async function saveToFolder() {
       }
     }
 
-// window.addEventListener('beforeunload') @adf47dee
+// window.addEventListener('beforeunload') @b3c60506
 function installUnsavedGuard() {
 window.addEventListener('beforeunload', ev => {
-      if (!hasUnsavedEdits) return;
+      if (!hasUnsaved()) return;
       ev.preventDefault();
       ev.returnValue = '';
     });
 }
 
-export { DATA_SETS, collectData, downloadData, hasUnsaved, installUnsavedGuard, markDirty, saveToFolder };
+export { DATA_SETS, collectData, downloadData, hasUnsaved, installUnsavedGuard, markDirty, saveToFolder, trackDirectEdit };

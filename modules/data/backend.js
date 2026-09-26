@@ -3,6 +3,7 @@ import { api, serverMode } from '../core/api.js';
 import { emit } from '../core/events.js';
 import { PERM, can } from '../core/perms.js';
 import { applyFreshGraph } from './remote.js';
+import { trackDirectEdit } from './save.js';
 
 let lastSubmitted = null;
 
@@ -18,9 +19,8 @@ function submitChange(descr, apply) {
       // которой ещё нет, было бы обманом: человек уйдёт с экрана в
       // уверенности, что дело сделано.
       const direct = can(PERM.REVIEW_COMMIT);
-      if (direct) apply();
-
-      sendCommit(descr, direct);
+      if (direct) { apply(); trackDirectEdit(sendCommit(descr, direct)); }
+      else sendCommit(descr, direct);
       return direct;
     }
 
@@ -41,7 +41,7 @@ async function sendCommit(descr, direct) {
         const serverMessage = (reply.тело && reply.тело.error && reply.тело.error.message)
           || 'Не удалось отправить правку';
         reportSubmit('отказ', serverMessage);
-        return;
+        return false;
       }
       const commitData = reply.тело.data || {};
 
@@ -67,10 +67,11 @@ async function sendCommit(descr, direct) {
         // распорядитель говорит, ЧТО случилось, а кто это показывает —
         // не его забота.
         emit('commit-conflicted', { descr, столкновения: commitData.столкновения || [] });
-        return;
+        // Страница взяла состояние сервера — своего непринятого на ней нет.
+        return true;
       }
 
-      if (commitData.прямая || direct) { reportSubmit('применено', 'Правка внесена'); return; }
+      if (commitData.прямая || direct) { reportSubmit('применено', 'Правка внесена'); return true; }
 
       let text = 'Правка отправлена на рассмотрение';
       if (commitData.пересечения && commitData.пересечения.length) {
@@ -81,6 +82,7 @@ async function sendCommit(descr, direct) {
                + (firstOverlap.поля && firstOverlap.поля.length ? `поле «${firstOverlap.поля[0]}»` : 'ту же запись');
       }
       reportSubmit('в очереди', text);
+      return true;
     }
 
 function commitMessageFor(descr) {

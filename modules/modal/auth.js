@@ -3,7 +3,8 @@ import { S } from '../core/ns.js';
 import { api, detectServerMode, serverMode } from '../core/api.js';
 import { emit } from '../core/events.js';
 import { AUTH_ADMIN, authAccounts, setSessionUser } from '../core/session.js';
-import { connectLive, pullGraphSince } from '../data/remote.js';
+import { reportSubmit } from '../data/backend.js';
+import { connectLive, disconnectLive, pullGraphSince } from '../data/remote.js';
 import { ModalContext } from './context.js';
 import { toggleModalMode } from './core.js';
 import { refreshEditHints, refreshOpenModalToolbar, renderAuthControls } from './edit-rights.js';
@@ -95,6 +96,7 @@ function authNoticeAdmin() {
     }
 
 async function submitAuth() {
+      if (logoutInFlight) await logoutInFlight;   // см. authLogout
       const login = (document.getElementById('authLogin') || {}).value || '';
       const pass  = (document.getElementById('authPassword') || {}).value || '';
       if (!login.trim() || !pass) { authError('Заполните логин и пароль'); return; }
@@ -106,6 +108,8 @@ async function submitAuth() {
         await detectServerMode();
         await pullGraphSince();
         connectLive();
+        // Как и обычный вход: колокол и «Замеры» перепроверяются по событию.
+        emit('session-changed');
         renderAuthControls();
         refreshEditHints();
         refreshOpenModalToolbar();
@@ -191,6 +195,8 @@ async function submitAuth() {
       authNoticeMember(l);
     }
 
+let logoutInFlight = null;
+
 function authLogout() {
       const modal = document.getElementById('universalModal');
       const open = modal && modal.classList.contains('show');
@@ -201,6 +207,27 @@ function authLogout() {
       setSessionUser(null);
       renderAuthControls();
       refreshEditHints();
+
+      // СЕРВЕРНЫЙ ЛАД: выход гасит СЕАНС, а не только вид. Прежде кнопка
+      // снимала права на странице, а cookie оставался жив: сервер считал
+      // человека вошедшим, сокет с личными извещениями не закрывался, и
+      // перезагрузка возвращала его под той же записью (замер 26.09.2026 —
+      // на общем компьютере «Выйти» не выходило). Теперь событие о смене
+      // сеанса шлётся и при выходе: колокол гостя сервер больше не спрашивает.
+      if (serverMode) {
+        disconnectLive();
+        // Ответ выхода ЧИСТИТ cookie сеанса. Придись он позже ответа нового
+        // входа — стёр бы уже новый сеанс; поэтому вход ждёт этот обещанный
+        // ответ (logoutInFlight), а не полагается на порядок доставки.
+        logoutInFlight = api('/api/auth/logout', { метод: 'POST' }).then(reply => {
+          logoutInFlight = null;
+          if (!reply.годно) {
+            reportSubmit('отказ', 'Сервер не подтвердил выход: сеанс может остаться открытым. '
+              + 'Перезагрузите страницу и выйдите ещё раз.');
+          }
+        });
+        emit('session-changed');
+      }
 
       if (wasEdit) {
         // Через тот же ход, что и кнопка «👁️ Просмотр»: он спросит про
