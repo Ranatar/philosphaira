@@ -14,7 +14,18 @@ function readCookie(cookieName) {
       return null;
     }
 
-async function api(path, { метод: method = 'GET', тело: body } = {}) {
+async function api(path, options = {}, freshAsked = false) {
+      const reply = await apiOnce(path, options);
+      if (freshAsked || reply.код !== 401 || !reply.тело || !reply.тело.error
+          || reply.тело.error.code !== 'mfa_required') return reply;
+      const code = prompt('Действие требует свежего второго шага. Введите код из приложения:');
+      if (!code) return reply;
+      const fresh = await apiOnce('/api/auth/mfa/refresh', { метод: 'POST', тело: { code: String(code).trim() } });
+      if (!fresh.годно) return fresh;
+      return api(path, options, true);
+    }
+
+async function apiOnce(path, { метод: method = 'GET', тело: body } = {}) {
       // ИМЯ ПОЛЯ «метод» СОХРАНЕНО НАРОЧНО. Семнадцать вызовов шлют
       // { метод: 'POST' }, и переименование разбора без сохранения поля
       // превратило все POST и DELETE в GET — вход перестал работать.
