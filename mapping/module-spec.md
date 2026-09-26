@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 130 модулей, 22366 строк.
+Составлено из готовой сборки: 130 модулей, 22396 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -46,14 +46,14 @@ tools/build/split_css.mjs <дерево>                              стили
 | `boot.js` | 333 | 1 | 67 |
 | `main.js` | 136 | 0 | 125 |
 | `modules/boot-defs.js` | 62 | 2 | 8 |
-| `modules/core/api.js` | 90 | 3 | 1 |
+| `modules/core/api.js` | 101 | 3 | 1 |
 | `modules/core/base-cells.js` | 19 | 0 | 1 |
 | `modules/core/events.js` | 66 | 2 | 0 |
 | `modules/core/graph-index.js` | 238 | 17 | 1 |
 | `modules/core/link-facts.js` | 86 | 11 | 2 |
 | `modules/core/long-task.js` | 121 | 3 | 0 |
 | `modules/core/ns.js` | 33 | 4 | 0 |
-| `modules/core/perms.js` | 28 | 3 | 0 |
+| `modules/core/perms.js` | 36 | 3 | 0 |
 | `modules/core/ready.js` | 15 | 2 | 0 |
 | `modules/core/relation-types.js` | 59 | 5 | 2 |
 | `modules/core/search.js` | 68 | 4 | 3 |
@@ -113,7 +113,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/modal/profile-concept.js` | 182 | 4 | 8 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 8 |
 | `modules/modal/search.js` | 43 | 3 | 1 |
-| `modules/modal/security.js` | 116 | 4 | 4 |
+| `modules/modal/security.js` | 127 | 4 | 4 |
 | `modules/modal/selection-list.js` | 334 | 13 | 8 |
 | `modules/modal/users.js` | 97 | 7 | 3 |
 | `modules/paths/analysis.js` | 74 | 2 | 7 |
@@ -412,7 +412,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/api.js`
 
-Строк 90.
+Строк 101.
 
 **Вывозит:** `api`, `detectServerMode`, `serverMode`
 
@@ -420,7 +420,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 - из `./session.js`: `setSessionUser`
 
-**Содержит:** `api`, `detectServerMode`, `readCookie`, `serverMode`
+**Содержит:** `api`, `apiOnce`, `detectServerMode`, `readCookie`, `serverMode`
 
 ### `modules/core/base-cells.js`
 
@@ -491,7 +491,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/core/perms.js`
 
-Строк 28.
+Строк 36.
 
 **Вывозит:** `PERM`, `can`, `setPermissions`
 
@@ -1445,15 +1445,15 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/modal/security.js`
 
-Строк 116.
+Строк 127.
 
 **Вывозит:** `confirmMfaEnroll`, `openSecurityModal`, `refreshSecurityDone`, `startMfaEnroll`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `S`
-- из `../core/api.js`: `api`
-- из `./edit-rights.js`: `refreshEditHints`, `renderAuthControls`
+- из `../core/api.js`: `api`, `detectServerMode`
+- из `./edit-rights.js`: `refreshEditHints`, `refreshOpenModalToolbar`, `renderAuthControls`
 - из `../util/html.js`: `escapeAttr`
 
 **Содержит:** `confirmMfaEnroll`, `openSecurityModal`, `refreshSecurityDone`, `securityError`, `securityModalEl`, `securitySecret`, `startMfaEnroll`

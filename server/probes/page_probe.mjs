@@ -873,12 +873,38 @@ try {
     сСервера === (unknownKeys ? unknownKeys.роли.join(',') : 'иначе'),
     сСервера, unknownKeys ? unknownKeys.роли.join(',') : 'нет');
 
-  // Кнопки бана — по праву.
-  проверить('кнопка бана нарисована по праву',
-    await pageHtml.evaluate(`(function(){
-      const есть = !!document.querySelector('.user-ban, .user-unban');
-      return есть === window.__app.can(window.__app.PERM.BAN_USER);
-    })()`), 'по праву', 'иначе');
+  // Кнопки бана — по праву. Прежде утверждение сравнивало «кнопка есть» с
+  // can(PERM.BAN_USER) — а ключа BAN_USER в PERM не было, обе стороны были
+  // ложью, и оно сходилось при любом устройстве (26.09.2026).
+  проверить('право бана определено и у администратора со вторым шагом кнопки бана есть',
+    await pageHtml.evaluate(`window.__app.PERM.BAN_USER === 'ban_user'
+      && window.__app.can(window.__app.PERM.BAN_USER) === true
+      && document.querySelectorAll('.user-ban').length > 0`), 'есть', await pageHtml.evaluate(`(() =>
+      'PERM ' + window.__app.PERM.BAN_USER + '; can ' + window.__app.can(window.__app.PERM.BAN_USER)
+      + '; кнопок ' + document.querySelectorAll('.user-ban').length)()`));
+  // БАН ПРИ НЕСВЕЖЕМ ВТОРОМ ШАГЕ: страница спрашивает код, освежает шаг и
+  // повторяет действие. Прежде вошедшему освежиться было нечем.
+  {
+    await pool.query(`UPDATE user_sessions SET mfa_passed_at = NOW() - INTERVAL '1 hour'
+                       WHERE user_id = $1`, [user.userId]);
+    const targetId = await pageHtml.evaluate(`(document.querySelector('.user-ban') || {}).getAttribute
+      ? document.querySelector('.user-ban').getAttribute('data-id') : null`);
+    const asked = [];
+    const answer = async d => { asked.push(d.message());
+      await d.accept(/код/i.test(d.message()) ? totpКод(заведение.секрет) : 'проверка свежести шага'); };
+    pageHtml.on('dialog', answer);
+    // нет кнопки — утверждение ниже краснеет, а не роняет пробу
+    await pageHtml.evaluate(`(() => { const b = document.querySelector('.user-ban'); if (b) b.click(); })()`);
+    await ждать(2500);
+    pageHtml.off('dialog', answer);
+    const banned = targetId && (await pool.query(`SELECT is_banned AS b FROM users WHERE user_id = $1`, [targetId])).rows[0]?.b;
+    проверить('бан при несвежем шаге: страница спросила код, освежила шаг и забанила',
+      banned === true && asked.some(m => /код/i.test(m)), 'спросила код; забанен',
+      JSON.stringify({ banned, asked: asked.map(m => m.slice(0, 30)) }));
+    // вернуть как было — нажатием «разбанить», как человек (шаг уже свежий)
+    if (targetId) await pageHtml.evaluate(`(() => { const u = document.querySelector('.user-unban[data-id=' + JSON.stringify(${JSON.stringify(targetId)}) + ']'); if (u) u.click(); })()`);
+    await ждать(1500);
+  }
 
   await pageHtml.evaluate(`window.__app.closeUsersPanel()`);
   await ждать(300);
@@ -1089,6 +1115,10 @@ try {
   // основание надо показывать и у применённых.
   await pageHtml.evaluate(`window.__app.switchCommitTab('mine')`);
   await ждать(1500);
+  проверить('у применённой правки есть «Откатить» — право REVERT_COMMIT определено',
+    await pageHtml.evaluate(`window.__app.PERM.REVERT_COMMIT === 'revert_commit'
+      && document.querySelectorAll('#commitsBody .commit-revert').length > 0`), 'есть',
+    await pageHtml.evaluate(`'PERM ' + window.__app.PERM.REVERT_COMMIT + '; кнопок ' + document.querySelectorAll('#commitsBody .commit-revert').length`));
   проверить('у своего столкнувшегося коммита есть «Пересобрать поверх нынешнего», и она открывает правку',
     await pageHtml.evaluate(`(async () => {
       const b = document.querySelector('#commitsBody .commit-rebuild');
@@ -1267,6 +1297,40 @@ try {
     'по id', 'по имени');
   await pageHtml.evaluate(`window.__app.closeUniversalModal()`);
   await ждать(300);
+
+  // ── МОДЕРАТОР ЗАВОДИТ ВТОРОЙ ШАГ ЧЕРЕЗ ОКНО (26.09.2026) ───────────────
+  // Права за вторым шагом (рецензия, откат, бан) появляются сразу, без
+  // перезагрузки: прежде страница жила со срезанным набором до обновления.
+  // Отдельный человек — у читателя из live_graph_probe таких прав нет вовсе,
+  // и перечитывание там нечем проверить.
+  {
+    const { user: mod } = await register(pool, { username: 'модератор_окно', email: 'mw@e.рф', password: ПАРОЛЬ });
+    await pool.query(`UPDATE users SET role='moderator', email_verified_at=NOW() WHERE user_id=$1`, [mod.userId]);
+    await pageHtml.evaluate(`window.__app.authLogout()`);
+    await ждать(600);
+    await pageHtml.evaluate(`(function(){
+      window.__app.openAuthModal('login');
+      document.getElementById('authLogin').value = 'mw@e.рф';
+      document.getElementById('authPassword').value = ${JSON.stringify(ПАРОЛЬ)};
+    })()`);
+    await pageHtml.evaluate(`window.__app.submitAuth()`);
+    await ждать(1500);
+    const reviewBefore = await pageHtml.evaluate(`window.__app.can(window.__app.PERM.REVIEW_COMMIT)`);
+    await pageHtml.evaluate(`window.__app.openSecurityModal()`);
+    await ждать(800);
+    await pageHtml.evaluate(`window.__app.startMfaEnroll()`);
+    await ждать(1200);
+    const modSecret = await pageHtml.evaluate(`(document.getElementById('securitySecret')||{}).value || ''`);
+    await pageHtml.evaluate(`document.getElementById('securityCode').value = ${JSON.stringify('X')}`.replace('"X"', JSON.stringify(totpКод(modSecret))));
+    await pageHtml.evaluate(`window.__app.confirmMfaEnroll()`);
+    await ждать(1800);
+    const reviewAfter = await pageHtml.evaluate(`window.__app.can(window.__app.PERM.REVIEW_COMMIT)`);
+    проверить('модератор, заведя второй шаг в окне, получает права сразу, без перезагрузки',
+      reviewBefore === false && reviewAfter === true, 'до нет, после да', `до ${reviewBefore}, после ${reviewAfter}`);
+    await pageHtml.evaluate(`(() => { const c = document.getElementById('securitySaved'); if (c) { c.checked = true; window.__app.refreshSecurityDone(); }
+      const d = document.getElementById('securityDone'); if (d) d.click(); })()`);
+    await ждать(300);
+  }
 
   проверить('ошибок страницы по-прежнему нет', ошибки.length === 0, 0,
     ошибки.slice(0, 2).join(' | '));

@@ -1,8 +1,8 @@
 // Сгенерировано из philosophy_graph.html — правки вносить ТУДА, не сюда.
 import { S } from '../core/ns.js';
-import { api } from '../core/api.js';
+import { api, detectServerMode } from '../core/api.js';
 
-import { refreshEditHints, renderAuthControls } from './edit-rights.js';
+import { refreshEditHints, refreshOpenModalToolbar, renderAuthControls } from './edit-rights.js';
 import { escapeAttr } from '../util/html.js';
 
 let securitySecret = null;
@@ -33,7 +33,7 @@ async function openSecurityModal() {
       + '</div></div>'
       + '<div id="securityBody"></div>'
       + '<div class="auth-error" id="securityError"></div>'
-      + '<div class="auth-actions">'
+      + '<div class="auth-actions" id="securityActions">'
       + '<button data-act-click="close-auth-modal">Закрыть</button>'
       + (ready ? ''
               : '<button class="primary" data-act-click="start-mfa-enroll">Завести второй шаг</button>')
@@ -101,9 +101,20 @@ async function confirmMfaEnroll() {
       }
       const row = document.getElementById('securityMfa');
       if (row) row.textContent = 'заведён';
+      // ШАГ ЗАВЕДЁН — «Завести второй шаг» УХОДИТ, и «Закрыть» вместе с ним.
+      // Прежде ряд оставался: повторное нажатие шло на /enroll, и сервер
+      // сбрасывал уже заведённый шаг без всякого кода (ныне отвечает 409); а
+      // «Закрыть» уводило от кодов, которые видны один раз, — окно же нарочно
+      // ждёт отметки «сохранил». Остаётся «Готово» под этой отметкой.
+      const actions = document.getElementById('securityActions');
+      if (actions) actions.remove();
       securityError('');
+      // ПРАВА ПЕРЕЧИТЫВАЮТСЯ: сервер срезал опасные права, пока шага не было,
+      // и страница жила со срезанным набором до перезагрузки.
+      await detectServerMode();
       renderAuthControls();
       refreshEditHints();
+      refreshOpenModalToolbar();
     }
 
 function refreshSecurityDone() {

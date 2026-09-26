@@ -40133,6 +40133,14 @@
     // молча закрывались. Проба нашла это на первом же входе.
     const PERM = Object.freeze({
       CREATE_COMMIT: 'create_commit',   // можно править граф (через очередь)
+      // БАН И ОТКАТ. Кнопки бана, «Откатить» и «Вернуть к версии» рисуются
+      // по этим правам, а ключей здесь не было: PERM.BAN_USER и
+      // PERM.REVERT_COMMIT давали undefined, can(undefined) — ложь, и
+      // кнопок не видел никто, включая администратора, хотя сервер всё
+      // умеет (найдено 26.09.2026). Утверждение «кнопка бана нарисована по
+      // праву» сходилось при этом само собой: ложь равна лжи.
+      BAN_USER: 'ban_user',
+      REVERT_COMMIT: 'revert_commit',
       REVIEW_COMMIT: 'review_commit',   // можно править НАПРЯМУЮ, без очереди
       // Перекладка графа. Право отдельное от прочих администраторских
       // нарочно: настройки меняют то, КАК работает система, а перекладка —
@@ -40242,7 +40250,7 @@
       + '</div></div>'
       + '<div id="securityBody"></div>'
       + '<div class="auth-error" id="securityError"></div>'
-      + '<div class="auth-actions">'
+      + '<div class="auth-actions" id="securityActions">'
       + '<button onclick="closeAuthModal()">Закрыть</button>'
       + (ready ? ''
               : '<button class="primary" onclick="startMfaEnroll()">Завести второй шаг</button>')
@@ -40310,9 +40318,20 @@
       }
       const row = document.getElementById('securityMfa');
       if (row) row.textContent = 'заведён';
+      // ШАГ ЗАВЕДЁН — «Завести второй шаг» УХОДИТ, и «Закрыть» вместе с ним.
+      // Прежде ряд оставался: повторное нажатие шло на /enroll, и сервер
+      // сбрасывал уже заведённый шаг без всякого кода (ныне отвечает 409); а
+      // «Закрыть» уводило от кодов, которые видны один раз, — окно же нарочно
+      // ждёт отметки «сохранил». Остаётся «Готово» под этой отметкой.
+      const actions = document.getElementById('securityActions');
+      if (actions) actions.remove();
       securityError('');
+      // ПРАВА ПЕРЕЧИТЫВАЮТСЯ: сервер срезал опасные права, пока шага не было,
+      // и страница жила со срезанным набором до перезагрузки.
+      await detectServerMode();
       renderAuthControls();
       refreshEditHints();
+      refreshOpenModalToolbar();
     }
 
     function refreshSecurityDone() {
@@ -41186,7 +41205,24 @@
       return null;
     }
 
-    async function api(path, { метод: method = 'GET', тело: body } = {}) {
+    // СВЕЖИЙ ВТОРОЙ ШАГ. Опасные действия сервер пускает, только если шаг
+    // пройден не раньше чем четверть часа назад, иначе отвечает 401
+    // mfa_required. Прежде страница выводила этот отказ и только: предъявить
+    // код было негде, и бан или удаление замера становились недостижимы до
+    // выхода. Дверь одна — здесь и лечится: код спрашивается, шаг
+    // освежается, действие повторяется ОДИН раз.
+    async function api(path, options = {}, freshAsked = false) {
+      const reply = await apiOnce(path, options);
+      if (freshAsked || reply.код !== 401 || !reply.тело || !reply.тело.error
+          || reply.тело.error.code !== 'mfa_required') return reply;
+      const code = prompt('Действие требует свежего второго шага. Введите код из приложения:');
+      if (!code) return reply;
+      const fresh = await apiOnce('/api/auth/mfa/refresh', { метод: 'POST', тело: { code: String(code).trim() } });
+      if (!fresh.годно) return fresh;
+      return api(path, options, true);
+    }
+
+    async function apiOnce(path, { метод: method = 'GET', тело: body } = {}) {
       // ИМЯ ПОЛЯ «метод» СОХРАНЕНО НАРОЧНО. Семнадцать вызовов шлют
       // { метод: 'POST' }, и переименование разбора без сохранения поля
       // превратило все POST и DELETE в GET — вход перестал работать.

@@ -16,7 +16,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { attachUser } from '../auth/middleware.js';
 import { login, logout, logoutAll, register, verifyEmail } from '../auth/service.js';
-import { submitCode, requireFreshMfa, beginEnroll, confirmEnroll, disable as disableMfa }
+import { submitCode, requireFreshMfa, beginEnroll, confirmEnroll, disable as disableMfa, isMfaEnabled }
   from '../auth/mfa.js';
 import { userToApi } from '../db/mapper.js';
 import { impactOf } from '../graph/impact.js';
@@ -137,7 +137,26 @@ export function createApp({ pool, безопасныеCookie: secureCookies = tr
   // КОГО СЛУШАТЬ О ТОМ, ЧЕЙ ЭТО ШАГ. Только сессию. Ни userId, ни логин из
   // тела не читаются вовсе: иначе всякий вошедший заводил бы второй шаг
   // чужой записи и запирал бы её на свой телефон.
+  // ОСВЕЖЕНИЕ ВТОРОГО ШАГА ДЛЯ ВОШЕДШЕГО. Опасные действия (бан, снятие бана,
+  // удаление замера) требуют шага не старше пятнадцати минут, а ход выше
+  // принимает код только у ЧАСТИЧНОЙ сессии: вошедшему освежиться было нечем,
+  // и спустя четверть часа эти действия становились недостижимы до выхода и
+  // нового входа (найдено 26.09.2026). Служба та же — submitCode, и предел
+  // перебора в ней тот же.
+  app.post('/api/auth/mfa/refresh', requireAuth, wrap(async (req, res) => {
+    res.json({ data: await submitCode(pool, req.sessionId, req.body?.code) });
+  }));
+
   app.post('/api/auth/mfa/enroll', requireAuth, wrap(async (req, res) => {
+    // ЗАВЕДЁННЫЙ ШАГ ЗАНОВО НЕ ЗАВОДИТСЯ. Служба beginEnroll пишет новый
+    // секрет и СБРАСЫВАЕТ «включён»: повторный вызов молча снимал второй шаг
+    // без всякого кода (замер 26.09.2026) — тогда как штатное снятие требует
+    // свежего кода и гасит все сессии. Сменить аутентификатор — снять шаг
+    // штатно и завести заново. Служба остаётся прежней: ею пользуется
+    // средство оператора (scripts/enroll-mfa.mjs) для восстановления доступа.
+    if (await isMfaEnabled(pool, req.user.userId)) {
+      throw new Conflict('Второй шаг уже заведён; чтобы сменить аутентификатор, сперва снимите его');
+    }
     const { секрет: secret, ссылка: otpauthUrl } = await beginEnroll(pool, req.user);
     // Шаг ЕЩЁ НЕ ВКЛЮЧЁН: включает только предъявленный код. Иначе можно
     // запереть себя, сохранив в базе секрет, который никуда не записан.

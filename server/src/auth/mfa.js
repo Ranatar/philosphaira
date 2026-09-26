@@ -27,9 +27,15 @@ import { audit } from '../db/users.js';
 import { revokeAllSessions } from '../db/sessions.js';
 import { encrypt, decrypt } from './secretbox.js';
 import { createSecret, verifyCode, otpauth } from './totp.js';
-import { Conflict, Forbidden, Unauthorized } from '../http/errors.js';
+import { Conflict, Forbidden, Unauthorized, TooMany } from '../http/errors.js';
+import { isBruteForce, noteFailure, resetCounter } from './throttle.js';
 
 export const FRESH_MINUTES = 15;
+
+/** Заведён ли второй шаг у записи — для заслона повторного заведения. */
+export async function isMfaEnabled(pool, userId) {
+  return (await getSecret(pool, userId))?.включён === true;
+}
 
 /**
  * Шаг первый заведения: выдать секрет и показать его человеку.
@@ -73,14 +79,22 @@ export async function submitCode(pool, sessionId, code) {
   const stored = await getSecret(pool, mfaState.userId);
   if (!stored?.включён) throw new Conflict('Второй шаг не заведён');
 
+  // ПРЕДЕЛ ПЕРЕБОРА — как у пароля, по записи. Прежде его не было: код из
+  // шести цифр можно было подбирать без счёта (найдено 26.09.2026, когда у
+  // кода появился второй ход — освежение для вошедшего).
+  const failKey = 'mfa:uid:' + mfaState.userId;
+  if (isBruteForce(failKey)) throw new TooMany('Слишком много неверных кодов; попробуйте позже');
+
   const byAuthenticator = verifyCode(decrypt(stored.шифр), code);
 
   return withTransaction(pool, async client => {
     const byRecoveryCode = byAuthenticator
       ? false : await spendRecoveryCode(client, mfaState.userId, code);
     if (!byAuthenticator && !byRecoveryCode) {
+      noteFailure(failKey);
       throw new Unauthorized('Код не сошёлся');
     }
+    resetCounter(failKey);
     await passSessionMfa(client, sessionId);
     await audit(client, { actorId: mfaState.userId,
                           action: byRecoveryCode ? 'mfa.recovery_used' : 'mfa.passed',

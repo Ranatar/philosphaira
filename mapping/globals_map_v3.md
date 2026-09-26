@@ -1,9 +1,9 @@
 # Карта глобальных сущностей `philosophy_graph.html`
 
-Файл: 3 171 828 знаков, 46 562 строк; встроенный скрипт — строки 5941–46560. Составлено 2026-09-26 13:02:27 UTC.
+Файл: 3 174 036 знаков, 46 598 строк; встроенный скрипт — строки 5941–46596. Составлено 2026-09-26 15:02:23 UTC.
 
-Всего глобальных сущностей: **1122** — функций 715
-(из них асинхронных 42), `const` 130, `let` 169,
+Всего глобальных сущностей: **1123** — функций 716
+(из них асинхронных 43), `const` 130, `let` 169,
 `var` 14, операторов верхнего уровня 88.
 Обработчиков событий 58; вызовов из разметки:
 статической 110, порождаемой 168.
@@ -29,7 +29,7 @@
 | Имя | Вид | Стр. | Обращений | Из скольких сущностей |
 |---|---|---|---|---|
 | `nodes` | const | 24083 | 131 | 80 |
-| `escapeAttr` | function | 43039 | 126 | 34 |
+| `escapeAttr` | function | 43075 | 126 | 34 |
 | `conceptById` | const | 24151 | 77 | 46 |
 | `ModalContext` | const | 40007 | 75 | 26 |
 | `links` | const | 24101 | 67 | 49 |
@@ -554,223 +554,224 @@
 | `popModalState` | function | 40036 | 10 | () | `ModalContext`, `modalStack`, `openUniversalModal`, `hasUnsavedChanges` | `stmt044` | динам.×1 | — |
 | `modalEntityExists` | function | 40056 | 13 | (entityType, data) | — | `saveConnectionData`×2, `openUniversalModal`, `hasUnsavedChanges`, `savePhilosopherData`, `saveConceptData` | — | — |
 | `modalContentFor` | function | 40074 | 18 | (entityType, data, mode) | — | `openUniversalModal` | — | — |
-| `setPermissions` | function | 40154 | 1 | (permissions) | `granted` | `setSessionUser` | — | — |
-| `can` | function | 40156 | 1 | (permission) | `granted` | `renderCommits`×4, `renderObservations`×3, `switchCommitTab`×2, `makeLegendsEditable`×2, `observationBar`, `handleNodeClick`, `handleLinkClick`, `dispatchClick`, `philRowTip`, `refreshEditHints`, `openUniversalModal`, `toggleModalMode`, `openEditPhilosopherModal`, `openEditConceptModal`, `openEditConnectionModal`, `submitChange`, `renderUsers`, `renderEntityHistory` | — | — |
-| `setSessionUser` | function | 40160 | 11 | (user, grantedFromServer) | `PERM`×2, `authSession`, `setPermissions` | `submitAuth`×3, `authLogout`, `detectServerMode` | — | — |
-| `authModalEl` | function | 40174 | 1 | () | — | `openAuthModal`, `closeAuthModal`, `showAuthNotice` | — | — |
-| `openAuthModal` | function | 40176 | 29 | (kind) | `authModalKind`, `authModalEl`, `submitAuth` | — | динам.×2 | — |
-| `securityModalEl` | function | 40219 | 1 | () | — | `openSecurityModal` | — | — |
-| `securityError` | function | 40221 | 4 | (text) | — | `confirmMfaEnroll`×3, `startMfaEnroll`×2 | — | 1× (строка) в `securityError` |
-| `openSecurityModal` | async function | 40226 | 28 | () | `authModalKind`, `securitySecret`, `securityModalEl`, `api` | — | динам.×1 | — |
-| `startMfaEnroll` | async function | 40255 | 31 | () | `securityError`×2, `escapeAttr`×2, `securitySecret`, `confirmMfaEnroll`, `api` | — | динам.×1 | — |
-| `confirmMfaEnroll` | async function | 40287 | 30 | () | `securityError`×3, `securitySecret`, `renderAuthControls`, `refreshEditHints`, `api`, `escapeAttr` | `startMfaEnroll` | динам.×1 | — |
-| `refreshSecurityDone` | function | 40318 | 5 | () | — | — | динам.×1 | — |
-| `closeAuthModal` | function | 40324 | 10 | () | `authModalEl` | `submitAuth`×2 | динам.×4 | — |
-| `authError` | function | 40335 | 4 | (text) | — | `submitAuth`×8 | — | 1× (строка) в `authError` |
-| `showAuthNotice` | function | 40342 | 14 | (title, bodyHtml) | `authModalKind`, `authModalEl` | `authNoticeMember`, `authNoticeAdmin` | — | — |
-| `authNoticeMember` | function | 40357 | 6 | (login) | `showAuthNotice` | `submitAuth`×2 | — | — |
-| `authNoticeAdmin` | function | 40364 | 13 | () | `showAuthNotice` | `submitAuth` | — | — |
-| `submitAuth` | async function | 40380 | 99 | () | `authError`×8, `renderAuthControls`×5, `refreshEditHints`×5, `authAccounts`×4, `AUTH_ADMIN`×3, `authModalKind`×3, `setSessionUser`×3, `refreshOpenModalToolbar`×3, `emit`×2, `closeAuthModal`×2, `authNoticeMember`×2, `logoutInFlight`×2, `serverMode`×2, `api`×2, `detectServerMode`×2, `pullGraphSince`×2, `connectLive`×2, `authNoticeAdmin` | `openAuthModal` | динам.×1 | — |
-| `authLogout` | function | 40482 | 45 | () | `ModalContext`×2, `logoutInFlight`×2, `emit`, `setSessionUser`, `refreshOpenModalToolbar`, `renderAuthControls`, `refreshEditHints`, `toggleModalMode`, `serverMode`, `api`, `disconnectLive`, `reportSubmit` | — | динам.×1 | — |
-| `refreshOpenModalToolbar` | function | 40530 | 9 | () | `ModalContext`×4, `openUniversalModal` | `submitAuth`×3, `authLogout` | — | — |
-| `renderAuthControls` | function | 40542 | 19 | () | `authSession` | `submitAuth`×5, `confirmMfaEnroll`, `authLogout`, `stmt041`, `stmt042` | — | — |
-| `philRowTip` | function | 40575 | 5 | () | `PERM`, `can` | `makeLegendsEditable` | — | — |
-| `refreshEditHints` | function | 40581 | 15 | () | `PERM`, `can` | `submitAuth`×5, `confirmMfaEnroll`, `authLogout`, `makeLegendsEditable`, `stmt042` | — | — |
-| `openUniversalModal` | function | 40597 | 67 | (entityType, data, mode=…, opts=…) | `ModalContext`×3, `initConnectionSearchFields`×2, `emit`, `freezeSimulation`, `modalStack`, `pushModalState`, `modalEntityExists`, `modalContentFor`, `PERM`, `can` | `applyLinkState`×2, `saveConceptData`×2, `saveConnectionData`×2, `openSelectionLink`, `selectPhilosopherResult`, `popModalState`, `refreshOpenModalToolbar`, `toggleModalMode`, `showDetailModal`, `showPhilosopherDetailModal`, `openEditPhilosopherModal`, `openEditConceptModal`, `openEditConnectionModal`, `savePhilosopherData`, `deleteConcept`, `deleteConnection`, `createNewConceptForPhilosopher`, `createNewConnectionForConcept`, `stmt070` | динам.×26 | — |
-| `closeUniversalModal` | function | 40666 | 28 | () | `ModalContext`×4, `clearModalSearch`×2, `cancelGraphSelection`×2, `emit`, `unfreezeSimulation`, `modalStack` | `closeAllModals`×2, `closeDetailModal`, `closePhilosopherDetailModal`, `rebuildOverCurrent`, `deletePhilosopher`, `deleteConcept`, `deleteConnection` | статич.×1, динам.×3 | — |
-| `toggleModalMode` | function | 40696 | 17 | () | `ModalContext`×5, `PERM`, `can`, `openUniversalModal`, `hasUnsavedChanges` | `authLogout` | динам.×1 | — |
-| `hasUnsavedChanges` | function | 40715 | 20 | () | `ModalContext`×3, `modalEntityExists`, `hasFilledFields`, `hasPhilosopherChanges`, `hasConceptChanges`, `hasConnectionChanges` | `popModalState`, `toggleModalMode` | — | — |
-| `hasFilledFields` | function | 40736 | 10 | () | — | `hasUnsavedChanges` | — | — |
-| `hasPhilosopherChanges` | function | 40747 | 23 | (original) | `philosopherByName`×2, `footnotesChanged` | `hasUnsavedChanges` | — | — |
-| `hasConceptChanges` | function | 40771 | 20 | (original) | `conceptToRubrics`, `storedRecord`, `footnotesChanged` | `hasUnsavedChanges` | — | — |
-| `hasConnectionChanges` | function | 40792 | 28 | (original) | `ModalContext`×2, `relationTypesObj`, `storedRecord`, `footnotesChanged` | `hasUnsavedChanges` | — | — |
-| `generateId` | function | 40822 | 3 | (prefix=…) | — | `saveConnectionData`×2, `savePhilosopherData`, `saveConceptData` | — | — |
-| `findConnection` | function | 40826 | 9 | (sourceId, targetId, bidirectional=…) | `links` | `deleteConnection`×3, `openEditConnectionModal`, `saveConnectionData` | динам.×4 | — |
-| `getConceptConnections` | function | 40836 | 11 | (conceptId) | `linksByConcept` | `isConceptIsolated`, `getIsolatedConceptsAfterDeletion`, `deletePhilosopher`, `deleteConcept`, `deleteConnection`, `generateConceptEditContent` | — | — |
-| `isConceptIsolated` | function | 40848 | 3 | (conceptId) | `getConceptConnections` | `conceptIntegrityWarnings` | — | — |
-| `getIsolatedConceptsAfterDeletion` | function | 40855 | 15 | (philosopherName) | `nodesByPhilosopher`, `getConceptConnections` | `deletePhilosopher` | — | — |
-| `showDetailModal` | function | 40876 | 3 | (conceptData) | `openUniversalModal` | `selectSearchResult`, `openConceptById`, `stmt069` | — | — |
-| `showPhilosopherDetailModal` | function | 40880 | 3 | (philosopherName) | `openUniversalModal` | `makeLegendsEditable` | динам.×1 | — |
-| `closeDetailModal` | function | 40884 | 1 | () | `closeUniversalModal` | `closeAllModals`×2, `gotoNodeFromModal`, `stmt068` | — | — |
-| `closePhilosopherDetailModal` | function | 40885 | 1 | () | `closeUniversalModal` | `closeAllModals`×2 | — | — |
-| `openEditPhilosopherModal` | function | 40887 | 4 | (philosopherName=…) | `PERM`, `can`, `openUniversalModal` | `makeLegendsEditable`×2, `rebuildOverCurrent` | — | — |
-| `openEditConceptModal` | function | 40892 | 6 | (concept=…) | `conceptById`, `PERM`, `can`, `openUniversalModal` | `rebuildOverCurrent`, `stmt071` | динам.×1 | — |
-| `openEditConnectionModal` | function | 40899 | 6 | (a=…, b=…) | `PERM`, `can`, `openUniversalModal`, `findConnection` | `rebuildOverCurrent`, `stmt072` | динам.×1 | — |
-| `updateGraphData` | function | 40924 | 22 | () | `simulation`×3, `nodes`, `links`, `requestDraw`, `linkLayer`, `resetLayoutClock` | `addNodeToGraph`, `addLinkToGraph`, `stmt054` | — | — |
-| `addNodeToGraph` | function | 40947 | 15 | (nodeData) | `emit`, `viewWidth`, `viewHeight`, `renderState`, `pinnedVisibleNodes`, `updateGraphData` | `saveConceptData` | — | — |
-| `updateNodeOnGraph` | function | 40965 | 4 | () | `requestDraw`, `linkLayer` | `saveConceptData` | — | — |
-| `addLinkToGraph` | function | 40970 | 11 | (linkData) | `conceptById`×2, `emit`, `updateGraphData` | `saveConnectionData` | — | — |
-| `updateLinkOnGraph` | function | 40982 | 8 | () | `requestDraw`, `linkLayer` | `saveConnectionData` | — | — |
-| `forgetNode` | function | 40996 | 18 | (nodeId) | `renderState`×6, `similarityOverlay`×3, `visibleNodeIds`×2, `selectedNodes`×2, `pinnedVisibleNodes` | `removeConceptEverywhere` | — | — |
-| `forgetLink` | function | 41015 | 8 | (link) | `renderState`×3, `visibleLinkSet`×2, `selectedEdges` | `removeLinkEverywhere` | — | — |
-| `rebuildDerivedIndexes` | function | 41028 | 36 | (what) | `philosopherIdToName`×3, `philosopherConcepts`×3, `philosopherOrder`×3, `linkColors`×3, `conceptToRubrics`×3, `rubricsObj`×3, `concepts`×2, `philosophers`, `rubrics`, `relationTypes`, `rebuildPhilosopherTraditions` | `afterDataChange` | — | — |
-| `markDirty` | function | 41091 | 1 | () | `hasUnsavedEdits`, `serverMode` | `afterDataChange` | — | — |
-| `hasUnsaved` | function | 41092 | 1 | () | `hasUnsavedEdits`, `unconfirmedDirect` | `stmt028` | — | — |
-| `trackDirectEdit` | function | 41096 | 11 | (sending) | `unconfirmedDirect`×2, `hasUnsavedEdits` | `submitChange` | — | — |
-| `collectData` | function | 41108 | 3 | () | `traditions`, `philosophers`, `rubrics`, `relationTypes`, `concepts`, `relations` | `downloadData`, `saveToFolder` | — | — |
-| `deliverFile` | function | 41112 | 11 | (name, text) | — | `downloadData` | — | — |
-| `downloadData` | function | 41124 | 6 | () | `DATA_SETS`×2, `hasUnsavedEdits`, `collectData`, `deliverFile` | — | статич.×1 | — |
-| `saveToFolder` | async function | 41133 | 23 | () | `dataFolder`×3, `DATA_SETS`, `hasUnsavedEdits`, `collectData` | — | статич.×1 | — |
-| `readCookie` | function | 41178 | 10 | (cookieName) | — | `api` | — | — |
-| `api` | async function | 41189 | 34 | (path, ?) | `serverMode`, `readCookie` | `submitAuth`×2, `sendCommit`×2, `pullGraphSince`×2, `saveObservation`, `loadObservations`, `deleteObservation`, `compareObservationsInPanel`, `openSecurityModal`, `startMfaEnroll`, `confirmMfaEnroll`, `authLogout`, `detectServerMode`, `loadUsers`, `changeUserRoleFromPanel`, `banUserFromPanel`, `planRelayout`, `loadLayoutHistory`, `doLayoutRevert`, `applyRelayout`, `loadCommits`, `reviewCommitFromPanel`, `revertCommitFromPanel`, `showImpact`, `refreshUnread`, `loadNotifications`, `markNotificationRead`, `markAllNotificationsRead`, `rebuildOverCurrent`, `toggleEntityHistory`, `revertEntityToVersion` | — | — |
-| `detectServerMode` | async function | 41228 | 36 | () | `serverMode`×2, `setSessionUser`, `api` | `submitAuth`×2, `stmt042` | — | — |
-| `sameValue` | function | 41290 | 14 | (a, b) | — | `describeChange` | — | — |
-| `describeChange` | function | 41305 | 17 | (action, kind, entityId, prevSide, next) | `sameValue` | `saveConceptData`×2, `saveConnectionData`×2, `savePhilosopherData`, `deletePhilosopher`, `deleteConcept`, `deleteConnection` | — | — |
-| `submitChange` | function | 41329 | 16 | (descr, apply) | `sendCommit`×2, `PERM`, `can`, `trackDirectEdit`, `serverMode`, `lastSubmitted` | `saveConceptData`×2, `saveConnectionData`×2, `savePhilosopherData`, `deletePhilosopher`, `deleteConcept`, `deleteConnection` | — | — |
-| `markSupersedes` | function | 41360 | 3 | (commitId, kind, entityId) | `supersedesNext` | `rebuildOverCurrent` | — | — |
-| `sendCommit` | async function | 41364 | 63 | (descr, direct) | `supersedesNext`×5, `reportSubmit`×3, `api`×2, `emit`, `commitMessageFor`, `applyFreshGraph` | `submitChange`×2 | — | — |
-| `commitMessageFor` | function | 41429 | 9 | (descr) | — | `sendCommit` | — | — |
-| `openUsersPanel` | function | 41465 | 6 | () | `loadUsers` | — | статич.×1 | — |
-| `closeUsersPanel` | function | 41472 | 4 | () | — | — | статич.×1 | — |
-| `loadUsers` | async function | 41477 | 17 | () | `userItems`×3, `usersError`×2, `api`, `renderUsers` | `openUsersPanel`, `changeUserRoleFromPanel`, `banUserFromPanel` | — | — |
-| `renderUsers` | function | 41495 | 26 | () | `escapeAttr`×8, `userItems`×2, `usersError`×2, `PERM`, `can` | `loadUsers`, `changeUserRoleFromPanel`, `banUserFromPanel` | — | — |
-| `changeUserRoleFromPanel` | async function | 41522 | 13 | (id, role) | `api`, `usersError`, `loadUsers`, `renderUsers` | `stmt030` | — | — |
-| `banUserFromPanel` | async function | 41536 | 14 | (id, unban) | `api`, `usersError`, `loadUsers`, `renderUsers` | `stmt030`×2 | — | — |
-| `openCommitsPanel` | function | 41580 | 6 | () | `loadCommits` | — | статич.×1 | — |
-| `closeCommitsPanel` | function | 41587 | 4 | () | — | `stmt031` | статич.×1 | — |
-| `switchCommitTab` | function | 41592 | 14 | (tab) | `commitTab`×4, `PERM`×2, `can`×2, `layoutPlan`, `layoutError`, `loadLayoutHistory`, `layoutRevertTo`, `loadCommits`, `renderCommits` | — | статич.×3 | — |
-| `planRelayout` | async function | 41617 | 12 | () | `layoutPlan`×2, `layoutError`×2, `api`, `renderCommits` | — | динам.×2 | — |
-| `loadLayoutHistory` | async function | 41636 | 5 | () | `api`, `layoutHistoryItems`, `renderCommits` | `switchCommitTab`, `doLayoutRevert`, `applyRelayout` | — | — |
-| `cancelLayoutRevert` | function | 41647 | 1 | () | `layoutRevertTo`, `renderCommits` | — | динам.×1 | — |
-| `askLayoutRevert` | function | 41649 | 5 | (id) | `layoutHistoryItems`, `layoutRevertTo`, `renderCommits` | — | динам.×1 | — |
-| `doLayoutRevert` | async function | 41655 | 18 | () | `layoutRevertTo`×3, `layoutError`×2, `showTemporaryMessage`, `api`, `layoutPlan`, `loadLayoutHistory`, `renderCommits`, `pullGraphSince` | — | динам.×1 | — |
-| `applyRelayout` | async function | 41674 | 22 | () | `layoutPlan`×3, `layoutError`×2, `showTemporaryMessage`, `api`, `loadLayoutHistory`, `renderCommits`, `pullGraphSince` | — | динам.×2 | — |
-| `loadCommits` | async function | 41697 | 15 | () | `commitItems`×3, `commitError`×2, `api`, `commitTab`, `renderCommits` | `openCommitsPanel`, `switchCommitTab`, `reviewCommitFromPanel`, `revertCommitFromPanel` | — | — |
-| `commitStateWords` | function | 41728 | 3 | (state2) | `COMMIT_STATES` | `renderCommits` | — | — |
-| `commitStateKind` | function | 41732 | 3 | (state2) | `COMMIT_STATES` | `renderCommits` | — | — |
-| `changesDiff` | function | 41761 | 21 | (changes) | `escapeAttr`×3, `CHANGE_FIELD_LABELS`, `CHANGE_KIND_LABELS`, `conflictValue`, `richText` | `renderCommits` | — | — |
-| `provenanceDiff` | function | 41783 | 32 | (changes) | `escapeAttr`×3, `stateInWords`×2 | `renderCommits` | — | — |
-| `footnotesDiff` | function | 41822 | 22 | (changes) | `escapeAttr`×3, `FOOTNOTE_LABELS` | `renderCommits` | — | — |
-| `stateInWords` | function | 41845 | 4 | (stateCode) | `PROVENANCE_STATES` | `provenanceDiff`×2 | — | — |
-| `layoutHistoryHtml` | function | 41858 | 15 | () | `escapeAttr`×5, `layoutHistoryItems`×2, `LAYOUT_KINDS` | `layoutTabHtml`×2 | — | — |
-| `layoutTabHtml` | function | 41874 | 49 | () | `layoutRevertTo`×5, `escapeAttr`×4, `layoutPlan`×3, `layoutError`×2, `layoutHistoryHtml`×2, `LAYOUT_KINDS` | `renderCommits` | — | — |
-| `renderCommits` | function | 41924 | 86 | () | `escapeAttr`×14, `PERM`×4, `can`×4, `commitTab`×3, `commitItems`×3, `commitError`×2, `refreshEditCount`×2, `commitStateWords`, `commitStateKind`, `changesDiff`, `provenanceDiff`, `footnotesDiff`, `layoutTabHtml`, `conflictRowsHtml` | `switchCommitTab`, `planRelayout`, `loadLayoutHistory`, `cancelLayoutRevert`, `askLayoutRevert`, `doLayoutRevert`, `applyRelayout`, `loadCommits`, `reviewCommitFromPanel`, `revertCommitFromPanel` | — | — |
-| `refreshEditCount` | function | 42017 | 7 | (count) | — | `renderCommits`×2 | — | — |
-| `reviewCommitFromPanel` | async function | 42025 | 20 | (id, verdict) | `emit`, `api`, `commitItems`, `commitError`, `loadCommits`, `renderCommits`, `pullGraphSince` | `stmt031`×2 | — | — |
-| `revertCommitFromPanel` | async function | 42046 | 14 | (id) | `api`, `commitError`, `loadCommits`, `renderCommits`, `pullGraphSince` | `stmt031` | — | — |
-| `showImpact` | async function | 42070 | 16 | (id) | `api`, `describeImpact` | `stmt031` | — | — |
-| `describeImpact` | function | 42091 | 26 | (data) | `escapeAttr`×2 | `showImpact` | — | — |
-| `refreshUnread` | async function | 42153 | 11 | () | `unreadCount`×4, `renderBell`×2, `authSession`, `serverMode`, `api` | `markNotificationRead`, `markAllNotificationsRead`, `stmt032`, `stmt033` | — | — |
-| `loadNotifications` | async function | 42165 | 7 | () | `notifyItems`×2, `authSession`, `serverMode`, `api`, `renderNotifyList` | `toggleNotifyPanel` | — | — |
-| `renderBell` | function | 42173 | 9 | () | `unreadCount`×3, `authSession`, `serverMode` | `refreshUnread`×2, `stmt033` | — | — |
-| `renderNotifyList` | function | 42183 | 18 | () | `escapeAttr`×3, `notifyItems`×2, `notifyWords` | `loadNotifications`, `markNotificationRead`, `markAllNotificationsRead` | — | — |
-| `notifyWords` | function | 42203 | 17 | (kind) | — | `renderNotifyList` | — | — |
-| `toggleNotifyPanel` | function | 42221 | 7 | () | `loadNotifications` | — | статич.×1 | — |
-| `markNotificationRead` | async function | 42229 | 9 | (id) | `serverMode`, `api`, `notifyItems`, `refreshUnread`, `renderNotifyList` | `stmt035` | — | — |
-| `markAllNotificationsRead` | async function | 42239 | 7 | () | `serverMode`, `api`, `notifyItems`, `refreshUnread`, `renderNotifyList` | — | статич.×1 | — |
-| `warnRemoteEdit` | function | 42272 | 14 | (touched) | `ModalContext`×2, `reportSubmit` | `stmt036` | — | — |
-| `showConflict` | function | 42289 | 21 | (descr, clashes, commitId=…) | `reportSubmit`×2, `conflictRowsHtml`, `lastConflict` | `stmt029` | — | — |
-| `conflictValue` | function | 42322 | 7 | (v) | `FOOTNOTE_LABELS` | `conflictRowsHtml`×3, `changesDiff` | — | — |
-| `conflictRowsHtml` | function | 42329 | 16 | (clashes) | `escapeAttr`×6, `conflictValue`×3 | `renderCommits`, `showConflict` | — | — |
-| `rebuildOverCurrent` | async function | 42349 | 29 | (given=…) | `reportSubmit`×2, `links`, `closeUniversalModal`, `openEditPhilosopherModal`, `openEditConceptModal`, `openEditConnectionModal`, `api`, `markSupersedes`, `applyFreshGraph`, `closeConflictModal`, `lastConflict` | `stmt031` | статич.×1 | — |
-| `replaceEntity` | function | 42393 | 9 | (set, id, record) | — | `applyIncrement` | — | — |
-| `applyIncrement` | function | 42407 | 18 | (increment) | `traditions`, `philosophers`, `rubrics`, `relationTypes`, `concepts`, `relations`, `knownGraphVersion`, `replaceEntity`, `rebuildDerived`, `afterDataChange` | `pullGraphSince` | — | — |
-| `pullGraphSince` | async function | 42427 | 30 | () | `knownGraphVersion`×3, `api`×2, `applyServerLayout`, `emit`, `serverMode`, `applyIncrement`, `applyFreshGraph` | `submitAuth`×2, `doLayoutRevert`, `applyRelayout`, `reviewCommitFromPanel`, `revertCommitFromPanel`, `connectLive`, `revertEntityToVersion`, `stmt042` | — | — |
-| `connectLive` | function ⟲ | 42463 | 38 | () | `liveSocket`×5, `authSession`×2, `serverMode`×2, `liveRetry`×2, `emit`, `pullGraphSince`, `liveClosedOnPurpose` | `submitAuth`×2, `stmt042` | — | — |
-| `disconnectLive` | function | 42508 | 5 | () | `liveSocket`×2 | `authLogout` | — | — |
-| `rebuildDerived` | function | 42533 | 43 | () | `nodes`×4, `links`×2, `philosophers`, `concepts`, `relations`, `viewWidth`, `viewHeight` | `applyIncrement`, `applyFreshGraph` | — | — |
-| `applyFreshGraph` | function | 42577 | 17 | (state2) | `traditions`×2, `philosophers`×2, `rubrics`×2, `relationTypes`×2, `concepts`×2, `relations`×2, `applyServerLayout`, `rebuildDerived`, `afterDataChange` | `sendCommit`, `rebuildOverCurrent`, `pullGraphSince` | — | — |
-| `closeConflictModal` | function | 42595 | 4 | () | — | `rebuildOverCurrent` | статич.×1 | — |
-| `reportSubmit` | function | 42603 | 19 | (kind, text) | `noticeTimer`×2, `lastSubmitResult` | `sendCommit`×3, `showConflict`×2, `rebuildOverCurrent`×2, `authLogout`, `warnRemoteEdit` | — | — |
-| `afterDataChange` | function | 42628 | 36 | (what) | `selectedPhilosophers`×2, `philosopherConcepts`, `rebuildIndexes`, `emit`, `linkLayer`, `rebuildDerivedIndexes`, `markDirty` | `saveConceptData`×2, `saveConnectionData`×2, `applyIncrement`, `applyFreshGraph`, `savePhilosopherData`, `deletePhilosopher`, `deleteConcept`, `deleteConnection` | — | — |
-| `selectConceptOnGraph` | function | 42682 | 31 | (type, mode=…) | `gfxCanvas` | `initConnectionSearchFields`×2 | — | — |
-| `cancelGraphSelection` | function | 42714 | 14 | () | `gfxCanvas` | `closeUniversalModal`×2, `stmt044`×2, `dispatchClick`, `handleConceptSelection` | динам.×1 | — |
-| `handleConceptSelection` | function | 42734 | 6 | (conceptId) | `emit`, `cancelGraphSelection` | `handleNodeClick`, `dispatchClick` | — | — |
-| `historyBlock` | function | 42792 | 17 | (kind, entityId) | `escapeAttr`×4, `serverMode` | `generateConnectionViewContent`, `generateConceptViewContent`, `generatePhilosopherViewContent` | — | — |
-| `toggleEntityHistory` | async function | 42810 | 18 | (kind, entityId) | `historyBusy`×3, `historyFor`×2, `historyItems`×2, `renderEntityHistory`×2, `api`, `toggleSubsection` | `revertEntityToVersion`×2 | динам.×1 | — |
-| `renderEntityHistory` | function | 42834 | 39 | (kind, entityId) | `escapeAttr`×10, `historyItems`×2, `PERM`, `can` | `toggleEntityHistory`×2 | — | — |
-| `revertEntityToVersion` | async function | 42874 | 20 | (kind, entityId, version) | `toggleEntityHistory`×2, `api`, `pullGraphSince`, `historyFor`, `historyItems` | — | динам.×1 | — |
-| `provenanceBlock` | function | 42895 | 24 | (value, status) | `escapeAttr` | `generateConnectionVisualization`, `generateConceptViewContent`, `generatePhilosopherViewContent` | — | — |
-| `withoutFootnotes` | function | 42935 | 4 | (text) | `FOOTNOTE_MARK_SOURCE` | `descriptionHtml`, `descriptionPlain`, `provenanceEntityDrift` | — | — |
-| `richText` | function | 42951 | 13 | (text) | `RICH_TAG`, `escapeAttr` | `changesDiff`, `descriptionHtml`, `footnotedText` | — | — |
-| `descriptionHtml` | function | 42965 | 1 | (text) | `withoutFootnotes`, `richText` | `generatePhilosopherViewContent`×4, `generateConceptViewContent`×3, `showPathDescriptionsModal`×2, `selectionRowConcept`×2, `generateTensionContent`×2, `findAndShowPath`, `selectionRowPhilosopher`, `selectionRowRelation`, `generateMetricResults`, `stmt024`, `stmt025`, `generatePhilosopherEditContent`, `philosopherTraditionsBlock` | — | — |
-| `descriptionPlain` | function | 42967 | 4 | (text) | `withoutFootnotes` | `generatePhilosopherViewContent`×2, `findAndShowPath`, `initFilters` | — | — |
-| `footnoteOrder` | function | 42973 | 9 | (...texts) | `FOOTNOTE_MARK_SOURCE` | `generateConnectionVisualization`×2, `provenanceDriftWarning`, `footnotesField`, `insertFootnote`, `refreshFootnoteRows`, `footnotesValue`, `generateConceptViewContent`, `generatePhilosopherViewContent` | — | — |
-| `footnotedText` | function | 42984 | 10 | (text, order, notes) | `FOOTNOTE_MARK_SOURCE`, `richText`, `escapeAttr` | `generateConnectionVisualization`, `generateConceptViewContent`, `generatePhilosopherViewContent` | — | — |
-| `footnotesBlock` | function | 42997 | 11 | (notes, order) | `escapeAttr`×4, `FOOTNOTE_LABELS` | `generateConnectionVisualization`, `generateConceptViewContent`, `generatePhilosopherViewContent` | — | — |
-| `installFootnoteLinks` | function | 43013 | 24 | () | `lastFootnoteHost`, `refreshFootnoteRows` | `stmt038` | — | — |
-| `escapeAttr` | function | 43039 | 4 | (s) | — | `renderCommits`×14, `renderEntityHistory`×10, `renderUsers`×8, `selectionRowRelation`×7, `renderObservations`×7, `compareObservationsInPanel`×6, `conflictRowsHtml`×6, `layoutHistoryHtml`×5, `generatePhilosopherEditContent`×5, `generateConceptEditContent`×5, `selectionRowPhilosopher`×4, `layoutTabHtml`×4, `historyBlock`×4, `footnotesBlock`×4, `findAndShowPath`×3, `selectionRowConcept`×3, `changesDiff`×3, `provenanceDiff`×3, `footnotesDiff`×3, `renderNotifyList`×3, `observationBar`×2, `startMfaEnroll`×2, `describeImpact`×2, `generateConnectionEditContent`×2, `generatePhilosopherViewContent`×2, `initFilters`, `renderSelectionList`, `deleteObservation`, `confirmMfaEnroll`, `provenanceBlock`, `richText`, `footnotedText`, `provenanceField`, `footnoteRow` | динам.×13 | — |
-| `relationIndexById` | function | 43056 | 4 | (id) | `relations` | `removeLinkEverywhere`, `saveConnectionData` | — | — |
-| `activityOverlap` | function | 43064 | 12 | (nameA, nameB) | `philosopherByName`×2 | `connectionIntegrityWarnings` | — | — |
-| `groundingCyclePath` | function | 43082 | 37 | (srcId, tgtId, extraType) | `relationTypesObj`×2, `GROUNDING_TYPES`×2, `links` | `connectionIntegrityWarnings` | — | — |
-| `pluralRu` | function | 43123 | 7 | (count, one, few, many) | — | `nConcepts`, `nLinks` | — | — |
-| `nConcepts` | const-функция | 43130 | 1 | (n) | `pluralRu` | `philosopherIntegrityWarnings`, `deletePhilosopher` | — | — |
-| `nLinks` | const-функция | 43131 | 1 | (n) | `pluralRu` | `deleteConcept` | — | — |
-| `labelOf` | const-функция | 43133 | 4 | (id) | `conceptById` | `connectionIntegrityWarnings` | — | — |
-| `connectionIntegrityWarnings` | function | 43142 | 138 | (srcId, tgtId, type, weight, bidir, original) | `links`×4, `conceptById`×2, `philosopherBirth`×2, `philosopherYears`×2, `relationTypesObj`, `isReflexiveLink`, `activityOverlap`, `groundingCyclePath`, `labelOf` | `saveConnectionData` | — | — |
-| `footnotePhrase` | function | 43298 | 12 | (texts, id) | `FOOTNOTE_MARK_SOURCE` | `provenanceDriftWarning`×2 | — | — |
-| `provenanceDriftWarning` | function | 43311 | 22 | (prev, next) | `footnotePhrase`×2, `footnoteOrder`, `provenanceEntityDrift` | `savePhilosopherData`, `saveConceptData`, `saveConnectionData` | — | — |
-| `provenanceEntityDrift` | function | 43334 | 15 | (prev, next) | `withoutFootnotes` | `provenanceDriftWarning` | — | — |
-| `conceptIntegrityWarnings` | function | 43350 | 18 | (label, philosopher, original) | `nodes`, `isConceptIsolated` | `saveConceptData` | — | — |
-| `philosopherIntegrityWarnings` | function | 43369 | 16 | (name, birth, death, original) | `nodesByPhilosopher`, `nConcepts` | `savePhilosopherData` | — | — |
-| `confirmWarnings` | function | 43387 | 5 | (title, warnings) | — | `savePhilosopherData`, `saveConceptData`, `saveConnectionData` | — | — |
-| `savePhilosopherData` | function | 43397 | 107 | () | `philosophers`×8, `selectedPhilosophers`×3, `philosopherByName`×2, `withoutEmptyOptional`×2, `footnotesValue`×2, `concepts`, `nodes`, `ModalContext`, `modalEntityExists`, `openUniversalModal`, `generateId`, `describeChange`, `submitChange`, `afterDataChange`, `provenanceDriftWarning`, `philosopherIntegrityWarnings`, `confirmWarnings`, `provenanceValue`, `provenanceFields` | — | — | 1× (строка) в `generatePhilosopherEditContent` |
-| `deletePhilosopher` | function | 43505 | 41 | (philosopherName) | `philosophers`×2, `philosopherConcepts`, `philosopherOrder`, `philosopherByName`, `nodesByPhilosopher`, `selectedPhilosophers`, `ModalContext`, `closeUniversalModal`, `getConceptConnections`, `getIsolatedConceptsAfterDeletion`, `describeChange`, `submitChange`, `afterDataChange`, `nConcepts`, `removeConceptEverywhere`, `removeLinkEverywhere` | — | — | 1× (строка) в `generatePhilosopherEditContent` |
-| `removeConceptEverywhere` | function | 43553 | 8 | (conceptId) | `concepts`×2, `nodes`×2, `conceptToRubrics`, `forgetNode` | `deletePhilosopher`, `deleteConcept` | — | — |
-| `removeLinkEverywhere` | function | 43562 | 7 | (link) | `links`×2, `relations`, `forgetLink`, `relationIndexById` | `deletePhilosopher`, `deleteConcept`, `deleteConnection` | — | — |
-| `saveConceptData` | function | 43570 | 83 | () | `concepts`×5, `nodes`×5, `conceptToRubrics`×2, `withoutEmptyOptional`×2, `openUniversalModal`×2, `describeChange`×2, `submitChange`×2, `afterDataChange`×2, `provenanceFields`×2, `footnotesValue`×2, `philosopherByName`, `storedRecord`, `ModalContext`, `modalEntityExists`, `generateId`, `addNodeToGraph`, `updateNodeOnGraph`, `provenanceDriftWarning`, `conceptIntegrityWarnings`, `confirmWarnings`, `provenanceValue` | — | — | 1× (строка) в `generateConceptEditContent` |
-| `deleteConcept` | function | 43668 | 31 | (conceptId) | `ModalContext`×6, `conceptById`, `openUniversalModal`, `closeUniversalModal`, `getConceptConnections`, `describeChange`, `submitChange`, `afterDataChange`, `nLinks`, `removeConceptEverywhere`, `removeLinkEverywhere` | — | динам.×1 | 1× (строка) в `generateConceptEditContent` |
-| `saveConnectionData` | function | 43704 | 100 | () | `ModalContext`×6, `relations`×5, `withoutEmptyOptional`×3, `links`×2, `conceptById`×2, `modalEntityExists`×2, `openUniversalModal`×2, `generateId`×2, `describeChange`×2, `submitChange`×2, `afterDataChange`×2, `footnotesValue`×2, `relationTypesObj`, `storedRecord`, `findConnection`, `addLinkToGraph`, `updateLinkOnGraph`, `relationIndexById`, `connectionIntegrityWarnings`, `provenanceDriftWarning`, `confirmWarnings`, `provenanceValue`, `provenanceFields` | — | — | 1× (строка) в `generateConnectionEditContent` |
-| `deleteConnection` | function | 43805 | 49 | (sourceId=…, targetId=…) | `ModalContext`×6, `conceptById`×3, `findConnection`×3, `relationTypesObj`, `links`, `isReflexiveLink`, `openUniversalModal`, `closeUniversalModal`, `getConceptConnections`, `describeChange`, `submitChange`, `afterDataChange`, `removeLinkEverywhere` | — | динам.×1 | 1× (строка) в `generateConnectionEditContent` |
-| `provenanceField` | function | 43880 | 22 | (data) | `escapeAttr`, `PROVENANCE_STATES` | `generatePhilosopherEditContent`, `generateConceptEditContent`, `generateConnectionEditContent` | — | — |
-| `refreshProvenanceField` | function | 43907 | 17 | () | — | — | динам.×1 | — |
-| `provenanceValue` | function | 43926 | 12 | () | `needsCitation` | `savePhilosopherData`, `saveConceptData`, `saveConnectionData` | — | — |
-| `provenanceFields` | function | 43948 | 4 | (line, state) | — | `saveConceptData`×2, `savePhilosopherData`, `saveConnectionData` | — | — |
-| `footnoteRow` | function | 43957 | 15 | (note, n) | `FOOTNOTE_LABELS`, `FOOTNOTE_STATE_ORDER`, `escapeAttr` | `footnotesField`, `insertFootnote` | — | — |
-| `footnotesField` | function | 43973 | 15 | (record) | `footnoteOrder`, `footnoteRow` | `generatePhilosopherEditContent`, `generateConceptEditContent`, `generateConnectionEditContent` | — | — |
-| `footnoteHosts` | function | 43992 | 4 | () | — | `insertFootnote`, `removeFootnote`, `refreshFootnoteRows`, `footnotesValue` | — | — |
-| `insertFootnote` | function | 43997 | 22 | () | `lastFootnoteHost`×2, `footnoteOrder`, `footnoteRow`, `footnoteHosts`, `refreshFootnoteRows` | — | динам.×1 | — |
-| `removeFootnote` | function | 44020 | 7 | (id) | `footnoteHosts`, `refreshFootnoteRows` | — | динам.×1 | — |
-| `refreshFootnoteRows` | function | 44030 | 19 | () | `footnoteOrder`, `footnoteHosts` | `installFootnoteLinks`, `insertFootnote`, `removeFootnote` | динам.×1 | — |
-| `footnotesValue` | function | 44051 | 17 | () | `FOOTNOTE_LABELS`, `footnoteOrder`, `footnoteHosts` | `savePhilosopherData`×2, `saveConceptData`×2, `saveConnectionData`×2, `footnotesChanged` | — | — |
-| `footnotesChanged` | function | 44070 | 5 | (record) | `footnotesValue` | `hasPhilosopherChanges`, `hasConceptChanges`, `hasConnectionChanges` | — | — |
-| `needsCitation` | function | 44076 | 3 | (state) | — | `provenanceValue` | — | — |
-| `commitReasonField` | function | 44091 | 9 | () | `serverMode` | `modalActions` | — | — |
-| `modalActions` | function | 44101 | 15 | (saveFn, deleteFn, deleteArg, isNew) | `commitReasonField` | `generatePhilosopherEditContent`, `generateConceptEditContent`, `generateConnectionEditContent` | — | — |
-| `updatePhilColorSample` | function | 44121 | 17 | () | `getContrastColor` | `syncPhilColorFromPicker`, `generatePhilosopherEditContent` | динам.×2 | — |
-| `syncPhilColorFromPicker` | function | 44139 | 6 | () | `updatePhilColorSample` | — | динам.×1 | — |
-| `generatePhilosopherEditContent` | function | 44146 | 118 | (philosopherName) | `escapeAttr`×5, `traditions`, `philosopherByName`, `nodesByPhilosopher`, `descriptionHtml`, `provenanceField`, `footnotesField`, `modalActions`, `updatePhilColorSample` | — | — | вероятно через `window[…]` в `modalContentFor` |
-| `generateConceptEditContent` | function | 44269 | 133 | (conceptData) | `escapeAttr`×5, `philosopherConcepts`×3, `relationHint`×2, `storedRecord`×2, `rubrics`, `relationTypesObj`, `conceptToRubrics`, `conceptById`, `isReflexiveLink`, `linkArrow`, `sortPhilosophersByBirth`, `philosopherYears`, `getConceptConnections`, `provenanceField`, `footnotesField`, `modalActions` | — | — | вероятно через `window[…]` в `modalContentFor` |
-| `onConnTypeChange` | function | 44410 | 39 | () | `relationTypesObj`, `links`, `LAYER_NAMES`, `updateConnEditPairNote` | `generateConnectionEditContent` | динам.×1 | — |
-| `updateConnEditPairNote` | function | 44451 | 25 | () | `ModalContext`×2, `links`, `isReflexiveLink`, `connectionsBetween` | `onConnTypeChange`, `selectConnectionEditConcept`, `swapConnectionConcepts` | — | — |
-| `connEditSelectedBlock` | function | 44477 | 9 | (type, node) | — | `generateConnectionEditContent`×2 | — | — |
-| `generateConnectionEditContent` | function | 44487 | 98 | (connectionData) | `conceptById`×2, `relationHint`×2, `storedRecord`×2, `ModalContext`×2, `escapeAttr`×2, `connEditSelectedBlock`×2, `relationTypesObj`, `WEIGHT_OPTIONS`, `provenanceField`, `footnotesField`, `modalActions`, `onConnTypeChange`, `setupConnectionEditSearchHandlers` | — | — | вероятно через `window[…]` в `modalContentFor` |
-| `handleConnectionEditSearch` | function | 44590 | 29 | (type, query) | `pickConcepts`, `rowInner`, `emptyList`, `ModalContext`, `connectionsBetween` | `setupConnectionEditSearchHandlers` | — | — |
-| `selectConnectionEditConcept` | function | 44620 | 18 | (type, conceptId) | `conceptById`, `ModalContext`, `updateConnEditPairNote` | `stmt057` | динам.×1 | — |
-| `setupConnectionEditSearchHandlers` | function | 44639 | 13 | () | `initConnectionSearchFields`×2, `handleConnectionEditSearch` | `generateConnectionEditContent` | — | — |
-| `swapConnectionConcepts` | function | 44653 | 20 | () | `ModalContext`×5, `conceptById`, `updateConnEditPairNote` | — | динам.×1 | — |
-| `createNewConceptForPhilosopher` | function | 44675 | 3 | (philosopherName) | `openUniversalModal` | — | динам.×1 | — |
-| `createNewConnectionForConcept` | function | 44679 | 7 | (conceptId) | `conceptById`, `openUniversalModal` | — | динам.×1 | — |
-| `connectionsBetween` | function | 44698 | 8 | (sourceId, targetId) | `links` | `updateConnEditPairNote`, `handleConnectionEditSearch`, `generateConnectionVisualization`, `updateConnectionVisualization` | — | — |
-| `conceptCircle` | function | 44707 | 6 | (node, size) | `philosopherConcepts`×2 | `conceptPlate` | — | — |
-| `conceptPlate` | function | 44714 | 16 | (node) | `philosopherConcepts`×2, `getContrastColor`, `conceptCircle` | `generateConnectionVisualization`×3 | — | — |
-| `connectionTraditionNote` | function | 44738 | 13 | (aPhil, bPhil) | `philosopherTraditions`×2, `traditionsOfPhilosopher`×2, `traditionById` | `generateConnectionVisualization` | — | — |
-| `connectionArrowSvg` | function | 44753 | 60 | (conn, index) | `relationTypesObj`, `isReflexiveLink` | `generateConnectionVisualization` | — | — |
-| `generateConnectionVisualization` | function | 44814 | 75 | (sourceNode, targetNode, connectionData) | `storedRecord`×4, `conceptPlate`×3, `relationHint`×2, `footnoteOrder`×2, `relationTypesObj`, `isReflexiveLink`, `provenanceBlock`, `footnotedText`, `footnotesBlock`, `CONN_WEIGHT_WORDS`, `connectionsBetween`, `connectionTraditionNote`, `connectionArrowSvg` | `generateConnectionViewContent`, `updateConnectionVisualization` | — | — |
-| `generateConnectionViewContent` | function | 44890 | 85 | (connectionData) | `conceptById`×2, `ModalContext`×2, `historyBlock`, `generateConnectionVisualization` | — | — | вероятно через `window[…]` в `modalContentFor` |
-| `toggleConnectionSearchSection` | function | 44987 | 8 | () | — | — | динам.×1 | — |
-| `handleConnectionViewSearch` | function | 45007 | 42 | (type, query) | `nodes`×2, `links`, `pickConcepts`, `rowInner`, `emptyList`, `ModalContext` | — | динам.×2 | — |
-| `selectConnectionViewConcept` | function | 45050 | 33 | (type, conceptId) | `ModalContext`×3, `conceptById`, `updateConnectionVisualization` | `stmt057` | динам.×1 | — |
-| `updateConnectionVisualization` | function | 45084 | 18 | () | `conceptById`×2, `ModalContext`, `connectionsBetween`, `generateConnectionVisualization` | `selectConnectionViewConcept` | — | — |
-| `initConnectionSearchFields` | function | 45106 | 18 | (mode=…) | `selectConceptOnGraph`×2 | `openUniversalModal`×2, `setupConnectionEditSearchHandlers`×2 | — | — |
-| `generateConceptViewContent` | function | 45130 | 259 | (conceptData) | `relationTypesObj`×4, `philosopherConcepts`×3, `descriptionHtml`×3, `conceptToRubrics`×2, `orientLink`×2, `linkArrow`×2, `otherEndColor`×2, `nodes`, `links`, `conceptById`, `rubricById`, `getContrastColor`, `storedRecord`, `similarConceptsBlock`, `historyBlock`, `provenanceBlock`, `footnoteOrder`, `footnotedText`, `footnotesBlock` | — | — | вероятно через `window[…]` в `modalContentFor` |
-| `toggleConnectionDescription` | function | 45391 | 12 | (id) | — | — | динам.×4 | — |
-| `toggleAllRoot` | function | 45407 | 7 | (btn) | — | `toggleAllConnectionDescriptions`, `toggleAllPhilosopherConceptDescriptions`, `toggleAllPhilosopherConnectionDescriptions` | — | — |
-| `toggleAllConnectionDescriptions` | function | 45418 | 37 | (btn) | `allDescriptionsExpanded`×4, `toggleAllRoot` | — | динам.×1 | — |
-| `toggleSubsection` | function | 45457 | 14 | (sectionId) | — | `toggleEntityHistory` | динам.×4 | — |
-| `gotoNodeFromModal` | function | 45473 | 23 | (nodeId) | `selectedNodes`×2, `conceptById`, `viewWidth`, `viewHeight`, `gfxSvg`, `gfxNode`, `gfxZoom`, `highlightConnected`, `closeDetailModal` | — | динам.×1 | — |
-| `showAllConcepts` | function | 45498 | 28 | (rubricId, currentConceptId) | `philosopherConcepts`, `nodes`, `conceptToRubrics`, `rubricById` | — | динам.×1 | — |
-| `conjugateVerb` | function | 45529 | 9 | (count, singularForm) | — | `generatePhilosopherViewContent`×5 | — | — |
-| `declinePhilosopher` | function | 45540 | 26 | (count, grammaticalCase) | — | `generatePhilosopherViewContent`×22 | — | — |
-| `philosopherTraditionsBlock` | function | 45575 | 37 | (name) | `philosopherConcepts`×2, `philosophers`, `philosopherTraditions`, `comparePhilosophers`, `descriptionHtml`, `DATA_traditions_of` | `generatePhilosopherViewContent` | — | — |
-| `DATA_traditions_of` | function | 45614 | 4 | (name) | `traditionById`, `philosopherTraditions` | `philosopherTraditionsBlock` | — | — |
-| `similarPhilosophersBlock` | function | 45619 | 31 | (philosopherName) | `nearestPhilosophers`×3 | `generatePhilosopherViewContent` | — | — |
-| `generatePhilosopherViewContent` | function | 45655 | 488 | (philosopherName) | `declinePhilosopher`×22, `conceptById`×12, `relationTypesObj`×5, `conjugateVerb`×5, `getContrastColor`×4, `descriptionHtml`×4, `nodesByPhilosopher`×3, `philosopherBirth`×3, `formatBirthYear`×3, `sortPhilosophersByBirth`×3, `philosopherYears`×3, `philosopherConcepts`×2, `links`×2, `orientLink`×2, `linkArrow`×2, `otherEndColor`×2, `descriptionPlain`×2, `escapeAttr`×2, `conceptToRubrics`, `philosopherByName`, `traditionById`, `rubricById`, `historyBlock`, `provenanceBlock`, `footnoteOrder`, `footnotedText`, `footnotesBlock`, `philosopherTraditionsBlock`, `similarPhilosophersBlock` | — | — | вероятно через `window[…]` в `modalContentFor` |
-| `togglePhilosopherConceptDescription` | function | 46145 | 12 | (conceptId) | — | — | динам.×1 | — |
-| `toggleAllPhilosopherConceptDescriptions` | function | 46161 | 32 | (btn) | `allPhilosopherConceptDescriptionsExpanded`×4, `toggleAllRoot` | — | динам.×1 | — |
-| `toggleAllPhilosopherConnectionDescriptions` | function | 46197 | 31 | (btn) | `allPhilosopherConnectionDescriptionsExpanded`×4, `toggleAllRoot` | — | динам.×1 | — |
-| `makeLegendsEditable` | function | 46229 | 81 | () | `PERM`×2, `can`×2, `openEditPhilosopherModal`×2, `highlightPhilosopherOnGraph`, `philRowTip`, `refreshEditHints`, `showPhilosopherDetailModal` | `stmt040`, `stmt053` | — | — |
-| `closeAllModals` | function | 46336 | 13 | () | `closePathDescriptionsModal`×2, `closeAboutModal`×2, `closeConceptProfileModal`×2, `closePhilosopherProfileModal`×2, `closeUniversalModal`×2, `closeDetailModal`×2, `closePhilosopherDetailModal`×2 | `stmt043`, `stmt044` | — | — |
+| `setPermissions` | function | 40162 | 1 | (permissions) | `granted` | `setSessionUser` | — | — |
+| `can` | function | 40164 | 1 | (permission) | `granted` | `renderCommits`×4, `renderObservations`×3, `switchCommitTab`×2, `makeLegendsEditable`×2, `observationBar`, `handleNodeClick`, `handleLinkClick`, `dispatchClick`, `philRowTip`, `refreshEditHints`, `openUniversalModal`, `toggleModalMode`, `openEditPhilosopherModal`, `openEditConceptModal`, `openEditConnectionModal`, `submitChange`, `renderUsers`, `renderEntityHistory` | — | — |
+| `setSessionUser` | function | 40168 | 11 | (user, grantedFromServer) | `PERM`×2, `authSession`, `setPermissions` | `submitAuth`×3, `authLogout`, `detectServerMode` | — | — |
+| `authModalEl` | function | 40182 | 1 | () | — | `openAuthModal`, `closeAuthModal`, `showAuthNotice` | — | — |
+| `openAuthModal` | function | 40184 | 29 | (kind) | `authModalKind`, `authModalEl`, `submitAuth` | — | динам.×2 | — |
+| `securityModalEl` | function | 40227 | 1 | () | — | `openSecurityModal` | — | — |
+| `securityError` | function | 40229 | 4 | (text) | — | `confirmMfaEnroll`×3, `startMfaEnroll`×2 | — | 1× (строка) в `securityError` |
+| `openSecurityModal` | async function | 40234 | 28 | () | `authModalKind`, `securitySecret`, `securityModalEl`, `api` | — | динам.×1 | — |
+| `startMfaEnroll` | async function | 40263 | 31 | () | `securityError`×2, `escapeAttr`×2, `securitySecret`, `confirmMfaEnroll`, `api` | — | динам.×1 | — |
+| `confirmMfaEnroll` | async function | 40295 | 41 | () | `securityError`×3, `securitySecret`, `refreshOpenModalToolbar`, `renderAuthControls`, `refreshEditHints`, `api`, `detectServerMode`, `escapeAttr` | `startMfaEnroll` | динам.×1 | — |
+| `refreshSecurityDone` | function | 40337 | 5 | () | — | — | динам.×1 | — |
+| `closeAuthModal` | function | 40343 | 10 | () | `authModalEl` | `submitAuth`×2 | динам.×4 | — |
+| `authError` | function | 40354 | 4 | (text) | — | `submitAuth`×8 | — | 1× (строка) в `authError` |
+| `showAuthNotice` | function | 40361 | 14 | (title, bodyHtml) | `authModalKind`, `authModalEl` | `authNoticeMember`, `authNoticeAdmin` | — | — |
+| `authNoticeMember` | function | 40376 | 6 | (login) | `showAuthNotice` | `submitAuth`×2 | — | — |
+| `authNoticeAdmin` | function | 40383 | 13 | () | `showAuthNotice` | `submitAuth` | — | — |
+| `submitAuth` | async function | 40399 | 99 | () | `authError`×8, `renderAuthControls`×5, `refreshEditHints`×5, `authAccounts`×4, `AUTH_ADMIN`×3, `authModalKind`×3, `setSessionUser`×3, `refreshOpenModalToolbar`×3, `emit`×2, `closeAuthModal`×2, `authNoticeMember`×2, `logoutInFlight`×2, `serverMode`×2, `api`×2, `detectServerMode`×2, `pullGraphSince`×2, `connectLive`×2, `authNoticeAdmin` | `openAuthModal` | динам.×1 | — |
+| `authLogout` | function | 40501 | 45 | () | `ModalContext`×2, `logoutInFlight`×2, `emit`, `setSessionUser`, `refreshOpenModalToolbar`, `renderAuthControls`, `refreshEditHints`, `toggleModalMode`, `serverMode`, `api`, `disconnectLive`, `reportSubmit` | — | динам.×1 | — |
+| `refreshOpenModalToolbar` | function | 40549 | 9 | () | `ModalContext`×4, `openUniversalModal` | `submitAuth`×3, `confirmMfaEnroll`, `authLogout` | — | — |
+| `renderAuthControls` | function | 40561 | 19 | () | `authSession` | `submitAuth`×5, `confirmMfaEnroll`, `authLogout`, `stmt041`, `stmt042` | — | — |
+| `philRowTip` | function | 40594 | 5 | () | `PERM`, `can` | `makeLegendsEditable` | — | — |
+| `refreshEditHints` | function | 40600 | 15 | () | `PERM`, `can` | `submitAuth`×5, `confirmMfaEnroll`, `authLogout`, `makeLegendsEditable`, `stmt042` | — | — |
+| `openUniversalModal` | function | 40616 | 67 | (entityType, data, mode=…, opts=…) | `ModalContext`×3, `initConnectionSearchFields`×2, `emit`, `freezeSimulation`, `modalStack`, `pushModalState`, `modalEntityExists`, `modalContentFor`, `PERM`, `can` | `applyLinkState`×2, `saveConceptData`×2, `saveConnectionData`×2, `openSelectionLink`, `selectPhilosopherResult`, `popModalState`, `refreshOpenModalToolbar`, `toggleModalMode`, `showDetailModal`, `showPhilosopherDetailModal`, `openEditPhilosopherModal`, `openEditConceptModal`, `openEditConnectionModal`, `savePhilosopherData`, `deleteConcept`, `deleteConnection`, `createNewConceptForPhilosopher`, `createNewConnectionForConcept`, `stmt070` | динам.×26 | — |
+| `closeUniversalModal` | function | 40685 | 28 | () | `ModalContext`×4, `clearModalSearch`×2, `cancelGraphSelection`×2, `emit`, `unfreezeSimulation`, `modalStack` | `closeAllModals`×2, `closeDetailModal`, `closePhilosopherDetailModal`, `rebuildOverCurrent`, `deletePhilosopher`, `deleteConcept`, `deleteConnection` | статич.×1, динам.×3 | — |
+| `toggleModalMode` | function | 40715 | 17 | () | `ModalContext`×5, `PERM`, `can`, `openUniversalModal`, `hasUnsavedChanges` | `authLogout` | динам.×1 | — |
+| `hasUnsavedChanges` | function | 40734 | 20 | () | `ModalContext`×3, `modalEntityExists`, `hasFilledFields`, `hasPhilosopherChanges`, `hasConceptChanges`, `hasConnectionChanges` | `popModalState`, `toggleModalMode` | — | — |
+| `hasFilledFields` | function | 40755 | 10 | () | — | `hasUnsavedChanges` | — | — |
+| `hasPhilosopherChanges` | function | 40766 | 23 | (original) | `philosopherByName`×2, `footnotesChanged` | `hasUnsavedChanges` | — | — |
+| `hasConceptChanges` | function | 40790 | 20 | (original) | `conceptToRubrics`, `storedRecord`, `footnotesChanged` | `hasUnsavedChanges` | — | — |
+| `hasConnectionChanges` | function | 40811 | 28 | (original) | `ModalContext`×2, `relationTypesObj`, `storedRecord`, `footnotesChanged` | `hasUnsavedChanges` | — | — |
+| `generateId` | function | 40841 | 3 | (prefix=…) | — | `saveConnectionData`×2, `savePhilosopherData`, `saveConceptData` | — | — |
+| `findConnection` | function | 40845 | 9 | (sourceId, targetId, bidirectional=…) | `links` | `deleteConnection`×3, `openEditConnectionModal`, `saveConnectionData` | динам.×4 | — |
+| `getConceptConnections` | function | 40855 | 11 | (conceptId) | `linksByConcept` | `isConceptIsolated`, `getIsolatedConceptsAfterDeletion`, `deletePhilosopher`, `deleteConcept`, `deleteConnection`, `generateConceptEditContent` | — | — |
+| `isConceptIsolated` | function | 40867 | 3 | (conceptId) | `getConceptConnections` | `conceptIntegrityWarnings` | — | — |
+| `getIsolatedConceptsAfterDeletion` | function | 40874 | 15 | (philosopherName) | `nodesByPhilosopher`, `getConceptConnections` | `deletePhilosopher` | — | — |
+| `showDetailModal` | function | 40895 | 3 | (conceptData) | `openUniversalModal` | `selectSearchResult`, `openConceptById`, `stmt069` | — | — |
+| `showPhilosopherDetailModal` | function | 40899 | 3 | (philosopherName) | `openUniversalModal` | `makeLegendsEditable` | динам.×1 | — |
+| `closeDetailModal` | function | 40903 | 1 | () | `closeUniversalModal` | `closeAllModals`×2, `gotoNodeFromModal`, `stmt068` | — | — |
+| `closePhilosopherDetailModal` | function | 40904 | 1 | () | `closeUniversalModal` | `closeAllModals`×2 | — | — |
+| `openEditPhilosopherModal` | function | 40906 | 4 | (philosopherName=…) | `PERM`, `can`, `openUniversalModal` | `makeLegendsEditable`×2, `rebuildOverCurrent` | — | — |
+| `openEditConceptModal` | function | 40911 | 6 | (concept=…) | `conceptById`, `PERM`, `can`, `openUniversalModal` | `rebuildOverCurrent`, `stmt071` | динам.×1 | — |
+| `openEditConnectionModal` | function | 40918 | 6 | (a=…, b=…) | `PERM`, `can`, `openUniversalModal`, `findConnection` | `rebuildOverCurrent`, `stmt072` | динам.×1 | — |
+| `updateGraphData` | function | 40943 | 22 | () | `simulation`×3, `nodes`, `links`, `requestDraw`, `linkLayer`, `resetLayoutClock` | `addNodeToGraph`, `addLinkToGraph`, `stmt054` | — | — |
+| `addNodeToGraph` | function | 40966 | 15 | (nodeData) | `emit`, `viewWidth`, `viewHeight`, `renderState`, `pinnedVisibleNodes`, `updateGraphData` | `saveConceptData` | — | — |
+| `updateNodeOnGraph` | function | 40984 | 4 | () | `requestDraw`, `linkLayer` | `saveConceptData` | — | — |
+| `addLinkToGraph` | function | 40989 | 11 | (linkData) | `conceptById`×2, `emit`, `updateGraphData` | `saveConnectionData` | — | — |
+| `updateLinkOnGraph` | function | 41001 | 8 | () | `requestDraw`, `linkLayer` | `saveConnectionData` | — | — |
+| `forgetNode` | function | 41015 | 18 | (nodeId) | `renderState`×6, `similarityOverlay`×3, `visibleNodeIds`×2, `selectedNodes`×2, `pinnedVisibleNodes` | `removeConceptEverywhere` | — | — |
+| `forgetLink` | function | 41034 | 8 | (link) | `renderState`×3, `visibleLinkSet`×2, `selectedEdges` | `removeLinkEverywhere` | — | — |
+| `rebuildDerivedIndexes` | function | 41047 | 36 | (what) | `philosopherIdToName`×3, `philosopherConcepts`×3, `philosopherOrder`×3, `linkColors`×3, `conceptToRubrics`×3, `rubricsObj`×3, `concepts`×2, `philosophers`, `rubrics`, `relationTypes`, `rebuildPhilosopherTraditions` | `afterDataChange` | — | — |
+| `markDirty` | function | 41110 | 1 | () | `hasUnsavedEdits`, `serverMode` | `afterDataChange` | — | — |
+| `hasUnsaved` | function | 41111 | 1 | () | `hasUnsavedEdits`, `unconfirmedDirect` | `stmt028` | — | — |
+| `trackDirectEdit` | function | 41115 | 11 | (sending) | `unconfirmedDirect`×2, `hasUnsavedEdits` | `submitChange` | — | — |
+| `collectData` | function | 41127 | 3 | () | `traditions`, `philosophers`, `rubrics`, `relationTypes`, `concepts`, `relations` | `downloadData`, `saveToFolder` | — | — |
+| `deliverFile` | function | 41131 | 11 | (name, text) | — | `downloadData` | — | — |
+| `downloadData` | function | 41143 | 6 | () | `DATA_SETS`×2, `hasUnsavedEdits`, `collectData`, `deliverFile` | — | статич.×1 | — |
+| `saveToFolder` | async function | 41152 | 23 | () | `dataFolder`×3, `DATA_SETS`, `hasUnsavedEdits`, `collectData` | — | статич.×1 | — |
+| `readCookie` | function | 41197 | 10 | (cookieName) | — | `apiOnce` | — | — |
+| `api` | async function ⟲ | 41214 | 10 | (path, options=…, freshAsked=…) | `apiOnce`×2 | `submitAuth`×2, `sendCommit`×2, `pullGraphSince`×2, `saveObservation`, `loadObservations`, `deleteObservation`, `compareObservationsInPanel`, `openSecurityModal`, `startMfaEnroll`, `confirmMfaEnroll`, `authLogout`, `detectServerMode`, `loadUsers`, `changeUserRoleFromPanel`, `banUserFromPanel`, `planRelayout`, `loadLayoutHistory`, `doLayoutRevert`, `applyRelayout`, `loadCommits`, `reviewCommitFromPanel`, `revertCommitFromPanel`, `showImpact`, `refreshUnread`, `loadNotifications`, `markNotificationRead`, `markAllNotificationsRead`, `rebuildOverCurrent`, `toggleEntityHistory`, `revertEntityToVersion` | — | — |
+| `apiOnce` | async function | 41225 | 34 | (path, ?) | `serverMode`, `readCookie` | `api`×2 | — | — |
+| `detectServerMode` | async function | 41264 | 36 | () | `serverMode`×2, `setSessionUser`, `api` | `submitAuth`×2, `confirmMfaEnroll`, `stmt042` | — | — |
+| `sameValue` | function | 41326 | 14 | (a, b) | — | `describeChange` | — | — |
+| `describeChange` | function | 41341 | 17 | (action, kind, entityId, prevSide, next) | `sameValue` | `saveConceptData`×2, `saveConnectionData`×2, `savePhilosopherData`, `deletePhilosopher`, `deleteConcept`, `deleteConnection` | — | — |
+| `submitChange` | function | 41365 | 16 | (descr, apply) | `sendCommit`×2, `PERM`, `can`, `trackDirectEdit`, `serverMode`, `lastSubmitted` | `saveConceptData`×2, `saveConnectionData`×2, `savePhilosopherData`, `deletePhilosopher`, `deleteConcept`, `deleteConnection` | — | — |
+| `markSupersedes` | function | 41396 | 3 | (commitId, kind, entityId) | `supersedesNext` | `rebuildOverCurrent` | — | — |
+| `sendCommit` | async function | 41400 | 63 | (descr, direct) | `supersedesNext`×5, `reportSubmit`×3, `api`×2, `emit`, `commitMessageFor`, `applyFreshGraph` | `submitChange`×2 | — | — |
+| `commitMessageFor` | function | 41465 | 9 | (descr) | — | `sendCommit` | — | — |
+| `openUsersPanel` | function | 41501 | 6 | () | `loadUsers` | — | статич.×1 | — |
+| `closeUsersPanel` | function | 41508 | 4 | () | — | — | статич.×1 | — |
+| `loadUsers` | async function | 41513 | 17 | () | `userItems`×3, `usersError`×2, `api`, `renderUsers` | `openUsersPanel`, `changeUserRoleFromPanel`, `banUserFromPanel` | — | — |
+| `renderUsers` | function | 41531 | 26 | () | `escapeAttr`×8, `userItems`×2, `usersError`×2, `PERM`, `can` | `loadUsers`, `changeUserRoleFromPanel`, `banUserFromPanel` | — | — |
+| `changeUserRoleFromPanel` | async function | 41558 | 13 | (id, role) | `api`, `usersError`, `loadUsers`, `renderUsers` | `stmt030` | — | — |
+| `banUserFromPanel` | async function | 41572 | 14 | (id, unban) | `api`, `usersError`, `loadUsers`, `renderUsers` | `stmt030`×2 | — | — |
+| `openCommitsPanel` | function | 41616 | 6 | () | `loadCommits` | — | статич.×1 | — |
+| `closeCommitsPanel` | function | 41623 | 4 | () | — | `stmt031` | статич.×1 | — |
+| `switchCommitTab` | function | 41628 | 14 | (tab) | `commitTab`×4, `PERM`×2, `can`×2, `layoutPlan`, `layoutError`, `loadLayoutHistory`, `layoutRevertTo`, `loadCommits`, `renderCommits` | — | статич.×3 | — |
+| `planRelayout` | async function | 41653 | 12 | () | `layoutPlan`×2, `layoutError`×2, `api`, `renderCommits` | — | динам.×2 | — |
+| `loadLayoutHistory` | async function | 41672 | 5 | () | `api`, `layoutHistoryItems`, `renderCommits` | `switchCommitTab`, `doLayoutRevert`, `applyRelayout` | — | — |
+| `cancelLayoutRevert` | function | 41683 | 1 | () | `layoutRevertTo`, `renderCommits` | — | динам.×1 | — |
+| `askLayoutRevert` | function | 41685 | 5 | (id) | `layoutHistoryItems`, `layoutRevertTo`, `renderCommits` | — | динам.×1 | — |
+| `doLayoutRevert` | async function | 41691 | 18 | () | `layoutRevertTo`×3, `layoutError`×2, `showTemporaryMessage`, `api`, `layoutPlan`, `loadLayoutHistory`, `renderCommits`, `pullGraphSince` | — | динам.×1 | — |
+| `applyRelayout` | async function | 41710 | 22 | () | `layoutPlan`×3, `layoutError`×2, `showTemporaryMessage`, `api`, `loadLayoutHistory`, `renderCommits`, `pullGraphSince` | — | динам.×2 | — |
+| `loadCommits` | async function | 41733 | 15 | () | `commitItems`×3, `commitError`×2, `api`, `commitTab`, `renderCommits` | `openCommitsPanel`, `switchCommitTab`, `reviewCommitFromPanel`, `revertCommitFromPanel` | — | — |
+| `commitStateWords` | function | 41764 | 3 | (state2) | `COMMIT_STATES` | `renderCommits` | — | — |
+| `commitStateKind` | function | 41768 | 3 | (state2) | `COMMIT_STATES` | `renderCommits` | — | — |
+| `changesDiff` | function | 41797 | 21 | (changes) | `escapeAttr`×3, `CHANGE_FIELD_LABELS`, `CHANGE_KIND_LABELS`, `conflictValue`, `richText` | `renderCommits` | — | — |
+| `provenanceDiff` | function | 41819 | 32 | (changes) | `escapeAttr`×3, `stateInWords`×2 | `renderCommits` | — | — |
+| `footnotesDiff` | function | 41858 | 22 | (changes) | `escapeAttr`×3, `FOOTNOTE_LABELS` | `renderCommits` | — | — |
+| `stateInWords` | function | 41881 | 4 | (stateCode) | `PROVENANCE_STATES` | `provenanceDiff`×2 | — | — |
+| `layoutHistoryHtml` | function | 41894 | 15 | () | `escapeAttr`×5, `layoutHistoryItems`×2, `LAYOUT_KINDS` | `layoutTabHtml`×2 | — | — |
+| `layoutTabHtml` | function | 41910 | 49 | () | `layoutRevertTo`×5, `escapeAttr`×4, `layoutPlan`×3, `layoutError`×2, `layoutHistoryHtml`×2, `LAYOUT_KINDS` | `renderCommits` | — | — |
+| `renderCommits` | function | 41960 | 86 | () | `escapeAttr`×14, `PERM`×4, `can`×4, `commitTab`×3, `commitItems`×3, `commitError`×2, `refreshEditCount`×2, `commitStateWords`, `commitStateKind`, `changesDiff`, `provenanceDiff`, `footnotesDiff`, `layoutTabHtml`, `conflictRowsHtml` | `switchCommitTab`, `planRelayout`, `loadLayoutHistory`, `cancelLayoutRevert`, `askLayoutRevert`, `doLayoutRevert`, `applyRelayout`, `loadCommits`, `reviewCommitFromPanel`, `revertCommitFromPanel` | — | — |
+| `refreshEditCount` | function | 42053 | 7 | (count) | — | `renderCommits`×2 | — | — |
+| `reviewCommitFromPanel` | async function | 42061 | 20 | (id, verdict) | `emit`, `api`, `commitItems`, `commitError`, `loadCommits`, `renderCommits`, `pullGraphSince` | `stmt031`×2 | — | — |
+| `revertCommitFromPanel` | async function | 42082 | 14 | (id) | `api`, `commitError`, `loadCommits`, `renderCommits`, `pullGraphSince` | `stmt031` | — | — |
+| `showImpact` | async function | 42106 | 16 | (id) | `api`, `describeImpact` | `stmt031` | — | — |
+| `describeImpact` | function | 42127 | 26 | (data) | `escapeAttr`×2 | `showImpact` | — | — |
+| `refreshUnread` | async function | 42189 | 11 | () | `unreadCount`×4, `renderBell`×2, `authSession`, `serverMode`, `api` | `markNotificationRead`, `markAllNotificationsRead`, `stmt032`, `stmt033` | — | — |
+| `loadNotifications` | async function | 42201 | 7 | () | `notifyItems`×2, `authSession`, `serverMode`, `api`, `renderNotifyList` | `toggleNotifyPanel` | — | — |
+| `renderBell` | function | 42209 | 9 | () | `unreadCount`×3, `authSession`, `serverMode` | `refreshUnread`×2, `stmt033` | — | — |
+| `renderNotifyList` | function | 42219 | 18 | () | `escapeAttr`×3, `notifyItems`×2, `notifyWords` | `loadNotifications`, `markNotificationRead`, `markAllNotificationsRead` | — | — |
+| `notifyWords` | function | 42239 | 17 | (kind) | — | `renderNotifyList` | — | — |
+| `toggleNotifyPanel` | function | 42257 | 7 | () | `loadNotifications` | — | статич.×1 | — |
+| `markNotificationRead` | async function | 42265 | 9 | (id) | `serverMode`, `api`, `notifyItems`, `refreshUnread`, `renderNotifyList` | `stmt035` | — | — |
+| `markAllNotificationsRead` | async function | 42275 | 7 | () | `serverMode`, `api`, `notifyItems`, `refreshUnread`, `renderNotifyList` | — | статич.×1 | — |
+| `warnRemoteEdit` | function | 42308 | 14 | (touched) | `ModalContext`×2, `reportSubmit` | `stmt036` | — | — |
+| `showConflict` | function | 42325 | 21 | (descr, clashes, commitId=…) | `reportSubmit`×2, `conflictRowsHtml`, `lastConflict` | `stmt029` | — | — |
+| `conflictValue` | function | 42358 | 7 | (v) | `FOOTNOTE_LABELS` | `conflictRowsHtml`×3, `changesDiff` | — | — |
+| `conflictRowsHtml` | function | 42365 | 16 | (clashes) | `escapeAttr`×6, `conflictValue`×3 | `renderCommits`, `showConflict` | — | — |
+| `rebuildOverCurrent` | async function | 42385 | 29 | (given=…) | `reportSubmit`×2, `links`, `closeUniversalModal`, `openEditPhilosopherModal`, `openEditConceptModal`, `openEditConnectionModal`, `api`, `markSupersedes`, `applyFreshGraph`, `closeConflictModal`, `lastConflict` | `stmt031` | статич.×1 | — |
+| `replaceEntity` | function | 42429 | 9 | (set, id, record) | — | `applyIncrement` | — | — |
+| `applyIncrement` | function | 42443 | 18 | (increment) | `traditions`, `philosophers`, `rubrics`, `relationTypes`, `concepts`, `relations`, `knownGraphVersion`, `replaceEntity`, `rebuildDerived`, `afterDataChange` | `pullGraphSince` | — | — |
+| `pullGraphSince` | async function | 42463 | 30 | () | `knownGraphVersion`×3, `api`×2, `applyServerLayout`, `emit`, `serverMode`, `applyIncrement`, `applyFreshGraph` | `submitAuth`×2, `doLayoutRevert`, `applyRelayout`, `reviewCommitFromPanel`, `revertCommitFromPanel`, `connectLive`, `revertEntityToVersion`, `stmt042` | — | — |
+| `connectLive` | function ⟲ | 42499 | 38 | () | `liveSocket`×5, `authSession`×2, `serverMode`×2, `liveRetry`×2, `emit`, `pullGraphSince`, `liveClosedOnPurpose` | `submitAuth`×2, `stmt042` | — | — |
+| `disconnectLive` | function | 42544 | 5 | () | `liveSocket`×2 | `authLogout` | — | — |
+| `rebuildDerived` | function | 42569 | 43 | () | `nodes`×4, `links`×2, `philosophers`, `concepts`, `relations`, `viewWidth`, `viewHeight` | `applyIncrement`, `applyFreshGraph` | — | — |
+| `applyFreshGraph` | function | 42613 | 17 | (state2) | `traditions`×2, `philosophers`×2, `rubrics`×2, `relationTypes`×2, `concepts`×2, `relations`×2, `applyServerLayout`, `rebuildDerived`, `afterDataChange` | `sendCommit`, `rebuildOverCurrent`, `pullGraphSince` | — | — |
+| `closeConflictModal` | function | 42631 | 4 | () | — | `rebuildOverCurrent` | статич.×1 | — |
+| `reportSubmit` | function | 42639 | 19 | (kind, text) | `noticeTimer`×2, `lastSubmitResult` | `sendCommit`×3, `showConflict`×2, `rebuildOverCurrent`×2, `authLogout`, `warnRemoteEdit` | — | — |
+| `afterDataChange` | function | 42664 | 36 | (what) | `selectedPhilosophers`×2, `philosopherConcepts`, `rebuildIndexes`, `emit`, `linkLayer`, `rebuildDerivedIndexes`, `markDirty` | `saveConceptData`×2, `saveConnectionData`×2, `applyIncrement`, `applyFreshGraph`, `savePhilosopherData`, `deletePhilosopher`, `deleteConcept`, `deleteConnection` | — | — |
+| `selectConceptOnGraph` | function | 42718 | 31 | (type, mode=…) | `gfxCanvas` | `initConnectionSearchFields`×2 | — | — |
+| `cancelGraphSelection` | function | 42750 | 14 | () | `gfxCanvas` | `closeUniversalModal`×2, `stmt044`×2, `dispatchClick`, `handleConceptSelection` | динам.×1 | — |
+| `handleConceptSelection` | function | 42770 | 6 | (conceptId) | `emit`, `cancelGraphSelection` | `handleNodeClick`, `dispatchClick` | — | — |
+| `historyBlock` | function | 42828 | 17 | (kind, entityId) | `escapeAttr`×4, `serverMode` | `generateConnectionViewContent`, `generateConceptViewContent`, `generatePhilosopherViewContent` | — | — |
+| `toggleEntityHistory` | async function | 42846 | 18 | (kind, entityId) | `historyBusy`×3, `historyFor`×2, `historyItems`×2, `renderEntityHistory`×2, `api`, `toggleSubsection` | `revertEntityToVersion`×2 | динам.×1 | — |
+| `renderEntityHistory` | function | 42870 | 39 | (kind, entityId) | `escapeAttr`×10, `historyItems`×2, `PERM`, `can` | `toggleEntityHistory`×2 | — | — |
+| `revertEntityToVersion` | async function | 42910 | 20 | (kind, entityId, version) | `toggleEntityHistory`×2, `api`, `pullGraphSince`, `historyFor`, `historyItems` | — | динам.×1 | — |
+| `provenanceBlock` | function | 42931 | 24 | (value, status) | `escapeAttr` | `generateConnectionVisualization`, `generateConceptViewContent`, `generatePhilosopherViewContent` | — | — |
+| `withoutFootnotes` | function | 42971 | 4 | (text) | `FOOTNOTE_MARK_SOURCE` | `descriptionHtml`, `descriptionPlain`, `provenanceEntityDrift` | — | — |
+| `richText` | function | 42987 | 13 | (text) | `RICH_TAG`, `escapeAttr` | `changesDiff`, `descriptionHtml`, `footnotedText` | — | — |
+| `descriptionHtml` | function | 43001 | 1 | (text) | `withoutFootnotes`, `richText` | `generatePhilosopherViewContent`×4, `generateConceptViewContent`×3, `showPathDescriptionsModal`×2, `selectionRowConcept`×2, `generateTensionContent`×2, `findAndShowPath`, `selectionRowPhilosopher`, `selectionRowRelation`, `generateMetricResults`, `stmt024`, `stmt025`, `generatePhilosopherEditContent`, `philosopherTraditionsBlock` | — | — |
+| `descriptionPlain` | function | 43003 | 4 | (text) | `withoutFootnotes` | `generatePhilosopherViewContent`×2, `findAndShowPath`, `initFilters` | — | — |
+| `footnoteOrder` | function | 43009 | 9 | (...texts) | `FOOTNOTE_MARK_SOURCE` | `generateConnectionVisualization`×2, `provenanceDriftWarning`, `footnotesField`, `insertFootnote`, `refreshFootnoteRows`, `footnotesValue`, `generateConceptViewContent`, `generatePhilosopherViewContent` | — | — |
+| `footnotedText` | function | 43020 | 10 | (text, order, notes) | `FOOTNOTE_MARK_SOURCE`, `richText`, `escapeAttr` | `generateConnectionVisualization`, `generateConceptViewContent`, `generatePhilosopherViewContent` | — | — |
+| `footnotesBlock` | function | 43033 | 11 | (notes, order) | `escapeAttr`×4, `FOOTNOTE_LABELS` | `generateConnectionVisualization`, `generateConceptViewContent`, `generatePhilosopherViewContent` | — | — |
+| `installFootnoteLinks` | function | 43049 | 24 | () | `lastFootnoteHost`, `refreshFootnoteRows` | `stmt038` | — | — |
+| `escapeAttr` | function | 43075 | 4 | (s) | — | `renderCommits`×14, `renderEntityHistory`×10, `renderUsers`×8, `selectionRowRelation`×7, `renderObservations`×7, `compareObservationsInPanel`×6, `conflictRowsHtml`×6, `layoutHistoryHtml`×5, `generatePhilosopherEditContent`×5, `generateConceptEditContent`×5, `selectionRowPhilosopher`×4, `layoutTabHtml`×4, `historyBlock`×4, `footnotesBlock`×4, `findAndShowPath`×3, `selectionRowConcept`×3, `changesDiff`×3, `provenanceDiff`×3, `footnotesDiff`×3, `renderNotifyList`×3, `observationBar`×2, `startMfaEnroll`×2, `describeImpact`×2, `generateConnectionEditContent`×2, `generatePhilosopherViewContent`×2, `initFilters`, `renderSelectionList`, `deleteObservation`, `confirmMfaEnroll`, `provenanceBlock`, `richText`, `footnotedText`, `provenanceField`, `footnoteRow` | динам.×13 | — |
+| `relationIndexById` | function | 43092 | 4 | (id) | `relations` | `removeLinkEverywhere`, `saveConnectionData` | — | — |
+| `activityOverlap` | function | 43100 | 12 | (nameA, nameB) | `philosopherByName`×2 | `connectionIntegrityWarnings` | — | — |
+| `groundingCyclePath` | function | 43118 | 37 | (srcId, tgtId, extraType) | `relationTypesObj`×2, `GROUNDING_TYPES`×2, `links` | `connectionIntegrityWarnings` | — | — |
+| `pluralRu` | function | 43159 | 7 | (count, one, few, many) | — | `nConcepts`, `nLinks` | — | — |
+| `nConcepts` | const-функция | 43166 | 1 | (n) | `pluralRu` | `philosopherIntegrityWarnings`, `deletePhilosopher` | — | — |
+| `nLinks` | const-функция | 43167 | 1 | (n) | `pluralRu` | `deleteConcept` | — | — |
+| `labelOf` | const-функция | 43169 | 4 | (id) | `conceptById` | `connectionIntegrityWarnings` | — | — |
+| `connectionIntegrityWarnings` | function | 43178 | 138 | (srcId, tgtId, type, weight, bidir, original) | `links`×4, `conceptById`×2, `philosopherBirth`×2, `philosopherYears`×2, `relationTypesObj`, `isReflexiveLink`, `activityOverlap`, `groundingCyclePath`, `labelOf` | `saveConnectionData` | — | — |
+| `footnotePhrase` | function | 43334 | 12 | (texts, id) | `FOOTNOTE_MARK_SOURCE` | `provenanceDriftWarning`×2 | — | — |
+| `provenanceDriftWarning` | function | 43347 | 22 | (prev, next) | `footnotePhrase`×2, `footnoteOrder`, `provenanceEntityDrift` | `savePhilosopherData`, `saveConceptData`, `saveConnectionData` | — | — |
+| `provenanceEntityDrift` | function | 43370 | 15 | (prev, next) | `withoutFootnotes` | `provenanceDriftWarning` | — | — |
+| `conceptIntegrityWarnings` | function | 43386 | 18 | (label, philosopher, original) | `nodes`, `isConceptIsolated` | `saveConceptData` | — | — |
+| `philosopherIntegrityWarnings` | function | 43405 | 16 | (name, birth, death, original) | `nodesByPhilosopher`, `nConcepts` | `savePhilosopherData` | — | — |
+| `confirmWarnings` | function | 43423 | 5 | (title, warnings) | — | `savePhilosopherData`, `saveConceptData`, `saveConnectionData` | — | — |
+| `savePhilosopherData` | function | 43433 | 107 | () | `philosophers`×8, `selectedPhilosophers`×3, `philosopherByName`×2, `withoutEmptyOptional`×2, `footnotesValue`×2, `concepts`, `nodes`, `ModalContext`, `modalEntityExists`, `openUniversalModal`, `generateId`, `describeChange`, `submitChange`, `afterDataChange`, `provenanceDriftWarning`, `philosopherIntegrityWarnings`, `confirmWarnings`, `provenanceValue`, `provenanceFields` | — | — | 1× (строка) в `generatePhilosopherEditContent` |
+| `deletePhilosopher` | function | 43541 | 41 | (philosopherName) | `philosophers`×2, `philosopherConcepts`, `philosopherOrder`, `philosopherByName`, `nodesByPhilosopher`, `selectedPhilosophers`, `ModalContext`, `closeUniversalModal`, `getConceptConnections`, `getIsolatedConceptsAfterDeletion`, `describeChange`, `submitChange`, `afterDataChange`, `nConcepts`, `removeConceptEverywhere`, `removeLinkEverywhere` | — | — | 1× (строка) в `generatePhilosopherEditContent` |
+| `removeConceptEverywhere` | function | 43589 | 8 | (conceptId) | `concepts`×2, `nodes`×2, `conceptToRubrics`, `forgetNode` | `deletePhilosopher`, `deleteConcept` | — | — |
+| `removeLinkEverywhere` | function | 43598 | 7 | (link) | `links`×2, `relations`, `forgetLink`, `relationIndexById` | `deletePhilosopher`, `deleteConcept`, `deleteConnection` | — | — |
+| `saveConceptData` | function | 43606 | 83 | () | `concepts`×5, `nodes`×5, `conceptToRubrics`×2, `withoutEmptyOptional`×2, `openUniversalModal`×2, `describeChange`×2, `submitChange`×2, `afterDataChange`×2, `provenanceFields`×2, `footnotesValue`×2, `philosopherByName`, `storedRecord`, `ModalContext`, `modalEntityExists`, `generateId`, `addNodeToGraph`, `updateNodeOnGraph`, `provenanceDriftWarning`, `conceptIntegrityWarnings`, `confirmWarnings`, `provenanceValue` | — | — | 1× (строка) в `generateConceptEditContent` |
+| `deleteConcept` | function | 43704 | 31 | (conceptId) | `ModalContext`×6, `conceptById`, `openUniversalModal`, `closeUniversalModal`, `getConceptConnections`, `describeChange`, `submitChange`, `afterDataChange`, `nLinks`, `removeConceptEverywhere`, `removeLinkEverywhere` | — | динам.×1 | 1× (строка) в `generateConceptEditContent` |
+| `saveConnectionData` | function | 43740 | 100 | () | `ModalContext`×6, `relations`×5, `withoutEmptyOptional`×3, `links`×2, `conceptById`×2, `modalEntityExists`×2, `openUniversalModal`×2, `generateId`×2, `describeChange`×2, `submitChange`×2, `afterDataChange`×2, `footnotesValue`×2, `relationTypesObj`, `storedRecord`, `findConnection`, `addLinkToGraph`, `updateLinkOnGraph`, `relationIndexById`, `connectionIntegrityWarnings`, `provenanceDriftWarning`, `confirmWarnings`, `provenanceValue`, `provenanceFields` | — | — | 1× (строка) в `generateConnectionEditContent` |
+| `deleteConnection` | function | 43841 | 49 | (sourceId=…, targetId=…) | `ModalContext`×6, `conceptById`×3, `findConnection`×3, `relationTypesObj`, `links`, `isReflexiveLink`, `openUniversalModal`, `closeUniversalModal`, `getConceptConnections`, `describeChange`, `submitChange`, `afterDataChange`, `removeLinkEverywhere` | — | динам.×1 | 1× (строка) в `generateConnectionEditContent` |
+| `provenanceField` | function | 43916 | 22 | (data) | `escapeAttr`, `PROVENANCE_STATES` | `generatePhilosopherEditContent`, `generateConceptEditContent`, `generateConnectionEditContent` | — | — |
+| `refreshProvenanceField` | function | 43943 | 17 | () | — | — | динам.×1 | — |
+| `provenanceValue` | function | 43962 | 12 | () | `needsCitation` | `savePhilosopherData`, `saveConceptData`, `saveConnectionData` | — | — |
+| `provenanceFields` | function | 43984 | 4 | (line, state) | — | `saveConceptData`×2, `savePhilosopherData`, `saveConnectionData` | — | — |
+| `footnoteRow` | function | 43993 | 15 | (note, n) | `FOOTNOTE_LABELS`, `FOOTNOTE_STATE_ORDER`, `escapeAttr` | `footnotesField`, `insertFootnote` | — | — |
+| `footnotesField` | function | 44009 | 15 | (record) | `footnoteOrder`, `footnoteRow` | `generatePhilosopherEditContent`, `generateConceptEditContent`, `generateConnectionEditContent` | — | — |
+| `footnoteHosts` | function | 44028 | 4 | () | — | `insertFootnote`, `removeFootnote`, `refreshFootnoteRows`, `footnotesValue` | — | — |
+| `insertFootnote` | function | 44033 | 22 | () | `lastFootnoteHost`×2, `footnoteOrder`, `footnoteRow`, `footnoteHosts`, `refreshFootnoteRows` | — | динам.×1 | — |
+| `removeFootnote` | function | 44056 | 7 | (id) | `footnoteHosts`, `refreshFootnoteRows` | — | динам.×1 | — |
+| `refreshFootnoteRows` | function | 44066 | 19 | () | `footnoteOrder`, `footnoteHosts` | `installFootnoteLinks`, `insertFootnote`, `removeFootnote` | динам.×1 | — |
+| `footnotesValue` | function | 44087 | 17 | () | `FOOTNOTE_LABELS`, `footnoteOrder`, `footnoteHosts` | `savePhilosopherData`×2, `saveConceptData`×2, `saveConnectionData`×2, `footnotesChanged` | — | — |
+| `footnotesChanged` | function | 44106 | 5 | (record) | `footnotesValue` | `hasPhilosopherChanges`, `hasConceptChanges`, `hasConnectionChanges` | — | — |
+| `needsCitation` | function | 44112 | 3 | (state) | — | `provenanceValue` | — | — |
+| `commitReasonField` | function | 44127 | 9 | () | `serverMode` | `modalActions` | — | — |
+| `modalActions` | function | 44137 | 15 | (saveFn, deleteFn, deleteArg, isNew) | `commitReasonField` | `generatePhilosopherEditContent`, `generateConceptEditContent`, `generateConnectionEditContent` | — | — |
+| `updatePhilColorSample` | function | 44157 | 17 | () | `getContrastColor` | `syncPhilColorFromPicker`, `generatePhilosopherEditContent` | динам.×2 | — |
+| `syncPhilColorFromPicker` | function | 44175 | 6 | () | `updatePhilColorSample` | — | динам.×1 | — |
+| `generatePhilosopherEditContent` | function | 44182 | 118 | (philosopherName) | `escapeAttr`×5, `traditions`, `philosopherByName`, `nodesByPhilosopher`, `descriptionHtml`, `provenanceField`, `footnotesField`, `modalActions`, `updatePhilColorSample` | — | — | вероятно через `window[…]` в `modalContentFor` |
+| `generateConceptEditContent` | function | 44305 | 133 | (conceptData) | `escapeAttr`×5, `philosopherConcepts`×3, `relationHint`×2, `storedRecord`×2, `rubrics`, `relationTypesObj`, `conceptToRubrics`, `conceptById`, `isReflexiveLink`, `linkArrow`, `sortPhilosophersByBirth`, `philosopherYears`, `getConceptConnections`, `provenanceField`, `footnotesField`, `modalActions` | — | — | вероятно через `window[…]` в `modalContentFor` |
+| `onConnTypeChange` | function | 44446 | 39 | () | `relationTypesObj`, `links`, `LAYER_NAMES`, `updateConnEditPairNote` | `generateConnectionEditContent` | динам.×1 | — |
+| `updateConnEditPairNote` | function | 44487 | 25 | () | `ModalContext`×2, `links`, `isReflexiveLink`, `connectionsBetween` | `onConnTypeChange`, `selectConnectionEditConcept`, `swapConnectionConcepts` | — | — |
+| `connEditSelectedBlock` | function | 44513 | 9 | (type, node) | — | `generateConnectionEditContent`×2 | — | — |
+| `generateConnectionEditContent` | function | 44523 | 98 | (connectionData) | `conceptById`×2, `relationHint`×2, `storedRecord`×2, `ModalContext`×2, `escapeAttr`×2, `connEditSelectedBlock`×2, `relationTypesObj`, `WEIGHT_OPTIONS`, `provenanceField`, `footnotesField`, `modalActions`, `onConnTypeChange`, `setupConnectionEditSearchHandlers` | — | — | вероятно через `window[…]` в `modalContentFor` |
+| `handleConnectionEditSearch` | function | 44626 | 29 | (type, query) | `pickConcepts`, `rowInner`, `emptyList`, `ModalContext`, `connectionsBetween` | `setupConnectionEditSearchHandlers` | — | — |
+| `selectConnectionEditConcept` | function | 44656 | 18 | (type, conceptId) | `conceptById`, `ModalContext`, `updateConnEditPairNote` | `stmt057` | динам.×1 | — |
+| `setupConnectionEditSearchHandlers` | function | 44675 | 13 | () | `initConnectionSearchFields`×2, `handleConnectionEditSearch` | `generateConnectionEditContent` | — | — |
+| `swapConnectionConcepts` | function | 44689 | 20 | () | `ModalContext`×5, `conceptById`, `updateConnEditPairNote` | — | динам.×1 | — |
+| `createNewConceptForPhilosopher` | function | 44711 | 3 | (philosopherName) | `openUniversalModal` | — | динам.×1 | — |
+| `createNewConnectionForConcept` | function | 44715 | 7 | (conceptId) | `conceptById`, `openUniversalModal` | — | динам.×1 | — |
+| `connectionsBetween` | function | 44734 | 8 | (sourceId, targetId) | `links` | `updateConnEditPairNote`, `handleConnectionEditSearch`, `generateConnectionVisualization`, `updateConnectionVisualization` | — | — |
+| `conceptCircle` | function | 44743 | 6 | (node, size) | `philosopherConcepts`×2 | `conceptPlate` | — | — |
+| `conceptPlate` | function | 44750 | 16 | (node) | `philosopherConcepts`×2, `getContrastColor`, `conceptCircle` | `generateConnectionVisualization`×3 | — | — |
+| `connectionTraditionNote` | function | 44774 | 13 | (aPhil, bPhil) | `philosopherTraditions`×2, `traditionsOfPhilosopher`×2, `traditionById` | `generateConnectionVisualization` | — | — |
+| `connectionArrowSvg` | function | 44789 | 60 | (conn, index) | `relationTypesObj`, `isReflexiveLink` | `generateConnectionVisualization` | — | — |
+| `generateConnectionVisualization` | function | 44850 | 75 | (sourceNode, targetNode, connectionData) | `storedRecord`×4, `conceptPlate`×3, `relationHint`×2, `footnoteOrder`×2, `relationTypesObj`, `isReflexiveLink`, `provenanceBlock`, `footnotedText`, `footnotesBlock`, `CONN_WEIGHT_WORDS`, `connectionsBetween`, `connectionTraditionNote`, `connectionArrowSvg` | `generateConnectionViewContent`, `updateConnectionVisualization` | — | — |
+| `generateConnectionViewContent` | function | 44926 | 85 | (connectionData) | `conceptById`×2, `ModalContext`×2, `historyBlock`, `generateConnectionVisualization` | — | — | вероятно через `window[…]` в `modalContentFor` |
+| `toggleConnectionSearchSection` | function | 45023 | 8 | () | — | — | динам.×1 | — |
+| `handleConnectionViewSearch` | function | 45043 | 42 | (type, query) | `nodes`×2, `links`, `pickConcepts`, `rowInner`, `emptyList`, `ModalContext` | — | динам.×2 | — |
+| `selectConnectionViewConcept` | function | 45086 | 33 | (type, conceptId) | `ModalContext`×3, `conceptById`, `updateConnectionVisualization` | `stmt057` | динам.×1 | — |
+| `updateConnectionVisualization` | function | 45120 | 18 | () | `conceptById`×2, `ModalContext`, `connectionsBetween`, `generateConnectionVisualization` | `selectConnectionViewConcept` | — | — |
+| `initConnectionSearchFields` | function | 45142 | 18 | (mode=…) | `selectConceptOnGraph`×2 | `openUniversalModal`×2, `setupConnectionEditSearchHandlers`×2 | — | — |
+| `generateConceptViewContent` | function | 45166 | 259 | (conceptData) | `relationTypesObj`×4, `philosopherConcepts`×3, `descriptionHtml`×3, `conceptToRubrics`×2, `orientLink`×2, `linkArrow`×2, `otherEndColor`×2, `nodes`, `links`, `conceptById`, `rubricById`, `getContrastColor`, `storedRecord`, `similarConceptsBlock`, `historyBlock`, `provenanceBlock`, `footnoteOrder`, `footnotedText`, `footnotesBlock` | — | — | вероятно через `window[…]` в `modalContentFor` |
+| `toggleConnectionDescription` | function | 45427 | 12 | (id) | — | — | динам.×4 | — |
+| `toggleAllRoot` | function | 45443 | 7 | (btn) | — | `toggleAllConnectionDescriptions`, `toggleAllPhilosopherConceptDescriptions`, `toggleAllPhilosopherConnectionDescriptions` | — | — |
+| `toggleAllConnectionDescriptions` | function | 45454 | 37 | (btn) | `allDescriptionsExpanded`×4, `toggleAllRoot` | — | динам.×1 | — |
+| `toggleSubsection` | function | 45493 | 14 | (sectionId) | — | `toggleEntityHistory` | динам.×4 | — |
+| `gotoNodeFromModal` | function | 45509 | 23 | (nodeId) | `selectedNodes`×2, `conceptById`, `viewWidth`, `viewHeight`, `gfxSvg`, `gfxNode`, `gfxZoom`, `highlightConnected`, `closeDetailModal` | — | динам.×1 | — |
+| `showAllConcepts` | function | 45534 | 28 | (rubricId, currentConceptId) | `philosopherConcepts`, `nodes`, `conceptToRubrics`, `rubricById` | — | динам.×1 | — |
+| `conjugateVerb` | function | 45565 | 9 | (count, singularForm) | — | `generatePhilosopherViewContent`×5 | — | — |
+| `declinePhilosopher` | function | 45576 | 26 | (count, grammaticalCase) | — | `generatePhilosopherViewContent`×22 | — | — |
+| `philosopherTraditionsBlock` | function | 45611 | 37 | (name) | `philosopherConcepts`×2, `philosophers`, `philosopherTraditions`, `comparePhilosophers`, `descriptionHtml`, `DATA_traditions_of` | `generatePhilosopherViewContent` | — | — |
+| `DATA_traditions_of` | function | 45650 | 4 | (name) | `traditionById`, `philosopherTraditions` | `philosopherTraditionsBlock` | — | — |
+| `similarPhilosophersBlock` | function | 45655 | 31 | (philosopherName) | `nearestPhilosophers`×3 | `generatePhilosopherViewContent` | — | — |
+| `generatePhilosopherViewContent` | function | 45691 | 488 | (philosopherName) | `declinePhilosopher`×22, `conceptById`×12, `relationTypesObj`×5, `conjugateVerb`×5, `getContrastColor`×4, `descriptionHtml`×4, `nodesByPhilosopher`×3, `philosopherBirth`×3, `formatBirthYear`×3, `sortPhilosophersByBirth`×3, `philosopherYears`×3, `philosopherConcepts`×2, `links`×2, `orientLink`×2, `linkArrow`×2, `otherEndColor`×2, `descriptionPlain`×2, `escapeAttr`×2, `conceptToRubrics`, `philosopherByName`, `traditionById`, `rubricById`, `historyBlock`, `provenanceBlock`, `footnoteOrder`, `footnotedText`, `footnotesBlock`, `philosopherTraditionsBlock`, `similarPhilosophersBlock` | — | — | вероятно через `window[…]` в `modalContentFor` |
+| `togglePhilosopherConceptDescription` | function | 46181 | 12 | (conceptId) | — | — | динам.×1 | — |
+| `toggleAllPhilosopherConceptDescriptions` | function | 46197 | 32 | (btn) | `allPhilosopherConceptDescriptionsExpanded`×4, `toggleAllRoot` | — | динам.×1 | — |
+| `toggleAllPhilosopherConnectionDescriptions` | function | 46233 | 31 | (btn) | `allPhilosopherConnectionDescriptionsExpanded`×4, `toggleAllRoot` | — | динам.×1 | — |
+| `makeLegendsEditable` | function | 46265 | 81 | () | `PERM`×2, `can`×2, `openEditPhilosopherModal`×2, `highlightPhilosopherOnGraph`, `philRowTip`, `refreshEditHints`, `showPhilosopherDetailModal` | `stmt040`, `stmt053` | — | — |
+| `closeAllModals` | function | 46372 | 13 | () | `closePathDescriptionsModal`×2, `closeAboutModal`×2, `closeConceptProfileModal`×2, `closePhilosopherProfileModal`×2, `closeUniversalModal`×2, `closeDetailModal`×2, `closePhilosopherDetailModal`×2 | `stmt043`, `stmt044` | — | — |
 
 
 ## 2. Глобальные константы и переменные
@@ -1040,57 +1041,57 @@
 | `authSession` | let | 40115 | объект (1) | — | `observationsAllowed`×2, `connectLive`×2, `setSessionUser`, `renderAuthControls`, `refreshUnread`, `loadNotifications`, `renderBell` |
 | `authModalKind` | let | 40116 | строка | — | `submitAuth`×3, `openAuthModal`, `openSecurityModal`, `showAuthNotice` |
 | `PERM` | const | 40134 | вызов Object.freeze() | — | `renderCommits`×4, `renderObservations`×3, `setSessionUser`×2, `switchCommitTab`×2, `makeLegendsEditable`×2, `observationBar`, `handleNodeClick`, `handleLinkClick`, `dispatchClick`, `philRowTip`, `refreshEditHints`, `openUniversalModal`, `toggleModalMode`, `openEditPhilosopherModal`, `openEditConceptModal`, `openEditConnectionModal`, `submitChange`, `renderUsers`, `renderEntityHistory` |
-| `granted` | let | 40152 | new Set | — | `setPermissions`, `can` |
-| `securitySecret` | let | 40217 | литерал null | — | `openSecurityModal`, `startMfaEnroll`, `confirmMfaEnroll` |
-| `logoutInFlight` | let | 40480 | литерал null | — | `submitAuth`×2, `authLogout`×2 |
-| `pinnedVisibleNodes` | const | 40922 | new Set | — | `applyBasicFilter`×3, `resetBeyondFilter`, `selectSearchResult`, `addNodeToGraph`, `forgetNode` |
-| `DATA_SETS` | const | 41078 | массив (6) | — | `downloadData`×2, `saveToFolder` |
-| `hasUnsavedEdits` | let | 41080 | литерал false | — | `markDirty`, `hasUnsaved`, `trackDirectEdit`, `downloadData`, `saveToFolder` |
-| `unconfirmedDirect` | let | 41089 | литерал 0 | — | `trackDirectEdit`×2, `hasUnsaved` |
-| `dataFolder` | let | 41131 | литерал null | — | `saveToFolder`×3 |
-| `serverMode` | let | 41176 | литерал false | — | `submitAuth`×2, `detectServerMode`×2, `connectLive`×2, `observationsAllowed`, `observationBar`, `loadObservations`, `authLogout`, `markDirty`, `api`, `submitChange`, `refreshUnread`, `loadNotifications`, `renderBell`, `markNotificationRead`, `markAllNotificationsRead`, `pullGraphSince`, `historyBlock`, `commitReasonField` |
-| `lastSubmitted` | let | 41327 | литерал null | — | `submitChange` |
-| `supersedesNext` | let | 41359 | литерал null | — | `sendCommit`×5, `markSupersedes` |
-| `userItems` | let | 41462 | массив (0) | — | `loadUsers`×3, `renderUsers`×2 |
-| `usersError` | let | 41463 | строка | — | `loadUsers`×2, `renderUsers`×2, `changeUserRoleFromPanel`, `banUserFromPanel` |
-| `commitTab` | let | 41576 | строка | — | `switchCommitTab`×4, `renderCommits`×3, `loadCommits` |
-| `commitItems` | let | 41577 | массив (0) | — | `loadCommits`×3, `renderCommits`×3, `reviewCommitFromPanel`, `stmt031` |
-| `commitError` | let | 41578 | строка | — | `loadCommits`×2, `renderCommits`×2, `reviewCommitFromPanel`, `revertCommitFromPanel` |
-| `layoutPlan` | let | 41614 | литерал null | — | `applyRelayout`×3, `layoutTabHtml`×3, `planRelayout`×2, `switchCommitTab`, `doLayoutRevert` |
-| `layoutError` | let | 41615 | строка | — | `planRelayout`×2, `doLayoutRevert`×2, `applyRelayout`×2, `layoutTabHtml`×2, `switchCommitTab` |
-| `layoutHistoryItems` | let | 41634 | массив (0) | — | `layoutHistoryHtml`×2, `loadLayoutHistory`, `askLayoutRevert` |
-| `layoutRevertTo` | let | 41645 | литерал null | — | `layoutTabHtml`×5, `doLayoutRevert`×3, `switchCommitTab`, `cancelLayoutRevert`, `askLayoutRevert` |
-| `COMMIT_STATES` | const | 41719 | вызов Object.freeze() | — | `commitStateWords`, `commitStateKind` |
-| `CHANGE_FIELD_LABELS` | const | 41755 | объект (17) | — | `changesDiff` |
-| `CHANGE_KIND_LABELS` | const | 41759 | объект (6) | — | `changesDiff` |
-| `LAYOUT_KINDS` | const | 41856 | вызов Object.freeze() | — | `layoutHistoryHtml`, `layoutTabHtml` |
-| `unreadCount` | let | 42150 | литерал 0 | — | `refreshUnread`×4, `renderBell`×3 |
-| `notifyItems` | let | 42151 | массив (0) | — | `loadNotifications`×2, `renderNotifyList`×2, `markNotificationRead`, `markAllNotificationsRead` |
-| `knownGraphVersion` | let | 42390 | литерал 0 | — | `pullGraphSince`×3, `applyIncrement` |
-| `liveSocket` | let | 42502 | литерал null | — | `connectLive`×5, `disconnectLive`×2, `stmt037`×2 |
-| `liveRetry` | let | 42503 | литерал 0 | — | `connectLive`×2 |
-| `liveClosedOnPurpose` | let | 42504 | литерал false | — | `connectLive`, `stmt037` |
-| `lastConflict` | let | 42600 | литерал null | — | `showConflict`, `rebuildOverCurrent` |
-| `noticeTimer` | let | 42623 | литерал null | — | `reportSubmit`×2 |
-| `lastSubmitResult` | let | 42625 | литерал null | — | `reportSubmit` |
-| `graphSelectionContext` | window-объявление | 42680 | объект (3) | — | — |
-| `WEIGHT_OPTIONS` | const | 42748 | массив (3) | — | `generateConnectionEditContent` |
-| `historyFor` | let | 42777 | литерал null | — | `toggleEntityHistory`×2, `revertEntityToVersion` |
-| `historyItems` | let | 42778 | массив (0) | — | `toggleEntityHistory`×2, `renderEntityHistory`×2, `revertEntityToVersion` |
-| `historyBusy` | let | 42779 | литерал false | — | `toggleEntityHistory`×3 |
-| `FOOTNOTE_MARK_SOURCE` | const | 42927 | TaggedTemplateExpression | — | `withoutFootnotes`, `footnoteOrder`, `footnotedText`, `footnotePhrase` |
-| `FOOTNOTE_LABELS` | const | 42930 | объект (3) | — | `footnotesDiff`, `conflictValue`, `footnotesBlock`, `footnoteRow`, `footnotesValue` |
-| `FOOTNOTE_STATE_ORDER` | const | 42932 | массив (3) | — | `footnoteRow` |
-| `RICH_TAG` | const | 42950 | литерал {} | — | `richText` |
-| `lastFootnoteHost` | let | 43012 | литерал null | — | `insertFootnote`×2, `installFootnoteLinks` |
-| `GROUNDING_TYPES` | const | 43079 | new Set | — | `groundingCyclePath`×2 |
-| `PROVENANCE_STATES` | const | 43873 | массив (4) | — | `stateInWords`, `provenanceField` |
-| `CONN_WEIGHT_WORDS` | const | 44695 | объект (3) | — | `generateConnectionVisualization` |
-| `allDescriptionsExpanded` | let | 45416 | литерал false | — | `toggleAllConnectionDescriptions`×4 |
-| `allPhilosopherConceptDescriptionsExpanded` | let | 46159 | литерал false | — | `toggleAllPhilosopherConceptDescriptions`×4 |
-| `allPhilosopherConnectionDescriptionsExpanded` | let | 46195 | литерал false | — | `toggleAllPhilosopherConnectionDescriptions`×4 |
-| `legendWeightsToggle` | const | 46511 | вызов document.getElementById() | — | `stmt079`×2 |
-| `legendDirectionToggle` | const | 46513 | вызов document.getElementById() | — | `stmt080`×2 |
+| `granted` | let | 40160 | new Set | — | `setPermissions`, `can` |
+| `securitySecret` | let | 40225 | литерал null | — | `openSecurityModal`, `startMfaEnroll`, `confirmMfaEnroll` |
+| `logoutInFlight` | let | 40499 | литерал null | — | `submitAuth`×2, `authLogout`×2 |
+| `pinnedVisibleNodes` | const | 40941 | new Set | — | `applyBasicFilter`×3, `resetBeyondFilter`, `selectSearchResult`, `addNodeToGraph`, `forgetNode` |
+| `DATA_SETS` | const | 41097 | массив (6) | — | `downloadData`×2, `saveToFolder` |
+| `hasUnsavedEdits` | let | 41099 | литерал false | — | `markDirty`, `hasUnsaved`, `trackDirectEdit`, `downloadData`, `saveToFolder` |
+| `unconfirmedDirect` | let | 41108 | литерал 0 | — | `trackDirectEdit`×2, `hasUnsaved` |
+| `dataFolder` | let | 41150 | литерал null | — | `saveToFolder`×3 |
+| `serverMode` | let | 41195 | литерал false | — | `submitAuth`×2, `detectServerMode`×2, `connectLive`×2, `observationsAllowed`, `observationBar`, `loadObservations`, `authLogout`, `markDirty`, `apiOnce`, `submitChange`, `refreshUnread`, `loadNotifications`, `renderBell`, `markNotificationRead`, `markAllNotificationsRead`, `pullGraphSince`, `historyBlock`, `commitReasonField` |
+| `lastSubmitted` | let | 41363 | литерал null | — | `submitChange` |
+| `supersedesNext` | let | 41395 | литерал null | — | `sendCommit`×5, `markSupersedes` |
+| `userItems` | let | 41498 | массив (0) | — | `loadUsers`×3, `renderUsers`×2 |
+| `usersError` | let | 41499 | строка | — | `loadUsers`×2, `renderUsers`×2, `changeUserRoleFromPanel`, `banUserFromPanel` |
+| `commitTab` | let | 41612 | строка | — | `switchCommitTab`×4, `renderCommits`×3, `loadCommits` |
+| `commitItems` | let | 41613 | массив (0) | — | `loadCommits`×3, `renderCommits`×3, `reviewCommitFromPanel`, `stmt031` |
+| `commitError` | let | 41614 | строка | — | `loadCommits`×2, `renderCommits`×2, `reviewCommitFromPanel`, `revertCommitFromPanel` |
+| `layoutPlan` | let | 41650 | литерал null | — | `applyRelayout`×3, `layoutTabHtml`×3, `planRelayout`×2, `switchCommitTab`, `doLayoutRevert` |
+| `layoutError` | let | 41651 | строка | — | `planRelayout`×2, `doLayoutRevert`×2, `applyRelayout`×2, `layoutTabHtml`×2, `switchCommitTab` |
+| `layoutHistoryItems` | let | 41670 | массив (0) | — | `layoutHistoryHtml`×2, `loadLayoutHistory`, `askLayoutRevert` |
+| `layoutRevertTo` | let | 41681 | литерал null | — | `layoutTabHtml`×5, `doLayoutRevert`×3, `switchCommitTab`, `cancelLayoutRevert`, `askLayoutRevert` |
+| `COMMIT_STATES` | const | 41755 | вызов Object.freeze() | — | `commitStateWords`, `commitStateKind` |
+| `CHANGE_FIELD_LABELS` | const | 41791 | объект (17) | — | `changesDiff` |
+| `CHANGE_KIND_LABELS` | const | 41795 | объект (6) | — | `changesDiff` |
+| `LAYOUT_KINDS` | const | 41892 | вызов Object.freeze() | — | `layoutHistoryHtml`, `layoutTabHtml` |
+| `unreadCount` | let | 42186 | литерал 0 | — | `refreshUnread`×4, `renderBell`×3 |
+| `notifyItems` | let | 42187 | массив (0) | — | `loadNotifications`×2, `renderNotifyList`×2, `markNotificationRead`, `markAllNotificationsRead` |
+| `knownGraphVersion` | let | 42426 | литерал 0 | — | `pullGraphSince`×3, `applyIncrement` |
+| `liveSocket` | let | 42538 | литерал null | — | `connectLive`×5, `disconnectLive`×2, `stmt037`×2 |
+| `liveRetry` | let | 42539 | литерал 0 | — | `connectLive`×2 |
+| `liveClosedOnPurpose` | let | 42540 | литерал false | — | `connectLive`, `stmt037` |
+| `lastConflict` | let | 42636 | литерал null | — | `showConflict`, `rebuildOverCurrent` |
+| `noticeTimer` | let | 42659 | литерал null | — | `reportSubmit`×2 |
+| `lastSubmitResult` | let | 42661 | литерал null | — | `reportSubmit` |
+| `graphSelectionContext` | window-объявление | 42716 | объект (3) | — | — |
+| `WEIGHT_OPTIONS` | const | 42784 | массив (3) | — | `generateConnectionEditContent` |
+| `historyFor` | let | 42813 | литерал null | — | `toggleEntityHistory`×2, `revertEntityToVersion` |
+| `historyItems` | let | 42814 | массив (0) | — | `toggleEntityHistory`×2, `renderEntityHistory`×2, `revertEntityToVersion` |
+| `historyBusy` | let | 42815 | литерал false | — | `toggleEntityHistory`×3 |
+| `FOOTNOTE_MARK_SOURCE` | const | 42963 | TaggedTemplateExpression | — | `withoutFootnotes`, `footnoteOrder`, `footnotedText`, `footnotePhrase` |
+| `FOOTNOTE_LABELS` | const | 42966 | объект (3) | — | `footnotesDiff`, `conflictValue`, `footnotesBlock`, `footnoteRow`, `footnotesValue` |
+| `FOOTNOTE_STATE_ORDER` | const | 42968 | массив (3) | — | `footnoteRow` |
+| `RICH_TAG` | const | 42986 | литерал {} | — | `richText` |
+| `lastFootnoteHost` | let | 43048 | литерал null | — | `insertFootnote`×2, `installFootnoteLinks` |
+| `GROUNDING_TYPES` | const | 43115 | new Set | — | `groundingCyclePath`×2 |
+| `PROVENANCE_STATES` | const | 43909 | массив (4) | — | `stateInWords`, `provenanceField` |
+| `CONN_WEIGHT_WORDS` | const | 44731 | объект (3) | — | `generateConnectionVisualization` |
+| `allDescriptionsExpanded` | let | 45452 | литерал false | — | `toggleAllConnectionDescriptions`×4 |
+| `allPhilosopherConceptDescriptionsExpanded` | let | 46195 | литерал false | — | `toggleAllPhilosopherConceptDescriptions`×4 |
+| `allPhilosopherConnectionDescriptionsExpanded` | let | 46231 | литерал false | — | `toggleAllPhilosopherConnectionDescriptions`×4 |
+| `legendWeightsToggle` | const | 46547 | вызов document.getElementById() | — | `stmt079`×2 |
+| `legendDirectionToggle` | const | 46549 | вызов document.getElementById() | — | `stmt080`×2 |
 
 
 ## 3. Операторы верхнего уровня
@@ -1128,67 +1129,67 @@
 | stmt025 | обработчик | 39178 | 125 | `gfxLink.on("mouseover", function(event, ….on('mouseout')` | `renderState`×3, `relationTypesObj`×2, `conceptById`×2, `requestDraw`×2, `isSymmetricLink`, `isReflexiveLink`, `gfxLink`, `selectedEdges`, `descriptionHtml` |
 | stmt026 | построение | 39409 | 8 | `philosopherNames.forEach(…)` | `cols`×2, `philosopherNames`, `groupPositions`, `spacingX`, `spacingY` |
 | stmt027 | обработчик | 39498 | 36 | `window.addEventListener('resize')` | `simulation`×5, `groupPositions`×3, `cols`×3, `viewWidth`, `viewHeight`, `resizeCanvas`, `philosopherNames`, `rows`, `isGrouped` |
-| stmt028 | обработчик | 41157 | 5 | `window.addEventListener('beforeunload')` | `hasUnsaved` |
-| stmt029 | вызов | 41446 | 2 | `subscribe()` | `subscribe`, `showConflict` |
-| stmt030 | обработчик | 41552 | 11 | `document.addEventListener('click')` | `banUserFromPanel`×2, `changeUserRoleFromPanel` |
-| stmt031 | обработчик | 42119 | 18 | `document.addEventListener('click')` | `reviewCommitFromPanel`×2, `commitItems`, `closeCommitsPanel`, `revertCommitFromPanel`, `showImpact`, `rebuildOverCurrent` |
-| stmt032 | вызов | 42247 | 1 | `subscribe()` | `subscribe`, `refreshUnread` |
-| stmt033 | вызов | 42248 | 1 | `subscribe()` | `subscribe`, `refreshUnread`, `renderBell` |
-| stmt034 | вызов | 42249 | 1 | `subscribe()` | `subscribe`, `refreshObservationsNav` |
-| stmt035 | обработчик | 42254 | 7 | `document.addEventListener('click')` | `markNotificationRead` |
-| stmt036 | вызов | 42287 | 1 | `subscribe()` | `subscribe`, `warnRemoteEdit` |
-| stmt037 | обработчик | 42515 | 4 | `window.addEventListener('pagehide')` | `liveSocket`×2, `liveClosedOnPurpose` |
-| stmt038 | вызов | 43037 | 1 | `installFootnoteLinks()` | `installFootnoteLinks` |
-| stmt039 | обработчик | 44979 | 7 | `document.addEventListener('click')` | — |
-| stmt040 | вызов | 46311 | 1 | `setTimeout()` | `makeLegendsEditable` |
-| stmt041 | вызов | 46312 | 1 | `renderAuthControls()` | `renderAuthControls` |
-| stmt042 | вызов | 46317 | 12 | `detectServerMode().then()` | `emit`, `renderAuthControls`, `refreshEditHints`, `detectServerMode`, `pullGraphSince`, `connectLive` |
-| stmt043 | обработчик | 46351 | 6 | `document.getElementById('modalOverlay').addEventListener('click')` | `closeAllModals` |
-| stmt044 | обработчик | 46359 | 22 | `document.addEventListener('keydown')` | `modalStack`×2, `cancelGraphSelection`×2, `popModalState`, `closeAllModals` |
-| stmt045 | вызов | 46383 | 1 | `console.log()` | `nodes`, `links` |
-| stmt046 | вызов | 46384 | 1 | `initFilters()` | `initFilters` |
-| stmt047 | вызов | 46387 | 1 | `subscribe()` | `subscribe`, `updateFilterStats` |
-| stmt048 | вызов | 46392 | 1 | `subscribe()` | `subscribe`, `syncTraditionRows` |
-| stmt049 | вызов | 46401 | 4 | `subscribe()` | `subscribe`, `invalidateEverythingForScope`, `initializePhilosophyMetrics` |
-| stmt050 | вызов | 46406 | 1 | `subscribe()` | `subscribe`, `updateFilterStats` |
-| stmt051 | вызов | 46410 | 3 | `subscribe()` | `similarityOverlay`×2, `subscribe`, `clearSimilarityOverlay` |
-| stmt052 | вызов | 46413 | 3 | `subscribe()` | `modalStack`×2, `subscribe` |
-| stmt053 | вызов | 46416 | 6 | `subscribe()` | `subscribe`, `initFilters`, `makeLegendsEditable` |
-| stmt054 | вызов | 46441 | 1 | `subscribe()` | `subscribe`, `updateGraphData` |
-| stmt055 | вызов | 46442 | 1 | `subscribe()` | `subscribe`, `applyFiltersImmediate` |
-| stmt056 | вызов | 46443 | 3 | `subscribe()` | `currentStatsView`×2, `subscribe`, `isStatsModalOpen`, `loadStatsContent` |
-| stmt057 | вызов | 46450 | 4 | `subscribe()` | `subscribe`, `selectConnectionEditConcept`, `selectConnectionViewConcept` |
-| stmt058 | вызов | 46454 | 1 | `subscribe()` | `subscribe`, `renderComparison` |
-| stmt059 | вызов | 46455 | 1 | `subscribe()` | `subscribe`, `switchStatsView` |
-| stmt060 | вызов | 46456 | 1 | `subscribe()` | `markChosenInLegend`, `subscribe` |
-| stmt061 | вызов | 46457 | 6 | `subscribe()` | `pinnedDespiteFilter`, `resetBeyondFilter`, `subscribe` |
-| stmt062 | вызов | 46464 | 1 | `setPainter()` | `setPainter`, `draw` |
-| stmt063 | обработчик | 46466 | 4 | `document.addEventListener('mouseover')` | `showHint` |
-| stmt064 | обработчик | 46470 | 4 | `document.addEventListener('mouseout')` | `hideHint` |
-| stmt065 | обработчик | 46474 | 1 | `document.addEventListener('scroll')` | `hideHint` |
-| stmt066 | обработчик | 46478 | 1 | `document.addEventListener('click')` | `hideHint` |
-| stmt067 | вызов | 46479 | 1 | `subscribe()` | `subscribe`, `closeStatsModal` |
-| stmt068 | вызов | 46480 | 1 | `subscribe()` | `subscribe`, `closeDetailModal` |
-| stmt069 | вызов | 46482 | 1 | `subscribe()` | `subscribe`, `showDetailModal` |
-| stmt070 | вызов | 46483 | 1 | `subscribe()` | `subscribe`, `openUniversalModal` |
-| stmt071 | вызов | 46484 | 1 | `subscribe()` | `subscribe`, `openEditConceptModal` |
-| stmt072 | вызов | 46485 | 1 | `subscribe()` | `subscribe`, `openEditConnectionModal` |
-| stmt073 | вызов | 46487 | 3 | `subscribe()` | `currentStatsView`×2, `subscribe`, `isStatsModalOpen`, `loadStatsContent` |
-| stmt074 | вызов | 46491 | 1 | `updateFilterStats()` | `updateFilterStats` |
-| stmt075 | вызов | 46493 | 1 | `initializePhilosophyMetrics()` | `initializePhilosophyMetrics` |
-| stmt076 | вызов | 46496 | 1 | `initPathFinder()` | `initPathFinder` |
-| stmt077 | вызов | 46499 | 1 | `restorePanelStates()` | `restorePanelStates` |
-| stmt078 | обработчик | 46502 | 3 | `simulation.on('end.log')` | `simulation` |
-| stmt079 | условие | 46512 | 1 | `if (legendWeightsToggle) legendWeightsToggle.checked = useWeightedPath…` | `legendWeightsToggle`×2, `useWeightedPaths` |
-| stmt080 | условие | 46514 | 1 | `if (legendDirectionToggle) legendDirectionToggle.checked = respectDire…` | `legendDirectionToggle`×2, `respectDirection` |
-| stmt081 | вызов | 46517 | 1 | `saveOriginalRadii()` | `saveOriginalRadii` |
-| stmt082 | условие | 46522 | 1 | `if (storedLayoutComplaint) showTemporaryMessage(storedLayoutComplaint,…` | `storedLayoutComplaint`×2, `showTemporaryMessage` |
-| stmt083 | вызов | 46524 | 1 | `console.log()` | — |
-| stmt084 | вызов | 46525 | 2 | `console.log()` | `useWeightedPaths`, `respectDirection` |
-| stmt085 | обработчик | 46533 | 4 | `document.getElementById('respectChronolo….addEventListener('change')` | — |
-| stmt086 | обработчик | 46539 | 13 | `document.getElementById('chronologyModeS….addEventListener('change')` | `currentChronologyMode` |
-| stmt087 | условие | 46554 | 3 | `if (document.getElementById('respectChronology').checked) { document.g…` | — |
-| stmt088 | вызов | 46558 | 1 | `console.log()` | — |
+| stmt028 | обработчик | 41176 | 5 | `window.addEventListener('beforeunload')` | `hasUnsaved` |
+| stmt029 | вызов | 41482 | 2 | `subscribe()` | `subscribe`, `showConflict` |
+| stmt030 | обработчик | 41588 | 11 | `document.addEventListener('click')` | `banUserFromPanel`×2, `changeUserRoleFromPanel` |
+| stmt031 | обработчик | 42155 | 18 | `document.addEventListener('click')` | `reviewCommitFromPanel`×2, `commitItems`, `closeCommitsPanel`, `revertCommitFromPanel`, `showImpact`, `rebuildOverCurrent` |
+| stmt032 | вызов | 42283 | 1 | `subscribe()` | `subscribe`, `refreshUnread` |
+| stmt033 | вызов | 42284 | 1 | `subscribe()` | `subscribe`, `refreshUnread`, `renderBell` |
+| stmt034 | вызов | 42285 | 1 | `subscribe()` | `subscribe`, `refreshObservationsNav` |
+| stmt035 | обработчик | 42290 | 7 | `document.addEventListener('click')` | `markNotificationRead` |
+| stmt036 | вызов | 42323 | 1 | `subscribe()` | `subscribe`, `warnRemoteEdit` |
+| stmt037 | обработчик | 42551 | 4 | `window.addEventListener('pagehide')` | `liveSocket`×2, `liveClosedOnPurpose` |
+| stmt038 | вызов | 43073 | 1 | `installFootnoteLinks()` | `installFootnoteLinks` |
+| stmt039 | обработчик | 45015 | 7 | `document.addEventListener('click')` | — |
+| stmt040 | вызов | 46347 | 1 | `setTimeout()` | `makeLegendsEditable` |
+| stmt041 | вызов | 46348 | 1 | `renderAuthControls()` | `renderAuthControls` |
+| stmt042 | вызов | 46353 | 12 | `detectServerMode().then()` | `emit`, `renderAuthControls`, `refreshEditHints`, `detectServerMode`, `pullGraphSince`, `connectLive` |
+| stmt043 | обработчик | 46387 | 6 | `document.getElementById('modalOverlay').addEventListener('click')` | `closeAllModals` |
+| stmt044 | обработчик | 46395 | 22 | `document.addEventListener('keydown')` | `modalStack`×2, `cancelGraphSelection`×2, `popModalState`, `closeAllModals` |
+| stmt045 | вызов | 46419 | 1 | `console.log()` | `nodes`, `links` |
+| stmt046 | вызов | 46420 | 1 | `initFilters()` | `initFilters` |
+| stmt047 | вызов | 46423 | 1 | `subscribe()` | `subscribe`, `updateFilterStats` |
+| stmt048 | вызов | 46428 | 1 | `subscribe()` | `subscribe`, `syncTraditionRows` |
+| stmt049 | вызов | 46437 | 4 | `subscribe()` | `subscribe`, `invalidateEverythingForScope`, `initializePhilosophyMetrics` |
+| stmt050 | вызов | 46442 | 1 | `subscribe()` | `subscribe`, `updateFilterStats` |
+| stmt051 | вызов | 46446 | 3 | `subscribe()` | `similarityOverlay`×2, `subscribe`, `clearSimilarityOverlay` |
+| stmt052 | вызов | 46449 | 3 | `subscribe()` | `modalStack`×2, `subscribe` |
+| stmt053 | вызов | 46452 | 6 | `subscribe()` | `subscribe`, `initFilters`, `makeLegendsEditable` |
+| stmt054 | вызов | 46477 | 1 | `subscribe()` | `subscribe`, `updateGraphData` |
+| stmt055 | вызов | 46478 | 1 | `subscribe()` | `subscribe`, `applyFiltersImmediate` |
+| stmt056 | вызов | 46479 | 3 | `subscribe()` | `currentStatsView`×2, `subscribe`, `isStatsModalOpen`, `loadStatsContent` |
+| stmt057 | вызов | 46486 | 4 | `subscribe()` | `subscribe`, `selectConnectionEditConcept`, `selectConnectionViewConcept` |
+| stmt058 | вызов | 46490 | 1 | `subscribe()` | `subscribe`, `renderComparison` |
+| stmt059 | вызов | 46491 | 1 | `subscribe()` | `subscribe`, `switchStatsView` |
+| stmt060 | вызов | 46492 | 1 | `subscribe()` | `markChosenInLegend`, `subscribe` |
+| stmt061 | вызов | 46493 | 6 | `subscribe()` | `pinnedDespiteFilter`, `resetBeyondFilter`, `subscribe` |
+| stmt062 | вызов | 46500 | 1 | `setPainter()` | `setPainter`, `draw` |
+| stmt063 | обработчик | 46502 | 4 | `document.addEventListener('mouseover')` | `showHint` |
+| stmt064 | обработчик | 46506 | 4 | `document.addEventListener('mouseout')` | `hideHint` |
+| stmt065 | обработчик | 46510 | 1 | `document.addEventListener('scroll')` | `hideHint` |
+| stmt066 | обработчик | 46514 | 1 | `document.addEventListener('click')` | `hideHint` |
+| stmt067 | вызов | 46515 | 1 | `subscribe()` | `subscribe`, `closeStatsModal` |
+| stmt068 | вызов | 46516 | 1 | `subscribe()` | `subscribe`, `closeDetailModal` |
+| stmt069 | вызов | 46518 | 1 | `subscribe()` | `subscribe`, `showDetailModal` |
+| stmt070 | вызов | 46519 | 1 | `subscribe()` | `subscribe`, `openUniversalModal` |
+| stmt071 | вызов | 46520 | 1 | `subscribe()` | `subscribe`, `openEditConceptModal` |
+| stmt072 | вызов | 46521 | 1 | `subscribe()` | `subscribe`, `openEditConnectionModal` |
+| stmt073 | вызов | 46523 | 3 | `subscribe()` | `currentStatsView`×2, `subscribe`, `isStatsModalOpen`, `loadStatsContent` |
+| stmt074 | вызов | 46527 | 1 | `updateFilterStats()` | `updateFilterStats` |
+| stmt075 | вызов | 46529 | 1 | `initializePhilosophyMetrics()` | `initializePhilosophyMetrics` |
+| stmt076 | вызов | 46532 | 1 | `initPathFinder()` | `initPathFinder` |
+| stmt077 | вызов | 46535 | 1 | `restorePanelStates()` | `restorePanelStates` |
+| stmt078 | обработчик | 46538 | 3 | `simulation.on('end.log')` | `simulation` |
+| stmt079 | условие | 46548 | 1 | `if (legendWeightsToggle) legendWeightsToggle.checked = useWeightedPath…` | `legendWeightsToggle`×2, `useWeightedPaths` |
+| stmt080 | условие | 46550 | 1 | `if (legendDirectionToggle) legendDirectionToggle.checked = respectDire…` | `legendDirectionToggle`×2, `respectDirection` |
+| stmt081 | вызов | 46553 | 1 | `saveOriginalRadii()` | `saveOriginalRadii` |
+| stmt082 | условие | 46558 | 1 | `if (storedLayoutComplaint) showTemporaryMessage(storedLayoutComplaint,…` | `storedLayoutComplaint`×2, `showTemporaryMessage` |
+| stmt083 | вызов | 46560 | 1 | `console.log()` | — |
+| stmt084 | вызов | 46561 | 2 | `console.log()` | `useWeightedPaths`, `respectDirection` |
+| stmt085 | обработчик | 46569 | 4 | `document.getElementById('respectChronolo….addEventListener('change')` | — |
+| stmt086 | обработчик | 46575 | 13 | `document.getElementById('chronologyModeS….addEventListener('change')` | `currentChronologyMode` |
+| stmt087 | условие | 46590 | 3 | `if (document.getElementById('respectChronology').checked) { document.g…` | — |
+| stmt088 | вызов | 46594 | 1 | `console.log()` | — |
 
 
 ## 4. Обработчики событий, навешанные из кода
@@ -1221,38 +1222,38 @@
 | 39178 | `mousemove` | `gfxLink.on("mouseover", function(event, d) { …` | .on() | функция на месте | верхний уровень: `stmt025` |
 | 39178 | `mouseover` | `gfxLink` | .on() | функция на месте | верхний уровень: `stmt025` |
 | 39498 | `resize` | `window` | addEventListener | функция на месте | верхний уровень: `stmt027` |
-| 40200 | `keydown` | `f` | addEventListener | функция на месте | `openAuthModal` |
-| 40281 | `keydown` | `field` | addEventListener | функция на месте | `startMfaEnroll` |
-| 41157 | `beforeunload` | `window` | addEventListener | функция на месте | верхний уровень: `stmt028` |
-| 41552 | `click` | `document` | addEventListener | функция на месте | верхний уровень: `stmt030` |
-| 42119 | `click` | `document` | addEventListener | функция на месте | верхний уровень: `stmt031` |
-| 42254 | `click` | `document` | addEventListener | функция на месте | верхний уровень: `stmt035` |
-| 42477 | `message` | `socket` | addEventListener | функция на месте | `connectLive` |
-| 42487 | `open` | `socket` | addEventListener | функция на месте | `connectLive` |
-| 42492 | `close` | `socket` | addEventListener | функция на месте | `connectLive` |
-| 42515 | `pagehide` | `window` | addEventListener | функция на месте | верхний уровень: `stmt037` |
-| 43025 | `mouseover` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
-| 43026 | `mouseout` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
-| 43027 | `focusin` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
-| 43031 | `focusout` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
-| 43032 | `click` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
-| 43033 | `input` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
-| 44645 | `input` | `input` | addEventListener | run | `setupConnectionEditSearchHandlers` |
-| 44646 | `focus` | `input` | addEventListener | run | `setupConnectionEditSearchHandlers` |
-| 44979 | `click` | `document` | addEventListener | функция на месте | верхний уровень: `stmt039` |
-| 45117 | `click` | `btn` | свойство | функция на месте | `initConnectionSearchFields` |
-| 46242 | `click` | `philHeader` | addEventListener | функция на месте | `makeLegendsEditable` |
-| 46272 | `click` | `item` | addEventListener | функция на месте | `makeLegendsEditable` |
-| 46287 | `dblclick` | `item` | addEventListener | функция на месте | `makeLegendsEditable` |
-| 46351 | `click` | `document.getElementById('modalOverlay')` | addEventListener | функция на месте | верхний уровень: `stmt043` |
-| 46359 | `keydown` | `document` | addEventListener | функция на месте | верхний уровень: `stmt044` |
-| 46466 | `mouseover` | `document` | addEventListener | функция на месте | верхний уровень: `stmt063` |
-| 46470 | `mouseout` | `document` | addEventListener | функция на месте | верхний уровень: `stmt064` |
-| 46474 | `scroll` | `document` | addEventListener | hideHint | верхний уровень: `stmt065` |
-| 46478 | `click` | `document` | addEventListener | hideHint | верхний уровень: `stmt066` |
-| 46502 | `end.log` | `simulation` | .on() | функция на месте | верхний уровень: `stmt078` |
-| 46533 | `change` | `document.getElementById('respectChronology')` | addEventListener | функция на месте | верхний уровень: `stmt085` |
-| 46539 | `change` | `document.getElementById('chronologyModeSelect…` | addEventListener | функция на месте | верхний уровень: `stmt086` |
+| 40208 | `keydown` | `f` | addEventListener | функция на месте | `openAuthModal` |
+| 40289 | `keydown` | `field` | addEventListener | функция на месте | `startMfaEnroll` |
+| 41176 | `beforeunload` | `window` | addEventListener | функция на месте | верхний уровень: `stmt028` |
+| 41588 | `click` | `document` | addEventListener | функция на месте | верхний уровень: `stmt030` |
+| 42155 | `click` | `document` | addEventListener | функция на месте | верхний уровень: `stmt031` |
+| 42290 | `click` | `document` | addEventListener | функция на месте | верхний уровень: `stmt035` |
+| 42513 | `message` | `socket` | addEventListener | функция на месте | `connectLive` |
+| 42523 | `open` | `socket` | addEventListener | функция на месте | `connectLive` |
+| 42528 | `close` | `socket` | addEventListener | функция на месте | `connectLive` |
+| 42551 | `pagehide` | `window` | addEventListener | функция на месте | верхний уровень: `stmt037` |
+| 43061 | `mouseover` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
+| 43062 | `mouseout` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
+| 43063 | `focusin` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
+| 43067 | `focusout` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
+| 43068 | `click` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
+| 43069 | `input` | `document` | addEventListener | функция на месте | `installFootnoteLinks` |
+| 44681 | `input` | `input` | addEventListener | run | `setupConnectionEditSearchHandlers` |
+| 44682 | `focus` | `input` | addEventListener | run | `setupConnectionEditSearchHandlers` |
+| 45015 | `click` | `document` | addEventListener | функция на месте | верхний уровень: `stmt039` |
+| 45153 | `click` | `btn` | свойство | функция на месте | `initConnectionSearchFields` |
+| 46278 | `click` | `philHeader` | addEventListener | функция на месте | `makeLegendsEditable` |
+| 46308 | `click` | `item` | addEventListener | функция на месте | `makeLegendsEditable` |
+| 46323 | `dblclick` | `item` | addEventListener | функция на месте | `makeLegendsEditable` |
+| 46387 | `click` | `document.getElementById('modalOverlay')` | addEventListener | функция на месте | верхний уровень: `stmt043` |
+| 46395 | `keydown` | `document` | addEventListener | функция на месте | верхний уровень: `stmt044` |
+| 46502 | `mouseover` | `document` | addEventListener | функция на месте | верхний уровень: `stmt063` |
+| 46506 | `mouseout` | `document` | addEventListener | функция на месте | верхний уровень: `stmt064` |
+| 46510 | `scroll` | `document` | addEventListener | hideHint | верхний уровень: `stmt065` |
+| 46514 | `click` | `document` | addEventListener | hideHint | верхний уровень: `stmt066` |
+| 46538 | `end.log` | `simulation` | .on() | функция на месте | верхний уровень: `stmt078` |
+| 46569 | `change` | `document.getElementById('respectChronology')` | addEventListener | функция на месте | верхний уровень: `stmt085` |
+| 46575 | `change` | `document.getElementById('chronologyModeSelect…` | addEventListener | функция на месте | верхний уровень: `stmt086` |
 
 
 ## 4б. Обращение к функциям по имени (`window[…]`)
@@ -1679,94 +1680,94 @@
 | 39866 | `onclick` | `showConceptProfileModal` | `closeConceptProfileModal(); setTimeout(() => openUniversalModal('concept', nodes.find(n => n.id === '${conceptId}'), 'view'), 100);` |
 | 39873 | `onclick` | `showConceptProfileModal` | `event.stopPropagation(); toggleProfileOrder('${conceptId}')` |
 | 39970 | `onclick` | `showPhilosopherProfileModal` | `closePhilosopherProfileModal(); setTimeout(() => openUniversalModal('philosopher', '${philosopherName}', 'view'), 100);` |
-| 40190 | `onclick` | `openAuthModal` | `closeAuthModal()` |
-| 40191 | `onclick` | `openAuthModal` | `submitAuth()` |
-| 40246 | `onclick` | `openSecurityModal` | `closeAuthModal()` |
-| 40248 | `onclick` | `openSecurityModal` | `startMfaEnroll()` |
-| 40276 | `onclick` | `startMfaEnroll` | `confirmMfaEnroll()` |
-| 40306 | `onchange` | `confirmMfaEnroll` | `refreshSecurityDone()` |
-| 40309 | `onclick` | `confirmMfaEnroll` | `closeAuthModal()` |
-| 40350 | `onclick` | `showAuthNotice` | `closeAuthModal()` |
-| 40550 | `onclick` | `renderAuthControls` | `openAuthModal(\'login\')` |
-| 40551 | `onclick` | `renderAuthControls` | `openAuthModal(\'register\')` |
-| 40554 | `onclick` | `renderAuthControls` | `openSecurityModal()` |
-| 40555 | `onclick` | `renderAuthControls` | `authLogout()` |
-| 40629 | `onclick` | `openUniversalModal` | `toggleModalMode()` |
-| 40639 | `onclick` | `openUniversalModal` | `popModalState()` |
-| 41867 | `onclick` | `layoutHistoryHtml` | `askLayoutRevert('${escapeAttr(String(item.id))}')` |
-| 41890 | `onclick` | `layoutTabHtml` | `doLayoutRevert()` |
-| 41891 | `onclick` | `layoutTabHtml` | `cancelLayoutRevert()` |
-| 41898 | `onclick` | `layoutTabHtml` | `planRelayout()` |
-| 41905 | `onclick` | `layoutTabHtml` | `applyRelayout()` |
-| 41918 | `onclick` | `layoutTabHtml` | `applyRelayout()` |
-| 41919 | `onclick` | `layoutTabHtml` | `planRelayout()` |
-| 42707 | `onclick` | `selectConceptOnGraph` | `cancelGraphSelection()` |
-| 42800 | `onclick` | `historyBlock` | `toggleEntityHistory('${escapeAttr(kind)}', '${escapeAttr(entityId)}')` |
-| 42859 | `onclick` | `renderEntityHistory` | `revertEntityToVersion('${escapeAttr(kind)}', '${escapeAttr(entityId)}', ${Number(commit.версия)})` |
-| 43895 | `onchange` | `provenanceField` | `refreshProvenanceField()` |
-| 43965 | `onchange` | `footnoteRow` | `refreshFootnoteRows()` |
-| 43969 | `onclick` | `footnoteRow` | `removeFootnote('${note.id}')` |
-| 43985 | `onclick` | `footnotesField` | `insertFootnote()` |
-| 44104 | `onclick` | `modalActions` | `${saveFn}()` |
-| 44107 | `onclick` | `modalActions` | `closeUniversalModal()` |
-| 44111 | `onclick` | `modalActions` | `${deleteFn}(${deleteArg})` |
-| 44159 | `oninput` | `generatePhilosopherEditContent` | `updatePhilColorSample()` |
-| 44167 | `oninput` | `generatePhilosopherEditContent` | `syncPhilColorFromPicker()` |
-| 44171 | `oninput` | `generatePhilosopherEditContent` | `updatePhilColorSample()` |
-| 44239 | `onclick` | `generatePhilosopherEditContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${c.id}'), 'view')` |
-| 44242 | `onclick` | `generatePhilosopherEditContent` | `openEditConceptModal('${c.id}')` |
-| 44245 | `onclick` | `generatePhilosopherEditContent` | `deleteConcept('${c.id}')` |
-| 44250 | `onclick` | `generatePhilosopherEditContent` | `createNewConceptForPhilosopher('${escapeAttr(philosopherName)}')` |
-| 44362 | `onclick` | `generateConceptEditContent` | `openUniversalModal('connection', findConnection('${srcId}', '${tgtId}', false), 'view')` |
-| 44365 | `onclick` | `generateConceptEditContent` | `openEditConnectionModal('${srcId}', '${tgtId}')` |
-| 44368 | `onclick` | `generateConceptEditContent` | `deleteConnection('${srcId}', '${tgtId}')` |
-| 44391 | `onclick` | `generateConceptEditContent` | `createNewConnectionForConcept('${conceptData.id}')` |
-| 44509 | `onchange` | `generateConnectionEditContent` | `onConnTypeChange()` |
-| 44549 | `onclick` | `generateConnectionEditContent` | `swapConnectionConcepts()` |
-| 44613 | `onclick` | `handleConnectionEditSearch` | `selectConnectionEditConcept('${type}', '${n.id}')` |
-| 44721 | `onclick` | `conceptPlate` | `openUniversalModal('concept', nodes.find(n => n.id === '${node.id}'), 'view');` |
-| 44725 | `onclick` | `conceptPlate` | `openUniversalModal('philosopher', '${node.concept}', 'view');` |
-| 44919 | `onclick` | `generateConnectionViewContent` | `toggleConnectionSearchSection()` |
-| 44942 | `oninput` | `generateConnectionViewContent` | `handleConnectionViewSearch('${type}', this.value)` |
-| 44943 | `onfocus` | `generateConnectionViewContent` | `handleConnectionViewSearch('${type}', this.value)` |
-| 45044 | `onclick` | `handleConnectionViewSearch` | `selectConnectionViewConcept('${type}', '${n.id}')` |
-| 45147 | `oninput` | `generateConceptViewContent` | `handleModalSearch(this.value)` |
-| 45148 | `onfocus` | `generateConceptViewContent` | `handleModalSearch(this.value)` |
-| 45149 | `onclick` | `generateConceptViewContent` | `clearModalSearch()` |
-| 45156 | `onclick` | `generateConceptViewContent` | `openUniversalModal('philosopher', '${conceptData.concept}', 'view');` |
-| 45164 | `onclick` | `generateConceptViewContent` | `gotoNodeFromModal('${conceptData.id}')` |
-| 45167 | `onclick` | `generateConceptViewContent` | `closeUniversalModal(); setTimeout(() => showConceptProfileModal('${conceptData.id}'), 100);` |
-| 45218 | `onclick` | `generateConceptViewContent` | `toggleAllConnectionDescriptions(this)` |
-| 45228 | `onclick` | `generateConceptViewContent` | `toggleSubsection('internal-${conceptData.id}')` |
-| 45255 | `onclick` | `generateConceptViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${connectedNode.id}'), 'view');` |
-| 45260 | `onclick` | `generateConceptViewContent` | `event.stopPropagation(); toggleConnectionDescription('${conceptData.id}-${connectedNode.id}')` |
-| 45283 | `onclick` | `generateConceptViewContent` | `toggleSubsection('external-${conceptData.id}')` |
-| 45307 | `onclick` | `generateConceptViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${connectedNode.id}'), 'view');` |
-| 45312 | `onclick` | `generateConceptViewContent` | `event.stopPropagation(); toggleConnectionDescription('${conceptData.id}-${connectedNode.id}')` |
-| 45360 | `onclick` | `generateConceptViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${c.id}'), 'view');` |
-| 45368 | `onclick` | `generateConceptViewContent` | `showAllConcepts('${rubricData.id}', '${conceptData.id}')` |
-| 45515 | `onclick` | `showAllConcepts` | `openUniversalModal('concept', nodes.find(n => n.id === '${c.id}'), 'view');` |
-| 45597 | `onclick` | `philosopherTraditionsBlock` | `openUniversalModal('philosopher', '${f.nameRu}', 'view');` |
-| 45629 | `onclick` | `similarPhilosophersBlock` | `showPhilosopherDetailModal('${x.id}')` |
-| 45678 | `oninput` | `generatePhilosopherViewContent` | `handlePhilosopherSearch(this.value)` |
-| 45679 | `onfocus` | `generatePhilosopherViewContent` | `handlePhilosopherSearch(this.value)` |
-| 45680 | `onclick` | `generatePhilosopherViewContent` | `clearPhilosopherSearch()` |
-| 45693 | `onclick` | `generatePhilosopherViewContent` | `closeUniversalModal(); setTimeout(() => showPhilosopherProfileModal('${philosopherName}'), 100);` |
-| 45849 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('philosopher', '${phil}', 'view');` |
-| 45865 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('philosopher', '${phil}', 'view');` |
-| 45881 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('philosopher', '${phil}', 'view');` |
-| 45935 | `onclick` | `generatePhilosopherViewContent` | `toggleAllPhilosopherConceptDescriptions(this)` |
-| 45943 | `onclick` | `generatePhilosopherViewContent` | `event.stopPropagation(); openUniversalModal('concept', nodes.find(n => n.id === '${conceptNode.id}'), 'view');` |
-| 45946 | `onclick` | `generatePhilosopherViewContent` | `event.stopPropagation(); togglePhilosopherConceptDescription('${conceptNode.id}')` |
-| 46001 | `onclick` | `generatePhilosopherViewContent` | `toggleAllPhilosopherConnectionDescriptions(this)` |
-| 46013 | `onclick` | `generatePhilosopherViewContent` | `toggleSubsection('phil-internal-${philosopherName}')` |
-| 46039 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${leftNode.id}'), 'view');` |
-| 46043 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${rightNode.id}'), 'view');` |
-| 46048 | `onclick` | `generatePhilosopherViewContent` | `event.stopPropagation(); toggleConnectionDescription('phil-${srcNode.id}-${tgtNode.id}')` |
-| 46071 | `onclick` | `generatePhilosopherViewContent` | `toggleSubsection('phil-external-${philosopherName}')` |
-| 46105 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${leftNode.id}'), 'view');` |
-| 46110 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${rightNode.id}'), 'view');` |
-| 46116 | `onclick` | `generatePhilosopherViewContent` | `event.stopPropagation(); toggleConnectionDescription('phil-${srcNode.id}-${tgtNode.id}')` |
+| 40198 | `onclick` | `openAuthModal` | `closeAuthModal()` |
+| 40199 | `onclick` | `openAuthModal` | `submitAuth()` |
+| 40254 | `onclick` | `openSecurityModal` | `closeAuthModal()` |
+| 40256 | `onclick` | `openSecurityModal` | `startMfaEnroll()` |
+| 40284 | `onclick` | `startMfaEnroll` | `confirmMfaEnroll()` |
+| 40314 | `onchange` | `confirmMfaEnroll` | `refreshSecurityDone()` |
+| 40317 | `onclick` | `confirmMfaEnroll` | `closeAuthModal()` |
+| 40369 | `onclick` | `showAuthNotice` | `closeAuthModal()` |
+| 40569 | `onclick` | `renderAuthControls` | `openAuthModal(\'login\')` |
+| 40570 | `onclick` | `renderAuthControls` | `openAuthModal(\'register\')` |
+| 40573 | `onclick` | `renderAuthControls` | `openSecurityModal()` |
+| 40574 | `onclick` | `renderAuthControls` | `authLogout()` |
+| 40648 | `onclick` | `openUniversalModal` | `toggleModalMode()` |
+| 40658 | `onclick` | `openUniversalModal` | `popModalState()` |
+| 41903 | `onclick` | `layoutHistoryHtml` | `askLayoutRevert('${escapeAttr(String(item.id))}')` |
+| 41926 | `onclick` | `layoutTabHtml` | `doLayoutRevert()` |
+| 41927 | `onclick` | `layoutTabHtml` | `cancelLayoutRevert()` |
+| 41934 | `onclick` | `layoutTabHtml` | `planRelayout()` |
+| 41941 | `onclick` | `layoutTabHtml` | `applyRelayout()` |
+| 41954 | `onclick` | `layoutTabHtml` | `applyRelayout()` |
+| 41955 | `onclick` | `layoutTabHtml` | `planRelayout()` |
+| 42743 | `onclick` | `selectConceptOnGraph` | `cancelGraphSelection()` |
+| 42836 | `onclick` | `historyBlock` | `toggleEntityHistory('${escapeAttr(kind)}', '${escapeAttr(entityId)}')` |
+| 42895 | `onclick` | `renderEntityHistory` | `revertEntityToVersion('${escapeAttr(kind)}', '${escapeAttr(entityId)}', ${Number(commit.версия)})` |
+| 43931 | `onchange` | `provenanceField` | `refreshProvenanceField()` |
+| 44001 | `onchange` | `footnoteRow` | `refreshFootnoteRows()` |
+| 44005 | `onclick` | `footnoteRow` | `removeFootnote('${note.id}')` |
+| 44021 | `onclick` | `footnotesField` | `insertFootnote()` |
+| 44140 | `onclick` | `modalActions` | `${saveFn}()` |
+| 44143 | `onclick` | `modalActions` | `closeUniversalModal()` |
+| 44147 | `onclick` | `modalActions` | `${deleteFn}(${deleteArg})` |
+| 44195 | `oninput` | `generatePhilosopherEditContent` | `updatePhilColorSample()` |
+| 44203 | `oninput` | `generatePhilosopherEditContent` | `syncPhilColorFromPicker()` |
+| 44207 | `oninput` | `generatePhilosopherEditContent` | `updatePhilColorSample()` |
+| 44275 | `onclick` | `generatePhilosopherEditContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${c.id}'), 'view')` |
+| 44278 | `onclick` | `generatePhilosopherEditContent` | `openEditConceptModal('${c.id}')` |
+| 44281 | `onclick` | `generatePhilosopherEditContent` | `deleteConcept('${c.id}')` |
+| 44286 | `onclick` | `generatePhilosopherEditContent` | `createNewConceptForPhilosopher('${escapeAttr(philosopherName)}')` |
+| 44398 | `onclick` | `generateConceptEditContent` | `openUniversalModal('connection', findConnection('${srcId}', '${tgtId}', false), 'view')` |
+| 44401 | `onclick` | `generateConceptEditContent` | `openEditConnectionModal('${srcId}', '${tgtId}')` |
+| 44404 | `onclick` | `generateConceptEditContent` | `deleteConnection('${srcId}', '${tgtId}')` |
+| 44427 | `onclick` | `generateConceptEditContent` | `createNewConnectionForConcept('${conceptData.id}')` |
+| 44545 | `onchange` | `generateConnectionEditContent` | `onConnTypeChange()` |
+| 44585 | `onclick` | `generateConnectionEditContent` | `swapConnectionConcepts()` |
+| 44649 | `onclick` | `handleConnectionEditSearch` | `selectConnectionEditConcept('${type}', '${n.id}')` |
+| 44757 | `onclick` | `conceptPlate` | `openUniversalModal('concept', nodes.find(n => n.id === '${node.id}'), 'view');` |
+| 44761 | `onclick` | `conceptPlate` | `openUniversalModal('philosopher', '${node.concept}', 'view');` |
+| 44955 | `onclick` | `generateConnectionViewContent` | `toggleConnectionSearchSection()` |
+| 44978 | `oninput` | `generateConnectionViewContent` | `handleConnectionViewSearch('${type}', this.value)` |
+| 44979 | `onfocus` | `generateConnectionViewContent` | `handleConnectionViewSearch('${type}', this.value)` |
+| 45080 | `onclick` | `handleConnectionViewSearch` | `selectConnectionViewConcept('${type}', '${n.id}')` |
+| 45183 | `oninput` | `generateConceptViewContent` | `handleModalSearch(this.value)` |
+| 45184 | `onfocus` | `generateConceptViewContent` | `handleModalSearch(this.value)` |
+| 45185 | `onclick` | `generateConceptViewContent` | `clearModalSearch()` |
+| 45192 | `onclick` | `generateConceptViewContent` | `openUniversalModal('philosopher', '${conceptData.concept}', 'view');` |
+| 45200 | `onclick` | `generateConceptViewContent` | `gotoNodeFromModal('${conceptData.id}')` |
+| 45203 | `onclick` | `generateConceptViewContent` | `closeUniversalModal(); setTimeout(() => showConceptProfileModal('${conceptData.id}'), 100);` |
+| 45254 | `onclick` | `generateConceptViewContent` | `toggleAllConnectionDescriptions(this)` |
+| 45264 | `onclick` | `generateConceptViewContent` | `toggleSubsection('internal-${conceptData.id}')` |
+| 45291 | `onclick` | `generateConceptViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${connectedNode.id}'), 'view');` |
+| 45296 | `onclick` | `generateConceptViewContent` | `event.stopPropagation(); toggleConnectionDescription('${conceptData.id}-${connectedNode.id}')` |
+| 45319 | `onclick` | `generateConceptViewContent` | `toggleSubsection('external-${conceptData.id}')` |
+| 45343 | `onclick` | `generateConceptViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${connectedNode.id}'), 'view');` |
+| 45348 | `onclick` | `generateConceptViewContent` | `event.stopPropagation(); toggleConnectionDescription('${conceptData.id}-${connectedNode.id}')` |
+| 45396 | `onclick` | `generateConceptViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${c.id}'), 'view');` |
+| 45404 | `onclick` | `generateConceptViewContent` | `showAllConcepts('${rubricData.id}', '${conceptData.id}')` |
+| 45551 | `onclick` | `showAllConcepts` | `openUniversalModal('concept', nodes.find(n => n.id === '${c.id}'), 'view');` |
+| 45633 | `onclick` | `philosopherTraditionsBlock` | `openUniversalModal('philosopher', '${f.nameRu}', 'view');` |
+| 45665 | `onclick` | `similarPhilosophersBlock` | `showPhilosopherDetailModal('${x.id}')` |
+| 45714 | `oninput` | `generatePhilosopherViewContent` | `handlePhilosopherSearch(this.value)` |
+| 45715 | `onfocus` | `generatePhilosopherViewContent` | `handlePhilosopherSearch(this.value)` |
+| 45716 | `onclick` | `generatePhilosopherViewContent` | `clearPhilosopherSearch()` |
+| 45729 | `onclick` | `generatePhilosopherViewContent` | `closeUniversalModal(); setTimeout(() => showPhilosopherProfileModal('${philosopherName}'), 100);` |
+| 45885 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('philosopher', '${phil}', 'view');` |
+| 45901 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('philosopher', '${phil}', 'view');` |
+| 45917 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('philosopher', '${phil}', 'view');` |
+| 45971 | `onclick` | `generatePhilosopherViewContent` | `toggleAllPhilosopherConceptDescriptions(this)` |
+| 45979 | `onclick` | `generatePhilosopherViewContent` | `event.stopPropagation(); openUniversalModal('concept', nodes.find(n => n.id === '${conceptNode.id}'), 'view');` |
+| 45982 | `onclick` | `generatePhilosopherViewContent` | `event.stopPropagation(); togglePhilosopherConceptDescription('${conceptNode.id}')` |
+| 46037 | `onclick` | `generatePhilosopherViewContent` | `toggleAllPhilosopherConnectionDescriptions(this)` |
+| 46049 | `onclick` | `generatePhilosopherViewContent` | `toggleSubsection('phil-internal-${philosopherName}')` |
+| 46075 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${leftNode.id}'), 'view');` |
+| 46079 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${rightNode.id}'), 'view');` |
+| 46084 | `onclick` | `generatePhilosopherViewContent` | `event.stopPropagation(); toggleConnectionDescription('phil-${srcNode.id}-${tgtNode.id}')` |
+| 46107 | `onclick` | `generatePhilosopherViewContent` | `toggleSubsection('phil-external-${philosopherName}')` |
+| 46141 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${leftNode.id}'), 'view');` |
+| 46146 | `onclick` | `generatePhilosopherViewContent` | `openUniversalModal('concept', nodes.find(n => n.id === '${rightNode.id}'), 'view');` |
+| 46152 | `onclick` | `generatePhilosopherViewContent` | `event.stopPropagation(); toggleConnectionDescription('phil-${srcNode.id}-${tgtNode.id}')` |
 
 
 ## 7. Диагностика
@@ -1786,13 +1787,13 @@
 | `tensionScales` | function | 29789 | 23 | — |
 | `searchNodes` | function | 36947 | 3 | — |
 | `toggleSimilarityKind` | function | 37682 | 5 | — |
-| `graphSelectionContext` | window-объявление | 42680 | 1 | — |
-| `generatePhilosopherEditContent` | function | 44146 | 118 | вероятно цель `window[…]` в `modalContentFor` |
-| `generateConceptEditContent` | function | 44269 | 133 | вероятно цель `window[…]` в `modalContentFor` |
-| `generateConnectionEditContent` | function | 44487 | 98 | вероятно цель `window[…]` в `modalContentFor` |
-| `generateConnectionViewContent` | function | 44890 | 85 | вероятно цель `window[…]` в `modalContentFor` |
-| `generateConceptViewContent` | function | 45130 | 259 | вероятно цель `window[…]` в `modalContentFor` |
-| `generatePhilosopherViewContent` | function | 45655 | 488 | вероятно цель `window[…]` в `modalContentFor` |
+| `graphSelectionContext` | window-объявление | 42716 | 1 | — |
+| `generatePhilosopherEditContent` | function | 44182 | 118 | вероятно цель `window[…]` в `modalContentFor` |
+| `generateConceptEditContent` | function | 44305 | 133 | вероятно цель `window[…]` в `modalContentFor` |
+| `generateConnectionEditContent` | function | 44523 | 98 | вероятно цель `window[…]` в `modalContentFor` |
+| `generateConnectionViewContent` | function | 44926 | 85 | вероятно цель `window[…]` в `modalContentFor` |
+| `generateConceptViewContent` | function | 45166 | 259 | вероятно цель `window[…]` в `modalContentFor` |
+| `generatePhilosopherViewContent` | function | 45691 | 488 | вероятно цель `window[…]` в `modalContentFor` |
 
 
 ### 7.2. Имена из разметки без глобального определения
@@ -1811,11 +1812,11 @@
 
 | Имя | Обращений |
 |---|---|
-| `document` | 394 |
+| `document` | 395 |
 | `Math` | 182 |
 | `Set` | 125 |
 | `Object` | 83 |
-| `String` | 59 |
+| `String` | 60 |
 | `Map` | 58 |
 | `undefined` | 57 |
 | `console` | 48 |
@@ -1835,10 +1836,10 @@
 | `JSON` | 8 |
 | `confirm` | 7 |
 | `URL` | 6 |
+| `prompt` | 6 |
 | `parseInt` | 5 |
 | `localStorage` | 5 |
 | `performance` | 5 |
-| `prompt` | 5 |
 | `RegExp` | 5 |
 | `event` | 4 |
 | `Float32Array` | 4 |

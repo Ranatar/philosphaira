@@ -100,6 +100,7 @@
   "analyzePathTraditions": "paths/analysis.js",
   "animLoopRunning": "render/scene.js",
   "api": "core/api.js",
+  "apiOnce": "core/api.js",
   "applyBasicFilter": "filters/filters.js",
   "applyChainVisibility": "filters/filters.js",
   "applyFilters": "filters/filters.js",

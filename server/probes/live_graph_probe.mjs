@@ -281,6 +281,23 @@ try {
   проверить('и отпирается подтверждением',
     await pageHtml.evaluate(`(document.getElementById('securityDone')||{}).disabled === false`),
     'отперта', 'заперта');
+  // ПОСЛЕ ЗАВЕДЕНИЯ (26.09.2026): кнопка заведения уходит вместе с «Закрыть»,
+  // права перечитаны у сервера, повторное заведение отвергнуто.
+  проверить('после заведения ни «Завести второй шаг», ни «Закрыть» в окне нет',
+    await pageHtml.evaluate(`[...document.querySelectorAll('#authModal button')]
+      .every(b => !/Завести второй шаг|^Закрыть$/.test(b.textContent.trim()))`), 'нет', 'остались');
+  проверить('права страницы перечитаны у сервера без перезагрузки',
+    await pageHtml.evaluate(`(async () => {
+      const me = (await (await fetch('/api/users/me', { credentials: 'same-origin' })).json()).data;
+      const server = [...(me.permissions || [])].sort().join(',');
+      const page = Object.values(window.__app.PERM).filter(p => window.__app.can(p)).sort().join(',');
+      const known = new Set(Object.values(window.__app.PERM));
+      return server.split(',').filter(p => known.has(p)).join(',') === page;
+    })()`), 'совпадают', 'расходятся');
+  const reEnroll = await pageHtml.evaluate(`window.__app.api('/api/auth/mfa/enroll', { метод: 'POST' }).then(r => r.код)`);
+  проверить('повторное заведение отвергнуто, и шаг остаётся включённым',
+    reEnroll === 409 && (await findById(pool, первый.user.userId)).mfaReady === true,
+    '409; mfaReady', `${reEnroll}; ${(await findById(pool, первый.user.userId)).mfaReady}`);
 
   // ── 2. изменение приходит извне: правка поля существующей концепции ───
   // МЕСТА СНИМАЮТСЯ НЕПОСРЕДСТВЕННО ПЕРЕД ПРАВКОЙ, а не в начале пробы.

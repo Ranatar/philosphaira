@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-130 модулей, 22366 строк, 949 объявлений,
-645 вывозов, 857 рёбер ввоза. Составлено 2026-09-26 13:02:33.
+130 модулей, 22396 строк, 950 объявлений,
+645 вывозов, 857 рёбер ввоза. Составлено 2026-09-26 15:27:43.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -87,14 +87,14 @@
 | `boot.js` | 333 | 0 | 1 | 67 | DATA:2, S:8 |
 | `main.js` | 136 | 0 | 0 | 125 | — |
 | `modules/boot-defs.js` | 62 | 3 | 2 | 8 | S:1 |
-| `modules/core/api.js` | 90 | 4 | 3 | 1 | — |
+| `modules/core/api.js` | 101 | 5 | 3 | 1 | — |
 | `modules/core/base-cells.js` | 19 | 0 | 0 | 1 | S:8 |
 | `modules/core/events.js` | 66 | 5 | 2 | 0 | — |
 | `modules/core/graph-index.js` | 238 | 19 | 17 | 2 | DATA:16 |
 | `modules/core/link-facts.js` | 86 | 11 | 11 | 2 | DATA:1, S:6 |
 | `modules/core/long-task.js` | 121 | 3 | 3 | 0 | — |
 | `modules/core/ns.js` | 33 | 2 | 4 | 0 | — |
-| `modules/core/perms.js` | 28 | 4 | 3 | 0 | — |
+| `modules/core/perms.js` | 36 | 4 | 3 | 0 | — |
 | `modules/core/ready.js` | 15 | 0 | 2 | 0 | — |
 | `modules/core/relation-types.js` | 59 | 6 | 5 | 2 | DATA:2 |
 | `modules/core/search.js` | 68 | 4 | 4 | 3 | DATA:3 |
@@ -154,7 +154,7 @@
 | `modules/modal/profile-concept.js` | 182 | 8 | 4 | 8 | DATA:4, S:3, MET:19 |
 | `modules/modal/profile-philosopher.js` | 121 | 2 | 2 | 8 | DATA:3, S:3, MET:3 |
 | `modules/modal/search.js` | 43 | 3 | 3 | 1 | — |
-| `modules/modal/security.js` | 116 | 7 | 4 | 4 | S:1 |
+| `modules/modal/security.js` | 127 | 7 | 4 | 4 | S:1 |
 | `modules/modal/selection-list.js` | 334 | 24 | 13 | 8 | DATA:5 |
 | `modules/modal/users.js` | 97 | 8 | 7 | 3 | — |
 | `modules/paths/analysis.js` | 74 | 2 | 2 | 7 | DATA:2 |
@@ -230,13 +230,14 @@
 | `closeAllModals` | function | 13 | — |
 | `installOverlayDismiss` | function | 8 | да |
 
-### `modules/core/api.js` — 90 строк, объявлений 4
+### `modules/core/api.js` — 101 строк, объявлений 5
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `detectServerMode` | async function | 36 | да |
-| `api` | async function | 34 | да |
+| `apiOnce` | async function | 34 | — |
 | `readCookie` | function | 10 | — |
+| `api` | async function | 10 | да |
 | `serverMode` | let | 1 | да |
 
 ### `modules/core/events.js` — 66 строк, объявлений 5
@@ -304,7 +305,7 @@
 | `FILES` | const | 1 | — |
 | `loaded` | const | 1 | — |
 
-### `modules/core/perms.js` — 28 строк, объявлений 4
+### `modules/core/perms.js` — 36 строк, объявлений 4
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
@@ -1072,12 +1073,12 @@
 | `handleModalSearch` | function | 9 | да |
 | `installModalSearchDismiss` | function | 9 | да |
 
-### `modules/modal/security.js` — 116 строк, объявлений 7
+### `modules/modal/security.js` — 127 строк, объявлений 7
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
+| `confirmMfaEnroll` | async function | 41 | да |
 | `startMfaEnroll` | async function | 31 | да |
-| `confirmMfaEnroll` | async function | 30 | да |
 | `openSecurityModal` | async function | 28 | да |
 | `refreshSecurityDone` | function | 5 | да |
 | `securityError` | function | 4 | — |
@@ -2590,11 +2591,11 @@
 ### `modules/modal/security.js`
 
 - из `modules/core/ns.js`: `S`
-- из `modules/core/api.js`: `api`
-- из `modules/modal/edit-rights.js`: `refreshEditHints`, `renderAuthControls`
+- из `modules/core/api.js`: `api`, `detectServerMode`
+- из `modules/modal/edit-rights.js`: `refreshEditHints`, `refreshOpenModalToolbar`, `renderAuthControls`
 - из `modules/util/html.js`: `escapeAttr`
 
-Чаще всего поминает: `api`×3, `escapeAttr`×3, `S`×1, `renderAuthControls`×1, `refreshEditHints`×1
+Чаще всего поминает: `api`×3, `escapeAttr`×3, `S`×1, `detectServerMode`×1, `renderAuthControls`×1
 
 ### `modules/modal/selection-list.js`
 

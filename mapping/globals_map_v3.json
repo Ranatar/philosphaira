@@ -1,15 +1,15 @@
 {
   "meta": {
     "file": "source/philosophy_graph_v3.html",
-    "bytes": 3171828,
-    "lines": 46563,
+    "bytes": 3174036,
+    "lines": 46599,
     "scriptFrom": 5941,
-    "scriptTo": 46560,
-    "generated": "2026-09-26T13:02:27.715Z",
+    "scriptTo": 46596,
+    "generated": "2026-09-26T15:02:23.538Z",
     "counts": {
-      "total": 1122,
-      "functions": 715,
-      "async": 42,
+      "total": 1123,
+      "functions": 716,
+      "async": 43,
       "const": 130,
       "let": 169,
       "var": 14,
@@ -34736,8 +34736,8 @@
       "decl": "const",
       "async": false,
       "line": 40134,
-      "endLine": 40150,
-      "lines": 17,
+      "endLine": 40158,
+      "lines": 25,
       "value": "вызов Object.freeze()",
       "uses": [],
       "usedBy": [
@@ -34825,8 +34825,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 40152,
-      "endLine": 40152,
+      "line": 40160,
+      "endLine": 40160,
       "lines": 1,
       "value": "new Set",
       "uses": [],
@@ -34847,8 +34847,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40154,
-      "endLine": 40154,
+      "line": 40162,
+      "endLine": 40162,
       "lines": 1,
       "params": [
         "permissions"
@@ -34874,8 +34874,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40156,
-      "endLine": 40156,
+      "line": 40164,
+      "endLine": 40164,
       "lines": 1,
       "params": [
         "permission"
@@ -34968,8 +34968,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40160,
-      "endLine": 40170,
+      "line": 40168,
+      "endLine": 40178,
       "lines": 11,
       "params": [
         "user",
@@ -35013,8 +35013,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40174,
-      "endLine": 40174,
+      "line": 40182,
+      "endLine": 40182,
       "lines": 1,
       "params": [],
       "uses": [],
@@ -35039,8 +35039,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40176,
-      "endLine": 40204,
+      "line": 40184,
+      "endLine": 40212,
       "lines": 29,
       "params": [
         "kind"
@@ -35078,8 +35078,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 40217,
-      "endLine": 40217,
+      "line": 40225,
+      "endLine": 40225,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -35104,8 +35104,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40219,
-      "endLine": 40219,
+      "line": 40227,
+      "endLine": 40227,
       "lines": 1,
       "params": [],
       "uses": [],
@@ -35122,8 +35122,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40221,
-      "endLine": 40224,
+      "line": 40229,
+      "endLine": 40232,
       "lines": 4,
       "params": [
         "text"
@@ -35155,8 +35155,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 40226,
-      "endLine": 40253,
+      "line": 40234,
+      "endLine": 40261,
       "lines": 28,
       "params": [],
       "uses": [
@@ -35198,8 +35198,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 40255,
-      "endLine": 40285,
+      "line": 40263,
+      "endLine": 40293,
       "lines": 31,
       "params": [],
       "uses": [
@@ -35245,9 +35245,9 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 40287,
-      "endLine": 40316,
-      "lines": 30,
+      "line": 40295,
+      "endLine": 40335,
+      "lines": 41,
       "params": [],
       "uses": [
         {
@@ -35262,6 +35262,11 @@
           "calls": 0
         },
         {
+          "name": "refreshOpenModalToolbar",
+          "count": 1,
+          "calls": 1
+        },
+        {
           "name": "renderAuthControls",
           "count": 1,
           "calls": 1
@@ -35273,6 +35278,11 @@
         },
         {
           "name": "api",
+          "count": 1,
+          "calls": 1
+        },
+        {
+          "name": "detectServerMode",
           "count": 1,
           "calls": 1
         },
@@ -35302,8 +35312,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40318,
-      "endLine": 40322,
+      "line": 40337,
+      "endLine": 40341,
       "lines": 5,
       "params": [],
       "uses": [],
@@ -35322,8 +35332,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40324,
-      "endLine": 40333,
+      "line": 40343,
+      "endLine": 40352,
       "lines": 10,
       "params": [],
       "uses": [
@@ -35356,8 +35366,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40335,
-      "endLine": 40338,
+      "line": 40354,
+      "endLine": 40357,
       "lines": 4,
       "params": [
         "text"
@@ -35385,8 +35395,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40342,
-      "endLine": 40355,
+      "line": 40361,
+      "endLine": 40374,
       "lines": 14,
       "params": [
         "title",
@@ -35422,8 +35432,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40357,
-      "endLine": 40362,
+      "line": 40376,
+      "endLine": 40381,
       "lines": 6,
       "params": [
         "login"
@@ -35448,8 +35458,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40364,
-      "endLine": 40376,
+      "line": 40383,
+      "endLine": 40395,
       "lines": 13,
       "params": [],
       "uses": [
@@ -35472,8 +35482,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 40380,
-      "endLine": 40478,
+      "line": 40399,
+      "endLine": 40497,
       "lines": 99,
       "params": [],
       "uses": [
@@ -35589,8 +35599,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 40480,
-      "endLine": 40480,
+      "line": 40499,
+      "endLine": 40499,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -35611,8 +35621,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40482,
-      "endLine": 40526,
+      "line": 40501,
+      "endLine": 40545,
       "lines": 45,
       "params": [],
       "uses": [
@@ -35693,8 +35703,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40530,
-      "endLine": 40538,
+      "line": 40549,
+      "endLine": 40557,
       "lines": 9,
       "params": [],
       "uses": [
@@ -35715,6 +35725,10 @@
           "count": 3
         },
         {
+          "name": "confirmMfaEnroll",
+          "count": 1
+        },
+        {
           "name": "authLogout",
           "count": 1
         }
@@ -35726,8 +35740,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40542,
-      "endLine": 40560,
+      "line": 40561,
+      "endLine": 40579,
       "lines": 19,
       "params": [],
       "uses": [
@@ -35766,8 +35780,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40575,
-      "endLine": 40579,
+      "line": 40594,
+      "endLine": 40598,
       "lines": 5,
       "params": [],
       "uses": [
@@ -35795,8 +35809,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40581,
-      "endLine": 40595,
+      "line": 40600,
+      "endLine": 40614,
       "lines": 15,
       "params": [],
       "uses": [
@@ -35840,8 +35854,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40597,
-      "endLine": 40663,
+      "line": 40616,
+      "endLine": 40682,
       "lines": 67,
       "params": [
         "entityType",
@@ -36006,8 +36020,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40666,
-      "endLine": 40693,
+      "line": 40685,
+      "endLine": 40712,
       "lines": 28,
       "params": [],
       "uses": [
@@ -36088,8 +36102,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40696,
-      "endLine": 40712,
+      "line": 40715,
+      "endLine": 40731,
       "lines": 17,
       "params": [],
       "uses": [
@@ -36139,8 +36153,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40715,
-      "endLine": 40734,
+      "line": 40734,
+      "endLine": 40753,
       "lines": 20,
       "params": [],
       "uses": [
@@ -36192,8 +36206,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40736,
-      "endLine": 40745,
+      "line": 40755,
+      "endLine": 40764,
       "lines": 10,
       "params": [],
       "uses": [],
@@ -36210,8 +36224,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40747,
-      "endLine": 40769,
+      "line": 40766,
+      "endLine": 40788,
       "lines": 23,
       "params": [
         "original"
@@ -36241,8 +36255,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40771,
-      "endLine": 40790,
+      "line": 40790,
+      "endLine": 40809,
       "lines": 20,
       "params": [
         "original"
@@ -36277,8 +36291,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40792,
-      "endLine": 40819,
+      "line": 40811,
+      "endLine": 40838,
       "lines": 28,
       "params": [
         "original"
@@ -36318,8 +36332,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40822,
-      "endLine": 40824,
+      "line": 40841,
+      "endLine": 40843,
       "lines": 3,
       "params": [
         "prefix=…"
@@ -36346,8 +36360,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40826,
-      "endLine": 40834,
+      "line": 40845,
+      "endLine": 40853,
       "lines": 9,
       "params": [
         "sourceId",
@@ -36392,8 +36406,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40836,
-      "endLine": 40846,
+      "line": 40855,
+      "endLine": 40865,
       "lines": 11,
       "params": [
         "conceptId"
@@ -36438,8 +36452,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40848,
-      "endLine": 40850,
+      "line": 40867,
+      "endLine": 40869,
       "lines": 3,
       "params": [
         "conceptId"
@@ -36464,8 +36478,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40855,
-      "endLine": 40869,
+      "line": 40874,
+      "endLine": 40888,
       "lines": 15,
       "params": [
         "philosopherName"
@@ -36495,8 +36509,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40876,
-      "endLine": 40878,
+      "line": 40895,
+      "endLine": 40897,
       "lines": 3,
       "params": [
         "conceptData"
@@ -36529,8 +36543,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40880,
-      "endLine": 40882,
+      "line": 40899,
+      "endLine": 40901,
       "lines": 3,
       "params": [
         "philosopherName"
@@ -36562,8 +36576,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40884,
-      "endLine": 40884,
+      "line": 40903,
+      "endLine": 40903,
       "lines": 1,
       "params": [],
       "uses": [
@@ -36594,8 +36608,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40885,
-      "endLine": 40885,
+      "line": 40904,
+      "endLine": 40904,
       "lines": 1,
       "params": [],
       "uses": [
@@ -36618,8 +36632,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40887,
-      "endLine": 40890,
+      "line": 40906,
+      "endLine": 40909,
       "lines": 4,
       "params": [
         "philosopherName=…"
@@ -36658,8 +36672,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40892,
-      "endLine": 40897,
+      "line": 40911,
+      "endLine": 40916,
       "lines": 6,
       "params": [
         "concept=…"
@@ -36710,8 +36724,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40899,
-      "endLine": 40904,
+      "line": 40918,
+      "endLine": 40923,
       "lines": 6,
       "params": [
         "a=…",
@@ -36763,8 +36777,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 40922,
-      "endLine": 40922,
+      "line": 40941,
+      "endLine": 40941,
       "lines": 1,
       "value": "new Set",
       "uses": [],
@@ -36797,8 +36811,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40924,
-      "endLine": 40945,
+      "line": 40943,
+      "endLine": 40964,
       "lines": 22,
       "params": [],
       "uses": [
@@ -36854,8 +36868,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40947,
-      "endLine": 40961,
+      "line": 40966,
+      "endLine": 40980,
       "lines": 15,
       "params": [
         "nodeData"
@@ -36905,8 +36919,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40965,
-      "endLine": 40968,
+      "line": 40984,
+      "endLine": 40987,
       "lines": 4,
       "params": [],
       "uses": [
@@ -36934,8 +36948,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40970,
-      "endLine": 40980,
+      "line": 40989,
+      "endLine": 40999,
       "lines": 11,
       "params": [
         "linkData"
@@ -36970,8 +36984,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40982,
-      "endLine": 40989,
+      "line": 41001,
+      "endLine": 41008,
       "lines": 8,
       "params": [],
       "uses": [
@@ -36999,8 +37013,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 40996,
-      "endLine": 41013,
+      "line": 41015,
+      "endLine": 41032,
       "lines": 18,
       "params": [
         "nodeId"
@@ -37045,8 +37059,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41015,
-      "endLine": 41022,
+      "line": 41034,
+      "endLine": 41041,
       "lines": 8,
       "params": [
         "link"
@@ -37081,8 +37095,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41028,
-      "endLine": 41063,
+      "line": 41047,
+      "endLine": 41082,
       "lines": 36,
       "params": [
         "what"
@@ -37157,8 +37171,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 41078,
-      "endLine": 41079,
+      "line": 41097,
+      "endLine": 41098,
       "lines": 2,
       "value": "массив (6)",
       "uses": [],
@@ -37179,8 +37193,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41080,
-      "endLine": 41080,
+      "line": 41099,
+      "endLine": 41099,
       "lines": 1,
       "value": "литерал false",
       "uses": [],
@@ -37213,8 +37227,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41089,
-      "endLine": 41089,
+      "line": 41108,
+      "endLine": 41108,
       "lines": 1,
       "value": "литерал 0",
       "uses": [],
@@ -37235,8 +37249,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41091,
-      "endLine": 41091,
+      "line": 41110,
+      "endLine": 41110,
       "lines": 1,
       "params": [],
       "uses": [
@@ -37265,8 +37279,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41092,
-      "endLine": 41092,
+      "line": 41111,
+      "endLine": 41111,
       "lines": 1,
       "params": [],
       "uses": [
@@ -37294,8 +37308,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41096,
-      "endLine": 41106,
+      "line": 41115,
+      "endLine": 41125,
       "lines": 11,
       "params": [
         "sending"
@@ -37327,8 +37341,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41108,
-      "endLine": 41110,
+      "line": 41127,
+      "endLine": 41129,
       "lines": 3,
       "params": [],
       "uses": [
@@ -37380,8 +37394,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41112,
-      "endLine": 41122,
+      "line": 41131,
+      "endLine": 41141,
       "lines": 11,
       "params": [
         "name",
@@ -37401,8 +37415,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41124,
-      "endLine": 41129,
+      "line": 41143,
+      "endLine": 41148,
       "lines": 6,
       "params": [],
       "uses": [
@@ -37441,8 +37455,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41131,
-      "endLine": 41131,
+      "line": 41150,
+      "endLine": 41150,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -37459,8 +37473,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41133,
-      "endLine": 41155,
+      "line": 41152,
+      "endLine": 41174,
       "lines": 23,
       "params": [],
       "uses": [
@@ -37500,8 +37514,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 41157,
-      "endLine": 41161,
+      "line": 41176,
+      "endLine": 41180,
       "lines": 5,
       "event": "beforeunload",
       "target": "window",
@@ -37520,8 +37534,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41176,
-      "endLine": 41176,
+      "line": 41195,
+      "endLine": 41195,
       "lines": 1,
       "value": "литерал false",
       "uses": [],
@@ -37559,7 +37573,7 @@
           "count": 1
         },
         {
-          "name": "api",
+          "name": "apiOnce",
           "count": 1
         },
         {
@@ -37606,8 +37620,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41178,
-      "endLine": 41187,
+      "line": 41197,
+      "endLine": 41206,
       "lines": 10,
       "params": [
         "cookieName"
@@ -37615,7 +37629,7 @@
       "uses": [],
       "usedBy": [
         {
-          "name": "api",
+          "name": "apiOnce",
           "count": 1
         }
       ]
@@ -37626,23 +37640,20 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41189,
-      "endLine": 41222,
-      "lines": 34,
+      "line": 41214,
+      "endLine": 41223,
+      "lines": 10,
       "params": [
         "path",
-        "?"
+        "options=…",
+        "freshAsked=…"
       ],
+      "recursive": true,
       "uses": [
         {
-          "name": "serverMode",
-          "count": 1,
-          "calls": 0
-        },
-        {
-          "name": "readCookie",
-          "count": 1,
-          "calls": 1
+          "name": "apiOnce",
+          "count": 2,
+          "calls": 2
         }
       ],
       "usedBy": [
@@ -37769,13 +37780,45 @@
       ]
     },
     {
+      "id": "apiOnce",
+      "name": "apiOnce",
+      "kind": "async function",
+      "decl": "function",
+      "async": true,
+      "line": 41225,
+      "endLine": 41258,
+      "lines": 34,
+      "params": [
+        "path",
+        "?"
+      ],
+      "uses": [
+        {
+          "name": "serverMode",
+          "count": 1,
+          "calls": 0
+        },
+        {
+          "name": "readCookie",
+          "count": 1,
+          "calls": 1
+        }
+      ],
+      "usedBy": [
+        {
+          "name": "api",
+          "count": 2
+        }
+      ]
+    },
+    {
       "id": "detectServerMode",
       "name": "detectServerMode",
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41228,
-      "endLine": 41263,
+      "line": 41264,
+      "endLine": 41299,
       "lines": 36,
       "params": [],
       "uses": [
@@ -37802,6 +37845,10 @@
           "count": 2
         },
         {
+          "name": "confirmMfaEnroll",
+          "count": 1
+        },
+        {
           "name": "stmt042",
           "count": 1
         }
@@ -37813,8 +37860,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41290,
-      "endLine": 41303,
+      "line": 41326,
+      "endLine": 41339,
       "lines": 14,
       "params": [
         "a",
@@ -37834,8 +37881,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41305,
-      "endLine": 41321,
+      "line": 41341,
+      "endLine": 41357,
       "lines": 17,
       "params": [
         "action",
@@ -37884,8 +37931,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41327,
-      "endLine": 41327,
+      "line": 41363,
+      "endLine": 41363,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -37902,8 +37949,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41329,
-      "endLine": 41344,
+      "line": 41365,
+      "endLine": 41380,
       "lines": 16,
       "params": [
         "descr",
@@ -37975,8 +38022,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41359,
-      "endLine": 41359,
+      "line": 41395,
+      "endLine": 41395,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -37997,8 +38044,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41360,
-      "endLine": 41362,
+      "line": 41396,
+      "endLine": 41398,
       "lines": 3,
       "params": [
         "commitId",
@@ -38026,8 +38073,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41364,
-      "endLine": 41426,
+      "line": 41400,
+      "endLine": 41462,
       "lines": 63,
       "params": [
         "descr",
@@ -38079,8 +38126,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41429,
-      "endLine": 41437,
+      "line": 41465,
+      "endLine": 41473,
       "lines": 9,
       "params": [
         "descr"
@@ -38099,8 +38146,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 41446,
-      "endLine": 41447,
+      "line": 41482,
+      "endLine": 41483,
       "lines": 2,
       "uses": [
         {
@@ -38122,8 +38169,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41462,
-      "endLine": 41462,
+      "line": 41498,
+      "endLine": 41498,
       "lines": 1,
       "value": "массив (0)",
       "uses": [],
@@ -38144,8 +38191,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41463,
-      "endLine": 41463,
+      "line": 41499,
+      "endLine": 41499,
       "lines": 1,
       "value": "строка",
       "uses": [],
@@ -38174,8 +38221,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41465,
-      "endLine": 41470,
+      "line": 41501,
+      "endLine": 41506,
       "lines": 6,
       "params": [],
       "uses": [
@@ -38198,8 +38245,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41472,
-      "endLine": 41475,
+      "line": 41508,
+      "endLine": 41511,
       "lines": 4,
       "params": [],
       "uses": [],
@@ -38216,8 +38263,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41477,
-      "endLine": 41493,
+      "line": 41513,
+      "endLine": 41529,
       "lines": 17,
       "params": [],
       "uses": [
@@ -38265,8 +38312,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41495,
-      "endLine": 41520,
+      "line": 41531,
+      "endLine": 41556,
       "lines": 26,
       "params": [],
       "uses": [
@@ -38317,8 +38364,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41522,
-      "endLine": 41534,
+      "line": 41558,
+      "endLine": 41570,
       "lines": 13,
       "params": [
         "id",
@@ -38360,8 +38407,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41536,
-      "endLine": 41549,
+      "line": 41572,
+      "endLine": 41585,
       "lines": 14,
       "params": [
         "id",
@@ -38403,8 +38450,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 41552,
-      "endLine": 41562,
+      "line": 41588,
+      "endLine": 41598,
       "lines": 11,
       "event": "click",
       "target": "document",
@@ -38428,8 +38475,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41576,
-      "endLine": 41576,
+      "line": 41612,
+      "endLine": 41612,
       "lines": 1,
       "value": "строка",
       "uses": [],
@@ -38454,8 +38501,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41577,
-      "endLine": 41577,
+      "line": 41613,
+      "endLine": 41613,
       "lines": 1,
       "value": "массив (0)",
       "uses": [],
@@ -38484,8 +38531,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41578,
-      "endLine": 41578,
+      "line": 41614,
+      "endLine": 41614,
       "lines": 1,
       "value": "строка",
       "uses": [],
@@ -38514,8 +38561,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41580,
-      "endLine": 41585,
+      "line": 41616,
+      "endLine": 41621,
       "lines": 6,
       "params": [],
       "uses": [
@@ -38538,8 +38585,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41587,
-      "endLine": 41590,
+      "line": 41623,
+      "endLine": 41626,
       "lines": 4,
       "params": [],
       "uses": [],
@@ -38561,8 +38608,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41592,
-      "endLine": 41605,
+      "line": 41628,
+      "endLine": 41641,
       "lines": 14,
       "params": [
         "tab"
@@ -38631,8 +38678,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41614,
-      "endLine": 41614,
+      "line": 41650,
+      "endLine": 41650,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -38665,8 +38712,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41615,
-      "endLine": 41615,
+      "line": 41651,
+      "endLine": 41651,
       "lines": 1,
       "value": "строка",
       "uses": [],
@@ -38699,8 +38746,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41617,
-      "endLine": 41628,
+      "line": 41653,
+      "endLine": 41664,
       "lines": 12,
       "params": [],
       "uses": [
@@ -38742,8 +38789,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41634,
-      "endLine": 41634,
+      "line": 41670,
+      "endLine": 41670,
       "lines": 1,
       "value": "массив (0)",
       "uses": [],
@@ -38768,8 +38815,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41636,
-      "endLine": 41640,
+      "line": 41672,
+      "endLine": 41676,
       "lines": 5,
       "params": [],
       "uses": [
@@ -38811,8 +38858,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 41645,
-      "endLine": 41645,
+      "line": 41681,
+      "endLine": 41681,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -38845,8 +38892,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41647,
-      "endLine": 41647,
+      "line": 41683,
+      "endLine": 41683,
       "lines": 1,
       "params": [],
       "uses": [
@@ -38877,8 +38924,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41649,
-      "endLine": 41653,
+      "line": 41685,
+      "endLine": 41689,
       "lines": 5,
       "params": [
         "id"
@@ -38916,8 +38963,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41655,
-      "endLine": 41672,
+      "line": 41691,
+      "endLine": 41708,
       "lines": 18,
       "params": [],
       "uses": [
@@ -38980,8 +39027,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41674,
-      "endLine": 41695,
+      "line": 41710,
+      "endLine": 41731,
       "lines": 22,
       "params": [],
       "uses": [
@@ -39038,8 +39085,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 41697,
-      "endLine": 41711,
+      "line": 41733,
+      "endLine": 41747,
       "lines": 15,
       "params": [],
       "uses": [
@@ -39096,8 +39143,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 41719,
-      "endLine": 41726,
+      "line": 41755,
+      "endLine": 41762,
       "lines": 8,
       "value": "вызов Object.freeze()",
       "uses": [],
@@ -39118,8 +39165,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41728,
-      "endLine": 41730,
+      "line": 41764,
+      "endLine": 41766,
       "lines": 3,
       "params": [
         "state2"
@@ -39144,8 +39191,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41732,
-      "endLine": 41734,
+      "line": 41768,
+      "endLine": 41770,
       "lines": 3,
       "params": [
         "state2"
@@ -39170,8 +39217,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 41755,
-      "endLine": 41758,
+      "line": 41791,
+      "endLine": 41794,
       "lines": 4,
       "value": "объект (17)",
       "uses": [],
@@ -39188,8 +39235,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 41759,
-      "endLine": 41760,
+      "line": 41795,
+      "endLine": 41796,
       "lines": 2,
       "value": "объект (6)",
       "uses": [],
@@ -39206,8 +39253,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41761,
-      "endLine": 41781,
+      "line": 41797,
+      "endLine": 41817,
       "lines": 21,
       "params": [
         "changes"
@@ -39252,8 +39299,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41783,
-      "endLine": 41814,
+      "line": 41819,
+      "endLine": 41850,
       "lines": 32,
       "params": [
         "changes"
@@ -39283,8 +39330,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41822,
-      "endLine": 41843,
+      "line": 41858,
+      "endLine": 41879,
       "lines": 22,
       "params": [
         "changes"
@@ -39314,8 +39361,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41845,
-      "endLine": 41848,
+      "line": 41881,
+      "endLine": 41884,
       "lines": 4,
       "params": [
         "stateCode"
@@ -39340,8 +39387,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 41856,
-      "endLine": 41856,
+      "line": 41892,
+      "endLine": 41892,
       "lines": 1,
       "value": "вызов Object.freeze()",
       "uses": [],
@@ -39362,8 +39409,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41858,
-      "endLine": 41872,
+      "line": 41894,
+      "endLine": 41908,
       "lines": 15,
       "params": [],
       "uses": [
@@ -39396,8 +39443,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41874,
-      "endLine": 41922,
+      "line": 41910,
+      "endLine": 41958,
       "lines": 49,
       "params": [],
       "uses": [
@@ -39445,8 +39492,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 41924,
-      "endLine": 42009,
+      "line": 41960,
+      "endLine": 42045,
       "lines": 86,
       "params": [],
       "uses": [
@@ -39570,8 +39617,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42017,
-      "endLine": 42023,
+      "line": 42053,
+      "endLine": 42059,
       "lines": 7,
       "params": [
         "count"
@@ -39590,8 +39637,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 42025,
-      "endLine": 42044,
+      "line": 42061,
+      "endLine": 42080,
       "lines": 20,
       "params": [
         "id",
@@ -39648,8 +39695,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 42046,
-      "endLine": 42059,
+      "line": 42082,
+      "endLine": 42095,
       "lines": 14,
       "params": [
         "id"
@@ -39695,8 +39742,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 42070,
-      "endLine": 42085,
+      "line": 42106,
+      "endLine": 42121,
       "lines": 16,
       "params": [
         "id"
@@ -39726,8 +39773,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42091,
-      "endLine": 42116,
+      "line": 42127,
+      "endLine": 42152,
       "lines": 26,
       "params": [
         "data"
@@ -39752,8 +39799,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 42119,
-      "endLine": 42136,
+      "line": 42155,
+      "endLine": 42172,
       "lines": 18,
       "event": "click",
       "target": "document",
@@ -39797,8 +39844,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42150,
-      "endLine": 42150,
+      "line": 42186,
+      "endLine": 42186,
       "lines": 1,
       "value": "литерал 0",
       "uses": [],
@@ -39819,8 +39866,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42151,
-      "endLine": 42151,
+      "line": 42187,
+      "endLine": 42187,
       "lines": 1,
       "value": "массив (0)",
       "uses": [],
@@ -39849,8 +39896,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 42153,
-      "endLine": 42163,
+      "line": 42189,
+      "endLine": 42199,
       "lines": 11,
       "params": [],
       "uses": [
@@ -39906,8 +39953,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 42165,
-      "endLine": 42171,
+      "line": 42201,
+      "endLine": 42207,
       "lines": 7,
       "params": [],
       "uses": [
@@ -39951,8 +39998,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42173,
-      "endLine": 42181,
+      "line": 42209,
+      "endLine": 42217,
       "lines": 9,
       "params": [],
       "uses": [
@@ -39989,8 +40036,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42183,
-      "endLine": 42200,
+      "line": 42219,
+      "endLine": 42236,
       "lines": 18,
       "params": [],
       "uses": [
@@ -40031,8 +40078,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42203,
-      "endLine": 42219,
+      "line": 42239,
+      "endLine": 42255,
       "lines": 17,
       "params": [
         "kind"
@@ -40051,8 +40098,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42221,
-      "endLine": 42227,
+      "line": 42257,
+      "endLine": 42263,
       "lines": 7,
       "params": [],
       "uses": [
@@ -40075,8 +40122,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 42229,
-      "endLine": 42237,
+      "line": 42265,
+      "endLine": 42273,
       "lines": 9,
       "params": [
         "id"
@@ -40121,8 +40168,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 42239,
-      "endLine": 42245,
+      "line": 42275,
+      "endLine": 42281,
       "lines": 7,
       "params": [],
       "uses": [
@@ -40165,8 +40212,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 42247,
-      "endLine": 42247,
+      "line": 42283,
+      "endLine": 42283,
       "lines": 1,
       "uses": [
         {
@@ -40188,8 +40235,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 42248,
-      "endLine": 42248,
+      "line": 42284,
+      "endLine": 42284,
       "lines": 1,
       "uses": [
         {
@@ -40216,8 +40263,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 42249,
-      "endLine": 42249,
+      "line": 42285,
+      "endLine": 42285,
       "lines": 1,
       "uses": [
         {
@@ -40239,8 +40286,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 42254,
-      "endLine": 42260,
+      "line": 42290,
+      "endLine": 42296,
       "lines": 7,
       "event": "click",
       "target": "document",
@@ -40259,8 +40306,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42272,
-      "endLine": 42285,
+      "line": 42308,
+      "endLine": 42321,
       "lines": 14,
       "params": [
         "touched"
@@ -40290,8 +40337,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 42287,
-      "endLine": 42287,
+      "line": 42323,
+      "endLine": 42323,
       "lines": 1,
       "uses": [
         {
@@ -40313,8 +40360,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42289,
-      "endLine": 42309,
+      "line": 42325,
+      "endLine": 42345,
       "lines": 21,
       "params": [
         "descr",
@@ -40352,8 +40399,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42322,
-      "endLine": 42328,
+      "line": 42358,
+      "endLine": 42364,
       "lines": 7,
       "params": [
         "v"
@@ -40382,8 +40429,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42329,
-      "endLine": 42344,
+      "line": 42365,
+      "endLine": 42380,
       "lines": 16,
       "params": [
         "clashes"
@@ -40417,8 +40464,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 42349,
-      "endLine": 42377,
+      "line": 42385,
+      "endLine": 42413,
       "lines": 29,
       "params": [
         "given=…"
@@ -40498,8 +40545,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42390,
-      "endLine": 42390,
+      "line": 42426,
+      "endLine": 42426,
       "lines": 1,
       "value": "литерал 0",
       "uses": [],
@@ -40520,8 +40567,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42393,
-      "endLine": 42401,
+      "line": 42429,
+      "endLine": 42437,
       "lines": 9,
       "params": [
         "set",
@@ -40542,8 +40589,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42407,
-      "endLine": 42424,
+      "line": 42443,
+      "endLine": 42460,
       "lines": 18,
       "params": [
         "increment"
@@ -40614,8 +40661,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 42427,
-      "endLine": 42456,
+      "line": 42463,
+      "endLine": 42492,
       "lines": 30,
       "params": [],
       "uses": [
@@ -40697,8 +40744,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42463,
-      "endLine": 42500,
+      "line": 42499,
+      "endLine": 42536,
       "lines": 38,
       "params": [],
       "recursive": true,
@@ -40758,8 +40805,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42502,
-      "endLine": 42502,
+      "line": 42538,
+      "endLine": 42538,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -40784,8 +40831,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42503,
-      "endLine": 42503,
+      "line": 42539,
+      "endLine": 42539,
       "lines": 1,
       "value": "литерал 0",
       "uses": [],
@@ -40802,8 +40849,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42504,
-      "endLine": 42504,
+      "line": 42540,
+      "endLine": 42540,
       "lines": 1,
       "value": "литерал false",
       "uses": [],
@@ -40824,8 +40871,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42508,
-      "endLine": 42512,
+      "line": 42544,
+      "endLine": 42548,
       "lines": 5,
       "params": [],
       "uses": [
@@ -40849,8 +40896,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 42515,
-      "endLine": 42518,
+      "line": 42551,
+      "endLine": 42554,
       "lines": 4,
       "event": "pagehide",
       "target": "window",
@@ -40875,8 +40922,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42533,
-      "endLine": 42575,
+      "line": 42569,
+      "endLine": 42611,
       "lines": 43,
       "params": [],
       "uses": [
@@ -40933,8 +40980,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42577,
-      "endLine": 42593,
+      "line": 42613,
+      "endLine": 42629,
       "lines": 17,
       "params": [
         "state2"
@@ -41007,8 +41054,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42595,
-      "endLine": 42598,
+      "line": 42631,
+      "endLine": 42634,
       "lines": 4,
       "params": [],
       "uses": [],
@@ -41030,8 +41077,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42600,
-      "endLine": 42600,
+      "line": 42636,
+      "endLine": 42636,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -41052,8 +41099,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42603,
-      "endLine": 42621,
+      "line": 42639,
+      "endLine": 42657,
       "lines": 19,
       "params": [
         "kind",
@@ -41102,8 +41149,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42623,
-      "endLine": 42623,
+      "line": 42659,
+      "endLine": 42659,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -41120,8 +41167,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42625,
-      "endLine": 42625,
+      "line": 42661,
+      "endLine": 42661,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -41138,8 +41185,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42628,
-      "endLine": 42663,
+      "line": 42664,
+      "endLine": 42699,
       "lines": 36,
       "params": [
         "what"
@@ -41222,8 +41269,8 @@
       "kind": "window-объявление",
       "decl": "let",
       "async": false,
-      "line": 42680,
-      "endLine": 42680,
+      "line": 42716,
+      "endLine": 42716,
       "lines": 1,
       "value": "объект (3)",
       "uses": [],
@@ -41235,8 +41282,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42682,
-      "endLine": 42712,
+      "line": 42718,
+      "endLine": 42748,
       "lines": 31,
       "params": [
         "type",
@@ -41262,8 +41309,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42714,
-      "endLine": 42727,
+      "line": 42750,
+      "endLine": 42763,
       "lines": 14,
       "params": [],
       "uses": [
@@ -41305,8 +41352,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42734,
-      "endLine": 42739,
+      "line": 42770,
+      "endLine": 42775,
       "lines": 6,
       "params": [
         "conceptId"
@@ -41340,8 +41387,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 42748,
-      "endLine": 42752,
+      "line": 42784,
+      "endLine": 42788,
       "lines": 5,
       "value": "массив (3)",
       "uses": [],
@@ -41358,8 +41405,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42777,
-      "endLine": 42777,
+      "line": 42813,
+      "endLine": 42813,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -41380,8 +41427,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42778,
-      "endLine": 42778,
+      "line": 42814,
+      "endLine": 42814,
       "lines": 1,
       "value": "массив (0)",
       "uses": [],
@@ -41406,8 +41453,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 42779,
-      "endLine": 42779,
+      "line": 42815,
+      "endLine": 42815,
       "lines": 1,
       "value": "литерал false",
       "uses": [],
@@ -41424,8 +41471,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42792,
-      "endLine": 42808,
+      "line": 42828,
+      "endLine": 42844,
       "lines": 17,
       "params": [
         "kind",
@@ -41464,8 +41511,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 42810,
-      "endLine": 42827,
+      "line": 42846,
+      "endLine": 42863,
       "lines": 18,
       "params": [
         "kind",
@@ -41526,8 +41573,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42834,
-      "endLine": 42872,
+      "line": 42870,
+      "endLine": 42908,
       "lines": 39,
       "params": [
         "kind",
@@ -41568,8 +41615,8 @@
       "kind": "async function",
       "decl": "function",
       "async": true,
-      "line": 42874,
-      "endLine": 42893,
+      "line": 42910,
+      "endLine": 42929,
       "lines": 20,
       "params": [
         "kind",
@@ -41620,8 +41667,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42895,
-      "endLine": 42918,
+      "line": 42931,
+      "endLine": 42954,
       "lines": 24,
       "params": [
         "value",
@@ -41655,8 +41702,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 42927,
-      "endLine": 42927,
+      "line": 42963,
+      "endLine": 42963,
       "lines": 1,
       "value": "TaggedTemplateExpression",
       "uses": [],
@@ -41685,8 +41732,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 42930,
-      "endLine": 42931,
+      "line": 42966,
+      "endLine": 42967,
       "lines": 2,
       "value": "объект (3)",
       "uses": [],
@@ -41719,8 +41766,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 42932,
-      "endLine": 42932,
+      "line": 42968,
+      "endLine": 42968,
       "lines": 1,
       "value": "массив (3)",
       "uses": [],
@@ -41737,8 +41784,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42935,
-      "endLine": 42938,
+      "line": 42971,
+      "endLine": 42974,
       "lines": 4,
       "params": [
         "text"
@@ -41771,8 +41818,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 42950,
-      "endLine": 42950,
+      "line": 42986,
+      "endLine": 42986,
       "lines": 1,
       "value": "литерал {}",
       "uses": [],
@@ -41789,8 +41836,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42951,
-      "endLine": 42963,
+      "line": 42987,
+      "endLine": 42999,
       "lines": 13,
       "params": [
         "text"
@@ -41828,8 +41875,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42965,
-      "endLine": 42965,
+      "line": 43001,
+      "endLine": 43001,
       "lines": 1,
       "params": [
         "text"
@@ -41907,8 +41954,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42967,
-      "endLine": 42970,
+      "line": 43003,
+      "endLine": 43006,
       "lines": 4,
       "params": [
         "text"
@@ -41941,8 +41988,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42973,
-      "endLine": 42981,
+      "line": 43009,
+      "endLine": 43017,
       "lines": 9,
       "params": [
         "...texts"
@@ -41995,8 +42042,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42984,
-      "endLine": 42993,
+      "line": 43020,
+      "endLine": 43029,
       "lines": 10,
       "params": [
         "text",
@@ -42041,8 +42088,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 42997,
-      "endLine": 43007,
+      "line": 43033,
+      "endLine": 43043,
       "lines": 11,
       "params": [
         "notes",
@@ -42081,8 +42128,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 43012,
-      "endLine": 43012,
+      "line": 43048,
+      "endLine": 43048,
       "lines": 1,
       "value": "литерал null",
       "uses": [],
@@ -42103,8 +42150,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43013,
-      "endLine": 43036,
+      "line": 43049,
+      "endLine": 43072,
       "lines": 24,
       "params": [],
       "uses": [
@@ -42133,8 +42180,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 43037,
-      "endLine": 43037,
+      "line": 43073,
+      "endLine": 43073,
       "lines": 1,
       "uses": [
         {
@@ -42151,8 +42198,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43039,
-      "endLine": 43042,
+      "line": 43075,
+      "endLine": 43078,
       "lines": 4,
       "params": [
         "s"
@@ -42318,8 +42365,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43056,
-      "endLine": 43059,
+      "line": 43092,
+      "endLine": 43095,
       "lines": 4,
       "params": [
         "id"
@@ -42348,8 +42395,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43064,
-      "endLine": 43075,
+      "line": 43100,
+      "endLine": 43111,
       "lines": 12,
       "params": [
         "nameA",
@@ -42375,8 +42422,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 43079,
-      "endLine": 43080,
+      "line": 43115,
+      "endLine": 43116,
       "lines": 2,
       "value": "new Set",
       "uses": [],
@@ -42393,8 +42440,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43082,
-      "endLine": 43118,
+      "line": 43118,
+      "endLine": 43154,
       "lines": 37,
       "params": [
         "srcId",
@@ -42431,8 +42478,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43123,
-      "endLine": 43129,
+      "line": 43159,
+      "endLine": 43165,
       "lines": 7,
       "params": [
         "count",
@@ -42458,8 +42505,8 @@
       "kind": "const-функция",
       "decl": "const",
       "async": false,
-      "line": 43130,
-      "endLine": 43130,
+      "line": 43166,
+      "endLine": 43166,
       "lines": 1,
       "params": [
         "n"
@@ -42488,8 +42535,8 @@
       "kind": "const-функция",
       "decl": "const",
       "async": false,
-      "line": 43131,
-      "endLine": 43131,
+      "line": 43167,
+      "endLine": 43167,
       "lines": 1,
       "params": [
         "n"
@@ -42514,8 +42561,8 @@
       "kind": "const-функция",
       "decl": "const",
       "async": false,
-      "line": 43133,
-      "endLine": 43136,
+      "line": 43169,
+      "endLine": 43172,
       "lines": 4,
       "params": [
         "id"
@@ -42540,8 +42587,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43142,
-      "endLine": 43279,
+      "line": 43178,
+      "endLine": 43315,
       "lines": 138,
       "params": [
         "srcId",
@@ -42611,8 +42658,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43298,
-      "endLine": 43309,
+      "line": 43334,
+      "endLine": 43345,
       "lines": 12,
       "params": [
         "texts",
@@ -42638,8 +42685,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43311,
-      "endLine": 43332,
+      "line": 43347,
+      "endLine": 43368,
       "lines": 22,
       "params": [
         "prev",
@@ -42683,8 +42730,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43334,
-      "endLine": 43348,
+      "line": 43370,
+      "endLine": 43384,
       "lines": 15,
       "params": [
         "prev",
@@ -42710,8 +42757,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43350,
-      "endLine": 43367,
+      "line": 43386,
+      "endLine": 43403,
       "lines": 18,
       "params": [
         "label",
@@ -42743,8 +42790,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43369,
-      "endLine": 43384,
+      "line": 43405,
+      "endLine": 43420,
       "lines": 16,
       "params": [
         "name",
@@ -42777,8 +42824,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43387,
-      "endLine": 43391,
+      "line": 43423,
+      "endLine": 43427,
       "lines": 5,
       "params": [
         "title",
@@ -42806,8 +42853,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43397,
-      "endLine": 43503,
+      "line": 43433,
+      "endLine": 43539,
       "lines": 107,
       "params": [],
       "uses": [
@@ -42924,8 +42971,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43505,
-      "endLine": 43545,
+      "line": 43541,
+      "endLine": 43581,
       "lines": 41,
       "params": [
         "philosopherName"
@@ -43029,8 +43076,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43553,
-      "endLine": 43560,
+      "line": 43589,
+      "endLine": 43596,
       "lines": 8,
       "params": [
         "conceptId"
@@ -43074,8 +43121,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43562,
-      "endLine": 43568,
+      "line": 43598,
+      "endLine": 43604,
       "lines": 7,
       "params": [
         "link"
@@ -43123,8 +43170,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43570,
-      "endLine": 43652,
+      "line": 43606,
+      "endLine": 43688,
       "lines": 83,
       "params": [],
       "uses": [
@@ -43251,8 +43298,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43668,
-      "endLine": 43698,
+      "line": 43704,
+      "endLine": 43734,
       "lines": 31,
       "params": [
         "conceptId"
@@ -43338,8 +43385,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43704,
-      "endLine": 43803,
+      "line": 43740,
+      "endLine": 43839,
       "lines": 100,
       "params": [],
       "uses": [
@@ -43476,8 +43523,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43805,
-      "endLine": 43853,
+      "line": 43841,
+      "endLine": 43889,
       "lines": 49,
       "params": [
         "sourceId=…",
@@ -43574,8 +43621,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 43873,
-      "endLine": 43878,
+      "line": 43909,
+      "endLine": 43914,
       "lines": 6,
       "value": "массив (4)",
       "uses": [],
@@ -43596,8 +43643,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43880,
-      "endLine": 43901,
+      "line": 43916,
+      "endLine": 43937,
       "lines": 22,
       "params": [
         "data"
@@ -43635,8 +43682,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43907,
-      "endLine": 43923,
+      "line": 43943,
+      "endLine": 43959,
       "lines": 17,
       "params": [],
       "uses": [],
@@ -43655,8 +43702,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43926,
-      "endLine": 43937,
+      "line": 43962,
+      "endLine": 43973,
       "lines": 12,
       "params": [],
       "uses": [
@@ -43687,8 +43734,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43948,
-      "endLine": 43951,
+      "line": 43984,
+      "endLine": 43987,
       "lines": 4,
       "params": [
         "line",
@@ -43716,8 +43763,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43957,
-      "endLine": 43971,
+      "line": 43993,
+      "endLine": 44007,
       "lines": 15,
       "params": [
         "note",
@@ -43757,8 +43804,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43973,
-      "endLine": 43987,
+      "line": 44009,
+      "endLine": 44023,
       "lines": 15,
       "params": [
         "record"
@@ -43796,8 +43843,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43992,
-      "endLine": 43995,
+      "line": 44028,
+      "endLine": 44031,
       "lines": 4,
       "params": [],
       "uses": [],
@@ -43826,8 +43873,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 43997,
-      "endLine": 44018,
+      "line": 44033,
+      "endLine": 44054,
       "lines": 22,
       "params": [],
       "uses": [
@@ -43872,8 +43919,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44020,
-      "endLine": 44026,
+      "line": 44056,
+      "endLine": 44062,
       "lines": 7,
       "params": [
         "id"
@@ -43905,8 +43952,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44030,
-      "endLine": 44048,
+      "line": 44066,
+      "endLine": 44084,
       "lines": 19,
       "params": [],
       "uses": [
@@ -43949,8 +43996,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44051,
-      "endLine": 44067,
+      "line": 44087,
+      "endLine": 44103,
       "lines": 17,
       "params": [],
       "uses": [
@@ -43995,8 +44042,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44070,
-      "endLine": 44074,
+      "line": 44106,
+      "endLine": 44110,
       "lines": 5,
       "params": [
         "record"
@@ -44029,8 +44076,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44076,
-      "endLine": 44078,
+      "line": 44112,
+      "endLine": 44114,
       "lines": 3,
       "params": [
         "state"
@@ -44049,8 +44096,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44091,
-      "endLine": 44099,
+      "line": 44127,
+      "endLine": 44135,
       "lines": 9,
       "params": [],
       "uses": [
@@ -44073,8 +44120,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44101,
-      "endLine": 44115,
+      "line": 44137,
+      "endLine": 44151,
       "lines": 15,
       "params": [
         "saveFn",
@@ -44110,8 +44157,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44121,
-      "endLine": 44137,
+      "line": 44157,
+      "endLine": 44173,
       "lines": 17,
       "params": [],
       "uses": [
@@ -44145,8 +44192,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44139,
-      "endLine": 44144,
+      "line": 44175,
+      "endLine": 44180,
       "lines": 6,
       "params": [],
       "uses": [
@@ -44171,8 +44218,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44146,
-      "endLine": 44263,
+      "line": 44182,
+      "endLine": 44299,
       "lines": 118,
       "params": [
         "philosopherName"
@@ -44235,8 +44282,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44269,
-      "endLine": 44401,
+      "line": 44305,
+      "endLine": 44437,
       "lines": 133,
       "params": [
         "conceptData"
@@ -44334,8 +44381,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44410,
-      "endLine": 44448,
+      "line": 44446,
+      "endLine": 44484,
       "lines": 39,
       "params": [],
       "uses": [
@@ -44380,8 +44427,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44451,
-      "endLine": 44475,
+      "line": 44487,
+      "endLine": 44511,
       "lines": 25,
       "params": [],
       "uses": [
@@ -44427,8 +44474,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44477,
-      "endLine": 44485,
+      "line": 44513,
+      "endLine": 44521,
       "lines": 9,
       "params": [
         "type",
@@ -44448,8 +44495,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44487,
-      "endLine": 44584,
+      "line": 44523,
+      "endLine": 44620,
       "lines": 98,
       "params": [
         "connectionData"
@@ -44532,8 +44579,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44590,
-      "endLine": 44618,
+      "line": 44626,
+      "endLine": 44654,
       "lines": 29,
       "params": [
         "type",
@@ -44579,8 +44626,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44620,
-      "endLine": 44637,
+      "line": 44656,
+      "endLine": 44673,
       "lines": 18,
       "params": [
         "type",
@@ -44623,8 +44670,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44639,
-      "endLine": 44651,
+      "line": 44675,
+      "endLine": 44687,
       "lines": 13,
       "params": [],
       "uses": [
@@ -44652,8 +44699,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44653,
-      "endLine": 44672,
+      "line": 44689,
+      "endLine": 44708,
       "lines": 20,
       "params": [],
       "uses": [
@@ -44688,8 +44735,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44675,
-      "endLine": 44677,
+      "line": 44711,
+      "endLine": 44713,
       "lines": 3,
       "params": [
         "philosopherName"
@@ -44716,8 +44763,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44679,
-      "endLine": 44685,
+      "line": 44715,
+      "endLine": 44721,
       "lines": 7,
       "params": [
         "conceptId"
@@ -44749,8 +44796,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 44695,
-      "endLine": 44695,
+      "line": 44731,
+      "endLine": 44731,
       "lines": 1,
       "value": "объект (3)",
       "uses": [],
@@ -44767,8 +44814,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44698,
-      "endLine": 44705,
+      "line": 44734,
+      "endLine": 44741,
       "lines": 8,
       "params": [
         "sourceId",
@@ -44806,8 +44853,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44707,
-      "endLine": 44712,
+      "line": 44743,
+      "endLine": 44748,
       "lines": 6,
       "params": [
         "node",
@@ -44833,8 +44880,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44714,
-      "endLine": 44729,
+      "line": 44750,
+      "endLine": 44765,
       "lines": 16,
       "params": [
         "node"
@@ -44869,8 +44916,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44738,
-      "endLine": 44750,
+      "line": 44774,
+      "endLine": 44786,
       "lines": 13,
       "params": [
         "aPhil",
@@ -44906,8 +44953,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44753,
-      "endLine": 44812,
+      "line": 44789,
+      "endLine": 44848,
       "lines": 60,
       "params": [
         "conn",
@@ -44938,8 +44985,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44814,
-      "endLine": 44888,
+      "line": 44850,
+      "endLine": 44924,
       "lines": 75,
       "params": [
         "sourceNode",
@@ -45030,8 +45077,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44890,
-      "endLine": 44974,
+      "line": 44926,
+      "endLine": 45010,
       "lines": 85,
       "params": [
         "connectionData"
@@ -45069,8 +45116,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 44979,
-      "endLine": 44985,
+      "line": 45015,
+      "endLine": 45021,
       "lines": 7,
       "event": "click",
       "target": "document",
@@ -45083,8 +45130,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 44987,
-      "endLine": 44994,
+      "line": 45023,
+      "endLine": 45030,
       "lines": 8,
       "params": [],
       "uses": [],
@@ -45103,8 +45150,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45007,
-      "endLine": 45048,
+      "line": 45043,
+      "endLine": 45084,
       "lines": 42,
       "params": [
         "type",
@@ -45157,8 +45204,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45050,
-      "endLine": 45082,
+      "line": 45086,
+      "endLine": 45118,
       "lines": 33,
       "params": [
         "type",
@@ -45201,8 +45248,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45084,
-      "endLine": 45101,
+      "line": 45120,
+      "endLine": 45137,
       "lines": 18,
       "params": [],
       "uses": [
@@ -45240,8 +45287,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45106,
-      "endLine": 45123,
+      "line": 45142,
+      "endLine": 45159,
       "lines": 18,
       "params": [
         "mode=…"
@@ -45270,8 +45317,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45130,
-      "endLine": 45388,
+      "line": 45166,
+      "endLine": 45424,
       "lines": 259,
       "params": [
         "conceptData"
@@ -45384,8 +45431,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45391,
-      "endLine": 45402,
+      "line": 45427,
+      "endLine": 45438,
       "lines": 12,
       "params": [
         "id"
@@ -45407,8 +45454,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45407,
-      "endLine": 45413,
+      "line": 45443,
+      "endLine": 45449,
       "lines": 7,
       "params": [
         "btn"
@@ -45435,8 +45482,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 45416,
-      "endLine": 45416,
+      "line": 45452,
+      "endLine": 45452,
       "lines": 1,
       "value": "литерал false",
       "uses": [],
@@ -45453,8 +45500,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45418,
-      "endLine": 45454,
+      "line": 45454,
+      "endLine": 45490,
       "lines": 37,
       "params": [
         "btn"
@@ -45487,8 +45534,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45457,
-      "endLine": 45470,
+      "line": 45493,
+      "endLine": 45506,
       "lines": 14,
       "params": [
         "sectionId"
@@ -45515,8 +45562,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45473,
-      "endLine": 45495,
+      "line": 45509,
+      "endLine": 45531,
       "lines": 23,
       "params": [
         "nodeId"
@@ -45583,8 +45630,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45498,
-      "endLine": 45525,
+      "line": 45534,
+      "endLine": 45561,
       "lines": 28,
       "params": [
         "rubricId",
@@ -45627,8 +45674,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45529,
-      "endLine": 45537,
+      "line": 45565,
+      "endLine": 45573,
       "lines": 9,
       "params": [
         "count",
@@ -45648,8 +45695,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45540,
-      "endLine": 45565,
+      "line": 45576,
+      "endLine": 45601,
       "lines": 26,
       "params": [
         "count",
@@ -45669,8 +45716,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45575,
-      "endLine": 45611,
+      "line": 45611,
+      "endLine": 45647,
       "lines": 37,
       "params": [
         "name"
@@ -45720,8 +45767,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45614,
-      "endLine": 45617,
+      "line": 45650,
+      "endLine": 45653,
       "lines": 4,
       "params": [
         "name"
@@ -45751,8 +45798,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45619,
-      "endLine": 45649,
+      "line": 45655,
+      "endLine": 45685,
       "lines": 31,
       "params": [
         "philosopherName"
@@ -45777,8 +45824,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 45655,
-      "endLine": 46142,
+      "line": 45691,
+      "endLine": 46178,
       "lines": 488,
       "params": [
         "philosopherName"
@@ -45941,8 +45988,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 46145,
-      "endLine": 46156,
+      "line": 46181,
+      "endLine": 46192,
       "lines": 12,
       "params": [
         "conceptId"
@@ -45963,8 +46010,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 46159,
-      "endLine": 46159,
+      "line": 46195,
+      "endLine": 46195,
       "lines": 1,
       "value": "литерал false",
       "uses": [],
@@ -45981,8 +46028,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 46161,
-      "endLine": 46192,
+      "line": 46197,
+      "endLine": 46228,
       "lines": 32,
       "params": [
         "btn"
@@ -46015,8 +46062,8 @@
       "kind": "let",
       "decl": "let",
       "async": false,
-      "line": 46195,
-      "endLine": 46195,
+      "line": 46231,
+      "endLine": 46231,
       "lines": 1,
       "value": "литерал false",
       "uses": [],
@@ -46033,8 +46080,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 46197,
-      "endLine": 46227,
+      "line": 46233,
+      "endLine": 46263,
       "lines": 31,
       "params": [
         "btn"
@@ -46067,8 +46114,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 46229,
-      "endLine": 46309,
+      "line": 46265,
+      "endLine": 46345,
       "lines": 81,
       "params": [],
       "uses": [
@@ -46125,8 +46172,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46311,
-      "endLine": 46311,
+      "line": 46347,
+      "endLine": 46347,
       "lines": 1,
       "uses": [
         {
@@ -46143,8 +46190,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46312,
-      "endLine": 46312,
+      "line": 46348,
+      "endLine": 46348,
       "lines": 1,
       "uses": [
         {
@@ -46161,8 +46208,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46317,
-      "endLine": 46328,
+      "line": 46353,
+      "endLine": 46364,
       "lines": 12,
       "uses": [
         {
@@ -46204,8 +46251,8 @@
       "kind": "function",
       "decl": "function",
       "async": false,
-      "line": 46336,
-      "endLine": 46348,
+      "line": 46372,
+      "endLine": 46384,
       "lines": 13,
       "params": [],
       "uses": [
@@ -46262,8 +46309,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 46351,
-      "endLine": 46356,
+      "line": 46387,
+      "endLine": 46392,
       "lines": 6,
       "event": "click",
       "target": "document.getElementById('modalOverlay')",
@@ -46282,8 +46329,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 46359,
-      "endLine": 46380,
+      "line": 46395,
+      "endLine": 46416,
       "lines": 22,
       "event": "keydown",
       "target": "document",
@@ -46317,8 +46364,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46383,
-      "endLine": 46383,
+      "line": 46419,
+      "endLine": 46419,
       "lines": 1,
       "uses": [
         {
@@ -46340,8 +46387,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46384,
-      "endLine": 46384,
+      "line": 46420,
+      "endLine": 46420,
       "lines": 1,
       "uses": [
         {
@@ -46358,8 +46405,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46387,
-      "endLine": 46387,
+      "line": 46423,
+      "endLine": 46423,
       "lines": 1,
       "uses": [
         {
@@ -46381,8 +46428,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46392,
-      "endLine": 46392,
+      "line": 46428,
+      "endLine": 46428,
       "lines": 1,
       "uses": [
         {
@@ -46404,8 +46451,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46401,
-      "endLine": 46404,
+      "line": 46437,
+      "endLine": 46440,
       "lines": 4,
       "uses": [
         {
@@ -46432,8 +46479,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46406,
-      "endLine": 46406,
+      "line": 46442,
+      "endLine": 46442,
       "lines": 1,
       "uses": [
         {
@@ -46455,8 +46502,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46410,
-      "endLine": 46412,
+      "line": 46446,
+      "endLine": 46448,
       "lines": 3,
       "uses": [
         {
@@ -46483,8 +46530,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46413,
-      "endLine": 46415,
+      "line": 46449,
+      "endLine": 46451,
       "lines": 3,
       "uses": [
         {
@@ -46506,8 +46553,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46416,
-      "endLine": 46421,
+      "line": 46452,
+      "endLine": 46457,
       "lines": 6,
       "uses": [
         {
@@ -46534,8 +46581,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46441,
-      "endLine": 46441,
+      "line": 46477,
+      "endLine": 46477,
       "lines": 1,
       "uses": [
         {
@@ -46557,8 +46604,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46442,
-      "endLine": 46442,
+      "line": 46478,
+      "endLine": 46478,
       "lines": 1,
       "uses": [
         {
@@ -46580,8 +46627,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46443,
-      "endLine": 46445,
+      "line": 46479,
+      "endLine": 46481,
       "lines": 3,
       "uses": [
         {
@@ -46613,8 +46660,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46450,
-      "endLine": 46453,
+      "line": 46486,
+      "endLine": 46489,
       "lines": 4,
       "uses": [
         {
@@ -46641,8 +46688,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46454,
-      "endLine": 46454,
+      "line": 46490,
+      "endLine": 46490,
       "lines": 1,
       "uses": [
         {
@@ -46664,8 +46711,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46455,
-      "endLine": 46455,
+      "line": 46491,
+      "endLine": 46491,
       "lines": 1,
       "uses": [
         {
@@ -46687,8 +46734,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46456,
-      "endLine": 46456,
+      "line": 46492,
+      "endLine": 46492,
       "lines": 1,
       "uses": [
         {
@@ -46710,8 +46757,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46457,
-      "endLine": 46462,
+      "line": 46493,
+      "endLine": 46498,
       "lines": 6,
       "uses": [
         {
@@ -46738,8 +46785,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46464,
-      "endLine": 46464,
+      "line": 46500,
+      "endLine": 46500,
       "lines": 1,
       "uses": [
         {
@@ -46761,8 +46808,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 46466,
-      "endLine": 46469,
+      "line": 46502,
+      "endLine": 46505,
       "lines": 4,
       "event": "mouseover",
       "target": "document",
@@ -46781,8 +46828,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 46470,
-      "endLine": 46473,
+      "line": 46506,
+      "endLine": 46509,
       "lines": 4,
       "event": "mouseout",
       "target": "document",
@@ -46801,8 +46848,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 46474,
-      "endLine": 46474,
+      "line": 46510,
+      "endLine": 46510,
       "lines": 1,
       "event": "scroll",
       "target": "document",
@@ -46821,8 +46868,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 46478,
-      "endLine": 46478,
+      "line": 46514,
+      "endLine": 46514,
       "lines": 1,
       "event": "click",
       "target": "document",
@@ -46841,8 +46888,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46479,
-      "endLine": 46479,
+      "line": 46515,
+      "endLine": 46515,
       "lines": 1,
       "uses": [
         {
@@ -46864,8 +46911,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46480,
-      "endLine": 46480,
+      "line": 46516,
+      "endLine": 46516,
       "lines": 1,
       "uses": [
         {
@@ -46887,8 +46934,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46482,
-      "endLine": 46482,
+      "line": 46518,
+      "endLine": 46518,
       "lines": 1,
       "uses": [
         {
@@ -46910,8 +46957,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46483,
-      "endLine": 46483,
+      "line": 46519,
+      "endLine": 46519,
       "lines": 1,
       "uses": [
         {
@@ -46933,8 +46980,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46484,
-      "endLine": 46484,
+      "line": 46520,
+      "endLine": 46520,
       "lines": 1,
       "uses": [
         {
@@ -46956,8 +47003,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46485,
-      "endLine": 46485,
+      "line": 46521,
+      "endLine": 46521,
       "lines": 1,
       "uses": [
         {
@@ -46979,8 +47026,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46487,
-      "endLine": 46489,
+      "line": 46523,
+      "endLine": 46525,
       "lines": 3,
       "uses": [
         {
@@ -47012,8 +47059,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46491,
-      "endLine": 46491,
+      "line": 46527,
+      "endLine": 46527,
       "lines": 1,
       "uses": [
         {
@@ -47030,8 +47077,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46493,
-      "endLine": 46493,
+      "line": 46529,
+      "endLine": 46529,
       "lines": 1,
       "uses": [
         {
@@ -47048,8 +47095,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46496,
-      "endLine": 46496,
+      "line": 46532,
+      "endLine": 46532,
       "lines": 1,
       "uses": [
         {
@@ -47066,8 +47113,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46499,
-      "endLine": 46499,
+      "line": 46535,
+      "endLine": 46535,
       "lines": 1,
       "uses": [
         {
@@ -47084,8 +47131,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 46502,
-      "endLine": 46504,
+      "line": 46538,
+      "endLine": 46540,
       "lines": 3,
       "event": "end.log",
       "target": "simulation",
@@ -47104,8 +47151,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 46511,
-      "endLine": 46511,
+      "line": 46547,
+      "endLine": 46547,
       "lines": 1,
       "value": "вызов document.getElementById()",
       "uses": [],
@@ -47122,8 +47169,8 @@
       "kind": "условие",
       "decl": "statement",
       "async": false,
-      "line": 46512,
-      "endLine": 46512,
+      "line": 46548,
+      "endLine": 46548,
       "lines": 1,
       "uses": [
         {
@@ -47145,8 +47192,8 @@
       "kind": "const",
       "decl": "const",
       "async": false,
-      "line": 46513,
-      "endLine": 46513,
+      "line": 46549,
+      "endLine": 46549,
       "lines": 1,
       "value": "вызов document.getElementById()",
       "uses": [],
@@ -47163,8 +47210,8 @@
       "kind": "условие",
       "decl": "statement",
       "async": false,
-      "line": 46514,
-      "endLine": 46514,
+      "line": 46550,
+      "endLine": 46550,
       "lines": 1,
       "uses": [
         {
@@ -47186,8 +47233,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46517,
-      "endLine": 46517,
+      "line": 46553,
+      "endLine": 46553,
       "lines": 1,
       "uses": [
         {
@@ -47204,8 +47251,8 @@
       "kind": "условие",
       "decl": "statement",
       "async": false,
-      "line": 46522,
-      "endLine": 46522,
+      "line": 46558,
+      "endLine": 46558,
       "lines": 1,
       "uses": [
         {
@@ -47227,8 +47274,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46524,
-      "endLine": 46524,
+      "line": 46560,
+      "endLine": 46560,
       "lines": 1,
       "uses": [],
       "usedBy": []
@@ -47239,8 +47286,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46525,
-      "endLine": 46526,
+      "line": 46561,
+      "endLine": 46562,
       "lines": 2,
       "uses": [
         {
@@ -47262,8 +47309,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 46533,
-      "endLine": 46536,
+      "line": 46569,
+      "endLine": 46572,
       "lines": 4,
       "event": "change",
       "target": "document.getElementById('respectChronolo…",
@@ -47276,8 +47323,8 @@
       "kind": "обработчик",
       "decl": "statement",
       "async": false,
-      "line": 46539,
-      "endLine": 46551,
+      "line": 46575,
+      "endLine": 46587,
       "lines": 13,
       "event": "change",
       "target": "document.getElementById('chronologyModeS…",
@@ -47297,8 +47344,8 @@
       "kind": "условие",
       "decl": "statement",
       "async": false,
-      "line": 46554,
-      "endLine": 46556,
+      "line": 46590,
+      "endLine": 46592,
       "lines": 3,
       "uses": [],
       "usedBy": []
@@ -47309,8 +47356,8 @@
       "kind": "вызов",
       "decl": "statement",
       "async": false,
-      "line": 46558,
-      "endLine": 46558,
+      "line": 46594,
+      "endLine": 46594,
       "lines": 1,
       "uses": [],
       "usedBy": []
@@ -47556,7 +47603,7 @@
       "event": "keydown",
       "owner": "openAuthModal",
       "top": false,
-      "line": 40200,
+      "line": 40208,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47565,7 +47612,7 @@
       "event": "keydown",
       "owner": "startMfaEnroll",
       "top": false,
-      "line": 40281,
+      "line": 40289,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47574,7 +47621,7 @@
       "event": "beforeunload",
       "owner": "stmt028",
       "top": true,
-      "line": 41157,
+      "line": 41176,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47583,7 +47630,7 @@
       "event": "click",
       "owner": "stmt030",
       "top": true,
-      "line": 41552,
+      "line": 41588,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47592,7 +47639,7 @@
       "event": "click",
       "owner": "stmt031",
       "top": true,
-      "line": 42119,
+      "line": 42155,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47601,7 +47648,7 @@
       "event": "click",
       "owner": "stmt035",
       "top": true,
-      "line": 42254,
+      "line": 42290,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47610,7 +47657,7 @@
       "event": "message",
       "owner": "connectLive",
       "top": false,
-      "line": 42477,
+      "line": 42513,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47619,7 +47666,7 @@
       "event": "open",
       "owner": "connectLive",
       "top": false,
-      "line": 42487,
+      "line": 42523,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47628,7 +47675,7 @@
       "event": "close",
       "owner": "connectLive",
       "top": false,
-      "line": 42492,
+      "line": 42528,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47637,7 +47684,7 @@
       "event": "pagehide",
       "owner": "stmt037",
       "top": true,
-      "line": 42515,
+      "line": 42551,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47646,7 +47693,7 @@
       "event": "mouseover",
       "owner": "installFootnoteLinks",
       "top": false,
-      "line": 43025,
+      "line": 43061,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47655,7 +47702,7 @@
       "event": "mouseout",
       "owner": "installFootnoteLinks",
       "top": false,
-      "line": 43026,
+      "line": 43062,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47664,7 +47711,7 @@
       "event": "focusin",
       "owner": "installFootnoteLinks",
       "top": false,
-      "line": 43027,
+      "line": 43063,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47673,7 +47720,7 @@
       "event": "focusout",
       "owner": "installFootnoteLinks",
       "top": false,
-      "line": 43031,
+      "line": 43067,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47682,7 +47729,7 @@
       "event": "click",
       "owner": "installFootnoteLinks",
       "top": false,
-      "line": 43032,
+      "line": 43068,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47691,7 +47738,7 @@
       "event": "input",
       "owner": "installFootnoteLinks",
       "top": false,
-      "line": 43033,
+      "line": 43069,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47700,7 +47747,7 @@
       "event": "input",
       "owner": "setupConnectionEditSearchHandlers",
       "top": false,
-      "line": 44645,
+      "line": 44681,
       "handler": "run",
       "via": "addEventListener"
     },
@@ -47709,7 +47756,7 @@
       "event": "focus",
       "owner": "setupConnectionEditSearchHandlers",
       "top": false,
-      "line": 44646,
+      "line": 44682,
       "handler": "run",
       "via": "addEventListener"
     },
@@ -47718,7 +47765,7 @@
       "event": "click",
       "owner": "stmt039",
       "top": true,
-      "line": 44979,
+      "line": 45015,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47727,7 +47774,7 @@
       "event": "click",
       "owner": "initConnectionSearchFields",
       "top": false,
-      "line": 45117,
+      "line": 45153,
       "handler": "функция на месте",
       "via": "свойство"
     },
@@ -47736,7 +47783,7 @@
       "event": "click",
       "owner": "makeLegendsEditable",
       "top": false,
-      "line": 46242,
+      "line": 46278,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47745,7 +47792,7 @@
       "event": "click",
       "owner": "makeLegendsEditable",
       "top": false,
-      "line": 46272,
+      "line": 46308,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47754,7 +47801,7 @@
       "event": "dblclick",
       "owner": "makeLegendsEditable",
       "top": false,
-      "line": 46287,
+      "line": 46323,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47763,7 +47810,7 @@
       "event": "click",
       "owner": "stmt043",
       "top": true,
-      "line": 46351,
+      "line": 46387,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47772,7 +47819,7 @@
       "event": "keydown",
       "owner": "stmt044",
       "top": true,
-      "line": 46359,
+      "line": 46395,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47781,7 +47828,7 @@
       "event": "mouseover",
       "owner": "stmt063",
       "top": true,
-      "line": 46466,
+      "line": 46502,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47790,7 +47837,7 @@
       "event": "mouseout",
       "owner": "stmt064",
       "top": true,
-      "line": 46470,
+      "line": 46506,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47799,7 +47846,7 @@
       "event": "scroll",
       "owner": "stmt065",
       "top": true,
-      "line": 46474,
+      "line": 46510,
       "handler": "hideHint",
       "via": "addEventListener"
     },
@@ -47808,7 +47855,7 @@
       "event": "click",
       "owner": "stmt066",
       "top": true,
-      "line": 46478,
+      "line": 46514,
       "handler": "hideHint",
       "via": "addEventListener"
     },
@@ -47817,7 +47864,7 @@
       "event": "end.log",
       "owner": "stmt078",
       "top": true,
-      "line": 46502,
+      "line": 46538,
       "handler": "функция на месте",
       "via": ".on()"
     },
@@ -47826,7 +47873,7 @@
       "event": "change",
       "owner": "stmt085",
       "top": true,
-      "line": 46533,
+      "line": 46569,
       "handler": "функция на месте",
       "via": "addEventListener"
     },
@@ -47835,7 +47882,7 @@
       "event": "change",
       "owner": "stmt086",
       "top": true,
-      "line": 46539,
+      "line": 46575,
       "handler": "функция на месте",
       "via": "addEventListener"
     }
@@ -51318,7 +51365,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40190,
+        "line": 40198,
         "producer": "openAuthModal",
         "code": "closeAuthModal()",
         "calls": [
@@ -51327,7 +51374,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40191,
+        "line": 40199,
         "producer": "openAuthModal",
         "code": "submitAuth()",
         "calls": [
@@ -51336,7 +51383,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40246,
+        "line": 40254,
         "producer": "openSecurityModal",
         "code": "closeAuthModal()",
         "calls": [
@@ -51345,7 +51392,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40248,
+        "line": 40256,
         "producer": "openSecurityModal",
         "code": "startMfaEnroll()",
         "calls": [
@@ -51354,7 +51401,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40276,
+        "line": 40284,
         "producer": "startMfaEnroll",
         "code": "confirmMfaEnroll()",
         "calls": [
@@ -51363,7 +51410,7 @@
       },
       {
         "attr": "onchange",
-        "line": 40306,
+        "line": 40314,
         "producer": "confirmMfaEnroll",
         "code": "refreshSecurityDone()",
         "calls": [
@@ -51372,7 +51419,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40309,
+        "line": 40317,
         "producer": "confirmMfaEnroll",
         "code": "closeAuthModal()",
         "calls": [
@@ -51381,7 +51428,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40350,
+        "line": 40369,
         "producer": "showAuthNotice",
         "code": "closeAuthModal()",
         "calls": [
@@ -51390,7 +51437,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40550,
+        "line": 40569,
         "producer": "renderAuthControls",
         "code": "openAuthModal(\\'login\\')",
         "calls": [
@@ -51399,7 +51446,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40551,
+        "line": 40570,
         "producer": "renderAuthControls",
         "code": "openAuthModal(\\'register\\')",
         "calls": [
@@ -51408,7 +51455,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40554,
+        "line": 40573,
         "producer": "renderAuthControls",
         "code": "openSecurityModal()",
         "calls": [
@@ -51417,7 +51464,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40555,
+        "line": 40574,
         "producer": "renderAuthControls",
         "code": "authLogout()",
         "calls": [
@@ -51426,7 +51473,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40629,
+        "line": 40648,
         "producer": "openUniversalModal",
         "code": "toggleModalMode()",
         "calls": [
@@ -51435,7 +51482,7 @@
       },
       {
         "attr": "onclick",
-        "line": 40639,
+        "line": 40658,
         "producer": "openUniversalModal",
         "code": "popModalState()",
         "calls": [
@@ -51444,7 +51491,7 @@
       },
       {
         "attr": "onclick",
-        "line": 41867,
+        "line": 41903,
         "producer": "layoutHistoryHtml",
         "code": "askLayoutRevert('${escapeAttr(String(item.id))}')",
         "calls": [
@@ -51455,7 +51502,7 @@
       },
       {
         "attr": "onclick",
-        "line": 41890,
+        "line": 41926,
         "producer": "layoutTabHtml",
         "code": "doLayoutRevert()",
         "calls": [
@@ -51464,7 +51511,7 @@
       },
       {
         "attr": "onclick",
-        "line": 41891,
+        "line": 41927,
         "producer": "layoutTabHtml",
         "code": "cancelLayoutRevert()",
         "calls": [
@@ -51473,7 +51520,7 @@
       },
       {
         "attr": "onclick",
-        "line": 41898,
+        "line": 41934,
         "producer": "layoutTabHtml",
         "code": "planRelayout()",
         "calls": [
@@ -51482,7 +51529,7 @@
       },
       {
         "attr": "onclick",
-        "line": 41905,
+        "line": 41941,
         "producer": "layoutTabHtml",
         "code": "applyRelayout()",
         "calls": [
@@ -51491,7 +51538,7 @@
       },
       {
         "attr": "onclick",
-        "line": 41918,
+        "line": 41954,
         "producer": "layoutTabHtml",
         "code": "applyRelayout()",
         "calls": [
@@ -51500,7 +51547,7 @@
       },
       {
         "attr": "onclick",
-        "line": 41919,
+        "line": 41955,
         "producer": "layoutTabHtml",
         "code": "planRelayout()",
         "calls": [
@@ -51509,7 +51556,7 @@
       },
       {
         "attr": "onclick",
-        "line": 42707,
+        "line": 42743,
         "producer": "selectConceptOnGraph",
         "code": "cancelGraphSelection()",
         "calls": [
@@ -51518,7 +51565,7 @@
       },
       {
         "attr": "onclick",
-        "line": 42800,
+        "line": 42836,
         "producer": "historyBlock",
         "code": "toggleEntityHistory('${escapeAttr(kind)}', '${escapeAttr(entityId)}')",
         "calls": [
@@ -51528,7 +51575,7 @@
       },
       {
         "attr": "onclick",
-        "line": 42859,
+        "line": 42895,
         "producer": "renderEntityHistory",
         "code": "revertEntityToVersion('${escapeAttr(kind)}', '${escapeAttr(entityId)}', ${Number(commit.версия)})",
         "calls": [
@@ -51539,7 +51586,7 @@
       },
       {
         "attr": "onchange",
-        "line": 43895,
+        "line": 43931,
         "producer": "provenanceField",
         "code": "refreshProvenanceField()",
         "calls": [
@@ -51548,7 +51595,7 @@
       },
       {
         "attr": "onchange",
-        "line": 43965,
+        "line": 44001,
         "producer": "footnoteRow",
         "code": "refreshFootnoteRows()",
         "calls": [
@@ -51557,7 +51604,7 @@
       },
       {
         "attr": "onclick",
-        "line": 43969,
+        "line": 44005,
         "producer": "footnoteRow",
         "code": "removeFootnote('${note.id}')",
         "calls": [
@@ -51566,7 +51613,7 @@
       },
       {
         "attr": "onclick",
-        "line": 43985,
+        "line": 44021,
         "producer": "footnotesField",
         "code": "insertFootnote()",
         "calls": [
@@ -51575,14 +51622,14 @@
       },
       {
         "attr": "onclick",
-        "line": 44104,
+        "line": 44140,
         "producer": "modalActions",
         "code": "${saveFn}()",
         "calls": []
       },
       {
         "attr": "onclick",
-        "line": 44107,
+        "line": 44143,
         "producer": "modalActions",
         "code": "closeUniversalModal()",
         "calls": [
@@ -51591,14 +51638,14 @@
       },
       {
         "attr": "onclick",
-        "line": 44111,
+        "line": 44147,
         "producer": "modalActions",
         "code": "${deleteFn}(${deleteArg})",
         "calls": []
       },
       {
         "attr": "oninput",
-        "line": 44159,
+        "line": 44195,
         "producer": "generatePhilosopherEditContent",
         "code": "updatePhilColorSample()",
         "calls": [
@@ -51607,7 +51654,7 @@
       },
       {
         "attr": "oninput",
-        "line": 44167,
+        "line": 44203,
         "producer": "generatePhilosopherEditContent",
         "code": "syncPhilColorFromPicker()",
         "calls": [
@@ -51616,7 +51663,7 @@
       },
       {
         "attr": "oninput",
-        "line": 44171,
+        "line": 44207,
         "producer": "generatePhilosopherEditContent",
         "code": "updatePhilColorSample()",
         "calls": [
@@ -51625,7 +51672,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44239,
+        "line": 44275,
         "producer": "generatePhilosopherEditContent",
         "code": "openUniversalModal('concept', nodes.find(n => n.id === '${c.id}'), 'view')",
         "calls": [
@@ -51634,7 +51681,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44242,
+        "line": 44278,
         "producer": "generatePhilosopherEditContent",
         "code": "openEditConceptModal('${c.id}')",
         "calls": [
@@ -51643,7 +51690,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44245,
+        "line": 44281,
         "producer": "generatePhilosopherEditContent",
         "code": "deleteConcept('${c.id}')",
         "calls": [
@@ -51652,7 +51699,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44250,
+        "line": 44286,
         "producer": "generatePhilosopherEditContent",
         "code": "createNewConceptForPhilosopher('${escapeAttr(philosopherName)}')",
         "calls": [
@@ -51662,7 +51709,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44362,
+        "line": 44398,
         "producer": "generateConceptEditContent",
         "code": "openUniversalModal('connection', findConnection('${srcId}', '${tgtId}', false), 'view')",
         "calls": [
@@ -51672,7 +51719,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44365,
+        "line": 44401,
         "producer": "generateConceptEditContent",
         "code": "openEditConnectionModal('${srcId}', '${tgtId}')",
         "calls": [
@@ -51681,7 +51728,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44368,
+        "line": 44404,
         "producer": "generateConceptEditContent",
         "code": "deleteConnection('${srcId}', '${tgtId}')",
         "calls": [
@@ -51690,7 +51737,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44391,
+        "line": 44427,
         "producer": "generateConceptEditContent",
         "code": "createNewConnectionForConcept('${conceptData.id}')",
         "calls": [
@@ -51699,7 +51746,7 @@
       },
       {
         "attr": "onchange",
-        "line": 44509,
+        "line": 44545,
         "producer": "generateConnectionEditContent",
         "code": "onConnTypeChange()",
         "calls": [
@@ -51708,7 +51755,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44549,
+        "line": 44585,
         "producer": "generateConnectionEditContent",
         "code": "swapConnectionConcepts()",
         "calls": [
@@ -51717,7 +51764,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44613,
+        "line": 44649,
         "producer": "handleConnectionEditSearch",
         "code": "selectConnectionEditConcept('${type}', '${n.id}')",
         "calls": [
@@ -51726,7 +51773,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44721,
+        "line": 44757,
         "producer": "conceptPlate",
         "code": "openUniversalModal('concept', nodes.find(n => n.id === '${node.id}'), 'view');",
         "calls": [
@@ -51735,7 +51782,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44725,
+        "line": 44761,
         "producer": "conceptPlate",
         "code": "openUniversalModal('philosopher', '${node.concept}', 'view');",
         "calls": [
@@ -51744,7 +51791,7 @@
       },
       {
         "attr": "onclick",
-        "line": 44919,
+        "line": 44955,
         "producer": "generateConnectionViewContent",
         "code": "toggleConnectionSearchSection()",
         "calls": [
@@ -51753,7 +51800,7 @@
       },
       {
         "attr": "oninput",
-        "line": 44942,
+        "line": 44978,
         "producer": "generateConnectionViewContent",
         "code": "handleConnectionViewSearch('${type}', this.value)",
         "calls": [
@@ -51762,7 +51809,7 @@
       },
       {
         "attr": "onfocus",
-        "line": 44943,
+        "line": 44979,
         "producer": "generateConnectionViewContent",
         "code": "handleConnectionViewSearch('${type}', this.value)",
         "calls": [
@@ -51771,7 +51818,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45044,
+        "line": 45080,
         "producer": "handleConnectionViewSearch",
         "code": "selectConnectionViewConcept('${type}', '${n.id}')",
         "calls": [
@@ -51780,7 +51827,7 @@
       },
       {
         "attr": "oninput",
-        "line": 45147,
+        "line": 45183,
         "producer": "generateConceptViewContent",
         "code": "handleModalSearch(this.value)",
         "calls": [
@@ -51789,7 +51836,7 @@
       },
       {
         "attr": "onfocus",
-        "line": 45148,
+        "line": 45184,
         "producer": "generateConceptViewContent",
         "code": "handleModalSearch(this.value)",
         "calls": [
@@ -51798,7 +51845,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45149,
+        "line": 45185,
         "producer": "generateConceptViewContent",
         "code": "clearModalSearch()",
         "calls": [
@@ -51807,7 +51854,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45156,
+        "line": 45192,
         "producer": "generateConceptViewContent",
         "code": "openUniversalModal('philosopher', '${conceptData.concept}', 'view');",
         "calls": [
@@ -51816,7 +51863,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45164,
+        "line": 45200,
         "producer": "generateConceptViewContent",
         "code": "gotoNodeFromModal('${conceptData.id}')",
         "calls": [
@@ -51825,7 +51872,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45167,
+        "line": 45203,
         "producer": "generateConceptViewContent",
         "code": "closeUniversalModal(); setTimeout(() => showConceptProfileModal('${conceptData.id}'), 100);",
         "calls": [
@@ -51836,7 +51883,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45218,
+        "line": 45254,
         "producer": "generateConceptViewContent",
         "code": "toggleAllConnectionDescriptions(this)",
         "calls": [
@@ -51845,7 +51892,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45228,
+        "line": 45264,
         "producer": "generateConceptViewContent",
         "code": "toggleSubsection('internal-${conceptData.id}')",
         "calls": [
@@ -51854,7 +51901,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45255,
+        "line": 45291,
         "producer": "generateConceptViewContent",
         "code": "openUniversalModal('concept', nodes.find(n => n.id === '${connectedNode.id}'), 'view');",
         "calls": [
@@ -51863,7 +51910,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45260,
+        "line": 45296,
         "producer": "generateConceptViewContent",
         "code": "event.stopPropagation(); toggleConnectionDescription('${conceptData.id}-${connectedNode.id}')",
         "calls": [
@@ -51872,7 +51919,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45283,
+        "line": 45319,
         "producer": "generateConceptViewContent",
         "code": "toggleSubsection('external-${conceptData.id}')",
         "calls": [
@@ -51881,7 +51928,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45307,
+        "line": 45343,
         "producer": "generateConceptViewContent",
         "code": "openUniversalModal('concept', nodes.find(n => n.id === '${connectedNode.id}'), 'view');",
         "calls": [
@@ -51890,7 +51937,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45312,
+        "line": 45348,
         "producer": "generateConceptViewContent",
         "code": "event.stopPropagation(); toggleConnectionDescription('${conceptData.id}-${connectedNode.id}')",
         "calls": [
@@ -51899,7 +51946,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45360,
+        "line": 45396,
         "producer": "generateConceptViewContent",
         "code": "openUniversalModal('concept', nodes.find(n => n.id === '${c.id}'), 'view');",
         "calls": [
@@ -51908,7 +51955,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45368,
+        "line": 45404,
         "producer": "generateConceptViewContent",
         "code": "showAllConcepts('${rubricData.id}', '${conceptData.id}')",
         "calls": [
@@ -51917,7 +51964,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45515,
+        "line": 45551,
         "producer": "showAllConcepts",
         "code": "openUniversalModal('concept', nodes.find(n => n.id === '${c.id}'), 'view');",
         "calls": [
@@ -51926,7 +51973,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45597,
+        "line": 45633,
         "producer": "philosopherTraditionsBlock",
         "code": "openUniversalModal('philosopher', '${f.nameRu}', 'view');",
         "calls": [
@@ -51935,7 +51982,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45629,
+        "line": 45665,
         "producer": "similarPhilosophersBlock",
         "code": "showPhilosopherDetailModal('${x.id}')",
         "calls": [
@@ -51944,7 +51991,7 @@
       },
       {
         "attr": "oninput",
-        "line": 45678,
+        "line": 45714,
         "producer": "generatePhilosopherViewContent",
         "code": "handlePhilosopherSearch(this.value)",
         "calls": [
@@ -51953,7 +52000,7 @@
       },
       {
         "attr": "onfocus",
-        "line": 45679,
+        "line": 45715,
         "producer": "generatePhilosopherViewContent",
         "code": "handlePhilosopherSearch(this.value)",
         "calls": [
@@ -51962,7 +52009,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45680,
+        "line": 45716,
         "producer": "generatePhilosopherViewContent",
         "code": "clearPhilosopherSearch()",
         "calls": [
@@ -51971,7 +52018,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45693,
+        "line": 45729,
         "producer": "generatePhilosopherViewContent",
         "code": "closeUniversalModal(); setTimeout(() => showPhilosopherProfileModal('${philosopherName}'), 100);",
         "calls": [
@@ -51982,7 +52029,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45849,
+        "line": 45885,
         "producer": "generatePhilosopherViewContent",
         "code": "openUniversalModal('philosopher', '${phil}', 'view');",
         "calls": [
@@ -51991,7 +52038,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45865,
+        "line": 45901,
         "producer": "generatePhilosopherViewContent",
         "code": "openUniversalModal('philosopher', '${phil}', 'view');",
         "calls": [
@@ -52000,7 +52047,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45881,
+        "line": 45917,
         "producer": "generatePhilosopherViewContent",
         "code": "openUniversalModal('philosopher', '${phil}', 'view');",
         "calls": [
@@ -52009,7 +52056,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45935,
+        "line": 45971,
         "producer": "generatePhilosopherViewContent",
         "code": "toggleAllPhilosopherConceptDescriptions(this)",
         "calls": [
@@ -52018,7 +52065,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45943,
+        "line": 45979,
         "producer": "generatePhilosopherViewContent",
         "code": "event.stopPropagation(); openUniversalModal('concept', nodes.find(n => n.id === '${conceptNode.id}'), 'view');",
         "calls": [
@@ -52027,7 +52074,7 @@
       },
       {
         "attr": "onclick",
-        "line": 45946,
+        "line": 45982,
         "producer": "generatePhilosopherViewContent",
         "code": "event.stopPropagation(); togglePhilosopherConceptDescription('${conceptNode.id}')",
         "calls": [
@@ -52036,7 +52083,7 @@
       },
       {
         "attr": "onclick",
-        "line": 46001,
+        "line": 46037,
         "producer": "generatePhilosopherViewContent",
         "code": "toggleAllPhilosopherConnectionDescriptions(this)",
         "calls": [
@@ -52045,7 +52092,7 @@
       },
       {
         "attr": "onclick",
-        "line": 46013,
+        "line": 46049,
         "producer": "generatePhilosopherViewContent",
         "code": "toggleSubsection('phil-internal-${philosopherName}')",
         "calls": [
@@ -52054,7 +52101,7 @@
       },
       {
         "attr": "onclick",
-        "line": 46039,
+        "line": 46075,
         "producer": "generatePhilosopherViewContent",
         "code": "openUniversalModal('concept', nodes.find(n => n.id === '${leftNode.id}'), 'view');",
         "calls": [
@@ -52063,7 +52110,7 @@
       },
       {
         "attr": "onclick",
-        "line": 46043,
+        "line": 46079,
         "producer": "generatePhilosopherViewContent",
         "code": "openUniversalModal('concept', nodes.find(n => n.id === '${rightNode.id}'), 'view');",
         "calls": [
@@ -52072,7 +52119,7 @@
       },
       {
         "attr": "onclick",
-        "line": 46048,
+        "line": 46084,
         "producer": "generatePhilosopherViewContent",
         "code": "event.stopPropagation(); toggleConnectionDescription('phil-${srcNode.id}-${tgtNode.id}')",
         "calls": [
@@ -52081,7 +52128,7 @@
       },
       {
         "attr": "onclick",
-        "line": 46071,
+        "line": 46107,
         "producer": "generatePhilosopherViewContent",
         "code": "toggleSubsection('phil-external-${philosopherName}')",
         "calls": [
@@ -52090,7 +52137,7 @@
       },
       {
         "attr": "onclick",
-        "line": 46105,
+        "line": 46141,
         "producer": "generatePhilosopherViewContent",
         "code": "openUniversalModal('concept', nodes.find(n => n.id === '${leftNode.id}'), 'view');",
         "calls": [
@@ -52099,7 +52146,7 @@
       },
       {
         "attr": "onclick",
-        "line": 46110,
+        "line": 46146,
         "producer": "generatePhilosopherViewContent",
         "code": "openUniversalModal('concept', nodes.find(n => n.id === '${rightNode.id}'), 'view');",
         "calls": [
@@ -52108,7 +52155,7 @@
       },
       {
         "attr": "onclick",
-        "line": 46116,
+        "line": 46152,
         "producer": "generatePhilosopherViewContent",
         "code": "event.stopPropagation(); toggleConnectionDescription('phil-${srcNode.id}-${tgtNode.id}')",
         "calls": [
@@ -53015,49 +53062,49 @@
     {
       "name": "securityError",
       "owner": "securityError",
-      "line": 40222,
+      "line": 40230,
       "how": "строка"
     },
     {
       "name": "authError",
       "owner": "authError",
-      "line": 40336,
+      "line": 40355,
       "how": "строка"
     },
     {
       "name": "savePhilosopherData",
       "owner": "generatePhilosopherEditContent",
-      "line": 44256,
+      "line": 44292,
       "how": "строка"
     },
     {
       "name": "deletePhilosopher",
       "owner": "generatePhilosopherEditContent",
-      "line": 44256,
+      "line": 44292,
       "how": "строка"
     },
     {
       "name": "saveConceptData",
       "owner": "generateConceptEditContent",
-      "line": 44397,
+      "line": 44433,
       "how": "строка"
     },
     {
       "name": "deleteConcept",
       "owner": "generateConceptEditContent",
-      "line": 44397,
+      "line": 44433,
       "how": "строка"
     },
     {
       "name": "saveConnectionData",
       "owner": "generateConnectionEditContent",
-      "line": 44575,
+      "line": 44611,
       "how": "строка"
     },
     {
       "name": "deleteConnection",
       "owner": "generateConnectionEditContent",
-      "line": 44575,
+      "line": 44611,
       "how": "строка"
     }
   ],
@@ -53096,7 +53143,7 @@
   "undeclared": [
     {
       "name": "document",
-      "count": 394,
+      "count": 395,
       "owners": [
         "initPathFinder",
         "findAndShowPath",
@@ -53168,7 +53215,7 @@
     },
     {
       "name": "String",
-      "count": 59,
+      "count": 60,
       "owners": [
         "findAndShowPath",
         "buildAboutText",
@@ -53454,7 +53501,7 @@
       "owners": [
         "downloadData",
         "saveToFolder",
-        "api",
+        "apiOnce",
         "changesDiff",
         "conflictValue",
         "connectLive",
@@ -53481,6 +53528,18 @@
         "exportToPNG",
         "exportToSVG",
         "deliverFile"
+      ]
+    },
+    {
+      "name": "prompt",
+      "count": 6,
+      "owners": [
+        "api",
+        "changeUserRoleFromPanel",
+        "banUserFromPanel",
+        "reviewCommitFromPanel",
+        "revertCommitFromPanel",
+        "revertEntityToVersion"
       ]
     },
     {
@@ -53512,17 +53571,6 @@
         "startRadiusAnimation",
         "stepRadiusAnimation",
         "stmt022"
-      ]
-    },
-    {
-      "name": "prompt",
-      "count": 5,
-      "owners": [
-        "changeUserRoleFromPanel",
-        "banUserFromPanel",
-        "reviewCommitFromPanel",
-        "revertCommitFromPanel",
-        "revertEntityToVersion"
       ]
     },
     {
@@ -53625,7 +53673,7 @@
       "name": "fetch",
       "count": 1,
       "owners": [
-        "api"
+        "apiOnce"
       ]
     }
   ]

@@ -14,6 +14,7 @@ import { countRecoveryCodes, passSessionMfa } from '../src/db/mfa.js';
 import { totpCode as totpКод, verifyCode, createSecret, base32Decode, base32Encode,
          STEP_SEC } from '../src/auth/totp.js';
 import { encrypt, decrypt } from '../src/auth/secretbox.js';
+import { clearCounters } from '../src/auth/throttle.js';
 import { can } from '../src/access/access.js';
 import { P } from '../src/access/roles.js';
 import { execFileSync } from 'node:child_process';
@@ -160,6 +161,18 @@ try {
     'mfa_required', await прогнать({ db: pool, user: адм, sessionId: свежая.sessionId }));
   проверить('без входа застава не пускает',
     await прогнать({ db: pool, user: null, sessionId: null }) !== 'прошло', 'отказ', '—');
+
+  // ОСВЕЖЕНИЕ ДЛЯ ВОШЕДШЕГО И ПРЕДЕЛ ПЕРЕБОРА (26.09.2026). Полная сессия с
+  // несвежим шагом освежается тем же submitCode (ход /api/auth/mfa/refresh);
+  // прежде хода не было, а у кода не было и предела перебора.
+  await submitCode(pool, свежая.sessionId, totpКод(начало.секрет));
+  проверить('несвежий шаг ПОЛНОЙ сессии освежается кодом — застава снова пускает',
+    await прогнать({ db: pool, user: адм, sessionId: свежая.sessionId }) === 'прошло', 'прошло', '—');
+  for (let i = 0; i < 10; i++) await отказ(() => submitCode(pool, свежая.sessionId, '000000'));
+  const afterBurst = await отказ(() => submitCode(pool, свежая.sessionId, totpКод(начало.секрет)));
+  проверить('после десяти неверных кодов даже верный отвергается — предел перебора',
+    /Слишком много/.test(afterBurst), 'слишком много', afterBurst.slice(0, 50));
+  clearCounters();
 
   // ── 7. отзыв ────────────────────────────────────────────────────────────
   проверить('отозвать без кода нельзя',
