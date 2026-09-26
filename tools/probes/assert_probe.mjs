@@ -2243,6 +2243,134 @@ if (модуль) {
   await wait(300);
 }
 
+// ── 10-гамма. СЕТЕВОЕ СХОДСТВО ПЕРЕЖИВАЕТ ОКНО СТАТИСТИКИ (26.09.2026) ─────
+// Замечание автора: сходство, посчитанное в окне концепции, после открытия и
+// закрытия окна статистики приходилось считать заново — закрытие окна
+// обнуляло кеши безусловно. Встречное: если окно считало на КОПИИ (выключен
+// учёт весов), кеши держат её числа и при закрытии обязаны сброситься —
+// иначе окно концепции показало бы сходство по чужим данным.
+{
+  const keep = await page.evaluate(async () => {
+    const A = window.__t;
+    A.closeUniversalModal();
+    await A.ensureNetworkProfile();
+    const before = !!A.networkSimilarityData();
+    A.openStatsModal(); await new Promise(r => setTimeout(r, 400));
+    A.switchStatsView('pagerank'); await new Promise(r => setTimeout(r, 1500));
+    A.closeStatsModal(); await new Promise(r => setTimeout(r, 300));
+    return { before, afterLive: !!A.networkSimilarityData() };
+  });
+  проверить('сетевое сходство переживает окно статистики, считавшее в живом ладе',
+    keep.before && keep.afterLive, 'есть до и после', JSON.stringify(keep));
+  const drop = await page.evaluate(async () => {
+    const A = window.__t;
+    A.openStatsModal(); await new Promise(r => setTimeout(r, 400));
+    A.switchStatsView('pagerank'); await new Promise(r => setTimeout(r, 800));
+    const w = document.getElementById('statsUseWeightsToggle');
+    w.checked = false; w.dispatchEvent(new Event('change', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 1500));
+    // Сходство ДОСЧИТЫВАЕТСЯ на копии целиком: первая редакция открывала только
+    // PageRank, трёх других метрик не было, и сходства после закрытия не было
+    // при любом сбросе — подлог «не сбрасывать никогда» прошёл зелёным.
+    await A.ensureNetworkProfile();
+    const inCopy = !!A.networkSimilarityData();
+    A.closeStatsModal(); await new Promise(r => setTimeout(r, 300));
+    const after = !!A.networkSimilarityData();
+    A.openStatsModal(); await new Promise(r => setTimeout(r, 300));
+    w.checked = true; w.dispatchEvent(new Event('change', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 300));
+    A.closeStatsModal();
+    return { inCopy, afterCopy: after };
+  });
+  проверить('после окна на копии (веса выключены) кеши сброшены, а не выданы за живые',
+    drop.inCopy === true && drop.afterCopy === false, 'на копии было, после закрытия нет', JSON.stringify(drop));
+}
+
+// ── 10-эпсилон. ПРАВКА ГРАФА И КЕШИ МЕТРИК (26.09.2026) ─────────────────
+// Закрытие окна статистики теперь СОХРАНЯЕТ кеши живого лада. Правку графа
+// обслуживает своё событие (data-changed сносит кеши), но это надо видеть, а
+// не выводить: после правки сетевой профиль обязан совпасть с пересчётом С
+// НУЛЯ — и при правке после закрытия окна, и при правке в окне на копии.
+// На свежей вкладке: правка добавляет связь и не должна мешать прочему.
+{
+  const tab = await browser.newPage();
+  await tab.setViewport({ width: 1440, height: 900 });
+  tab.on('pageerror', e => ошибки.push('вкладка правки: ' + String(e).split('\n')[0]));
+  tab.on('dialog', d => d.accept());
+  await tab.goto(BASE + СТРАНИЦА, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await wait(6500);
+  await tab.addScriptTag({ type: 'module', content: `
+    import './_probe-rig.js';
+    window.__t = window.__app;
+    window.__tReady = true;` });
+  await tab.waitForFunction('window.__t && window.__t.DATA', { timeout: 20000 });
+  const edits = await tab.evaluate(async () => {
+    const A = window.__t, D = A.DATA, sleep = ms => new Promise(r => setTimeout(r, ms));
+    let serial = 0;
+    const addLink = () => {                      // путь сохранения: запись, связь графа, afterDataChange
+      const has = new Set(D.links.map(l => (l.source.id || l.source) + '>' + (l.target.id || l.target)));
+      const s = D.nodes.find(n => A.nodeDegreeOf(n.id) >= 3 + serial);
+      const t = D.nodes.find(n => n !== s && n.concept !== s.concept && !has.has(s.id + '>' + n.id) && !has.has(n.id + '>' + s.id));
+      const rec = { id: 'edit_cache_probe_' + (++serial), source: s.id, target: t.id, type: 'develop', weight: 3,
+                    bidirectional: false, description: 'проба' };
+      D.relations.push({ ...rec }); const link = { ...rec }; D.links.push(link); A.addLinkToGraph(link);
+      A.afterDataChange({ nodes: true, links: true });
+    };
+    const print = () => { const W = A.networkSimilarityData(); return W ? JSON.stringify(W.Z.map(r => r.map(v => +v.toFixed(9)))) : null; };
+    const fromScratch = async () => { A.invalidateEverythingForScope(); A.initializePhilosophyMetrics(); await A.ensureNetworkProfile(); return print(); };
+    const out = {};
+    // 1. посчитали, окно в живом ладе закрыли (кеши сохранены), ПОТОМ правка
+    await A.ensureNetworkProfile();
+    A.openStatsModal(); await sleep(400); A.switchStatsView('pagerank'); await sleep(1500);
+    A.closeStatsModal(); await sleep(300);
+    addLink();
+    out.afterCloseDropped = !A.networkSimilarityData();
+    await A.ensureNetworkProfile(); const flow1 = print();
+    out.afterCloseFresh = flow1 === await fromScratch();
+    // 2. правка В ОКНЕ НА КОПИИ (веса выключены), затем закрытие
+    A.openStatsModal(); await sleep(400); A.switchStatsView('pagerank'); await sleep(800);
+    const w = document.getElementById('statsUseWeightsToggle');
+    w.checked = false; w.dispatchEvent(new Event('change', { bubbles: true })); await sleep(1200);
+    addLink(); await sleep(300);
+    A.closeStatsModal(); await sleep(300);
+    await A.ensureNetworkProfile(); const flow2 = print();
+    out.copyEditFresh = flow2 === await fromScratch();
+    A.openStatsModal(); await sleep(300); w.checked = true; w.dispatchEvent(new Event('change', { bubbles: true }));
+    await sleep(300); A.closeStatsModal();
+    return out;
+  });
+  await tab.close();
+  проверить('метрики: правка графа после закрытия окна сносит сходство, пересчёт совпадает с расчётом с нуля',
+    edits.afterCloseDropped && edits.afterCloseFresh, 'снесено; совпадает', JSON.stringify(edits));
+  проверить('метрики: правка в окне на копии — после закрытия пересчёт совпадает с расчётом с нуля',
+    edits.copyEditFresh, 'совпадает', JSON.stringify(edits));
+}
+
+// ── 10-дельта. РАЗДЕЛЫ ОКНА СТАТИСТИКИ (решение автора, 26.09.2026) ─────
+// Сравнение и близкие пары — своим разделом «Сходство», не среди сетевых
+// метрик; «Замеры» — только вошедшему: без сервера и без входа раздел скрыт,
+// а переход на вид (навигацией или по адресу) уводит в «Общий обзор».
+{
+  const nav = await page.evaluate(async () => {
+    const A = window.__t;
+    A.openStatsModal(); await new Promise(r => setTimeout(r, 300));
+    const groups = [...document.querySelectorAll('.stats-navigation .stats-nav-group')];
+    const byTitle = t => groups.find(g => g.querySelector('.stats-nav-group-title').textContent.includes(t));
+    const views = g => g ? [...g.querySelectorAll('.stats-nav-item')].map(i => i.dataset.view).join(',') : null;
+    const obs = document.getElementById('statsObservationsGroup');
+    A.switchStatsView('observations'); await new Promise(r => setTimeout(r, 300));
+    const active = (document.querySelector('.stats-nav-item.active') || {}).dataset;
+    A.closeStatsModal();
+    return { similar: views(byTitle('Сходство')), base: views(byTitle('Базовые метрики')),
+             obsHidden: !!obs && obs.style.display === 'none', active: active && active.view };
+  });
+  проверить('статистика: сравнение и близкие пары — своим разделом «Сходство», не среди базовых метрик',
+    nav.similar === 'comparison,closest-pairs,philosopher-comparison,philosopher-pairs'
+      && !/comparison|pairs|observations/.test(nav.base || ''), 'четыре вида в «Сходстве»', JSON.stringify(nav));
+  проверить('статистика: без входа «Замеры» скрыты, а переход на них уводит в «Общий обзор»',
+    nav.obsHidden && nav.active === 'overview', 'скрыты; overview', JSON.stringify({ h: nav.obsHidden, a: nav.active }));
+}
+
 // ── 10-альфа. СНОСКИ В ОПИСАНИИ (24.09.2026) ────────────────────────────
 // Правка — настоящими нажатиями: кнопка ставит метку туда, где курсор;
 // показ — номера в тексте и источники под ним; наведение подсвечивает ровно

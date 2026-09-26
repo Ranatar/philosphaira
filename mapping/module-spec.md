@@ -1,6 +1,6 @@
 # Спецификация модулей `philosophy_graph` — по собранному дереву
 
-Составлено из готовой сборки: 130 модулей, 22120 строк.
+Составлено из готовой сборки: 130 модулей, 22146 строк.
 Не замысел, а описание того, что есть, — поэтому расходиться с
 действительностью ей нечем. Пересобирается программой `tools/maps/gen_spec2.mjs`
 после каждой сборки.
@@ -43,7 +43,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 | Модуль | Строк | Вывозит | Ввозит из |
 |---|---|---|---|
-| `boot.js` | 325 | 1 | 67 |
+| `boot.js` | 327 | 1 | 67 |
 | `main.js` | 136 | 0 | 125 |
 | `modules/boot-defs.js` | 62 | 2 | 8 |
 | `modules/core/api.js` | 90 | 3 | 1 |
@@ -143,7 +143,7 @@ tools/build/split_css.mjs <дерево>                              стили
 | `modules/state/render.js` | 137 | 11 | 4 |
 | `modules/state/stats.js` | 33 | 0 | 1 |
 | `modules/stats/coverage.js` | 66 | 3 | 6 |
-| `modules/stats/modal.js` | 245 | 8 | 17 |
+| `modules/stats/modal.js` | 269 | 9 | 19 |
 | `modules/stats/observations.js` | 223 | 5 | 6 |
 | `modules/stats/results.js` | 416 | 8 | 5 |
 | `modules/stats/run.js` | 128 | 1 | 3 |
@@ -179,7 +179,7 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `boot.js`
 
-Строк 325.
+Строк 327.
 
 **Вывозит:** `boot`
 
@@ -244,7 +244,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./modules/render/similarity-overlay.js`: `clearSimilarityOverlay`
 - из `./modules/state/filters.js`: `pinnedDespiteFilter`
 - из `./modules/state/render.js`: `installLayoutPull`, `layoutFromStore`, `storedLayoutComplaint`
-- из `./modules/stats/modal.js`: `closeStatsModal`, `loadStatsContent`, `switchStatsView`
+- из `./modules/stats/modal.js`: `closeStatsModal`, `loadStatsContent`, `refreshObservationsNav`, `switchStatsView`
 - из `./modules/stats/views/comparison.js`: `renderComparison`
 - из `./modules/ui/legend.js`: `initFilters`, `markChosenInLegend`, `syncTraditionRows`, `updateFilterStats`
 - из `./modules/ui/link-state.js`: `initLinkState`
@@ -1933,14 +1933,16 @@ tools/build/split_css.mjs <дерево>                              стили
 
 ### `modules/stats/modal.js`
 
-Строк 245.
+Строк 269.
 
-**Вывозит:** `closeStatsModal`, `handleStatsParameterChange`, `installStatsEscape`, `installStatsModalDismiss`, `loadStatsContent`, `openStatsModal`, `switchStatsView`, `updateActiveNavItem`
+**Вывозит:** `closeStatsModal`, `handleStatsParameterChange`, `installStatsEscape`, `installStatsModalDismiss`, `loadStatsContent`, `openStatsModal`, `refreshObservationsNav`, `switchStatsView`, `updateActiveNavItem`
 
 **Ввозит:**
 
 - из `../core/ns.js`: `DATA`, `S`
+- из `../core/api.js`: `serverMode`
 - из `../core/events.js`: `emit`
+- из `../core/session.js`: `authSession`
 - из `../metrics/graph-cache.js`: `invalidateGraphCache`
 - из `../metrics/link-indexes.js`: `initializePhilosophyMetrics`
 - из `../metrics/scope-reset.js`: `invalidateEverythingForScope`
@@ -1957,7 +1959,7 @@ tools/build/split_css.mjs <дерево>                              стили
 - из `./views/philosophical.js`: `generateCoherenceContent`, `generateCriticalPowerContent`, `generateDialogicalContent`, `generateFoundationalContent`, `generateInfluenceContent`, `generateParadigmShiftContent`, `generateProblemGenerationContent`, `generateRevolutionaryContent`, `generateSyntheticContent`, `generateTensionContent`
 - из `./views/rankings.js`: `generateConceptRankingsContent`, `generatePhilosopherRankingsContent`
 
-**Содержит:** `closeStatsModal`, `handleStatsParameterChange`, `installStatsEscape`, `installStatsModalDismiss`, `loadStatsContent`, `openStatsModal`, `switchStatsView`, `updateActiveNavItem`
+**Содержит:** `closeStatsModal`, `handleStatsParameterChange`, `installStatsEscape`, `installStatsModalDismiss`, `loadStatsContent`, `observationsAllowed`, `openStatsModal`, `refreshObservationsNav`, `switchStatsView`, `updateActiveNavItem`
 
 ### `modules/stats/observations.js`
 

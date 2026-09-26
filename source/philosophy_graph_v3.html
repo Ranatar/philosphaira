@@ -5646,26 +5646,6 @@
               <span class="stats-nav-item-icon">📈</span>
               <span class="stats-nav-item-text">Общий обзор</span>
             </div>
-            <div class="stats-nav-item" data-view="observations" onclick="switchStatsView('observations')">
-              <span class="stats-nav-item-icon">📌</span>
-              <span class="stats-nav-item-text">Замеры</span>
-            </div>
-            <div class="stats-nav-item" data-view="comparison" onclick="switchStatsView('comparison')">
-              <span class="stats-nav-item-icon">⚖️</span>
-              <span class="stats-nav-item-text">Сравнение концепций</span>
-            </div>
-            <div class="stats-nav-item" data-view="closest-pairs" onclick="switchStatsView('closest-pairs')">
-              <span class="stats-nav-item-icon">🔗</span>
-              <span class="stats-nav-item-text">Близкие пары</span>
-            </div>
-            <div class="stats-nav-item" data-view="philosopher-comparison" onclick="switchStatsView('philosopher-comparison')">
-              <span class="stats-nav-item-icon">👤</span>
-              <span class="stats-nav-item-text">Сравнение философов</span>
-            </div>
-            <div class="stats-nav-item" data-view="philosopher-pairs" onclick="switchStatsView('philosopher-pairs')">
-              <span class="stats-nav-item-icon">🤝</span>
-              <span class="stats-nav-item-text">Близкие пары философов</span>
-            </div>
             <div class="stats-nav-item" data-view="degree" onclick="switchStatsView('degree')">
               <span class="stats-nav-item-icon">🔗</span>
               <span class="stats-nav-item-text">Степень связности</span>
@@ -5868,6 +5848,32 @@
             </div>
           </div>
 
+          <!-- Сходство (25.09.2026, решение автора): сравнение концепций и
+               философов и близкие пары — отдельно от сетевых метрик. Меры
+               сходства — не метрики сети, а сличение профилей и соседства. -->
+          <div class="stats-nav-group">
+            <div class="stats-nav-group-title">
+              <span>🪞</span>
+              <span>Сходство</span>
+            </div>
+            <div class="stats-nav-item" data-view="comparison" onclick="switchStatsView('comparison')">
+              <span class="stats-nav-item-icon">⚖️</span>
+              <span class="stats-nav-item-text">Сравнение концепций</span>
+            </div>
+            <div class="stats-nav-item" data-view="closest-pairs" onclick="switchStatsView('closest-pairs')">
+              <span class="stats-nav-item-icon">🔗</span>
+              <span class="stats-nav-item-text">Близкие пары концепций</span>
+            </div>
+            <div class="stats-nav-item" data-view="philosopher-comparison" onclick="switchStatsView('philosopher-comparison')">
+              <span class="stats-nav-item-icon">👤</span>
+              <span class="stats-nav-item-text">Сравнение философов</span>
+            </div>
+            <div class="stats-nav-item" data-view="philosopher-pairs" onclick="switchStatsView('philosopher-pairs')">
+              <span class="stats-nav-item-icon">🤝</span>
+              <span class="stats-nav-item-text">Близкие пары философов</span>
+            </div>
+          </div>
+
           <!-- Сравнительный анализ -->
           <div class="stats-nav-group">
             <div class="stats-nav-group-title">
@@ -5881,6 +5887,20 @@
             <div class="stats-nav-item" data-view="philosopher-rankings" onclick="switchStatsView('philosopher-rankings')">
               <span class="stats-nav-item-icon">🎖️</span>
               <span class="stats-nav-item-text">Рейтинги философов</span>
+            </div>
+          </div>
+
+          <!-- Замеры — только вошедшему (25.09.2026, решение автора): журнал
+               записанных значений на сервере, а не метрика. Показ ведёт
+               refreshObservationsNav. -->
+          <div class="stats-nav-group" id="statsObservationsGroup" style="display:none">
+            <div class="stats-nav-group-title">
+              <span>📌</span>
+              <span>Замеры</span>
+            </div>
+            <div class="stats-nav-item" data-view="observations" onclick="switchStatsView('observations')">
+              <span class="stats-nav-item-icon">📌</span>
+              <span class="stats-nav-item-text">Замеры</span>
             </div>
           </div>
         </div>
@@ -32474,6 +32494,7 @@
 
     // Открыть модальное окно
     function openStatsModal() {
+      refreshObservationsNav();
       if (!concepts || !relations) {
         initializePhilosophyMetrics();
       }
@@ -32972,14 +32993,24 @@
         && needsContinuousAnimation()) {
         ensureAnimLoop();
       }
-      initializePhilosophyMetrics();
-      invalidateGraphCache();
-      // ИМЕННО invalidateEverythingForScope, а не invalidateAllMetricsCaches:
-      // восьми путевых кэшей (PageRank, Betweenness, Closeness, Eigenvector,
-      // Clustering, WeightedClustering, LocalCohesion, RichClub) во второй
-      // НЕТ. Из-за этого после смены галочки вид показывал прежнюю таблицу
-      // из старого кэша — ни пересчёта, ни кнопки «Рассчитать».
-      invalidateEverythingForScope();
+      // СБРОС — ТОЛЬКО ЕСЛИ ОКНО СЧИТАЛО НА КОПИИ (26.09.2026). Прежде сброс
+      // был безусловным, и признак cachesMatchLive, вычисленный строкой выше,
+      // уважало только ОТКРЫТИЕ окна: закрытие выбрасывало годные кеши. Автор
+      // заметил: сетевое сходство, посчитанное в окне концепции, выживало в
+      // окне статистики, но после его закрытия окно другой концепции считало
+      // его заново (замер: 3,5 с). Если окно считало на копии (выключен
+      // переключатель, охват не весь граф), кеши держат числа копии, и сброс
+      // обязателен — это стережёт встречное утверждение assert_probe.
+      if (!cachesMatchLive) {
+        initializePhilosophyMetrics();
+        invalidateGraphCache();
+        // ИМЕННО invalidateEverythingForScope, а не invalidateAllMetricsCaches:
+        // восьми путевых кэшей (PageRank, Betweenness, Closeness, Eigenvector,
+        // Clustering, WeightedClustering, LocalCohesion, RichClub) во второй
+        // НЕТ. Из-за этого после смены галочки вид показывал прежнюю таблицу
+        // из старого кэша — ни пересчёта, ни кнопки «Рассчитать».
+        invalidateEverythingForScope();
+      }
 
       const modal = document.getElementById('statsModal');
       modal.classList.remove('active');
@@ -33024,7 +33055,24 @@
     }
 
     // Переключение между видами статистики
+    // ---- «Замеры» — только вошедшему (решение автора, 25.09.2026) --------
+    // Замер пишется на сервер от имени пользователя: гостю и странице без
+    // сервера раздел ни к чему. Перепроверяется по session-changed (вход,
+    // запуск), при каждом открытии окна и здесь, в switchStatsView, — куда
+    // сходятся и навигация, и восстановление вида из адреса страницы.
+    // При выходе событие не шлётся (подписанный колокол спросил бы сервер и
+    // получил 401), поэтому раздел скрывается при следующем открытии окна.
+    function observationsAllowed() {
+      return !!(serverMode && authSession && authSession.user);
+    }
+    function refreshObservationsNav() {
+      const group = document.getElementById('statsObservationsGroup');
+      if (group) group.style.display = observationsAllowed() ? '' : 'none';
+      if (!observationsAllowed() && currentStatsView === 'observations') currentStatsView = 'overview';
+    }
+
     function switchStatsView(viewName, event) {
+      if (viewName === 'observations' && !observationsAllowed()) viewName = 'overview';
       // Подсветку ставим ПО ИМЕНИ ВИДА, а не по событию: пункты зовут
       // switchStatsView('имя') без второго довода, и параметр event
       // всегда undefined.
@@ -42068,6 +42116,7 @@
 
     subscribe('notification-arrived', () => { refreshUnread(); });
     subscribe('session-changed', () => { renderBell(); refreshUnread(); });
+    subscribe('session-changed', refreshObservationsNav);
 
     // Отметка висит на КНОПКЕ. Слушатель ставится на список один раз —
     // кнопки перерисовываются, и вешать на каждую значило бы плодить

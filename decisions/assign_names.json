@@ -1014,7 +1014,9 @@
   "footnotesValue": "modal/forms.js",
   "footnotesChanged": "modal/forms.js",
   "footnotesDiff": "modal/commits.js",
-  "provenanceKinds": "modal/selection-list.js"
+  "provenanceKinds": "modal/selection-list.js",
+  "observationsAllowed": "stats/modal.js",
+  "refreshObservationsNav": "stats/modal.js"
  },
  "новые": [
   "BUS_PHASES"

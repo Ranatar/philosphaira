@@ -1,8 +1,8 @@
 # Карта модульного дерева `philosophy_graph`
 
 Составлена **по собранному дереву**, а не по одностраничному исходнику:
-130 модулей, 22120 строк, 930 объявлений,
-635 вывозов, 845 рёбер ввоза. Составлено 2026-09-25 07:33:12.
+130 модулей, 22146 строк, 932 объявлений,
+636 вывозов, 847 рёбер ввоза. Составлено 2026-09-26 04:07:14.
 
 Зачем отдельно от карты глобальных сущностей. Та описывает единый файл — 746
 сущностей в одной области видимости — и нужна разбивке: по ней считается
@@ -24,8 +24,8 @@
 | `modules/util/html.js` | 24 |
 | `modules/render/canvas-core.js` | 19 |
 | `modules/state/render.js` | 19 |
+| `modules/core/api.js` | 14 |
 | `modules/modal/core.js` | 14 |
-| `modules/core/api.js` | 13 |
 | `modules/core/perms.js` | 13 |
 | `modules/metrics/link-indexes.js` | 13 |
 | `modules/render/selection.js` | 13 |
@@ -85,7 +85,7 @@
 
 | Модуль | Строк | Объявлений | Вывозит | Ввозит из | Пространства |
 |---|---|---|---|---|---|
-| `boot.js` | 325 | 0 | 1 | 67 | DATA:2, S:8 |
+| `boot.js` | 327 | 0 | 1 | 67 | DATA:2, S:8 |
 | `main.js` | 136 | 0 | 0 | 125 | — |
 | `modules/boot-defs.js` | 62 | 3 | 2 | 8 | S:1 |
 | `modules/core/api.js` | 90 | 4 | 3 | 1 | — |
@@ -185,7 +185,7 @@
 | `modules/state/render.js` | 137 | 12 | 11 | 5 | DATA:5, S:9 |
 | `modules/state/stats.js` | 33 | 0 | 0 | 1 | S:15 |
 | `modules/stats/coverage.js` | 66 | 3 | 3 | 6 | S:3, MET:19 |
-| `modules/stats/modal.js` | 245 | 8 | 8 | 17 | DATA:2, S:10 |
+| `modules/stats/modal.js` | 269 | 10 | 9 | 19 | DATA:2, S:10 |
 | `modules/stats/observations.js` | 223 | 11 | 5 | 6 | S:1 |
 | `modules/stats/results.js` | 416 | 11 | 8 | 5 | S:3 |
 | `modules/stats/run.js` | 128 | 4 | 1 | 3 | S:1, MET:6 |
@@ -1407,18 +1407,20 @@
 | `generateMetricCoverageBlock` | function | 12 | да |
 | `METRIC_COVERAGE_WARN` | const | 1 | да |
 
-### `modules/stats/modal.js` — 245 строк, объявлений 8
+### `modules/stats/modal.js` — 269 строк, объявлений 10
 
 | Имя | Вид | Строк | Вывозится |
 |---|---|---|---|
 | `loadStatsContent` | function | 69 | да |
-| `openStatsModal` | function | 38 | да |
-| `closeStatsModal` | function | 33 | да |
+| `closeStatsModal` | function | 43 | да |
+| `openStatsModal` | function | 39 | да |
 | `handleStatsParameterChange` | function | 32 | да |
-| `switchStatsView` | function | 16 | да |
+| `switchStatsView` | function | 17 | да |
 | `updateActiveNavItem` | function | 10 | да |
 | `installStatsModalDismiss` | function | 9 | да |
 | `installStatsEscape` | function | 7 | да |
+| `refreshObservationsNav` | function | 5 | да |
+| `observationsAllowed` | function | 3 | — |
 
 ### `modules/stats/observations.js` — 223 строк, объявлений 11
 
@@ -1818,7 +1820,7 @@
 - из `modules/render/similarity-overlay.js`: `clearSimilarityOverlay`
 - из `modules/state/filters.js`: `pinnedDespiteFilter`
 - из `modules/state/render.js`: `installLayoutPull`, `layoutFromStore`, `storedLayoutComplaint`
-- из `modules/stats/modal.js`: `closeStatsModal`, `loadStatsContent`, `switchStatsView`
+- из `modules/stats/modal.js`: `closeStatsModal`, `loadStatsContent`, `refreshObservationsNav`, `switchStatsView`
 - из `modules/stats/views/comparison.js`: `renderComparison`
 - из `modules/ui/legend.js`: `initFilters`, `markChosenInLegend`, `syncTraditionRows`, `updateFilterStats`
 - из `modules/ui/link-state.js`: `initLinkState`
@@ -1826,7 +1828,7 @@
 - из `modules/ui/panels.js`: `restorePanelStates`
 - из `modules/widgets/custom-select.js`: `initializeCustomSelects`
 
-Чаще всего поминает: `subscribe`×26, `S`×15, `updateFilterStats`×3, `saveOriginalRadii`×2, `banUserFromPanel`×2
+Чаще всего поминает: `subscribe`×27, `S`×15, `updateFilterStats`×3, `saveOriginalRadii`×2, `banUserFromPanel`×2
 
 ### `main.js`
 
@@ -2885,7 +2887,9 @@
 ### `modules/stats/modal.js`
 
 - из `modules/core/ns.js`: `DATA`, `S`
+- из `modules/core/api.js`: `serverMode`
 - из `modules/core/events.js`: `emit`
+- из `modules/core/session.js`: `authSession`
 - из `modules/metrics/graph-cache.js`: `invalidateGraphCache`
 - из `modules/metrics/link-indexes.js`: `initializePhilosophyMetrics`
 - из `modules/metrics/scope-reset.js`: `invalidateEverythingForScope`
@@ -2902,7 +2906,7 @@
 - из `modules/stats/views/philosophical.js`: `generateCoherenceContent`, `generateCriticalPowerContent`, `generateDialogicalContent`, `generateFoundationalContent`, `generateInfluenceContent`, `generateParadigmShiftContent`, `generateProblemGenerationContent`, `generateRevolutionaryContent`, `generateSyntheticContent`, `generateTensionContent`
 - из `modules/stats/views/rankings.js`: `generateConceptRankingsContent`, `generatePhilosopherRankingsContent`
 
-Чаще всего поминает: `S`×24, `emit`×4, `applyMetricsScope`×3, `updateScopeToggles`×3, `DATA`×2
+Чаще всего поминает: `S`×27, `emit`×4, `applyMetricsScope`×3, `updateScopeToggles`×3, `DATA`×2
 
 ### `modules/stats/observations.js`
 

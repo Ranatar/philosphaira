@@ -114,6 +114,16 @@ try {
     await pageHtml.evaluate(`window.__app.can(window.__app.PERM.CREATE_COMMIT) === false`),
     false, await pageHtml.evaluate(`window.__app.can(window.__app.PERM.CREATE_COMMIT)`));
 
+  // «Замеры» — только вошедшему (решение автора, 26.09.2026).
+  const observationsShown = () => pageHtml.evaluate(`(function(){
+    window.__app.openStatsModal();
+    const g = document.getElementById('statsObservationsGroup');
+    const shown = !!g && g.style.display !== 'none';
+    window.__app.closeStatsModal();
+    return shown;
+  })()`);
+  проверить('гостю раздела «Замеры» нет', (await observationsShown()) === false, 'скрыт', 'виден');
+
   // ── 3. ВХОД ЧЕРЕЗ СЕРВЕР ────────────────────────────────────────────────
   await pageHtml.evaluate(`(function(){
     window.__app.openAuthModal('login');
@@ -143,6 +153,7 @@ try {
   проверить('ПРАВА ПРИШЛИ СНАРУЖИ, а не выведены из роли',
     await pageHtml.evaluate(`window.__app.can(window.__app.PERM.CREATE_COMMIT)`), true,
     await pageHtml.evaluate(`window.__app.can(window.__app.PERM.CREATE_COMMIT)`));
+  проверить('вошедшему раздел «Замеры» виден', (await observationsShown()) === true, 'виден', 'скрыт');
   проверить('и это тот же набор, что отдаёт сервер',
     await pageHtml.evaluate(`(async () => {
       const о = await fetch('/api/users/me', { credentials: 'same-origin' });
