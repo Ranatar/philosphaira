@@ -354,6 +354,13 @@ try {
   const rP2 = await reviewCommit(pool, { actor: модератор, commitId: cP2.commitId, action: 'approve' });
   проверить('строка стёрта под «источник есть» — столкновение по итогу', rP2.исход === 'conflicted'
     && (await conceptById('c4')).provenance === 'Диоген Лаэртский, IX 1', 'conflicted, строка цела', rP2.исход);
+  // «Искали, не нашли» поверх уже стоящей строки: правка трогает одно
+  // состояние, строка остаётся — несогласие видно только по итогу.
+  const { коммит: cP3 } = await createCommit(pool, { actor: редактор, message: 'не нашли, строку не тронул',
+    changes: conceptEdit('c4', { provenanceStatus: { base: 'sourced', next: 'source_not_found' } }) });
+  const rP3 = await reviewCommit(pool, { actor: модератор, commitId: cP3.commitId, action: 'approve' });
+  проверить('«искали, не нашли» при оставшейся строке — столкновение по итогу', rP3.исход === 'conflicted'
+    && (await conceptById('c4')).provenanceStatus === 'sourced', 'conflicted, состояние прежнее', rP3.исход);
 
   // запись, пришедшая семенем с несогласной сноской, не запирается целиком
   await withTransaction(pool, client => importSet(client, 'concepts', [

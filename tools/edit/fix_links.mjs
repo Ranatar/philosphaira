@@ -10,6 +10,11 @@
 // не нашлось, но нашлась правка в готовом виде, запись пропускается — так
 // достигается идемпотентность.
 //
+// Удаление — правка с `drop: true`: запись снимается целиком. Причина
+// обязательна (поле `reason`) и печатается в отчёте: удалённая связь из
+// базы исчезает без следа, и объяснить её отсутствие потом будет нечем.
+// Повторный прогон удаления — пропуск («уже удалено»).
+//
 // Правка направления переставляет концы и потому требует нового описания:
 // перевёрнутая связь со старым текстом читается наоборот. Скрипт этого не
 // проверяет по смыслу, но требует поля `description` при `swap: true` и при
@@ -59,7 +64,7 @@ const overlap = (a, b) => a.birth + MATURITY_AGE <= activeEnd(b) && b.birth + MA
 
 let source = исходныйТекст;
 const notes = [];
-let применено = 0, пропущено = 0;
+let применено = 0, пропущено = 0, удалено = 0;
 
 for (const file of batches) {
   const batch = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -68,6 +73,27 @@ for (const file of batches) {
     const было = relations.find(r => r.source === f.source && r.target === f.target && r.type === f.type);
     const стало = { source: f.swap ? f.target : f.source, target: f.swap ? f.source : f.target,
                     type: f.newType || f.type, weight: f.weight, bidirectional: f.bidirectional };
+    if (f.drop) {
+      if (!было) { notes.push(`· ${tag}: ПРОПУСК, уже удалено`); пропущено++; continue; }
+      if (!f.reason) { notes.push(`✗ ${tag}: удаление без причины (поле reason)`); continue; }
+      const ключУд = new RegExp(
+        `(\\{[^{}]*?source:\\s*"${f.source}",\\s*target:\\s*"${f.target}",\\s*type:\\s*"${f.type}"[^]*?\\})(?=,?\\s*(?:\\n\\s*(?:\\{|//|\\];)))`);
+      const mu = ключУд.exec(source);
+      if (!mu) { notes.push(`✗ ${tag}: запись не найдена в тексте исходника`); continue; }
+      // Запись уходит вместе со своей запятой; если она последняя в массиве
+      // и запятой после неё нет — вместе с запятой ПЕРЕД ней, иначе литерал
+      // кончится висячей запятой перед «];» (у предыдущей записи).
+      let от = mu.index, до = mu.index + mu[0].length;
+      const хвост = /^,[ \t]*\r?\n?/.exec(source.slice(до));
+      if (хвост) до += хвост[0].length;
+      else { const перед = /,\s*$/.exec(source.slice(0, от)); if (перед) от -= перед[0].length; }
+      // и пустое начало строки, на которой стояла запись
+      const отступ = /\n[ \t]*$/.exec(source.slice(0, от)); if (отступ) от -= отступ[0].length - 1;
+      source = source.slice(0, от) + source.slice(до);
+      notes.push(`  ${tag}: УДАЛЕНО — ${f.reason}`);
+      применено++; удалено++;
+      continue;
+    }
     if (!было) {
       const уже = relations.find(r => r.source === стало.source && r.target === стало.target && r.type === стало.type);
       if (уже) { notes.push(`· ${tag}: ПРОПУСК, правка уже применена`); пропущено++; continue; }
@@ -124,6 +150,24 @@ for (const file of batches) {
   }
 }
 
+// САМОПРОВЕРКА ПЕРЕД ЗАПИСЬЮ: литерал читается, и связей в нём ровно на
+// число удалённых меньше. Иначе вырезание задело соседнюю запись.
+{
+  const s0 = /const relations = \[/.exec(source);
+  const от = source.indexOf('[', s0.index);
+  let г = 0, i = от, строка = null, экран = false;
+  for (; i < source.length; i++) {
+    const ch = source[i];
+    if (строка) { if (экран) { экран = false; continue; } if (ch === '\\') { экран = true; continue; } if (ch === строка) строка = null; continue; }
+    if (ch === '"' || ch === "'" || ch === '`') { строка = ch; continue; }
+    if (ch === '[') г++; else if (ch === ']') { г--; if (!г) { i++; break; } }
+  }
+  let после = null;
+  try { после = new Function('return (' + source.slice(от, i) + ')')(); } catch (e) { notes.push(`✗ после правок литерал связей не читается: ${e.message}`); }
+  if (после && после.length !== relations.length - удалено) {
+    notes.push(`✗ после правок связей ${после.length}, ждали ${relations.length - удалено}`);
+  }
+}
 for (const n of notes) console.log(n);
 const отказы = notes.filter(n => n.startsWith('✗'));
 if (отказы.length) { console.log(`\n✗ отказов ${отказы.length} — файл не тронут`); process.exit(1); }

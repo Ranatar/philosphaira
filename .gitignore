@@ -10,3 +10,7 @@ server/.env.local
 # Зависимости корня (npm install) и кэш байт-кода оснастки на Python.
 /node_modules/
 __pycache__/
+
+# Резервные копии программ правки (tools/edit/*: fix_links, add_links,
+# set_provenance …) — рабочий след, не предмет учёта.
+source/*.bak

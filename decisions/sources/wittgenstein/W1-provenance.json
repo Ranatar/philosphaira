@@ -1,0 +1,378 @@
+{
+ "entries": [
+  {
+   "kind": "relation",
+   "id": "rel_ea6a2c1cbf3d",
+   "status": "sourced",
+   "provenance": "TLP, Vorwort; 5.61",
+   "footnotes": []
+  },
+  {
+   "kind": "relation",
+   "id": "rel_6035f39e82b5",
+   "status": "editorial_reasoning",
+   "provenance": "Сопоставление ранней и поздней постановки границы; сам автор этой линии развития не проводит",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 5.61",
+     "after": "Ранний ход упирал границу в логику: очертания области возможного одни для всех"
+    },
+    {
+     "status": "sourced",
+     "text": "PU §23, §499",
+     "after": "не одна для всякой речи, а своя у каждого обихода"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_a7bf22e3f259",
+   "status": "sourced",
+   "provenance": "TLP 2.221, 4.06; Vorwort",
+   "footnotes": []
+  },
+  {
+   "kind": "relation",
+   "id": "rel_9fad1d7675b6",
+   "status": "sourced",
+   "provenance": "TLP 6.54",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 4.12",
+     "after": "Изображать факты предложение может, а логическую форму изображения — уже нет"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_c6a19398ee48",
+   "status": "sourced",
+   "provenance": "TLP 2.11, 2.202, 3.42",
+   "footnotes": []
+  },
+  {
+   "kind": "relation",
+   "id": "rel_6e9b29a94f9c",
+   "status": "sourced",
+   "provenance": "TLP 2.172, 4.121",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 4.022",
+     "after": "Предложение говорит, что дело обстоит так, и тем же самым показывает, каким способом оно об этом говорит"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_3e5111640117",
+   "status": "sourced",
+   "provenance": "PU, Vorwort; §65",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §23, §97, §114",
+     "after": "поздние заметки прямо ведутся как разбор того, во что он прежде верил"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_b3290ef2c4de",
+   "status": "sourced",
+   "provenance": "PU §202",
+   "footnotes": [
+    {
+     "status": "editorial_reasoning",
+     "text": "Прочтение через сообщество спорно: в тексте сказано лишь, что наедине нет критерия правильности (PU §258)",
+     "after": "проверка возможна лишь там, где есть кто-то ещё, способный поправить"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_4cfe5c9fc493",
+   "status": "editorial_reasoning",
+   "provenance": "Сведение довода о приватном языке с местом о согласии в форме жизни; сам текст их прямо не связывает",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §199",
+     "after": "он не бывает делом одного"
+    },
+    {
+     "status": "sourced",
+     "text": "PU §241, §258",
+     "after": "иначе не с чем сверяться"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_b59637f7f206",
+   "status": "sourced",
+   "provenance": "TLP 1.13, 5.5561, 5.61",
+   "footnotes": []
+  },
+  {
+   "kind": "relation",
+   "id": "rel_2e2a5233fe9f",
+   "status": "editorial_reasoning",
+   "provenance": "Вывод составителя: строение возможного и невыразимость формы в тексте изложены порознь",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 3.42, 4.12",
+     "after": "а значит и предложением быть не может"
+    },
+    {
+     "status": "sourced",
+     "text": "TLP 4.121",
+     "after": "Оно обнаруживается в том, как устроены осмысленные предложения"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_f4fd5ce6a72e",
+   "status": "sourced",
+   "provenance": "TLP 4.1212, 6.522",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 6.41, 6.421",
+     "after": "они не сказываются вовсе, но при этом видны"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_cde059a51914",
+   "status": "sourced",
+   "provenance": "PU §65–67",
+   "footnotes": []
+  },
+  {
+   "kind": "relation",
+   "id": "rel_e4b3fe3092b4",
+   "status": "editorial_reasoning",
+   "provenance": "Совмещение двух линий «Исследований»; автор их прямо не связывает",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §201",
+     "after": "Одно показывает, что применение не вычитывается из формулы"
+    },
+    {
+     "status": "sourced",
+     "text": "PU §67",
+     "after": "другое — что и само понятие не держится общим признаком"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_1a327709a91d",
+   "status": "editorial_reasoning",
+   "provenance": "Взаимное определение — прочтение составителя: в тексте есть связь игры с правилом и правила с практикой, но не их соотносительность",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §31, §54",
+     "after": "Игра узнаётся по тому, что в ней считается верным ходом"
+    },
+    {
+     "status": "sourced",
+     "text": "PU §201–202",
+     "after": "правило вне применения пусто"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_ec9f2df0c5be",
+   "status": "sourced",
+   "provenance": "PU §241",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §240",
+     "after": "люди просто одинаково продолжают ряд, откликаются, поправляют друг друга"
+    },
+    {
+     "status": "sourced",
+     "text": "PU §217",
+     "after": "объяснение упирается в «так мы делаем»"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_d2df9034e7ef",
+   "status": "sourced",
+   "provenance": "PU §23",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §65, §114",
+     "after": "искали единую суть там, где её нет"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_4de635b2583e",
+   "status": "sourced",
+   "provenance": "PU §243, §258",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §43",
+     "after": "Если значение есть употребление в общем деле"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_fd78e6fe7d2b",
+   "status": "sourced",
+   "provenance": "PU §107",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §108",
+     "after": "сходство между ними родственное, а не сущностное"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_8baaf51fb156",
+   "status": "sourced",
+   "provenance": "PU §19, §23",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §199",
+     "after": "нужны заведённые отношения, в которых приказывают и подчиняются"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_8e3d9d605e2c",
+   "status": "sourced",
+   "provenance": "PU §1–4, §32",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Augustinus, Confessiones I, 8 (PU §1)",
+     "after": "«Исследования» открываются цитатой из «Исповеди»"
+    },
+    {
+     "status": "sourced",
+     "text": "PU §43",
+     "after": "значение есть употребление в игре"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_6b1837b41722",
+   "status": "sourced",
+   "provenance": "PU §49",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 3.3",
+     "after": "Правило искать значение слова лишь в составе предложения перенято"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_537a8d119d70",
+   "status": "sourced",
+   "provenance": "TLP 3.318",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 2.15, 3.14",
+     "after": "картина изображает не предметы порознь, а то, как они соотнесены"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_6ff7cf1cdaab",
+   "status": "sourced",
+   "provenance": "TLP 2.221, 3.3",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 4.061; Aufzeichnungen über Logik, 1913 (Schriften 1, S. 190)",
+     "after": "он отделён от истинностного значения"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_4da28c7dc6bf",
+   "status": "sourced",
+   "provenance": "TLP 4.0031; Brief an Russell, 1913 (Schriften 1, S. 273)",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 4.121",
+     "after": "Оттого её и можно лишь показать, но не сказать"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_636dfdb2624e",
+   "status": "sourced",
+   "provenance": "PU §79",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §98, §124",
+     "after": "обыденный язык не требует исправления, а требует описания"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_7980a5dfbd46",
+   "status": "editorial_reasoning",
+   "provenance": "Запись названа самим автором, онтологическое её прочтение — вывод составителя",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 3.325",
+     "after": "Запись, где всякое сочетание знаков либо разрешено, либо нет"
+    },
+    {
+     "status": "sourced",
+     "text": "TLP 2.18",
+     "after": "Форма записи оказывается формой самой действительности"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_8590ed159e73",
+   "status": "editorial_reasoning",
+   "provenance": "Шопенгауэр здесь не назван, а выражение sub specie aeternitatis восходит к Спинозе; канал через Шопенгауэра — вывод составителя",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TB 7.10.16 (Schriften 1, S. 176)",
+     "after": "показанное в искусстве не переводится в предложения"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,105 @@
+{
+ "entries": [
+  {
+   "kind": "relation",
+   "id": "rel_771860673f6b",
+   "status": "sourced",
+   "provenance": "VB 1931 (Schriften 8, S. 463 f.)",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP, Vorwort",
+     "after": "невыразимое не остаётся мыслимым, как вещь в себе, а вовсе не сказывается"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_363e5057cd4e",
+   "status": "sourced",
+   "provenance": "Brief an Russell, 22.6.1912 (WiC, Nr. 2, S. 30)",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Goodman, Wittgenstein and William James (2002), S. 9; Kap. 2, S. 36–59",
+     "after": "судить о вере по тому, как она вплетена в жизнь, а не по тому, что о ней утверждают"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_2bba1b379be0",
+   "status": "sourced",
+   "provenance": "TB 2.8.16 (Schriften 1, S. 172); VB 1931 (Schriften 8, S. 476); Hyman, in: Oxford Handbook of Wittgenstein (2011), S. 451",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 6.43",
+     "after": "воля меняет мир целиком, а не отдельные положения дел внутри него"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_2c0e38b82964",
+   "status": "sourced",
+   "provenance": "VB 1931 (Schriften 8, S. 476); Hyman, in: Oxford Handbook of Wittgenstein (2011), S. 451",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 6.423",
+     "after": "о воле нельзя сказать"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_aa328fd48c07",
+   "status": "sourced",
+   "provenance": "Russell, Introduction, in: TLP (London 1922), S. 23",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Russell, PLA (CP 8, S. 182); Anm. des Hrsg. zu S. 182",
+     "after": "Взамен предложен выход через иерархию языков"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_bedded10c73f",
+   "status": "sourced",
+   "provenance": "PU §46; Proops, in: Oxford Handbook of Wittgenstein (2011), S. 214",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Aufzeichnungen über Logik, 1913 (Schriften 1, S. 188); TLP 3.144",
+     "after": "не имя сложного, а факт, изображающий строение вещей"
+    },
+    {
+     "status": "sourced",
+     "text": "Brief an Russell, Juni 1913 (Schriften 1, S. 260); TLP 5.5422",
+     "after": "тем же доводом отвергнуто суждение как отношение ума к разрозненным частям"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_75ac720059c1",
+   "status": "sourced",
+   "provenance": "Russell, PLA (CP 8, S. 160, 182)",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Russell, PLA (CP 8, S. 167); Aufzeichnungen über Logik, 1913 (Schriften 1, S. 188)",
+     "after": "одному факту отвечают два предложения, истинное и ложное"
+    },
+    {
+     "status": "sourced",
+     "text": "Russell, PLA (CP 8, S. 199)",
+     "after": "убеждение как новая форма"
+    }
+   ]
+  }
+ ]
+}

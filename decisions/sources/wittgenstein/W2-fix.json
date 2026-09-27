@@ -1,0 +1,24 @@
+{
+ "fixes": [
+  {
+   "source": "logical_atomism",
+   "target": "logical_space",
+   "type": "influence",
+   "drop": true,
+   "reason": "опоры нет: в лекциях 1918 г. соответствия нет, логическое пространство — собственное понятие (Proops, OHW 2011, S. 225–227); решение автора 26.09.2026"
+  },
+  {
+   "source": "logical_atomism",
+   "target": "limits_language",
+   "type": "influence",
+   "drop": true,
+   "reason": "тексты противоречат: в PLA нет ни показывания, ни границы сказуемого, а различение уровней языка (CP 8, S. 182) Рассел обратил в возражение (Introduction 1922, S. 23); отношение передаёт критика атомизма против показывания; решение автора 26.09.2026"
+  },
+  {
+   "source": "sense_reference",
+   "target": "picture_theory",
+   "type": "influence",
+   "weight": 2
+  }
+ ]
+}

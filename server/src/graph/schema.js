@@ -55,6 +55,12 @@ export function provenanceProblems(entity) {
   const citation = String(entity?.provenance ?? '').trim();
   if (status === PROVENANCE_STATUS.SOURCED && !citation) return ['состояние «источник есть», а строка источника пуста'];
   if (status === PROVENANCE_STATUS.UNSPECIFIED && citation) return ['состояние «не указано», а строка источника заполнена'];
+  // «Искали, не нашли» со строкой источника утверждает сразу и отсутствие, и
+  // наличие. У сноски то же несогласие запрещено с самого начала
+  // (graph/footnotes.js); у записи правила не было — окно правки строку при
+  // этом состоянии стирает само, а ход мимо окна (API, семя, программа
+  // tools/edit/set_provenance.mjs) проходил. Найдено подлогом 26.09.2026.
+  if (status === PROVENANCE_STATUS.SOURCE_NOT_FOUND && citation) return ['состояние «искали, не нашли», а строка источника заполнена'];
   return [];
 }
 

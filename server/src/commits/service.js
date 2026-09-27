@@ -118,6 +118,10 @@ function assertProvenance(fields, where) {
     throw new Forbidden(
       `${where}: состояние «не указано», а строка источника заполнена`);
   }
+  if (status === PROVENANCE_STATUS.SOURCE_NOT_FOUND && hasCitation) {
+    throw new Forbidden(
+      `${where}: состояние «искали, не нашли», а строка источника заполнена`);
+  }
 }
 
 export async function createCommit(pool, { actor, message, authorComment = null,

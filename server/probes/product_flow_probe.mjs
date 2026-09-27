@@ -883,6 +883,16 @@ try {
     неНашли.код === 202, 202,
     `${неНашли.код} ${JSON.stringify(неНашли.тело?.error ?? '').slice(0, 60)}`);
 
+  // «ИСКАЛИ И НЕ НАШЛИ» СО СТРОКОЙ — несогласие того же рода, что «источник
+  // есть» без строки: запись утверждала бы разом отсутствие и наличие.
+  const неНашлиСоСтрокой = await автор.зов('/api/commits', { method: 'POST',
+    body: { message: 'проба: не нашли, но строка есть',
+            changes: [{ action: 'edit', kind: 'concept', entityId: 'logos',
+                        fields: { provenanceStatus: { base: null, next: 'source_not_found' },
+                                  provenance: { base: null, next: 'Гераклит, фр. B1' } } }] } });
+  проверить('«искали, не нашли» со строкой отвергнуто при подаче', неНашлиСоСтрокой.код >= 400,
+    '4xx', неНашлиСоСтрокой.код);
+
   await рец.зов(`/api/commits/${сСостоянием.тело?.data?.commitId}/review`,
     { method: 'POST', body: { action: 'approve' } });
   const нусПосле = (await гость.зов('/api/graph')).тело?.data?.наборы

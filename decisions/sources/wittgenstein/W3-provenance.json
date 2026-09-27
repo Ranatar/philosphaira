@@ -1,0 +1,35 @@
+{
+ "entries": [
+  {
+   "kind": "relation",
+   "id": "rel_5b374a4d1d81",
+   "status": "sourced",
+   "provenance": "TLP 3; Kienzler, in: Oxford Handbook of Wittgenstein (2011), S. 81",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Brief an Russell, 19.8.1919 (WiC, Nr. 63, S. 99)",
+     "after": "из каких составляющих она сложена, решать психологии, а не логике"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_cfcca6afc325",
+   "status": "editorial_reasoning",
+   "provenance": "Сходство, а не влияние: Лейбниц в текстах Витгенштейна не назван и в его перечне влияний 1931 года отсутствует (VB, Schriften 8, S. 476)",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "TLP 1.13, 2.013; Proops, in: Oxford Handbook of Wittgenstein (2011), S. 225",
+     "after": "действительное — одна из мыслимых комбинаций"
+    },
+    {
+     "status": "sourced",
+     "text": "Shieh, in: Oxford Handbook of the History of Analytic Philosophy (2013), S. 1043",
+     "after": "прямой передачи между ними нет"
+    }
+   ]
+  }
+ ]
+}

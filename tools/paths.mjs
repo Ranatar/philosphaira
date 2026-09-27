@@ -108,6 +108,7 @@ export const РАЗМЕЩЕНИЕ = Object.freeze({
   'rename_locals.mjs':       'edit',
   'rename_modules.mjs':      'edit',
   'reorder_chrono.mjs':      'edit',
+  'set_provenance.mjs':      'edit',
   'resets_listed.mjs':       'checks',
   'rig.mjs':                 'build',
   'serve.py':                '',

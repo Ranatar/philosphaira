@@ -1,0 +1,30 @@
+{
+ "entries": [
+  {
+   "kind": "relation",
+   "id": "rel_77f0a1235ae3",
+   "status": "sourced",
+   "provenance": "PU §71",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §69, §499",
+     "after": "Взамен граница проводится для особой цели и лишь там, где она нужна"
+    }
+   ]
+  },
+  {
+   "kind": "relation",
+   "id": "rel_438fa85addbf",
+   "status": "sourced",
+   "provenance": "PU §46–48",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "PU §47",
+     "after": "Спросить, из чего состоит кресло вообще, значит не задать вопроса"
+    }
+   ]
+  }
+ ]
+}
