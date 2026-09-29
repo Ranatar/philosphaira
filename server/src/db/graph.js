@@ -7,6 +7,7 @@
 // проверяется побайтовым сравнением, а не на глаз.
 
 import { SETS, SET_BY_KIND, SET_NAMES } from '../graph/schema.js';
+import { orderFootnotes } from '../graph/footnotes.js';
 
 /** Ровно то, что делает приложение при сохранении. */
 export const asAppWrites = payload => JSON.stringify(payload, null, 1);
@@ -40,7 +41,11 @@ function assemble(setName, entityId, payloadBuf) {
   const record = {};
   for (const commitRow of SETS[setName].keys) {
     if (commitRow === 'id') record.id = entityId;
-    else if (commitRow in payloadBuf) record[commitRow] = payloadBuf[commitRow];
+    else if (commitRow in payloadBuf) {
+      record[commitRow] = commitRow === 'footnotes'
+        ? orderFootnotes(payloadBuf[commitRow])   // jsonb переставил ключи
+        : payloadBuf[commitRow];
+    }
   }
   return record;
 }

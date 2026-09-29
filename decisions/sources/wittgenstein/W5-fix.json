@@ -1,0 +1,10 @@
+{
+ "fixes": [
+  {
+   "source": "private_language",
+   "target": "cogito",
+   "type": "critique",
+   "weight": 1
+  }
+ ]
+}

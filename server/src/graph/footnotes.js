@@ -93,3 +93,24 @@ export function footnoteProblems(kind, entity) {
   for (const id of listed) if (!marked.includes(id)) problems.push(`сноска ${id} без метки в тексте`);
   return problems;
 }
+
+/**
+ * ПОРЯДОК ПОЛЕЙ ЗАПИСИ СНОСКИ — тот же, в каком её пишут страница
+ * (footnotesValue) и tools/edit/set_provenance.mjs: id, status, text.
+ * Тело сущности хранится в jsonb, а jsonb порядок ключей НЕ бережёт
+ * (переставляет по длине: id, text, status). Выгрузка собирает поля записи
+ * по описи, но во вложенные сноски не спускалась — и выгрузка семени
+ * переставала совпадать с ним побайтово (graph_probe, 27.09.2026).
+ */
+export const FOOTNOTE_KEY_ORDER = Object.freeze(['id', 'status', 'text']);
+
+/** Записи сносок с полями в каноническом порядке; прочие поля — следом. */
+export const orderFootnotes = notes => (Array.isArray(notes)
+  ? notes.map(n => {
+      if (!n || typeof n !== 'object') return n;
+      const out = {};
+      for (const k of FOOTNOTE_KEY_ORDER) if (k in n) out[k] = n[k];
+      for (const k of Object.keys(n)) if (!(k in out)) out[k] = n[k];
+      return out;
+    })
+  : notes);

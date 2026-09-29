@@ -1,0 +1,25 @@
+{
+ "entries": [
+  {
+   "kind": "relation",
+   "id": "rel_0f476794d19b",
+   "status": "sourced",
+   "provenance": "Adorno, Vorlesung über Negative Dialektik (1965/66), S. 129; Anm. d. Hrsg., S. 231",
+   "footnotes": []
+  },
+  {
+   "kind": "relation",
+   "id": "rel_12fe17ce5fd1",
+   "status": "sourced",
+   "provenance": "Appelqvist, Pöykkö, Wittgenstein and Levinas on the Transcendentality of Ethics, in: Appelqvist (Hg.), Wittgenstein and the Limits of Language (2019), S. 65–90",
+   "footnotes": []
+  },
+  {
+   "kind": "relation",
+   "id": "rel_cd40aabdcfbe",
+   "status": "sourced",
+   "provenance": "Lacan, Le Séminaire XVII: L’envers de la psychanalyse (1969–70), S. 66–69",
+   "footnotes": []
+  }
+ ]
+}

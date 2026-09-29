@@ -1,0 +1,396 @@
+{
+ "entries": [
+  {
+   "kind": "relation",
+   "id": "rel_840c8b2760a8",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Kripke, Wittgenstein on Rules and Private Language (1982), S. 7, 21"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_be36d65699c0",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Kripke, Wittgenstein on Rules and Private Language (1982), S. 7; Kap. 3"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_22ecbbd7dc4e",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Kuhn, The Structure of Scientific Revolutions (1970), S. 44 f.; Postscript, S. 182"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_86ec3eb7dc08",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Kuhn, The Structure of Scientific Revolutions (1970), S. 44–46"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_cf68dd565eb3",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Lyotard, La condition postmoderne (1979), §3, S. 22 f."
+  },
+  {
+   "kind": "relation",
+   "id": "rel_0dd9678212d5",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Lyotard, Le Différend (1983), §§ 91, 181, 188"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_2b16418f73c1",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Rorty, Philosophy and the Mirror of Nature (1979), S. 5"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_ef72c8aeef8b",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Rorty, Philosophy and the Mirror of Nature (1979), S. 368"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_0587122c5892",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Rorty, Contingency, Irony, and Solidarity (1989), S. 11–13"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_a3c3fc3d70c7",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Habermas, Theorie des kommunikativen Handelns I (1981), S. 88–93"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_3de4219a2339",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Habermas, Zur Logik der Sozialwissenschaften (1967), S. 123–126"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_ea76ef78fc7d",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Quine, Ontological Relativity and Other Essays (1969), S. 27"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_de85dfafc072",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Quine, Ontological Relativity and Other Essays (1969), S. 27, 31"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_2118c172f8ca",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Chomsky, Knowledge of Language (1986), S. 223 ff."
+  },
+  {
+   "kind": "relation",
+   "id": "rel_a7cfbbd9deed",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Carnap, Intellectual Autobiography, in: Schilpp (Hg.), The Philosophy of Rudolf Carnap (1963), S. 44 f.; WWK, 22.12.1929, S. 47"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_26b073aaeb36",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Carnap, Logical Syntax of Language (1937), Vorwort; §73, S. 282 ff."
+  },
+  {
+   "kind": "relation",
+   "id": "rel_d70c4e1967fe",
+   "status": "sourced",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "WiC, Nr. 355 (Protokoll des Moral Science Club, 26.10.1946), S. 402",
+     "after": "Спор шёл и лично"
+    }
+   ],
+   "provenance": "Popper, Conjectures and Refutations (1963), S. 52–54"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_0d718c6d7e52",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Hacker, in: Oxford Handbook of the History of Analytic Philosophy (2013), S. 939; WiC, S. 460 (Anm. d. Hrsg.)"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_25a40f3aa151",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "WWK, 30.12.1929 (Zu Heidegger), S. 68"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_ecf15469a6df",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "WWK, 1929 (Anti-Husserl), S. 67 f."
+  },
+  {
+   "kind": "relation",
+   "id": "rel_c8a788248262",
+   "status": "sourced",
+   "footnotes": [],
+   "provenance": "Misak, Cambridge Pragmatism (2016), S. 231"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_c749b6d67385",
+   "status": "editorial_reasoning",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Habermas, Zur Logik der Sozialwissenschaften (1967), S. 124; Gier, Wittgenstein and Phenomenology (1981), Kap. 6",
+     "after": "Соответствие между ними отмечено позднейшими читателями"
+    }
+   ],
+   "provenance": "Сходство, а не передача: оба понятия сопоставлены позднейшими читателями"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_c383424c55da",
+   "status": "editorial_reasoning",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Gier, Wittgenstein and Phenomenology (1981), S. 87",
+     "after": "через общий исток — гештальт-психологию"
+    }
+   ],
+   "provenance": "Сопоставление составителя; контакта не засвидетельствовано"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_70b4f9151487",
+   "status": "editorial_reasoning",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Gier, Wittgenstein and Phenomenology (1981), S. 87",
+     "after": "общее у них — выучка гештальт-психологии"
+    }
+   ],
+   "provenance": "Сопоставление составителя; контакта не засвидетельствовано"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_3274c6389a4f",
+   "status": "editorial_reasoning",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Hacker, in: Oxford Handbook of the History of Analytic Philosophy (2013), S. 939",
+     "after": "пришли разными путями"
+    }
+   ],
+   "provenance": "Сопоставление составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_70c8c2f22fa9",
+   "status": "editorial_reasoning",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Hacker, in: Oxford Handbook of the History of Analytic Philosophy (2013), S. 939",
+     "after": "Оксфордская линия шла здесь своим путём"
+    }
+   ],
+   "provenance": "Сопоставление составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_b782160112ea",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Сопоставление составителя: общая мишень при разных доводах"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_e07d72634327",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Сопоставление составителя: общий отказ при разных опорах"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_d17976a22c55",
+   "status": "editorial_reasoning",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Quine, Ontological Relativity (1969), S. 27; Volbers, Wittgenstein, Dewey, and the Practical Foundation of Knowledge, EJPAP IV-2 (2012)",
+     "after": "Параллель отмечена позднейшими читателями"
+    }
+   ],
+   "provenance": "Сходство, а не передача"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_74b7274994af",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Знакомство засвидетельствовано: Витгенштейн много читал Ницше (Westergaard, A Note on Wittgenstein and Nietzsche, 2007). Перенос именно перспективизма — прочтение составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_02e9087deaea",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Кун называет не форму жизни, а семейное сходство (SSR 1970, S. 44 f.); перенос на форму жизни — вывод составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_a50fbcd5906b",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Декарт в тексте не назван. Картезианская мишень — ход вводных изложений; естественными адресатами были бы современники (Stern, in: Oxford Handbook of Wittgenstein, 2011, S. 336)"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_fe2b6d2ab742",
+   "status": "editorial_reasoning",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Toth, Wittgenstein and Foucault — a research note (без выходных данных)",
+     "after": "к витгенштейновским работам Фуко обратился лишь после «Слов и вещей»"
+    }
+   ],
+   "provenance": "Сопоставление составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_605a400a1b20",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Сопоставление составителя; ср. Volbers, Self-Knowledge as a Technology of the Self: Foucault and Wittgenstein on the Practice of Philosophy"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_ce016d84eacb",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Сопоставление составителя; в «Словах и вещах» описаны условия, сделавшие возможным Трактат, когда Витгенштейна Фуко почти не знал (Toth, research note)"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_9e893325aa0a",
+   "status": "editorial_reasoning",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Mion, Philosophical Investigations (2020): возможно чтение книги Кассирера об относительности, но не о символических формах",
+     "after": "прямой передачи между этими понятиями не было"
+    }
+   ],
+   "provenance": "Сопоставление составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_5187afd8ad67",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Сопоставление составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_867c57c80b8a",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Сопоставление составителя; Адорно знал раннего Витгенштейна и отвергал его (Vorlesung über Negative Dialektik, S. 129), о семейном сходстве не писал"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_0c63b21ac563",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Сопоставление составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_58933b8fd320",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Сопоставление составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_06e1b726a80e",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Сопоставление составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_6ff29b288d76",
+   "status": "editorial_reasoning",
+   "footnotes": [
+    {
+     "status": "sourced",
+     "text": "Drury, in: Rhees (Hg.), Recollections of Wittgenstein (1984), S. 158",
+     "after": "Витгенштейн школьной логики почти не читал"
+    }
+   ],
+   "provenance": "Сопоставление составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_f6253206647a",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Сопоставление составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_7af0efc48162",
+   "status": "editorial_reasoning",
+   "footnotes": [],
+   "provenance": "Шопенгауэр в перечне влияний (VB 1931, Schriften 8, S. 476); перенос мира как представления в теорию изображения — вывод составителя"
+  },
+  {
+   "kind": "relation",
+   "id": "rel_c5112392a059",
+   "status": "source_not_found",
+   "footnotes": []
+  },
+  {
+   "kind": "relation",
+   "id": "rel_e39f2db1aa8c",
+   "status": "source_not_found",
+   "footnotes": []
+  },
+  {
+   "kind": "relation",
+   "id": "rel_dd77b89772e9",
+   "status": "source_not_found",
+   "footnotes": []
+  },
+  {
+   "kind": "relation",
+   "id": "rel_2e9fd451be2d",
+   "status": "source_not_found",
+   "footnotes": []
+  }
+ ]
+}
